@@ -12,12 +12,7 @@ class AndyblacRoomCard extends LitElement {
 
   static get properties() {
     return {
-      hass: {
-        hasChanged(newHass, oldHass) {
-          return newHass.states !== oldHass.states;
-        }
-      },
-
+      hass: {},
       _config: { type: Object },
       _roomName: { type: String },
       _statusText: { type: String },
