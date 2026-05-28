@@ -12,7 +12,12 @@ class AndyblacRoomCard extends LitElement {
 
   static get properties() {
     return {
-      hass: {},
+      hass: {
+        hasChanged(newHass, oldHass) {
+          return newHass.states !== oldHass.states;
+        }
+      },
+
       _config: { type: Object },
       _roomName: { type: String },
       _statusText: { type: String },
@@ -43,8 +48,6 @@ class AndyblacRoomCard extends LitElement {
     };
   }
 
-
-
   setConfig(config) {
     this._config = config;
 
@@ -53,7 +56,7 @@ class AndyblacRoomCard extends LitElement {
     this._iconColor = this._computeIconColor(config.room_color);
     this._circleColor = this._computeCircleColor(config.room_color);
   }
-
+  
   // =========================
   // LIGHT COLOR (OPT-IN)
   // =========================
@@ -333,6 +336,29 @@ class AndyblacRoomCard extends LitElement {
     );
   }
 
+  _handleButtonClick(ev) {
+    ev.stopPropagation();
+
+    const entityId = ev.currentTarget.dataEntity;
+    const action = ev.currentTarget.dataAction;
+
+    this._handleAction(action, entityId);
+  }
+
+  _handleCurveButtonClick(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    if (ev.stopImmediatePropagation) {
+      ev.stopImmediatePropagation();
+    }
+
+    const entityId = ev.currentTarget.dataEntity;
+    const action = ev.currentTarget.dataAction;
+
+    this._handleAction(action, entityId);
+  }
+
   _renderButton(entityId, index) {
     const stateObj = this.hass?.states[entityId];
 
@@ -444,7 +470,9 @@ class AndyblacRoomCard extends LitElement {
       <button
         class="entity-button"
         style="background:${bgColor};"
-        @click=${(ev) => this._toggleEntity(entityId,ev,tapAction)}
+        @click=${this._handleButtonClick}
+        .dataEntity=${entityId}
+        .dataAction=${tapAction}
       >
         ${isImage
           ? html`
@@ -744,13 +772,11 @@ class AndyblacRoomCard extends LitElement {
       return "";
     }
 
-    // Start loading once
+    // START LOADING
     AndyblacRoomCard.svgCache[path] = "loading";
 
     fetch(path)
       .then((response) => {
-
-        // FILE NOT FOUND
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
@@ -759,44 +785,39 @@ class AndyblacRoomCard extends LitElement {
       })
       .then((svg) => {
 
+        // CLEAN SVG
         svg = svg
           .replace(
             /fill="(?!none)[^"]*"/gi,
             'fill="currentColor"'
+          )
+          .replace(
+            /stroke="(?!none)[^"]*"/gi,
+            'stroke="currentColor"'
           )
           .replace(/width="[^"]*"/gi, 'width="100%"')
           .replace(/height="[^"]*"/gi, 'height="100%"');
 
         AndyblacRoomCard.svgCache[path] = svg;
 
-        this.requestUpdate();
+        requestAnimationFrame(() => {
+          this.requestUpdate();
+        });
       })
       .catch((err) => {
 
-        console.error("SVG load failed:", err);
+        console.error("SVG load failed:", path, err);
 
-        AndyblacRoomCard.svgCache[path] = `
-          <div style="
-            width:100%;
-            height:100%;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            text-align:center;
-            font-size:10px;
-            line-height:1.1;
-            opacity:0.5;
-            padding:2px;
-            box-sizing:border-box;
-          ">
-            image<br>missing
-          </div>
-        `;
+        // SAVE EMPTY RESULT
+        AndyblacRoomCard.svgCache[path] = "";
 
-        this.requestUpdate();
+        requestAnimationFrame(() => {
+          this.requestUpdate();
+        });
       });
+
+    return "";
   }
-  
 
   // =========================
   // CURVE BUTTONS
@@ -941,16 +962,9 @@ class AndyblacRoomCard extends LitElement {
           return html`
             <button
               class="curve-button pos-${visualIndex}"
-                @click=${(ev) => {
-                  ev.preventDefault();
-                  ev.stopPropagation();
-
-                  if (ev.stopImmediatePropagation) {
-                    ev.stopImmediatePropagation();
-                  }
-
-                  this._handleAction(tapAction, entityId);
-                }}
+                @click=${this._handleCurveButtonClick}
+                .dataEntity=${entityId}
+                .dataAction=${tapAction}
             >
               ${isImage
                 ? html`
@@ -1107,26 +1121,11 @@ class AndyblacRoomCard extends LitElement {
                   </div>
                 `
               : html`
-                  ${this._isImageIcon(this._icon)
-                    ? html`
-                        <div
-                          class="main-image-icon"
-                          style="color:${this._iconColor};"
-                        >
-                          ${unsafeHTML(
-                            this._getInlineSvg(
-                              this._resolveIconPath(this._icon)
-                            )
-                          )}
-                        </div>
-                      `
-                    : html`
-                        <ha-icon
-                          class="main-icon"
-                          .icon=${this._icon}
-                          style="color:${this._iconColor}"
-                        ></ha-icon>
-                      `}
+                  <ha-icon
+                    class="main-icon"
+                    .icon=${this._icon}
+                    style="color:${this._iconColor}"
+                  ></ha-icon>
                 `}
 
           </div>
@@ -1180,8 +1179,7 @@ class AndyblacRoomCard extends LitElement {
       }
 
       /* EXTRA STATUS SPACE FOR 4 BUTTONS */
-      .button-column[style*="--button-count:4"] ~ .header.compressed,
-      .content:has(.button-column[style*="--button-count:4"]) .header.compressed {
+      .button-column[style*="--button-count:4"] ~ .header.compressed {
         width: calc(100% - (var(--button-area-width) - 18px));
       }
 
@@ -1338,7 +1336,6 @@ class AndyblacRoomCard extends LitElement {
         position: absolute;
 
         width: 22%;
-        // height: 22%;
 
         border: none;
         outline: none;
@@ -1368,8 +1365,6 @@ class AndyblacRoomCard extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-
-        // object-fit: contain;
 
         pointer-events: none;
         user-select: none;
@@ -1426,7 +1421,7 @@ window.customCards.push({
   preview: true,
 });
 console.info(
-  "%c ANDYBLAC-ROOM-CARD %c Version 0.5.0 ",
+  "%c ANDYBLAC-ROOM-CARD %c Version 0.5.1 ",
   "color: orange; font-weight: bold; background: black;",
   "color: white; font-weight: bold; background: dimgray;"
 );
