@@ -5,6 +5,7 @@
 
 import { LitElement, html, css } from "https://unpkg.com/lit@2.8.0/index.js?module";
 import { unsafeHTML } from "https://unpkg.com/lit-html@2.8.0/directives/unsafe-html.js?module";
+import { repeat } from "https://unpkg.com/lit-html@2.8.0/directives/repeat.js?module";
 
 class AndyblacRoomCard extends LitElement {
   static svgCache = {};
@@ -251,19 +252,25 @@ class AndyblacRoomCard extends LitElement {
     // DEFAULT AUTO ICON
     let autoIcon = "mdi:sofa";
 
-    if (
+    // FIRST PRIORITY = ENTITY ICON
+    if (mainStateObj) {
+
+      autoIcon =
+        mainStateObj.attributes?.icon ||
+        this._getDefaultDomainIcon(
+          mainStateObj.entity_id.split(".")[0],
+          mainStateObj
+        ) ||
+        "mdi:sofa";
+
+    // SECOND PRIORITY = AREA ICON
+    } else if (
       areaId &&
       this.hass?.areas?.[areaId]
     ) {
 
       autoIcon =
         this.hass.areas[areaId].icon ||
-        "mdi:sofa";
-
-    } else if (mainStateObj) {
-
-      autoIcon =
-        mainStateObj.attributes?.icon ||
         "mdi:sofa";
     }
 
@@ -359,18 +366,27 @@ class AndyblacRoomCard extends LitElement {
 
     let icon;
 
+    const defaultIcon =
+      this._getDefaultDomainIcon(domain, stateObj);
+
+    const entityIcon =
+      stateObj?.attributes?.icon ||
+      this.hass?.entities?.[entityId]?.icon;
+
     if (isOn) {
       icon =
         customIconOn ||
         customIcon ||
-        stateObj.attributes.icon ||
-        this._getDefaultDomainIcon(domain, stateObj);
+        entityIcon ||
+        defaultIcon ||
+        "mdi:help-circle";
     } else {
       icon =
         customIconOff ||
         customIcon ||
-        stateObj.attributes.icon ||
-        this._getDefaultDomainIcon(domain, stateObj);
+        entityIcon ||
+        defaultIcon ||
+        "mdi:help-circle";
     }
 
     const onColor =
@@ -418,8 +434,11 @@ class AndyblacRoomCard extends LitElement {
       }
     }
 
-    const iconPath = this._resolveIconPath(icon);
     const isImage = this._isImageIcon(icon);
+
+    const iconPath = isImage
+      ? this._resolveIconPath(icon)
+      : "";
     
     return html`
       <button
@@ -433,7 +452,9 @@ class AndyblacRoomCard extends LitElement {
                 class="button-image-icon"
                 style="color:${iconColor};"
               >
-                ${unsafeHTML(this._getInlineSvg(iconPath))}
+                ${iconPath
+                  ? unsafeHTML(this._getInlineSvg(iconPath))
+                  : ""}
               </div>
             `
           : html`
@@ -592,7 +613,13 @@ class AndyblacRoomCard extends LitElement {
           : "mdi:lightbulb-off";
 
       case "switch":
-        return "mdi:toggle-switch";
+        return stateObj?.attributes?.device_class === "outlet"
+          ? isOn
+            ? "mdi:power-plug"
+            : "mdi:power-plug-off"
+          : isOn
+            ? "mdi:toggle-switch-variant"
+            : "mdi:toggle-switch-variant-off";
 
       case "fan":
         return isOn
@@ -674,11 +701,13 @@ class AndyblacRoomCard extends LitElement {
   _isImageIcon(icon) {
     if (!icon) return false;
 
+    const cleanIcon = icon.split("?")[0].toLowerCase();
+
     return (
-      icon.endsWith(".svg") ||
-      icon.endsWith(".png") ||
-      icon.endsWith(".webp") ||
-      icon.endsWith(".gif")
+      cleanIcon.endsWith(".svg") ||
+      cleanIcon.endsWith(".png") ||
+      cleanIcon.endsWith(".webp") ||
+      cleanIcon.endsWith(".gif")
     );
   }
 
@@ -694,31 +723,47 @@ class AndyblacRoomCard extends LitElement {
     }
 
     // Custom card icons folder
-    return `/local/custom_cards/andyblac-room-card/icons/${iconPath}?v=454`;
+    return `/local/custom_cards/andyblac-room-card/icons/${iconPath}`;
   }
 
   _getInlineSvg(path) {
     if (!path) return "";
 
-    if (AndyblacRoomCard.svgCache[path]) {
-      return AndyblacRoomCard.svgCache[path];
+    const cached = AndyblacRoomCard.svgCache[path];
+
+    // Already loaded SVG
+    if (
+      typeof cached === "string" &&
+      cached !== "loading"
+    ) {
+      return cached;
     }
 
-    AndyblacRoomCard.svgCache[path] = "";
+    // Already loading
+    if (cached === "loading") {
+      return "";
+    }
+
+    // Start loading once
+    AndyblacRoomCard.svgCache[path] = "loading";
 
     fetch(path)
-      .then((response) => response.text())
+      .then((response) => {
+
+        // FILE NOT FOUND
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        return response.text();
+      })
       .then((svg) => {
 
         svg = svg
-
-          // recolor fills safely
           .replace(
             /fill="(?!none)[^"]*"/gi,
             'fill="currentColor"'
           )
-
-          // responsive sizing
           .replace(/width="[^"]*"/gi, 'width="100%"')
           .replace(/height="[^"]*"/gi, 'height="100%"');
 
@@ -727,11 +772,31 @@ class AndyblacRoomCard extends LitElement {
         this.requestUpdate();
       })
       .catch((err) => {
-        console.error("SVG load failed:", err);
-      });
 
-    return "";
+        console.error("SVG load failed:", err);
+
+        AndyblacRoomCard.svgCache[path] = `
+          <div style="
+            width:100%;
+            height:100%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            text-align:center;
+            font-size:10px;
+            line-height:1.1;
+            opacity:0.5;
+            padding:2px;
+            box-sizing:border-box;
+          ">
+            image<br>missing
+          </div>
+        `;
+
+        this.requestUpdate();
+      });
   }
+  
 
   // =========================
   // CURVE BUTTONS
@@ -756,7 +821,10 @@ class AndyblacRoomCard extends LitElement {
     return html`
       <div class="curve-buttons">
 
-        ${curveButtons.map((entityId, index) => {
+        ${repeat(
+          curveButtons,
+          (_, index) => index,
+          (entityId, index) => {
 
           // DYNAMIC POSITIONING
           const visualIndex = lockPositions
@@ -791,11 +859,11 @@ class AndyblacRoomCard extends LitElement {
               entityId
             );
 
-        const isOn =
-          evaluatedState === null || evaluatedState === undefined
-            ? stateObj.state === "on"
-            : evaluatedState === true ||
-              evaluatedState === "on";
+          const isOn =
+            evaluatedState === null || evaluatedState === undefined
+              ? stateObj.state === "on"
+              : evaluatedState === true ||
+                evaluatedState === "on";
 
           const customIcon =
             this._config?.[`curve_button${index + 1}_icon`];
@@ -815,20 +883,27 @@ class AndyblacRoomCard extends LitElement {
 
           let icon;
 
+          const defaultIcon =
+            this._getDefaultDomainIcon(domain, stateObj);
+
+          const entityIcon =
+            stateObj?.attributes?.icon ||
+            this.hass?.entities?.[entityId]?.icon;
+
           if (isOn) {
             icon =
               customIconOn ||
               customIcon ||
-              binaryIcon ||
-              stateObj.attributes.icon ||
-              this._getDefaultDomainIcon(domain, stateObj);
+              entityIcon ||
+              defaultIcon ||
+              "mdi:help-circle";
           } else {
             icon =
               customIconOff ||
               customIcon ||
-              binaryIcon ||
-              stateObj.attributes.icon ||
-              this._getDefaultDomainIcon(domain, stateObj);
+              entityIcon ||
+              defaultIcon ||
+              "mdi:help-circle";
           }
 
           const roomColor = this._config.room_color || "theme";
@@ -857,8 +932,11 @@ class AndyblacRoomCard extends LitElement {
               : `rgba(var(--color-${roomColor}),0.4)`;
           }
 
-          const iconPath = this._resolveIconPath(icon);
           const isImage = this._isImageIcon(icon);
+
+          const iconPath = isImage
+            ? this._resolveIconPath(icon)
+            : "";
 
           return html`
             <button
@@ -891,7 +969,8 @@ class AndyblacRoomCard extends LitElement {
                   `}
             </button>
           `;
-        })}
+        }
+      )}
 
       </div>
     `;
@@ -1206,7 +1285,7 @@ class AndyblacRoomCard extends LitElement {
         align-items: center;
         justify-content: center;
 
-        overflow: hidden;
+        overflow: visible;
         pointer-events: auto;
         z-index: 3;
       }
@@ -1259,7 +1338,7 @@ class AndyblacRoomCard extends LitElement {
         position: absolute;
 
         width: 22%;
-        height: 22%;
+        // height: 22%;
 
         border: none;
         outline: none;
@@ -1286,7 +1365,11 @@ class AndyblacRoomCard extends LitElement {
         width: clamp(24px, 13cqw, 78px);
         height: clamp(24px, 13cqw, 78px);
 
-        object-fit: contain;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        // object-fit: contain;
 
         pointer-events: none;
         user-select: none;
@@ -1342,3 +1425,8 @@ window.customCards.push({
   description: "Responsive room card",
   preview: true,
 });
+console.info(
+  "%c ANDYBLAC-ROOM-CARD %c Version 0.5.0 ",
+  "color: orange; font-weight: bold; background: black;",
+  "color: white; font-weight: bold; background: dimgray;"
+);
