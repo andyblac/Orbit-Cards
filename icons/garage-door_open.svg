@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <title>garage-variant-open</title>
+
+  <!-- Frame / roof -->
+  <path d="M22 9V20H20V11H4V20H2V9L12 5L22 9" fill="currentColor"/>
+
+  <!-- Clip area -->
+  <clipPath id="doorClip">
+    <rect x="4" y="11" width="16" height="9" />
+  </clipPath>
+
+  <g clip-path="url(#doorClip)">
+
+    <!-- Door group (FINAL STATE is open) -->
+    <g class="door" transform="translate(0 -10)">
+
+      <!-- Door panels -->
+      <path d="M19 12H5V14H19V12Z" fill="currentColor"/>
+      <path d="M19 15H5V17H19V15Z" fill="currentColor"/>
+      <path d="M19 18H5V20H19V18Z" fill="currentColor"/>
+
+      <!-- Optional SMIL animation (safe fallback style) -->
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        from="0 0"
+        to="0 -10"
+        dur="1.5s"
+        begin="0s"
+        fill="freeze"
+      />
+    </g>
+
+  </g>
+</svg>
