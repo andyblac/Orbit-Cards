@@ -56,6 +56,23 @@ class AndyblacRoomCard extends LitElement {
   // LIGHT COLOR (OPT-IN)
   // =========================
 
+  _getMainIconColor(stateObj, isOn) {
+    const roomColor = this._config.room_color || "theme";
+
+    if (!isOn) {
+      return this._computeIconColor(roomColor);
+    }
+
+    if (roomColor === "light") {
+      return (
+        this._getEntityColor(stateObj) ||
+        this._computeFullColor("theme")
+      );
+    }
+
+    return this._computeFullColor(roomColor);
+  }
+
   _getEntityColor(stateObj) {
     if (!stateObj) return null;
 
@@ -238,6 +255,11 @@ class AndyblacRoomCard extends LitElement {
       mainStateObj
         ? this._getEntityActiveState(mainStateObj)
         : false;
+
+    this._iconColor = this._getMainIconColor(
+      mainStateObj,
+      isOn
+    );
 
     // CUSTOM ICONS
     const customIcon =
@@ -1466,7 +1488,7 @@ window.customCards.push({
   preview: true,
 });
 console.info(
-  "%c ANDYBLAC-ROOM-CARD %c Version 0.5.1 ",
+  "%c ANDYBLAC-ROOM-CARD %c Version 0.5.2 ",
   "color: orange; font-weight: bold; background: black;",
   "color: white; font-weight: bold; background: dimgray;"
 );
