@@ -1260,7 +1260,7 @@ class OrbitRoomCard extends LitElement {
       }
 
       .status {
-        font-size: clamp(14px, 6.7cqw, 26px);
+        font-size: clamp(13px, 6.7cqw, 26px);
         font-weight: bold;
         opacity: 0.4;
         line-height: 1.1;
