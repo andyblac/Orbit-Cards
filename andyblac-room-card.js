@@ -24,8 +24,12 @@ class AndyblacRoomCard extends LitElement {
     };
   }
 
-  static getConfigElement() {
-    return document.createElement("andyblac-room-card-editor");
+  static async getConfigElement() {
+    await import("./editor.js");
+
+    return document.createElement(
+      "andyblac-room-card-editor"
+    );
   }
 
   static getStubConfig() {
