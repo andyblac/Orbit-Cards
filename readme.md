@@ -2,6 +2,61 @@
 
 A modern, highly configurable Home Assistant room card designed to provide a clean room overview with quick access to devices, scenes, sensors, and navigation.
 
+# Installation
+
+<details>
+
+<summary>With HACS (Recommended)</summary>
+
+<br>
+
+This method allows you to get updates directly on the HACS main page
+
+1. If HACS is not installed yet, download it following the instructions on [https://hacs.xyz/docs/setup/download/](https://hacs.xyz/docs/use/download/download/)
+2. Proceed to the HACS initial configuration following the instructions on [https://hacs.xyz/docs/configuration/basic](https://hacs.xyz/docs/configuration/basic)
+3. On your sidebar go to `HACS` > `Frontend`
+3. Add this repository as a Custom Repository.
+4. Click on the `+` button at the bottom right corner
+5. Now search for `Orbit Room Card` and then click on the button at the bottom right corner to download it
+6. Go back on your dashboard and click on the icon at the right top corner then on `Edit dashboard`
+7. You can now click on `Add card` in the bottom right corner and search for `Orbit Room Card`
+
+Add the resource:
+
+```yaml
+url: /hacsfiles/orbit-room-card/orbit-room-card.js
+type: module
+```
+
+If it's not working, try to clear your browser cache.
+
+</details>
+
+---
+
+<details>
+
+<summary>Without HACS</summary>
+
+<br>
+
+1. Download this file: [orbit-room-card.js](https://raw.githubusercontent.com/andyblac/Orbit-Room-Card/main/dist/orbit-room-card.js)
+2. Add this file to your `<config>/www/custom_cards` folder
+3. On your dashboard click on the icon at the right top corner then on `Edit dashboard`
+4. Click again on that icon and then click on `Manage resources`
+5. Click on `Add resource`
+6. Copy and paste this: `/local/custom_cards/orbit-room-card.js?v=1`
+7. Click on `JavaScript Module` then `Create`
+8. Go back and refresh your page
+9. You can now click on `Add card` in the bottom right corner and search for `Bubble Card`
+10. After any update of the file you will have to edit `/local/ustom_cards/bubble-card.js?v=1` and change the version to any higher number
+
+If it's not working, just try to clear your browser cache.`
+
+</details>
+
+---
+
 The card combines:
 
 - Room overview
@@ -358,44 +413,6 @@ curve_button6_icon: mdi:fountain
 
 ---
 
-# Installation
-
-## HACS (Recommended)
-
-1. Open HACS.
-2. Add this repository as a Custom Repository.
-3. Install the card.
-4. Refresh Home Assistant.
-
-Add the resource:
-
-```yaml
-url: /hacsfiles/orbit-room-card/orbit-room-card.js
-type: module
-```
-
----
-
-## Manual Installation
-
-1. Download `orbit-room-card.js`
-2. Download `orbit-room-card-editor.js`
-3. Copy them to:
-
-```text
-/config/www/orbit-room-card
-```
-
-3. Add the resource:
-
-```yaml
-url: /local/orbit-room-card/orbit-room-card-editor.js
-type: module
-```
-
-4. Refresh Home Assistant.
-
----
 
 # Visual Editor
 

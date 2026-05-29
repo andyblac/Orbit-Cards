@@ -1250,11 +1250,6 @@ class OrbitRoomCard extends LitElement {
         width: calc(100% - (var(--button-area-width) - 5px));
       }
 
-      /* EXTRA STATUS SPACE FOR 4 BUTTONS */
-      .button-column[style*="--button-count:4"] ~ .header.compressed {
-        width: calc(100% - (var(--button-area-width) - 18px));
-      }
-
       .room-name {
         font-size: clamp(18px, 9cqw, 34px);
         font-weight: bold;
@@ -1296,6 +1291,10 @@ class OrbitRoomCard extends LitElement {
       .button-column[style*="--button-count:3"],
       .button-column[style*="--button-count:4"] {
         justify-content: space-between;
+      }
+
+      .button-column[style*="--button-count:4"] ~ .header.compressed {
+        width: calc(100% - (var(--button-area-width) - 18px));
       }
 
       .entity-button {
