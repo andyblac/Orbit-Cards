@@ -1466,13 +1466,13 @@ class AndyblacRoomCard extends LitElement {
       }
 
       .curve-button.pos-4 {
-        bottom:36%;
+        bottom:38%;
         right:0%;
       }
 
       .curve-button.pos-5 {
         bottom: 16%;
-        right: 8%;
+        right: 7%;
       }
     `;
   }
