@@ -1,11 +1,11 @@
 // ==========================================
-// Andyblac Room Card Editor (FULL VERSION)
+// Orbit Room Card Editor (FULL VERSION)
 // COLLAPSIBLE SECTIONS
 // ==========================================
 
 import { LitElement, html, css } from "https://unpkg.com/lit@2/index.js?module";
 
-class AndyblacRoomCardEditor extends LitElement {
+class OrbitRoomCardEditor extends LitElement {
 
   static properties = {
     hass: { attribute: false },
@@ -940,6 +940,6 @@ class AndyblacRoomCardEditor extends LitElement {
 }
 
 customElements.define(
-  "andyblac-room-card-editor",
-  AndyblacRoomCardEditor
+  "orbit-room-card-editor",
+  OrbitRoomCardEditor
 );

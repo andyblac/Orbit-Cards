@@ -1,4 +1,4 @@
-# AndyBlac Room Card
+# Orbit Room Card
 
 A modern, highly configurable Home Assistant room card designed to provide a clean room overview with quick access to devices, scenes, sensors, and navigation.
 
@@ -266,7 +266,7 @@ Useful for:
 # Basic Example
 
 ```yaml
-type: custom:andyblac-room-card
+type: custom:orbit-room-card
 
 area: living_room
 
@@ -284,7 +284,7 @@ button1: light.floor_lamp
 # Full Example
 
 ```yaml
-type: custom:andyblac-room-card
+type: custom:orbit-room-card
 
 room_name: Living Room
 area: living_room
@@ -370,7 +370,7 @@ curve_button6_icon: mdi:fountain
 Add the resource:
 
 ```yaml
-url: /hacsfiles/andyblac-room-card/andyblac-room-card.js
+url: /hacsfiles/orbit-room-card/orbit-room-card.js
 type: module
 ```
 
@@ -378,21 +378,18 @@ type: module
 
 ## Manual Installation
 
-1. Download `andyblac-room-card.js`
-2. Download `andyblac-room-card-editor.js`
+1. Download `orbit-room-card.js`
+2. Download `orbit-room-card-editor.js`
 3. Copy them to:
 
 ```text
-/config/www/andyblac-room-card
+/config/www/orbit-room-card
 ```
 
-3. Add the resources:
+3. Add the resource:
 
 ```yaml
-url: /local/ndyblac-room-card/andyblac-room-card-editor.js
-type: module
-
-url: /local/ndyblac-room-card/andyblac-room-card.js
+url: /local/orbit-room-card/orbit-room-card-editor.js
 type: module
 ```
 

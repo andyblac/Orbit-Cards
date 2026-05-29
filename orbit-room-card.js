@@ -1,5 +1,5 @@
 // ==============================
-// andyblac-room-card.js
+// orbit-room-card.js
 // SAFE CURVE BUTTON VERSION
 // ==============================
 
@@ -7,7 +7,7 @@ import { LitElement, html, css } from "https://unpkg.com/lit@2.8.0/index.js?modu
 import { unsafeHTML } from "https://unpkg.com/lit-html@2.8.0/directives/unsafe-html.js?module";
 import { repeat } from "https://unpkg.com/lit-html@2.8.0/directives/repeat.js?module";
 
-class AndyblacRoomCard extends LitElement {
+class OrbitRoomCard extends LitElement {
   static svgCache = {};
 
   static get properties() {
@@ -28,13 +28,13 @@ class AndyblacRoomCard extends LitElement {
     await import("./editor.js");
 
     return document.createElement(
-      "andyblac-room-card-editor"
+      "orbit-room-card-editor"
     );
   }
 
   static getStubConfig() {
     return {
-      type: "custom:andyblac-room-card",
+      type: "custom:orbit-room-card",
       room_color: "blue",
       navigation_path: "/lovelace/home",
     };
@@ -828,7 +828,7 @@ class AndyblacRoomCard extends LitElement {
   _getInlineSvg(path) {
     if (!path) return "";
 
-    const cached = AndyblacRoomCard.svgCache[path];
+    const cached = OrbitRoomCard.svgCache[path];
 
     // Already loaded SVG
     if (
@@ -844,7 +844,7 @@ class AndyblacRoomCard extends LitElement {
     }
 
     // START LOADING
-    AndyblacRoomCard.svgCache[path] = "loading";
+    OrbitRoomCard.svgCache[path] = "loading";
 
     fetch(path)
       .then((response) => {
@@ -869,7 +869,7 @@ class AndyblacRoomCard extends LitElement {
           .replace(/width="[^"]*"/gi, 'width="100%"')
           .replace(/height="[^"]*"/gi, 'height="100%"');
 
-        AndyblacRoomCard.svgCache[path] = svg;
+        OrbitRoomCard.svgCache[path] = svg;
 
         requestAnimationFrame(() => {
           this.requestUpdate();
@@ -880,7 +880,7 @@ class AndyblacRoomCard extends LitElement {
         console.error("SVG load failed:", path, err);
 
         // SAVE EMPTY RESULT
-        AndyblacRoomCard.svgCache[path] = "";
+        OrbitRoomCard.svgCache[path] = "";
 
         requestAnimationFrame(() => {
           this.requestUpdate();
@@ -1482,17 +1482,17 @@ class AndyblacRoomCard extends LitElement {
   }
 }
 
-customElements.define("andyblac-room-card", AndyblacRoomCard);
+customElements.define("orbit-room-card", OrbitRoomCard);
 
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "andyblac-room-card",
-  name: "Andyblac Room Card",
+  type: "orbit-room-card",
+  name: "Orbit Room Card",
   description: "Responsive room card",
   preview: true,
 });
 console.info(
-  "%c ANDYBLAC-ROOM-CARD %c Version 0.5.2 ",
+  "%c ORBIT-ROOM-CARD %c Version 0.5.2 ",
   "color: orange; font-weight: bold; background: black;",
   "color: white; font-weight: bold; background: dimgray;"
 );
