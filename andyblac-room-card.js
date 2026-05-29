@@ -629,7 +629,9 @@ class AndyblacRoomCard extends LitElement {
   // =========================
 
   _getDefaultDomainIcon(domain, stateObj = null) {
-    const isOn = stateObj?.state === "on";
+    const isOn = stateObj
+      ? this._getEntityActiveState(stateObj)
+      : false;
 
     switch (domain) {
       case "light":
