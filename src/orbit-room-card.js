@@ -3,9 +3,12 @@
 // SAFE CURVE BUTTON VERSION
 // ==============================
 
-import { LitElement, html, css } from "https://unpkg.com/lit@2.8.0/index.js?module";
-import { unsafeHTML } from "https://unpkg.com/lit-html@2.8.0/directives/unsafe-html.js?module";
-import { repeat } from "https://unpkg.com/lit-html@2.8.0/directives/repeat.js?module";
+import { LitElement, html, css } from "lit";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { repeat } from "lit/directives/repeat.js";
+
+import { VERSION } from './var/version.js';
+import "./oribit-room-card-editor.js";
 
 class OrbitRoomCard extends LitElement {
   static svgCache = {};
@@ -24,9 +27,7 @@ class OrbitRoomCard extends LitElement {
     };
   }
 
-  static async getConfigElement() {
-    await import("./editor.js");
-
+  static getConfigElement() {
     return document.createElement(
       "orbit-room-card-editor"
     );
@@ -1490,9 +1491,10 @@ window.customCards.push({
   name: "Orbit Room Card",
   description: "Responsive room card",
   preview: true,
+  version: VERSION,
 });
 console.info(
-  "%c ORBIT-ROOM-CARD %c Version 0.5.2 ",
+  `%c ORBIT-ROOM-CARD %c Version ${VERSION}`,
   "color: orange; font-weight: bold; background: black;",
   "color: white; font-weight: bold; background: dimgray;"
 );
