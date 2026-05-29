@@ -653,25 +653,22 @@ class AndyblacRoomCard extends LitElement {
           ? "mdi:fan"
           : "mdi:fan-off";
 
+      case "cover":
+        return isOn
+          ? "mdi:blinds-open"
+          : "mdi:blinds";
+
+      case "binary_sensor":
+        return this._getBinarySensorIcon(stateObj);
+
       case "climate":
         return "mdi:thermostat";
 
       case "media_player":
         return "mdi:play-box-multiple";
 
-      case "cover":
-        return "mdi:window-shutter";
-
-      case "lock":
-        return isOn
-          ? "mdi:lock-open"
-          : "mdi:lock";
-
       case "sensor":
         return "mdi:gauge";
-
-      case "binary_sensor":
-        return this._getBinarySensorIcon(stateObj);
 
       case "person":
         return "mdi:account";
