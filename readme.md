@@ -21,13 +21,6 @@ This method allows you to get updates directly on the HACS main page
 6. Go back on your dashboard and click on the icon at the right top corner then on `Edit dashboard`
 7. You can now click on `Add card` in the bottom right corner and search for `Orbit Room Card`
 
-Add the resource:
-
-```yaml
-url: /hacsfiles/orbit-room-card/orbit-room-card.js
-type: module
-```
-
 If it's not working, try to clear your browser cache.
 
 </details>
