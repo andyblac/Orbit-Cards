@@ -308,7 +308,7 @@ class AndyblacRoomCardEditor extends LitElement {
       return iconPath;
     }
 
-    return `/local/custom_cards/andyblac-room-card/icons/${iconPath}`;
+    return `/local/icons/${iconPath}`;
   }
 
   _renderActionSelector(label, key, defaultAction = "toggle") {

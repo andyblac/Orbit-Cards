@@ -818,7 +818,7 @@ class AndyblacRoomCard extends LitElement {
     }
 
     // Custom card icons folder
-    return `/local/custom_cards/andyblac-room-card/icons/${iconPath}`;
+    return `/local/icons/${iconPath}`;
   }
 
   _getInlineSvg(path) {
