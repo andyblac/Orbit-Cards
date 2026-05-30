@@ -370,6 +370,11 @@ class OrbitRoomCard extends LitElement {
   }
 
   _handleCurveButtonClick(ev) {
+    if (this._longPressTriggered) {
+      this._longPressTriggered = false;
+      return;
+    }
+
     ev.preventDefault();
     ev.stopPropagation();
 
@@ -383,7 +388,12 @@ class OrbitRoomCard extends LitElement {
     this._handleAction(action, entityId);
   }
 
+
   _renderButton(entityId, index) {
+
+    const holdAction =
+      this._config[`button${index + 1}_hold_action`];
+
     const stateObj = this.hass?.states[entityId];
 
     if (!stateObj) return null;
@@ -495,6 +505,18 @@ class OrbitRoomCard extends LitElement {
         class="entity-button"
         style="background:${bgColor};"
         @click=${this._handleButtonClick}
+
+        @pointerdown=${(ev) =>
+          this._startLongPress(
+            ev,
+            entityId,
+            holdAction
+          )}
+
+        @pointerup=${this._finishLongPress}
+        @pointerleave=${this._cancelLongPress}
+        @pointercancel=${this._cancelLongPress}
+
         .dataEntity=${entityId}
         .dataAction=${tapAction}
       >
@@ -919,6 +941,9 @@ class OrbitRoomCard extends LitElement {
           (_, index) => index,
           (entityId, index) => {
 
+          const holdAction =
+            this._config?.[`curve_button${index + 1}_hold_action`];
+
           // DYNAMIC POSITIONING
           const visualIndex = lockPositions
             ? index
@@ -1035,6 +1060,17 @@ class OrbitRoomCard extends LitElement {
             <button
               class="curve-button pos-${visualIndex}"
                 @click=${this._handleCurveButtonClick}
+                @pointerdown=${(ev) =>
+                  this._startLongPress(
+                    ev,
+                    entityId,
+                    holdAction
+                  )}
+
+                @pointerup=${this._finishLongPress}
+                @pointerleave=${this._cancelLongPress}
+                @pointercancel=${this._cancelLongPress}
+
                 .dataEntity=${entityId}
                 .dataAction=${tapAction}
             >
@@ -1099,6 +1135,11 @@ class OrbitRoomCard extends LitElement {
   }
 
   _handleMainEntityTap(ev) {
+    if (this._longPressTriggered) {
+      this._longPressTriggered = false;
+      return;
+    }
+
     ev.preventDefault();
     ev.stopPropagation();
 
@@ -1115,12 +1156,16 @@ class OrbitRoomCard extends LitElement {
         action: "more-info",
       };
 
-      this._handleAction(
-        tapAction,
-        mainEntity
-      );
+      const holdAction =
+        this._config.hold_action;
 
-      return;
+      if (tapAction.action !== "none") {
+        this._handleAction(
+          tapAction,
+          mainEntity
+        );
+        return;
+      }
     }
 
     // FALLBACK NAVIGATION
@@ -1143,6 +1188,55 @@ class OrbitRoomCard extends LitElement {
     );
   }
 
+  // =========================
+  // LONG PRESS
+  // =========================
+
+  _LONG_PRESS_DELAY = 500;
+
+  _startLongPress(ev, entityId, longPressAction) {
+    if (!longPressAction) return;
+
+    ev.stopPropagation();
+
+    this._cancelLongPress();
+
+    this._longPressTriggered = false;
+
+    this._longPressTimer = setTimeout(() => {
+      this._longPressTriggered = true;
+
+      this._handleAction(
+        longPressAction,
+        entityId
+      );
+    }, this._LONG_PRESS_DELAY);
+  }
+
+  _cancelLongPress() {
+    if (this._longPressTimer) {
+      clearTimeout(this._longPressTimer);
+      this._longPressTimer = null;
+    }
+  }
+
+  _finishLongPress(ev) {
+    this._cancelLongPress();
+
+    if (this._longPressTriggered) {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      if (ev.stopImmediatePropagation) {
+        ev.stopImmediatePropagation();
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+  
   render() {
     const buttons = this._getButtonEntities();
 
@@ -1174,7 +1268,19 @@ class OrbitRoomCard extends LitElement {
           <div
             class="circle"
             style="background:${this._circleColor}"
+
             @click=${(ev) => this._handleMainEntityTap(ev)}
+
+            @pointerdown=${(ev) =>
+              this._startLongPress(
+                ev,
+                this._config.main_entity || this._config.entity,
+                this._config.hold_action
+              )}
+
+            @pointerup=${this._finishLongPress}
+            @pointerleave=${this._cancelLongPress}
+            @pointercancel=${this._cancelLongPress}
           >
 
             ${this._renderCurveButtons()}

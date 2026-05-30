@@ -466,6 +466,11 @@ class OrbitRoomCardEditor extends LitElement {
                       "tap_action",
                       "more-info"
                     )}
+                    ${this._renderActionSelector(
+                      "Hold Action",
+                      "hold_action",
+                      "none"
+                    )}
                   `
                 : ""}
 
@@ -549,6 +554,11 @@ class OrbitRoomCardEditor extends LitElement {
                             `button${i}_tap_action`
                           )}
 
+                          ${this._renderActionSelector(
+                            `Hold Action`,
+                            `button${i}_hold_action`,
+                            "more-info"
+                          )}
                         `
                       : ""}
 
@@ -636,6 +646,11 @@ class OrbitRoomCardEditor extends LitElement {
                             "more-info"
                           )}
 
+                          ${this._renderActionSelector(
+                            `Hold Action`,
+                            `curve_button${i}_hold_action`,
+                            "none"
+                          )}
                         `
                       : ""}
 
