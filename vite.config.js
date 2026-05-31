@@ -3,9 +3,9 @@ import { defineConfig } from "vite";
 export default defineConfig({
   build: {
     lib: {
-      entry: "src/orbit-room-card.js",
+      entry: "src/orbit-cards.js",
       formats: ["es"],
-      fileName: () => "orbit-room-card.js",
+      fileName: () => "orbit-cards.js",
     },
 
     rollupOptions: {

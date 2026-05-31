@@ -1,6 +1,7 @@
 {
   "name": "Orbit Room Card",
   "render_readme": true,
-  "filename": "orbit-room-card.js",
   "content_in_root": true
+  "filename": "orbit-room-card.js",
+  "homeassistant": "20255.1.0"
 }

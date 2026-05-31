@@ -1,6 +1,20 @@
 {
+  "name": "orbit-cards",
+  "version": "0.1.0",
   "scripts": {
     "build": "vite build",
     "watch": "vite build --watch"
+  },
+  "description": "A modern, highly configurable Home Assistant room card designed to provide a clean room overview with quick access to devices, scenes, sensors, and navigation.",
+  "main": "jest.config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "lit": "^3.3.3"
+  },
+  "devDependencies": {
+    "vite": "^8.0.14"
   }
 }
