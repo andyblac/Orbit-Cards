@@ -8,7 +8,7 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { repeat } from "lit/directives/repeat.js";
 
 import { VERSION } from './var/version.js';
-import "./orbit-room-card-editor.js";
+import "./editor/room-card-editor.js";
 
 class OrbitRoomCard extends LitElement {
   static svgCache = {};
