@@ -3,8 +3,6 @@
 // ==============================
 
 import { LitElement } from "lit";
-import { html } from "lit";
-import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 import {
   handleAction,
@@ -14,46 +12,52 @@ import {
   handleTap,
   navigate,
   toggleEntity,
-} from "./helpers/actions.js";
+} from "../common/helpers/actions.js";
 import {
   computeButtonBackground,
   computeCircleColor,
   computeFullColor,
   computeIconColor,
-} from "./helpers/colors.js";
+} from "../common/helpers/colors.js";
 import {
-  getButtonEntities,
-  getEntityActiveState,
-  getRoomName,
+  getCardName,
+} from "../common/helpers/card-name.js";
+import {
   formatEntityState,
-} from "./helpers/entity.js";
+  getEntityActiveState,
+} from "../common/helpers/entities.js";
 import {
   getBinarySensorIcon,
-  getCurveButtonConfig,
   getDefaultDomainIcon,
   getEntityColor,
   getInlineSvg,
   getMainIconColor,
   isImageIcon,
   resolveIconPath,
-} from "./helpers/icons.js";
-import {
-  updateCard,
-} from "./helpers/lifecycle.js";
+} from "../common/helpers/icons.js";
 import {
   cancelLongPress,
   finishLongPress,
   LONG_PRESS_DELAY,
   startLongPress,
-} from "./helpers/long-press.js";
+} from "../common/helpers/long-press.js";
 import {
   evaluateStateTemplate,
-} from "./helpers/templates.js";
+} from "../common/helpers/templates.js";
 
-import { renderButtons } from "./renders/buttons.js";
-import { renderCurveButtons } from "./renders/curve_buttons.js";
+import {
+  getButtonEntities,
+  getCurveButtonConfig,
+} from "./room/helpers/entity.js";
+import {
+  updateRoomCard,
+} from "./room/helpers/lifecycle.js";
 
-import { room_cardStyles } from "./styles/card-styles.js";
+import { renderButtons } from "./room/renders/buttons.js";
+import { renderCard } from "./room/renders/room-card.js";
+import { renderCurveButtons } from "./room/renders/curve-buttons.js";
+
+import { roomCardStyles } from "./room/styles/room-card-styles.js";
 
 import "../editors/room-card-editor.js";
 
@@ -66,7 +70,7 @@ class OrbitRoomCard extends LitElement {
     return {
       hass: {},
       _config: { type: Object },
-      _roomName: { type: String },
+      _cardName: { type: String },
       _statusText: { type: String },
       _icon: { type: String },
       _roomColor: { type: String },
@@ -107,7 +111,7 @@ class OrbitRoomCard extends LitElement {
   }
 
   updated(changedProps) {
-    return updateCard.call(this, changedProps);
+    return updateRoomCard.call(this, changedProps);
   }
 
   _handleAction(actionConfig, entityId = null) {
@@ -154,12 +158,12 @@ class OrbitRoomCard extends LitElement {
     return computeButtonBackground.call(this, colorInput);
   }
 
-  _getRoomName() {
-    return getRoomName.call(this);
+  _getCardName(fallback = "Card") {
+    return getCardName(this._config, this.hass, fallback);
   }
 
   formatState(stateObj) {
-    return formatEntityState.call(this, stateObj);
+    return formatEntityState(stateObj);
   }
 
   _getButtonEntities() {
@@ -167,7 +171,7 @@ class OrbitRoomCard extends LitElement {
   }
 
   _getEntityActiveState(stateObj) {
-    return getEntityActiveState.call(this, stateObj);
+    return getEntityActiveState(stateObj);
   }
 
   _getMainIconColor(stateObj, isOn) {
@@ -175,11 +179,11 @@ class OrbitRoomCard extends LitElement {
   }
 
   _getEntityColor(stateObj) {
-    return getEntityColor.call(this, stateObj);
+    return getEntityColor(stateObj);
   }
 
   _getBinarySensorIcon(stateObj) {
-    return getBinarySensorIcon.call(this, stateObj);
+    return getBinarySensorIcon(stateObj);
   }
 
   _getDefaultDomainIcon(domain, stateObj = null) {
@@ -191,11 +195,11 @@ class OrbitRoomCard extends LitElement {
   }
 
   _isImageIcon(icon) {
-    return isImageIcon.call(this, icon);
+    return isImageIcon(icon);
   }
 
   _resolveIconPath(iconPath) {
-    return resolveIconPath.call(this, iconPath);
+    return resolveIconPath(iconPath);
   }
 
   _getInlineSvg(path) {
@@ -231,82 +235,10 @@ class OrbitRoomCard extends LitElement {
   }
 
   render() {
-    const buttons = this._getButtonEntities();
-
-    return html`
-      <ha-card tabindex="0" @click=${this._handleTap}>
-        <div class="container">
-          <div class="content">
-
-            <div class="header ${buttons.length >= 3 ? "compressed" : ""}">
-              <div class="room-name" style="color:${this._roomColor}">
-                ${this._roomName}
-              </div>
-
-              <div class="status" style="color:${this._statusColor}">
-                ${this._statusText || ""}
-              </div>
-            </div>
-
-            ${buttons.length
-              ? html`
-                  <div class="button-column" style="--button-count:${buttons.length}">
-                    ${buttons.map((id, i) => this._renderButtons(id, i))}
-                  </div>
-                `
-              : ""}
-
-          </div>
-
-          <div
-            class="circle"
-            style="background:${this._circleColor}"
-
-            @click=${(ev) => this._handleMainEntityTap(ev)}
-
-            @pointerdown=${(ev) =>
-              this._startLongPress(
-                ev,
-                this._config.main_entity || this._config.entity,
-                this._config.hold_action
-              )}
-
-            @pointerup=${this._finishLongPress}
-            @pointerleave=${this._cancelLongPress}
-            @pointercancel=${this._cancelLongPress}
-          >
-
-            ${this._renderCurveButtons()}
-
-            ${this._isImageIcon(this._icon)
-              ? html`
-                  <div
-                    class="main-image-icon"
-                    style="color:${this._iconColor};"
-                  >
-                    ${unsafeHTML(
-                      this._getInlineSvg(
-                        this._resolveIconPath(this._icon)
-                      )
-                    )}
-                  </div>
-                `
-              : html`
-                  <ha-icon
-                    class="main-icon"
-                    .icon=${this._icon}
-                    style="color:${this._iconColor}"
-                  ></ha-icon>
-                `}
-
-          </div>
-
-        </div>
-      </ha-card>
-    `;
+    return renderCard.call(this);
   }
 
-  static styles = room_cardStyles;
+  static styles = roomCardStyles;
 }
 
 customElements.define("orbit-room-card", OrbitRoomCard);
@@ -317,7 +249,7 @@ window.customCards.push({
   name: "Orbit Room Card",
   description: "Responsive room card",
   preview: true,
-  RoomCard_VERSION: RoomCard_VERSION,
+  RoomCard_VERSION,
 });
 
 console.info(

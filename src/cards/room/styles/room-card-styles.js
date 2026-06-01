@@ -1,5 +1,9 @@
-import { RoomCardStyles } from "./styles.js";
+import { CardHeaderStyles } from "../../../common/styles/header.js";
+import { CardShellStyles } from "../../../common/styles/card-shell.js";
+import { MainIconStyles } from "../../../common/styles/main-icon.js";
+
 import { RoomCardHeaderStyles } from "./header.js";
+import { RoomCardLayoutStyles } from "./layout.js";
 
 import { CurveButtonStyles } from "./curve-buttons/button.js";
 import { CurveButtonContainerStyles } from "./curve-buttons/container.js";
@@ -9,23 +13,19 @@ import { CurveButtonPositionStyles } from "./curve-buttons/position.js";
 import { EntityButtonStyles } from "./entity-buttons/button.js";
 import { EntityButtonLayoutStyles } from "./entity-buttons/layout.js";
 
-import { MainIconStyles } from "./main-icon/icon.js";
 import { MainIconCircleStyles } from "./main-icon/circle.js";
 
-
-export const cardStyles = [
-  MainIconCircleStyles,
+export const roomCardStyles = [
+  CardShellStyles,
+  CardHeaderStyles,
   MainIconStyles,
-];
-
-export const room_cardStyles = [
-  RoomCardStyles,
+  RoomCardLayoutStyles,
   RoomCardHeaderStyles,
+  MainIconCircleStyles,
   EntityButtonStyles,
   EntityButtonLayoutStyles,
   CurveButtonStyles,
   CurveButtonContainerStyles,
   CurveButtonIconStyles,
   CurveButtonPositionStyles,
-  cardStyles,
 ];

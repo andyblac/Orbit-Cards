@@ -1,16 +1,7 @@
-export function applyConfig(config) {
-  this._config = config;
-
-  this._roomColor = this._computeFullColor(config.room_color);
-  this._statusColor = this._computeFullColor(config.status_color || config.room_color);
-  this._iconColor = this._computeIconColor(config.room_color);
-  this._circleColor = this._computeCircleColor(config.room_color);
-}
-
-export function updateCard(changedProps) {
+export function updateRoomCard(changedProps) {
   if (!changedProps.has("_config") && !changedProps.has("hass")) return;
 
-  this._roomName = this._getRoomName();
+  this._cardName = this._getCardName("Room");
 
   const mainEntity = this._config.main_entity || this._config.entity;
   const areaId = this._config.area;

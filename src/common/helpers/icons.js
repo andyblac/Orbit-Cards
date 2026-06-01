@@ -187,10 +187,6 @@ export function getDefaultDomainIcon(domain, stateObj = null) {
   }
 }
 
-export function getCurveButtonConfig(index) {
-  return this._config?.[`curve_button${index + 1}_icon`] || null;
-}
-
 export function isImageIcon(icon) {
   if (!icon) return false;
 

@@ -1,6 +1,6 @@
 import { css } from "lit";
 
-export const RoomCardStyles = css`
+export const CardShellStyles = css`
   :host {
     display: block;
   }
@@ -9,7 +9,6 @@ export const RoomCardStyles = css`
     background: var(--card-background-color, #1a1a1a);
     border-radius: 24px;
     overflow: hidden;
-    aspect-ratio: 1 / 1;
     position: relative;
     cursor: pointer;
     transition: transform 0.2s ease;
@@ -21,7 +20,6 @@ export const RoomCardStyles = css`
   }
 
   .container {
-    --button-area-width: clamp(46px, 23.5cqw, 210px);
     padding: clamp(14px, 2cqw, 24px);
     height: 100%;
     box-sizing: border-box;

@@ -1,19 +1,11 @@
 import { css } from "lit";
 
-export const RoomCardHeaderStyles = css`
+export const CardHeaderStyles = css`
   .header {
     width: 100%;
   }
 
-  .header.compressed {
-    width: calc(100% - (var(--button-area-width) - 5px));
-  }
-
-  .button-column[style*="--button-count:4"] ~ .header.compressed {
-    width: calc(100% - (var(--button-area-width) - 18px));
-  }
-
-  .room-name {
+  .card-name {
     font-size: clamp(18px, 9cqw, 34px);
     font-weight: bold;
     line-height: 1;

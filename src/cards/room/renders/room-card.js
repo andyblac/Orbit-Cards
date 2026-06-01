@@ -9,9 +9,9 @@ export function renderCard() {
       <div class="container">
         <div class="content">
 
-          <div class="header ${buttons.length >= 3 ? "compressed" : ""}">
-            <div class="room-name" style="color:${this._roomColor}">
-              ${this._roomName}
+            <div class="header ${buttons.length >= 3 ? "compressed" : ""}">
+              <div class="card-name" style="color:${this._roomColor}">
+                ${this._cardName}
             </div>
 
             <div class="status" style="color:${this._statusColor}">

@@ -1,15 +1,3 @@
-export function getRoomName() {
-  const areaId = this._config.area;
-
-  if (this._config.room_name) return this._config.room_name;
-
-  if (areaId && this.hass?.areas?.[areaId]) {
-    return this.hass.areas[areaId].name || "Room";
-  }
-
-  return "Room";
-}
-
 export function formatEntityState(stateObj) {
   const unit = stateObj.attributes.unit_of_measurement || "";
   const value = stateObj.state;
@@ -19,15 +7,6 @@ export function formatEntityState(stateObj) {
   return value === "on" || value === "off"
     ? value.toUpperCase()
     : value;
-}
-
-export function getButtonEntities() {
-  return [
-    this._config.button1,
-    this._config.button2,
-    this._config.button3,
-    this._config.button4,
-  ].filter(Boolean);
 }
 
 export function getEntityActiveState(stateObj) {
