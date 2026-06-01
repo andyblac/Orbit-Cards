@@ -102,16 +102,40 @@ export function renderActionSelector(label, key, defaultAction) {
         @change=${(e) =>
           this._updateConfig({
             [key]: {
-              ...value,
-              action: e.target.value,
+              ...getActionDefaults(
+                e.target.value,
+                value
+              ),
             },
           })}
       >
         <option value="toggle">toggle</option>
         <option value="more-info">more-info</option>
+        <option value="navigate">navigate</option>
         <option value="call-service">call-service</option>
+        <option value="popup">popup</option>
         <option value="none">none</option>
       </select>
+
+      ${value.action === "navigate"
+        ? html`
+            <div class="inline-field">
+              <span class="inline-label">path</span>
+
+              <input
+                .value=${value.navigation_path || ""}
+                placeholder="/lovelace/home"
+                @input=${(e) =>
+                  this._updateConfig({
+                    [key]: {
+                      ...value,
+                      navigation_path: e.target.value,
+                    },
+                  })}
+              />
+            </div>
+          `
+        : ""}
 
       ${value.action === "call-service"
         ? html`
@@ -155,8 +179,79 @@ export function renderActionSelector(label, key, defaultAction) {
 
           `
         : ""}
+
+      ${value.action === "popup"
+        ? html`
+            <div class="inline-field">
+              <span class="inline-label">title</span>
+
+              <input
+                .value=${value.popup_title || ""}
+                placeholder="Security"
+                @input=${(e) =>
+                  this._updateConfig({
+                    [key]: {
+                      ...value,
+                      popup_title: e.target.value,
+                    },
+                  })}
+              />
+            </div>
+
+            <div class="inline-field">
+              <span class="inline-label">content</span>
+
+              <input
+                .value=${typeof value.popup_content === "string"
+                  ? value.popup_content
+                  : value.popup_content
+                    ? JSON.stringify(value.popup_content)
+                    : ""}
+                placeholder=""
+                @input=${(e) =>
+                  this._updateConfig({
+                    [key]: {
+                      ...value,
+                      popup_content: e.target.value,
+                    },
+                  })}
+              />
+            </div>
+          `
+        : ""}
     </div>
   `;
+}
+
+function getActionDefaults(action, currentValue) {
+  const value = {
+    ...currentValue,
+    action,
+  };
+
+  if (action !== "popup") return value;
+
+  return {
+    ...value,
+    popup_title:
+      value.popup_title ||
+      "Security",
+    popup_content:
+      value.popup_content ||
+      {
+        type: "vertical-stack",
+        cards: [
+          {
+            type: "tile",
+            entity: "alarm_control_panel.house_alarm",
+            vertical: true,
+          },
+        ],
+      },
+    style:
+      value.style ||
+      "--popup-min-width: 400px;\n--popup-max-width: 500px;\n--popup-border-radius: 20px;",
+  };
 }
 
 export function renderEntity(label, key) {
@@ -210,5 +305,3 @@ export function renderArea(label, key) {
     </div>
   `;
 }
-
-

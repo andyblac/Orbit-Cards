@@ -50,10 +50,77 @@ export function handleAction(actionConfig, entityId = null) {
       break;
     }
 
+    case "fire-dom-event": {
+      this.dispatchEvent(
+        new CustomEvent("ll-custom", {
+          detail: {
+            browser_mod: actionConfig.browser_mod,
+          },
+          bubbles: true,
+          composed: true,
+        })
+      );
+
+      break;
+    }
+
+    case "popup": {
+      const popupTitle =
+        actionConfig.popup_title ||
+        actionConfig.title ||
+        " ";
+
+      const popupContent =
+        actionConfig.popup_content ||
+        actionConfig.content;
+
+      if (!popupContent) return;
+
+      const popupData = getPopupData(
+        actionConfig,
+        popupTitle,
+        popupContent
+      );
+
+      this.dispatchEvent(
+        new CustomEvent("ll-custom", {
+          detail: {
+            browser_mod: {
+              service: "browser_mod.popup",
+              data: popupData,
+            },
+          },
+          bubbles: true,
+          composed: true,
+        })
+      );
+
+      break;
+    }
+
     case "none":
     default:
       break;
   }
+}
+
+function getPopupData(actionConfig, popupTitle, popupContent) {
+  const {
+    action,
+    popup_title,
+    popup_content,
+    popup_options,
+    title,
+    content,
+    ...browserModOptions
+  } = actionConfig;
+
+  return {
+    ...browserModOptions,
+    ...(popup_options || {}),
+    title: popupTitle,
+    content: popupContent,
+  };
 }
 
 export function navigate(path) {

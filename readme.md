@@ -291,6 +291,138 @@ tap_action:
 
 ---
 
+### Popup
+
+Open a Browser Mod popup from a tap or hold action.
+
+Simple inline example:
+
+```yaml
+tap_action:
+  action: popup
+  popup_title: Security
+  popup_content:
+    type: tile
+    entity: alarm_control_panel.house_alarm
+```
+
+Example using a YAML include:
+
+```yaml
+tap_action:
+  action: popup
+  popup_title: Security
+  popup_content: !include popups/security.yaml
+  style: |
+    --popup-min-width: 400px;
+    --popup-max-width: 500px;
+    --popup-border-radius: 20px;
+  card_mod:
+    style:
+      ha-dialog$: |
+        div.mdc-dialog__scrim {
+          backdrop-filter: blur(4px) !important;
+          -webkit-backdrop-filter: blur(5px) !important;
+          background-color: rgba(0,0,0,0.1) !important;
+        }
+```
+
+`!include` must be added in raw YAML mode. If typed into a visual editor text field it is saved as plain text and Home Assistant will not expand it.
+
+The native Browser Mod `fire-dom-event` format is also supported:
+
+```yaml
+tap_action:
+  action: fire-dom-event
+  browser_mod:
+    service: browser_mod.popup
+    data:
+      title: Security
+      content: !include popups/security.yaml
+```
+
+Full status card popup example:
+
+```yaml
+type: custom:orbit-status-card
+main_entity: sensor.security_state
+status_name: Security
+icon: mdi:shield-home
+
+tap_action:
+  action: popup
+  popup_title: Security
+  popup_content: !include popups/security.yaml
+  style: |
+    --popup-min-width: 400px;
+    --popup-max-width: 500px;
+    --popup-border-radius: 20px;
+  card_mod:
+    style:
+      ha-dialog$: |
+        div.mdc-dialog__scrim {
+          backdrop-filter: blur(4px) !important;
+          -webkit-backdrop-filter: blur(5px) !important;
+          background-color: rgba(0,0,0,0.1) !important;
+        }
+```
+
+Example `popups/security.yaml`:
+
+```yaml
+type: vertical-stack
+cards:
+  - type: horizontal-stack
+    cards:
+      - type: tile
+        entity: alarm_control_panel.house_alarm
+        vertical: true
+        features:
+          - type: alarm-modes
+            modes:
+              - armed_away
+              - disarmed
+      - type: tile
+        entity: alarm_control_panel.garage_alarm
+        vertical: true
+        features:
+          - type: alarm-modes
+            modes:
+              - armed_away
+              - disarmed
+
+  - type: custom:advanced-camera-card
+    cameras:
+      - camera_entity: camera.back_door_video_doorbell_clear
+      - camera_entity: camera.front_door_video_doorbell_clear
+
+  - type: tile
+    entity: cover.garage_roller_door
+    vertical: true
+    features:
+      - type: cover-open-close
+
+  - type: horizontal-stack
+    cards:
+      - type: tile
+        entity: binary_sensor.garage_door_contact_sensor
+        name: Garage Door
+        vertical: true
+        color: red
+      - type: tile
+        entity: binary_sensor.back_door_contact_sensor
+        name: Back Door
+        vertical: true
+        color: red
+      - type: tile
+        entity: binary_sensor.front_door_contact_sensor
+        name: Front Door
+        vertical: true
+        color: red
+```
+
+---
+
 ## State Templates
 
 Buttons can use custom JavaScript templates to determine their active state.
