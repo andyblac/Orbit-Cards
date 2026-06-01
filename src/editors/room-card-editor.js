@@ -6,8 +6,9 @@
 import { LitElement, html, css } from "lit";
 
 import {
-  toggleSection,
   getColorStyle,
+  isImageIcon,
+  toggleSection,
   renderSectionHeader,
   renderSubSectionHeader,
   renderStatusSection,
@@ -17,10 +18,9 @@ import {
   renderColor,
   renderInput,
   renderTemplateInput,
-  isImageIcon,
   resolveIconPath,
   renderIconInput,
-} from "./helpers/editor-helpers.js";
+} from "./helpers/helpers.js";
 
 import { renderRoomSection } from "./sections/room.js";
 import { renderButtonsSection } from "./sections/buttons.js";

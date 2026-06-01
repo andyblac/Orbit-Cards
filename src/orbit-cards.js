@@ -2,5 +2,5 @@
 // orbit-cards.js
 // ==============================
 
-import "./room-card/room-card.js";
+import "./cards/room-card.js";
 

@@ -1,0 +1,1 @@
+export let RoomCard_VERSION = "0.6.0";

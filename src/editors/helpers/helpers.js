@@ -22,7 +22,7 @@ import {
 } from "./renders.js";
 
 /* ==========================================
- * COLLAPSE HELPERS
+ * COLLAPSE HELPER
  * ========================================== */
 
 export function toggleSection(section) {
@@ -33,6 +33,10 @@ export function toggleSection(section) {
 
   this.requestUpdate("_collapsed");
 }
+
+/* ==========================================
+ * COLOUR HELPER
+ * ========================================== */
 
 export function getColorStyle(value) {
   if (!value) {
