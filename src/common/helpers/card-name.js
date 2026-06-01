@@ -2,6 +2,7 @@ export function getCardName(config, hass, fallback = "Card") {
   if (config.name) return config.name;
   if (config.card_name) return config.card_name;
   if (config.room_name) return config.room_name;
+  if (config.status_name) return config.status_name;
 
   const areaId = config.area;
 

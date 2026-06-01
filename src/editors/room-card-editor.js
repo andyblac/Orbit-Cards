@@ -3,7 +3,7 @@
 // COLLAPSIBLE SECTIONS
 // ==========================================
 
-import { LitElement, html, css } from "lit";
+import { LitElement, html } from "lit";
 
 import {
   getColorStyle,
@@ -20,12 +20,12 @@ import {
   renderTemplateInput,
   resolveIconPath,
   renderIconInput,
-} from "./helpers/helpers.js";
+} from "../common/editor/helpers/helpers.js";
 
-import { renderRoomSection } from "./sections/room.js";
-import { renderButtonsSection } from "./sections/buttons.js";
-import { renderCurvedButtonsSection } from "./sections/curved_buttons.js";
-import { editorStyles } from "./styles/editor-styles.js";
+import { renderRoomSection } from "./room/sections/room.js";
+import { renderButtonsSection } from "./room/sections/buttons.js";
+import { renderCurvedButtonsSection } from "./room/sections/curve-buttons.js";
+import { editorStyles } from "../common/editor/styles/editor-styles.js";
 
 
 class OrbitRoomCardEditor extends LitElement {
@@ -190,7 +190,7 @@ class OrbitRoomCardEditor extends LitElement {
   // STYLES
   // =========================
 
-  static styles = editorStyles;// import { editorStyles } from "./styles/editor-styles.js";
+  static styles = editorStyles;
 }
 
 customElements.define(
