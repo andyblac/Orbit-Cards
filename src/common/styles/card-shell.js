@@ -7,7 +7,7 @@ export const CardShellStyles = css`
 
   ha-card {
     background: var(--card-background-color, #1a1a1a);
-    border-radius: 24px;
+    border-radius: 18px;
     overflow: hidden;
     position: relative;
     cursor: pointer;
