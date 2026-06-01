@@ -61,7 +61,7 @@ import { roomCardStyles } from "./room/styles/room-card-styles.js";
 
 import "../editors/room-card-editor.js";
 
-import { RoomCard_VERSION } from "./var/version.js";
+import { CARD_VERSIONS } from "../version.js";
 
 class OrbitRoomCard extends LitElement {
   static svgCache = {};
@@ -249,11 +249,11 @@ window.customCards.push({
   name: "Orbit Room Card",
   description: "Responsive room card",
   preview: true,
-  RoomCard_VERSION,
+  version: CARD_VERSIONS.room,
 });
 
 console.info(
-  `%c ORBIT-ROOM-CARD %c RoomCard_VERSION ${RoomCard_VERSION}`,
+  `%c ORBIT-ROOM-CARD %c Version ${CARD_VERSIONS.room}`,
   "color: orange; font-weight: bold; background: black;",
   "color: white; font-weight: bold; background: dimgray;"
 );
