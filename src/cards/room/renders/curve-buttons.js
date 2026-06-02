@@ -114,7 +114,7 @@ export function renderCurveButtons() {
               "mdi:help-circle";
           }
 
-          const roomColor = this._config.room_color || "theme";
+          const roomColor = this._config.accent_color || "theme";
 
           const tapAction =
             this._config?.[`curve_button${index + 1}_tap_action`] ?? {

@@ -180,7 +180,7 @@ Features:
 Uses your active Home Assistant theme color.
 
 ```yaml
-room_color: theme
+accent_color: theme
 ```
 
 ---
@@ -188,11 +188,11 @@ room_color: theme
 ### Dashboard Colors
 
 ```yaml
-room_color: blue
-room_color: green
-room_color: orange
-room_color: purple
-room_color: red
+accent_color: blue
+accent_color: green
+accent_color: orange
+accent_color: purple
+accent_color: red
 ```
 
 ---
@@ -200,7 +200,7 @@ room_color: red
 ### Hex Colors
 
 ```yaml
-room_color: "#ff7840"
+accent_color: "#ff7840"
 ```
 
 ---
@@ -208,7 +208,7 @@ room_color: "#ff7840"
 ### RGB Colors
 
 ```yaml
-room_color: rgb(255,120,50)
+accent_color: rgb(255,120,50)
 ```
 
 ---
@@ -218,7 +218,7 @@ room_color: rgb(255,120,50)
 When the main entity is a light:
 
 ```yaml
-room_color: light
+accent_color: light
 ```
 
 The card will automatically use the light's current color.
@@ -614,7 +614,7 @@ type: custom:orbit-room-card
 
 area: living_room
 
-room_color: blue
+accent_color: blue
 
 status1: sensor.living_room_temperature
 status2: sensor.living_room_humidity
@@ -633,7 +633,7 @@ type: custom:orbit-room-card
 room_name: Living Room
 area: living_room
 
-room_color: theme
+accent_color: theme
 status_color: green
 
 main_entity: light.living_room

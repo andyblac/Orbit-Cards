@@ -30,7 +30,7 @@ export function renderRoomSection() {
               </div>
 
               ${this._renderArea("Area", "area")}
-              ${this._renderColor("Room Color", "room_color")}
+              ${this._renderColor("Accent Color", "accent_color")}
               ${this._renderColor("Status Color", "status_color")}
 
               <!-- MAIN ENTITY -->

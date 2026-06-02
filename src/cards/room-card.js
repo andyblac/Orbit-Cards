@@ -89,7 +89,7 @@ class OrbitRoomCard extends LitElement {
   static getStubConfig() {
     return {
       type: "custom:orbit-room-card",
-      room_color: "blue",
+      accent_color: "blue",
       navigation_path: "/lovelace/home",
     };
   }
@@ -104,10 +104,10 @@ class OrbitRoomCard extends LitElement {
   setConfig(config) {
     this._config = config;
 
-    this._roomColor = this._computeFullColor(config.room_color);
-    this._statusColor = this._computeFullColor(config.status_color || config.room_color);
-    this._iconColor = this._computeIconColor(config.room_color);
-    this._circleColor = this._computeCircleColor(config.room_color);
+    this._roomColor = this._computeFullColor(config.accent_color);
+    this._statusColor = this._computeFullColor(config.status_color || config.accent_color);
+    this._iconColor = this._computeIconColor(config.accent_color);
+    this._circleColor = this._computeCircleColor(config.accent_color);
   }
 
   updated(changedProps) {

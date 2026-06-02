@@ -1,5 +1,5 @@
 export function getMainIconColor(stateObj, isOn) {
-  const roomColor = this._config.room_color || "theme";
+  const roomColor = this._config.accent_color || "theme";
 
   if (!isOn) {
     return this._computeIconColor(roomColor);

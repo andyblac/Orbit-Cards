@@ -86,7 +86,7 @@ export function renderButtons(entityId, index) {
 
         resolvedOnColor =
           entityAutoColor ||
-          this._config.room_color ||
+          this._config.accent_color ||
           "theme";
       }
 
