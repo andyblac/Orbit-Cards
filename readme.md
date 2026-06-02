@@ -306,13 +306,18 @@ tap_action:
     entity: alarm_control_panel.house_alarm
 ```
 
-Example using a YAML include:
+Real-world inline example:
 
 ```yaml
 tap_action:
   action: popup
   popup_title: Security
-  popup_content: !include popups/security.yaml
+  popup_content:
+    type: vertical-stack
+    cards:
+      - type: tile
+        entity: alarm_control_panel.house_alarm
+        vertical: true
   style: |
     --popup-min-width: 400px;
     --popup-max-width: 500px;
@@ -325,9 +330,15 @@ tap_action:
           -webkit-backdrop-filter: blur(5px) !important;
           background-color: rgba(0,0,0,0.1) !important;
         }
+
+main_entity_tap_action:
+  action: more-info
+
+main_entity_hold_action:
+  action: none
 ```
 
-`!include` must be added in raw YAML mode. If typed into a visual editor text field it is saved as plain text and Home Assistant will not expand it.
+Add popup content inline in the card config.
 
 The native Browser Mod `fire-dom-event` format is also supported:
 
@@ -338,7 +349,9 @@ tap_action:
     service: browser_mod.popup
     data:
       title: Security
-      content: !include popups/security.yaml
+      content:
+        type: tile
+        entity: alarm_control_panel.house_alarm
 ```
 
 Full status card popup example:
@@ -352,7 +365,32 @@ icon: mdi:shield-home
 tap_action:
   action: popup
   popup_title: Security
-  popup_content: !include popups/security.yaml
+  popup_content:
+    type: vertical-stack
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: tile
+            entity: alarm_control_panel.house_alarm
+            vertical: true
+            features:
+              - type: alarm-modes
+                modes:
+                  - armed_away
+                  - disarmed
+          - type: tile
+            entity: alarm_control_panel.garage_alarm
+            vertical: true
+            features:
+              - type: alarm-modes
+                modes:
+                  - armed_away
+                  - disarmed
+      - type: tile
+        entity: cover.garage_roller_door
+        vertical: true
+        features:
+          - type: cover-open-close
   style: |
     --popup-min-width: 400px;
     --popup-max-width: 500px;
@@ -365,12 +403,26 @@ tap_action:
           -webkit-backdrop-filter: blur(5px) !important;
           background-color: rgba(0,0,0,0.1) !important;
         }
+
+main_entity_tap_action:
+  action: more-info
+
+main_entity_hold_action:
+  action: none
 ```
 
-Example `popups/security.yaml`:
+### Bubble Card popups
+
+Bubble Card popups are opened by navigating to a hash. Add the Bubble popup card somewhere on the same dashboard view, then open it from Orbit with a normal `navigate` action.
+
+Bubble popup card:
 
 ```yaml
-type: vertical-stack
+type: custom:bubble-card
+card_type: pop-up
+hash: '#security'
+name: Security
+icon: mdi:shield-home
 cards:
   - type: horizontal-stack
     cards:
@@ -420,6 +472,16 @@ cards:
         vertical: true
         color: red
 ```
+
+Open it from Orbit:
+
+```yaml
+main_entity_hold_action:
+  action: navigate
+  navigation_path: '#security'
+```
+
+The `hash` and `navigation_path` values must match exactly.
 
 ---
 
@@ -478,8 +540,11 @@ main_icon: mdi:sofa
 main_icon_on: mdi:lightbulb-on
 main_icon_off: mdi:lightbulb
 
-tap_action:
+main_entity_tap_action:
   action: more-info
+
+main_entity_hold_action:
+  action: none
 
 navigate:
   navigation_path: /lovelace/living-room
