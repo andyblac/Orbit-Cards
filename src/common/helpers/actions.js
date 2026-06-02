@@ -213,9 +213,10 @@ export function handleMainEntityTap(ev) {
     this._config.main_entity || this._config.entity;
 
   if (mainEntity) {
-    const tapAction = this._config.tap_action || {
-      action: "more-info",
-    };
+    const tapAction =
+      this._config.main_entity_tap_action || {
+        action: "more-info",
+      };
 
     if (tapAction.action !== "none") {
       this._handleAction(

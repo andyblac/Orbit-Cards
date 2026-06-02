@@ -108,7 +108,7 @@ class OrbitStatusCard extends LitElement {
 
     ev.stopPropagation();
 
-    const cardAction = this._config.card_tap_action;
+    const cardAction = this._config.tap_action;
     const mainEntity = this._config.main_entity;
 
     if (cardAction?.action && cardAction.action !== "navigate") {
@@ -177,9 +177,7 @@ class OrbitStatusCard extends LitElement {
     if (!mainEntity) return;
 
     this._handleAction(
-      this._config.tap_action || {
-        action: "more-info",
-      },
+      this._getMainEntityTapAction(),
       mainEntity
     );
   }
@@ -241,6 +239,12 @@ class OrbitStatusCard extends LitElement {
   }
 
   _handleMainIconPointerDown(ev) {
+    if (this._isDuplicateTouchEvent(ev)) {
+      this._stopEvent(ev);
+      return;
+    }
+
+    this._trackPointerEvent(ev);
     this._stopEvent(ev);
 
     ev.currentTarget?.setPointerCapture?.(ev.pointerId);
@@ -251,20 +255,28 @@ class OrbitStatusCard extends LitElement {
 
     this._clearMainIconHoldTimer();
 
-    if (!this._config.hold_action) return;
+    const holdAction = this._getMainEntityHoldAction();
+
+    if (!holdAction) return;
 
     this._mainIconHoldTimer = setTimeout(() => {
       this._mainIconHoldFired = true;
       this._mainIconSuppressUntil = Date.now() + 1000;
 
       this._handleAction(
-        this._config.hold_action,
+        holdAction,
         this._config.main_entity
       );
     }, this._LONG_PRESS_DELAY);
   }
 
   _handleMainIconPointerUp(ev) {
+    if (this._isDuplicateTouchEvent(ev)) {
+      this._stopEvent(ev);
+      return;
+    }
+
+    this._trackPointerEvent(ev);
     this._stopEvent(ev);
 
     const holdFired = this._mainIconHoldFired;
@@ -283,10 +295,21 @@ class OrbitStatusCard extends LitElement {
   }
 
   _handleMainIconPointerCancel(ev) {
+    if (this._isDuplicateTouchEvent(ev)) {
+      this._stopEvent(ev);
+      return;
+    }
+
+    this._trackPointerEvent(ev);
     this._stopEvent(ev);
 
-    this._clearMainIconHoldTimer();
-    this._mainIconPointerDown = false;
+    const holdAction = this._getMainEntityHoldAction();
+
+    if (!holdAction) {
+      this._clearMainIconHoldTimer();
+      this._mainIconPointerDown = false;
+      return;
+    }
   }
 
   _handleMainIconClick(ev) {
@@ -300,7 +323,13 @@ class OrbitStatusCard extends LitElement {
   _handleMainIconContextMenu(ev) {
     this._stopEvent(ev);
 
-    if (this._mainIconPointerDown && !this._mainIconHoldFired) {
+    const holdAction = this._getMainEntityHoldAction();
+
+    if (
+      holdAction &&
+      this._mainIconPointerDown &&
+      !this._mainIconHoldFired
+    ) {
       this._clearMainIconHoldTimer();
 
       this._mainIconHoldFired = true;
@@ -308,7 +337,7 @@ class OrbitStatusCard extends LitElement {
       this._mainIconSuppressUntil = Date.now() + 1000;
 
       this._handleAction(
-        this._config.hold_action,
+        holdAction,
         this._config.main_entity
       );
     }
@@ -319,6 +348,35 @@ class OrbitStatusCard extends LitElement {
       clearTimeout(this._mainIconHoldTimer);
       this._mainIconHoldTimer = null;
     }
+  }
+
+  _getMainEntityHoldAction() {
+    return isActionEnabled(this._config.main_entity_hold_action)
+      ? this._config.main_entity_hold_action
+      : null;
+  }
+
+  _getMainEntityTapAction() {
+    return (
+      this._config.main_entity_tap_action ||
+      {
+        action: "more-info",
+      }
+    );
+  }
+
+  _trackPointerEvent(ev) {
+    if (ev.type?.startsWith("pointer")) {
+      this._lastMainIconPointerEventAt = Date.now();
+    }
+  }
+
+  _isDuplicateTouchEvent(ev) {
+    return Boolean(
+      ev.type?.startsWith("touch") &&
+      this._lastMainIconPointerEventAt &&
+      Date.now() - this._lastMainIconPointerEventAt < 750
+    );
   }
 
   _shouldSuppressMainIconTap(ev) {
@@ -342,6 +400,14 @@ class OrbitStatusCard extends LitElement {
   }
 
   static styles = statusCardStyles;
+}
+
+function isActionEnabled(actionConfig) {
+  return Boolean(
+    actionConfig &&
+    actionConfig.action &&
+    actionConfig.action !== "none"
+  );
 }
 
 customElements.define("orbit-status-card", OrbitStatusCard);

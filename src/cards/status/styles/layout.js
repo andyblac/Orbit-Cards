@@ -20,7 +20,9 @@ export const StatusCardLayoutStyles = css`
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    z-index: 1;
+    pointer-events: auto;
+    touch-action: manipulation;
+    z-index: 3;
   }
 
   .status-circle .main-icon {
@@ -35,6 +37,7 @@ export const StatusCardLayoutStyles = css`
   .status-container .content {
     justify-content: center;
     padding-left: 31%;
+    pointer-events: none;
   }
 
   .status-container .status {

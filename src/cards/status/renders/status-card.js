@@ -12,6 +12,9 @@ export function renderStatusCard() {
           @pointerup=${this._handleMainIconPointerUp}
           @pointerleave=${this._handleMainIconPointerCancel}
           @pointercancel=${this._handleMainIconPointerCancel}
+          @touchstart=${this._handleMainIconPointerDown}
+          @touchend=${this._handleMainIconPointerUp}
+          @touchcancel=${this._handleMainIconPointerCancel}
           @click=${this._handleMainIconClick}
           @contextmenu=${this._handleMainIconContextMenu}
         >

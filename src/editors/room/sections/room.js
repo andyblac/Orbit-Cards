@@ -54,12 +54,12 @@ export function renderRoomSection() {
                 ? html`
                     ${this._renderActionSelector(
                       "Main Entity Action",
-                      "tap_action",
+                      "main_entity_tap_action",
                       "more-info"
                     )}
                     ${this._renderActionSelector(
                       "Hold Action",
-                      "hold_action",
+                      "main_entity_hold_action",
                       "none"
                     )}
                   `

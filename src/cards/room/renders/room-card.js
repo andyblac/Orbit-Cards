@@ -39,7 +39,7 @@ export function renderCard() {
             this._startLongPress(
               ev,
               this._config.main_entity || this._config.entity,
-              this._config.hold_action
+              this._config.main_entity_hold_action
             )}
 
           @pointerup=${this._finishLongPress}

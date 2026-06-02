@@ -17,37 +17,21 @@ export function renderStatusSection() {
         ? html`
             ${this._renderActionSelector(
               "Card Action",
-              "card_tap_action",
+              "tap_action",
               "navigate"
             )}
             ${this._renderActionSelector(
               "Main Entity Action",
-              "tap_action",
+              "main_entity_tap_action",
               "more-info"
             )}
             ${this._renderActionSelector(
               "Hold Action",
-              "hold_action",
+              "main_entity_hold_action",
               "none"
             )}
           `
         : ""}
-
-      <div class="field">
-        <label>Navigation Path</label>
-
-        <input
-          .value=${this._config?.navigate?.navigation_path || ""}
-          placeholder="/lovelace/home"
-          @input=${(e) => {
-            this._updateConfig({
-              navigate: {
-                navigation_path: e.target.value,
-              },
-            });
-          }}
-        />
-      </div>
     </div>
   `;
 }
