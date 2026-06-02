@@ -40,26 +40,38 @@ export const iconStyles = css`
   overflow: hidden;
 }
 
-.icon-preview img {
+.preview-image-stack {
+  position: relative;
   width: 24px;
   height: 24px;
+  display: block;
+}
+
+.icon-preview .preview-image,
+.icon-preview .preview-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.icon-preview .preview-image {
   object-fit: contain;
   filter: brightness(0) invert(1);
 }
 
+.icon-preview .preview-svg {
+  color: white;
+  display: flex;
+  background: #000;
+}
+
+.icon-preview .preview-svg svg {
+  width: 100%;
+  height: 100%;
+}
+
 .icon-preview ha-icon {
   --mdc-icon-size: 24px;
-}
-
-.preview-image {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-}
-
-.preview-image {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
 }
 `;

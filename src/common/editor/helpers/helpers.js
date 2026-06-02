@@ -5,6 +5,9 @@ import {
   resolveIconPath,
   renderIconInput,
 } from "./icon.js";
+import {
+  getInlineSvg,
+} from "../../helpers/icons.js";
 
 import {
   renderInput,
@@ -81,4 +84,5 @@ export {
   isImageIcon,
   resolveIconPath,
   renderIconInput,
+  getInlineSvg,
 };

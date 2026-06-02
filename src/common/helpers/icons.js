@@ -1,3 +1,5 @@
+const ICON_CACHE_KEY = Date.now().toString(36);
+
 export function getMainIconColor(stateObj, isOn) {
   const roomColor = this._config.accent_color || "theme";
 
@@ -203,14 +205,24 @@ export function isImageIcon(icon) {
 export function resolveIconPath(iconPath) {
   if (!iconPath) return "";
 
+  const withCacheBust = (path) =>
+    path.includes("?")
+      ? path
+      : `${path}?orbit-icon=${ICON_CACHE_KEY}`;
+
   if (
-    iconPath.startsWith("http") ||
     iconPath.startsWith("/")
   ) {
+    return iconPath.startsWith("/local/")
+      ? withCacheBust(iconPath)
+      : iconPath;
+  }
+
+  if (iconPath.startsWith("http")) {
     return iconPath;
   }
 
-  return `/local/icons/${iconPath}`;
+  return withCacheBust(`/local/icons/${iconPath}`);
 }
 
 export function getInlineSvg(path) {
@@ -262,7 +274,7 @@ export function getInlineSvg(path) {
     .catch((err) => {
       console.error("SVG load failed:", path, err);
 
-      svgCache[path] = "";
+      delete svgCache[path];
 
       requestAnimationFrame(() => {
         this.requestUpdate();

@@ -13,6 +13,7 @@ import {
   renderColor,
   renderInput,
   renderTemplateInput,
+  getInlineSvg,
   resolveIconPath,
   renderIconInput,
 } from "../common/editor/helpers/helpers.js";
@@ -21,6 +22,8 @@ import { renderStatusSection } from "./status/sections/status.js";
 import { editorStyles } from "../common/editor/styles/editor-styles.js";
 
 class OrbitStatusCardEditor extends LitElement {
+  static svgCache = {};
+
   static properties = {
     hass: { attribute: false },
     _config: { state: true },
@@ -98,6 +101,10 @@ class OrbitStatusCardEditor extends LitElement {
 
   _resolveIconPath(path) {
     return resolveIconPath(path);
+  }
+
+  _getInlineSvg(path) {
+    return getInlineSvg.call(this, path);
   }
 
   _renderStatusSection() {

@@ -18,6 +18,7 @@ import {
   renderColor,
   renderInput,
   renderTemplateInput,
+  getInlineSvg,
   resolveIconPath,
   renderIconInput,
 } from "../common/editor/helpers/helpers.js";
@@ -29,6 +30,8 @@ import { editorStyles } from "../common/editor/styles/editor-styles.js";
 
 
 class OrbitRoomCardEditor extends LitElement {
+  static svgCache = {};
+
 
   static properties = {
     hass: { attribute: false },
@@ -141,6 +144,10 @@ class OrbitRoomCardEditor extends LitElement {
 
   _resolveIconPath(path) {
     return resolveIconPath(path);
+  }
+
+  _getInlineSvg(path) {
+    return getInlineSvg.call(this, path);
   }
 
   // =========================

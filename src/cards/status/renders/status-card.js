@@ -4,6 +4,12 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 export function renderStatusCard() {
   const mode = this._config?.mode || "standard";
   const badgeText = getIconOnlyStatusText(this._statusText);
+  const iconPath = this._isImageIcon(this._icon)
+    ? this._resolveIconPath(this._icon)
+    : "";
+  const inlineSvg = iconPath
+    ? this._getInlineSvg(iconPath)
+    : "";
 
   return html`
     <ha-card class="mode-${mode}" tabindex="0" @click=${this._handleTap}>
@@ -27,11 +33,9 @@ export function renderStatusCard() {
                   class="main-image-icon"
                   style="color:${this._iconColor};"
                 >
-                  ${unsafeHTML(
-                    this._getInlineSvg(
-                      this._resolveIconPath(this._icon)
-                    )
-                  )}
+                  ${inlineSvg
+                    ? unsafeHTML(inlineSvg)
+                    : html`<img src=${iconPath} alt="" />`}
                 </div>
               `
             : html`

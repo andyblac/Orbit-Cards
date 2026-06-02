@@ -1,4 +1,7 @@
 import { html } from "lit";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+
+const ICON_CACHE_KEY = Date.now().toString(36);
 
 /* ==========================================
  * ICON HELPERS
@@ -7,29 +10,49 @@ import { html } from "lit";
 export function isImageIcon(icon) {
   if (!icon) return false;
 
+  const cleanIcon = icon.split("?")[0].toLowerCase();
+
   return (
-    icon.endsWith(".svg") ||
-    icon.endsWith(".png") ||
-    icon.endsWith(".gif") ||
-    icon.endsWith(".webp")
+    cleanIcon.endsWith(".svg") ||
+    cleanIcon.endsWith(".png") ||
+    cleanIcon.endsWith(".gif") ||
+    cleanIcon.endsWith(".webp")
   );
 }
 
 export function resolveIconPath(iconPath) {
   if (!iconPath) return "";
 
+  const withCacheBust = (path) =>
+    path.includes("?")
+      ? path
+      : `${path}?orbit-icon=${ICON_CACHE_KEY}`;
+
   if (
-    iconPath.startsWith("/") ||
-    iconPath.startsWith("http")
+    iconPath.startsWith("/")
   ) {
+    return iconPath.startsWith("/local/")
+      ? withCacheBust(iconPath)
+      : iconPath;
+  }
+
+  if (iconPath.startsWith("http")) {
     return iconPath;
   }
 
-  return `/local/icons/${iconPath}`;
+  return withCacheBust(`/local/icons/${iconPath}`);
 }
 
 export function renderIconInput(label, key, placeholder) {
   const value = this._config?.[key] || "";
+  const iconPath =
+    value && this._isImageIcon(value)
+      ? this._resolveIconPath(value)
+      : "";
+  const inlineSvg =
+    iconPath && this._getInlineSvg
+      ? this._getInlineSvg(iconPath)
+      : "";
 
   return html`
     <div class="field">
@@ -52,10 +75,21 @@ export function renderIconInput(label, key, placeholder) {
           ${value
             ? this._isImageIcon(value)
               ? html`
-                  <img
-                    src="${this._resolveIconPath(value)}"
-                    class="preview-image"
-                  />
+                  <span class="preview-image-stack">
+                    ${inlineSvg
+                      ? html`
+                          <span class="preview-svg">
+                            ${unsafeHTML(inlineSvg)}
+                          </span>
+                        `
+                      : html`
+                          <img
+                            src=${iconPath}
+                            class="preview-image"
+                            alt=""
+                          />
+                        `}
+                  </span>
                 `
               : html`
                   <ha-icon
