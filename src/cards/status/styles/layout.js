@@ -41,6 +41,6 @@ export const StatusCardLayoutStyles = css`
   }
 
   .status-container .status {
-    font-size: clamp(16px, 6.7cqw, 26px);
+    font-size: clamp(16px, 8cqw, 32px);
   }
 `;
