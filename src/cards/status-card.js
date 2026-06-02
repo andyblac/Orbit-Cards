@@ -27,6 +27,9 @@ import {
 import {
   LONG_PRESS_DELAY,
 } from "../common/helpers/long-press.js";
+import {
+  evaluateStateTemplate,
+} from "../common/helpers/templates.js";
 
 import {
   updateStatusCard,
@@ -65,11 +68,19 @@ class OrbitStatusCard extends LitElement {
   static getStubConfig() {
     return {
       type: "custom:orbit-status-card",
+      mode: "standard",
       main_entity: "",
     };
   }
 
   getLayoutOptions() {
+    if (this._config?.mode === "icon_only") {
+      return {
+        grid_columns: 1,
+        grid_min_columns: 0.5,
+      };
+    }
+
     return {
       grid_columns: 3,
       grid_min_columns: 2,
@@ -79,10 +90,10 @@ class OrbitStatusCard extends LitElement {
   setConfig(config) {
     this._config = config;
 
-    const color = config.accent_color || "theme";
+    const color = config.accent_off_color || "theme";
 
-    this._nameColor = this._computeFullColor(config.name_color || color);
-    this._statusColor = this._computeFullColor(config.status_color || color);
+    this._nameColor = this._computeFullColor(color);
+    this._statusColor = this._computeFullColor(color);
     this._iconColor = this._computeIconColor(color);
     this._circleColor = this._computeCircleColor(color);
   }
@@ -108,24 +119,7 @@ class OrbitStatusCard extends LitElement {
 
     ev.stopPropagation();
 
-    const cardAction = this._config.tap_action;
-    const mainEntity = this._config.main_entity;
-
-    if (cardAction?.action && cardAction.action !== "navigate") {
-      this._handleAction(cardAction, mainEntity);
-      return;
-    }
-
-    if (cardAction?.action === "navigate") {
-      this._navigate(
-        cardAction.navigation_path ||
-        this._navigationPath ||
-        "/lovelace/home"
-      );
-      return;
-    }
-
-    this._navigate(this._navigationPath || "/lovelace/home");
+    this._handleCardTapAction();
   }
 
   _isMainIconEvent(ev) {
@@ -176,9 +170,29 @@ class OrbitStatusCard extends LitElement {
 
     if (!mainEntity) return;
 
-    this._handleAction(
-      this._getMainEntityTapAction(),
-      mainEntity
+    const mainEntityAction = this._getMainEntityTapAction();
+
+    if (mainEntityAction) {
+      this._handleAction(mainEntityAction, mainEntity);
+      return;
+    }
+
+    this._handleCardTapAction();
+  }
+
+  _handleCardTapAction() {
+    const cardAction = this._getCardTapAction();
+    const mainEntity = this._config.main_entity;
+
+    if (cardAction.action && cardAction.action !== "navigate") {
+      this._handleAction(cardAction, mainEntity);
+      return;
+    }
+
+    this._navigate(
+      cardAction.navigation_path ||
+      this._navigationPath ||
+      "/lovelace/home"
     );
   }
 
@@ -232,6 +246,10 @@ class OrbitStatusCard extends LitElement {
 
   _getInlineSvg(path) {
     return getInlineSvg.call(this, path);
+  }
+
+  _evaluateStateTemplate(template, entityId) {
+    return evaluateStateTemplate.call(this, template, entityId);
   }
 
   get _LONG_PRESS_DELAY() {
@@ -357,12 +375,31 @@ class OrbitStatusCard extends LitElement {
   }
 
   _getMainEntityTapAction() {
+    const actionConfig = this._config.main_entity_tap_action;
+
+    if (actionConfig?.action === "none") return null;
+    if (actionConfig?.action) return actionConfig;
+
+    return this._isIconOnlyMode()
+      ? null
+      : {
+          action: "more-info",
+        };
+  }
+
+  _getCardTapAction() {
     return (
-      this._config.main_entity_tap_action ||
+      this._config.tap_action ||
       {
-        action: "more-info",
+        action: this._isIconOnlyMode()
+          ? "more-info"
+          : "navigate",
       }
     );
+  }
+
+  _isIconOnlyMode() {
+    return this._config?.mode === "icon_only";
   }
 
   _trackPointerEvent(ev) {

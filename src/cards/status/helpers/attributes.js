@@ -17,21 +17,33 @@ export function getConfiguredNavigationPath(config) {
   return trimmed || null;
 }
 
-export function getStatusColor(config, stateObj) {
+export function getStatusColor(config, stateObj, isOn) {
   return (
-    config.accent_color ||
-    getStatusAttribute(stateObj, "color") ||
-    "theme"
+    isOn
+      ? config.accent_on_color ||
+        getStatusAttribute(stateObj, "color") ||
+        "theme"
+      : config.accent_off_color ||
+        "theme"
   );
 }
 
 export function getStatusActiveState(
   stateObj,
-  getEntityActiveState = null
+  getEntityActiveState = null,
+  stateOverride = null
 ) {
   if (!stateObj) return false;
 
-  const state = stateObj.state?.toString().trim().toLowerCase();
+  const state = (stateOverride ?? stateObj.state)
+    ?.toString()
+    .trim()
+    .toLowerCase();
+  const numericState = Number(state);
+
+  if (Number.isFinite(numericState)) {
+    return numericState > 0;
+  }
 
   const isActiveStatusState = ![
     "",

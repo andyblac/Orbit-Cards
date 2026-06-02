@@ -411,6 +411,99 @@ main_entity_hold_action:
   action: none
 ```
 
+## Status Card Modes
+
+Status Card supports two modes.
+
+### Standard
+
+```yaml
+type: custom:orbit-status-card
+mode: standard
+main_entity: sensor.heating_state
+```
+
+Standard mode shows the entity name and status text. The name comes from `status_name` when set, then the entity `friendly_name`. The status text comes from `label_template`, then the entity `label` attribute, then the entity state.
+
+### Icon Only
+
+```yaml
+type: custom:orbit-status-card
+mode: icon_only
+main_entity: sensor.number_of_lights_on
+```
+
+Icon Only mode shows a square icon card with a numeric badge. The badge is hidden when the displayed number is `0`.
+
+Both modes use:
+
+```yaml
+accent_on_color: amber
+accent_off_color: theme
+```
+
+If the entity has a `color` attribute, it is used for the ON colour unless `accent_on_color` is set in the card config.
+
+### Standard example
+
+```yaml
+type: custom:orbit-status-card
+mode: standard
+main_entity: sensor.heating_state
+status_name: Heating
+accent_on_color: red
+accent_off_color: theme
+main_entity_tap_action:
+  action: more-info
+tap_action:
+  action: navigate
+  navigation_path: /dashboard-heating/heating-control
+```
+
+### Icon Only example
+
+```yaml
+type: custom:orbit-status-card
+mode: icon_only
+main_entity: sensor.number_of_lights_on
+accent_on_color: amber
+accent_off_color: theme
+tap_action:
+  action: more-info
+```
+
+### Template example
+
+```yaml
+type: custom:orbit-status-card
+mode: icon_only
+main_entity: sensor.recycle_collection
+state_template: "state_attr('sensor.recycle_collection', 'daysTo') | int < 2"
+label_template: "state_attr('sensor.recycle_collection', 'daysTo')"
+accent_on_color: green
+accent_off_color: theme
+```
+
+### Config options
+
+| Option | Description |
+| --- | --- |
+| `mode` | `standard` or `icon_only`. Defaults to `standard`. |
+| `main_entity` | Required entity used for icon, status, name, state, actions, and attributes. |
+| `status_name` | Standard mode only. Overrides the entity `friendly_name`. |
+| `state_template` | Template used for ON/OFF detection. Numeric `0` is OFF, numeric values greater than `0` are ON. |
+| `label_template` | Template used for displayed status text or Icon Only badge. |
+| `accent_on_color` | ON colour override. If unset, the entity `color` attribute is used when available. |
+| `accent_off_color` | OFF colour override. Defaults to `theme`. |
+| `icon` | Main icon override. Falls back to entity `icon` attribute. |
+| `icon_on` | Icon used when the status is ON. |
+| `icon_off` | Icon used when the status is OFF. |
+| `tap_action` | Card tap action. Defaults to `navigate` in Standard mode and `more-info` in Icon Only mode. |
+| `main_entity_tap_action` | Main entity/icon tap action. Defaults to `more-info` in Standard mode. In Icon Only mode it falls back to `tap_action` when unset or `none`. |
+| `main_entity_hold_action` | Main entity/icon hold action. Defaults to `none`. |
+
+---
+
 ### Bubble Card popups
 
 Bubble Card popups are opened by navigating to a hash. Add the Bubble popup card somewhere on the same dashboard view, then open it from Orbit with a normal `navigate` action.
@@ -486,6 +579,15 @@ The `hash` and `navigation_path` values must match exactly.
 ---
 
 ## State Templates
+
+Status Card can use `state_template` for ON/OFF detection and `label_template` for the displayed status value.
+
+```yaml
+type: custom:orbit-status-card
+main_entity: sensor.recycle_collection
+state_template: "state_attr('sensor.recycle_collection', 'daysTo') | int < 2"
+label_template: "state_attr('sensor.recycle_collection', 'daysTo')"
+```
 
 Buttons can use custom JavaScript templates to determine their active state.
 
@@ -629,6 +731,17 @@ Tested with:
 - Home Assistant 2025+
 - Lovelace Dashboard
 - HACS
+
+---
+
+# Roadmap
+
+Planned features:
+
+- Additional animations
+- Per-button badge indicators
+- Enhanced theme integration
+- Additional dynamic templates
 
 ---
 

@@ -14,20 +14,41 @@ export function updateStatusCard(changedProps) {
       ? this.hass.states[entityId]
       : null;
 
+  const isIconOnly =
+    this._config.mode === "icon_only";
+
   this._cardName =
-    this._config.status_name ||
-    this._config.card_name ||
-    this._config.name ||
+    (!isIconOnly
+      ? this._config.status_name
+      : null) ||
     getStatusAttribute(stateObj, "friendly_name") ||
     entityId ||
     "Status";
 
+  const templatedState =
+    this._config.state_template
+      ? this._evaluateStateTemplate(
+          this._config.state_template,
+          entityId
+        )
+      : null;
+
+  const templatedLabel =
+    this._config.label_template
+      ? this._evaluateStateTemplate(
+          this._config.label_template,
+          entityId
+        )
+      : null;
+
   this._statusText =
-    this._config.status_text ||
-    getStatusAttribute(stateObj, "label") ||
-    (stateObj
-    ? this.formatState(stateObj)
-    : "");
+    templatedLabel ??
+    (
+      getStatusAttribute(stateObj, "label") ||
+      (stateObj
+        ? this.formatState(stateObj)
+        : "")
+    );
 
   const customIcon =
     this._config.icon;
@@ -40,7 +61,8 @@ export function updateStatusCard(changedProps) {
 
   const isOn = getStatusActiveState(
     stateObj,
-    (entity) => this._getEntityActiveState(entity)
+    (entity) => this._getEntityActiveState(entity),
+    templatedState
   );
 
   this._icon =
@@ -54,7 +76,11 @@ export function updateStatusCard(changedProps) {
         )
       : "mdi:information-outline");
 
-  const statusColor = getStatusColor(this._config, stateObj);
+  const statusColor = getStatusColor(
+    this._config,
+    stateObj,
+    isOn
+  );
 
   this._navigationPath = getStatusNavigationPath(
     this._config,
@@ -62,11 +88,11 @@ export function updateStatusCard(changedProps) {
   );
 
   this._nameColor = this._computeFullColor(
-    this._config.name_color || statusColor
+    statusColor
   );
 
   this._statusColor = this._computeFullColor(
-    this._config.status_color || statusColor
+    statusColor
   );
 
   this._circleColor = this._computeCircleColor(statusColor);
