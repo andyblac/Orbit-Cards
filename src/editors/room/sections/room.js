@@ -36,18 +36,18 @@ export function renderRoomSection() {
               <!-- MAIN ENTITY -->
               ${this._renderEntity("Main Entity", "main_entity")}
               ${this._renderIconInput(
-                "Main Icon",
-                "main_icon"
+                "Main Entity Icon",
+                "main_entity_icon"
               )}
 
               ${this._renderIconInput(
-                "Main ON Icon",
-                "main_icon_on"
+                "Main Entity ON Icon",
+                "main_entity_icon_on"
               )}
 
               ${this._renderIconInput(
-                "Main OFF Icon",
-                "main_icon_off"
+                "Main Entity OFF Icon",
+                "main_entity_icon_off"
               )}
 
               ${this._config?.main_entity

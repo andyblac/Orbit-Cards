@@ -22,13 +22,13 @@ export function updateRoomCard(changedProps) {
   );
 
   const customIcon =
-    this._config.main_icon;
+    this._config.main_entity_icon;
 
   const customIconOn =
-    this._config.main_icon_on;
+    this._config.main_entity_icon_on;
 
   const customIconOff =
-    this._config.main_icon_off;
+    this._config.main_entity_icon_off;
 
   let autoIcon = "mdi:sofa";
 

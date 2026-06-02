@@ -230,7 +230,7 @@ The card will automatically use the light's current color.
 ### Material Design Icons
 
 ```yaml
-main_icon: mdi:sofa
+main_entity_icon: mdi:sofa
 ```
 
 ---
@@ -238,7 +238,7 @@ main_icon: mdi:sofa
 ### SVG Icons
 
 ```yaml
-main_icon: /local/icons/lounge.svg
+main_entity_icon: /local/icons/lounge.svg
 ```
 
 SVG icons can be used for:
@@ -495,9 +495,9 @@ accent_off_color: theme
 | `label_template` | Template used for displayed status text or Icon Only badge. |
 | `accent_on_color` | ON colour override. If unset, the entity `color` attribute is used when available. |
 | `accent_off_color` | OFF colour override. Defaults to `theme`. |
-| `icon` | Main icon override. Falls back to entity `icon` attribute. |
-| `icon_on` | Icon used when the status is ON. |
-| `icon_off` | Icon used when the status is OFF. |
+| `main_entity_icon` | Main entity icon override. Falls back to entity `icon` attribute. |
+| `main_entity_icon_on` | Main entity icon used when the status is ON. |
+| `main_entity_icon_off` | Main entity icon used when the status is OFF. |
 | `tap_action` | Card tap action. Defaults to `navigate` in Standard mode and `more-info` in Icon Only mode. |
 | `main_entity_tap_action` | Main entity/icon tap action. Defaults to `more-info` in Standard mode. In Icon Only mode it falls back to `tap_action` when unset or `none`. |
 | `main_entity_hold_action` | Main entity/icon hold action. Defaults to `none`. |
@@ -638,9 +638,9 @@ status_color: green
 
 main_entity: light.living_room
 
-main_icon: mdi:sofa
-main_icon_on: mdi:lightbulb-on
-main_icon_off: mdi:lightbulb
+main_entity_icon: mdi:sofa
+main_entity_icon_on: mdi:lightbulb-on
+main_entity_icon_off: mdi:lightbulb
 
 main_entity_tap_action:
   action: more-info
@@ -712,9 +712,9 @@ curve_button6_icon: mdi:fountain
 | `accent_color` | Main room accent colour. Supports theme colours, named colours, hex, and `rgb()`. |
 | `status_color` | Colour used for the status text row. Falls back to `accent_color`. |
 | `main_entity` | Main entity for the large room icon, main icon colour, tap action, and hold action. |
-| `main_icon` | Main icon override. Falls back to entity icon, area icon, or default room icon. |
-| `main_icon_on` | Main icon used when `main_entity` is ON/active. |
-| `main_icon_off` | Main icon used when `main_entity` is OFF/inactive. |
+| `main_entity_icon` | Main entity icon override. Falls back to entity icon, area icon, or default room icon. |
+| `main_entity_icon_on` | Main entity icon used when `main_entity` is ON/active. |
+| `main_entity_icon_off` | Main entity icon used when `main_entity` is OFF/inactive. |
 | `main_entity_tap_action` | Main entity/icon tap action. Defaults to `more-info`. |
 | `main_entity_hold_action` | Main entity/icon hold action. Defaults to `none`. |
 | `navigate.navigation_path` | Card tap navigation path. Room card body tap is navigation-only. |

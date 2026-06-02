@@ -51,13 +51,13 @@ export function updateStatusCard(changedProps) {
     );
 
   const customIcon =
-    this._config.icon;
+    this._config.main_entity_icon;
 
   const customIconOn =
-    this._config.icon_on;
+    this._config.main_entity_icon_on;
 
   const customIconOff =
-    this._config.icon_off;
+    this._config.main_entity_icon_off;
 
   const isOn = getStatusActiveState(
     stateObj,
