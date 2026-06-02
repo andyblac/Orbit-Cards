@@ -703,6 +703,36 @@ curve_button6: switch.fountain
 curve_button6_icon: mdi:fountain
 ```
 
+## Room Card Config Options
+
+| Option | Description |
+| --- | --- |
+| `room_name` | Overrides the displayed room/card name. Falls back to the selected area name, then entity name. |
+| `area` | Home Assistant area used for automatic room name/icon fallback. |
+| `accent_color` | Main room accent colour. Supports theme colours, named colours, hex, and `rgb()`. |
+| `status_color` | Colour used for the status text row. Falls back to `accent_color`. |
+| `main_entity` | Main entity for the large room icon, main icon colour, tap action, and hold action. |
+| `main_icon` | Main icon override. Falls back to entity icon, area icon, or default room icon. |
+| `main_icon_on` | Main icon used when `main_entity` is ON/active. |
+| `main_icon_off` | Main icon used when `main_entity` is OFF/inactive. |
+| `main_entity_tap_action` | Main entity/icon tap action. Defaults to `more-info`. |
+| `main_entity_hold_action` | Main entity/icon hold action. Defaults to `none`. |
+| `navigate.navigation_path` | Card tap navigation path. Room card body tap is navigation-only. |
+| `status1` / `status2` / `status3` | Optional entities shown in the status text row. |
+| `button1` - `button4` | Side button entities. |
+| `buttonX_icon` | Icon override for side button `X`. |
+| `buttonX_on_color` | Side button ON colour. |
+| `buttonX_off_color` | Side button OFF colour. |
+| `buttonX_tap_action` | Side button tap action. Defaults to `toggle`. |
+| `buttonX_hold_action` | Side button hold action. Defaults to `none`. |
+| `buttonX_state_template` | Template used to decide side button active state. |
+| `curve_button1` - `curve_button6` | Curved button entities shown around the main icon. |
+| `curve_buttonX_icon` | Icon override for curve button `X`. |
+| `curve_buttonX_tap_action` | Curve button tap action. Defaults to `toggle`. |
+| `curve_buttonX_hold_action` | Curve button hold action. Defaults to `none`. |
+| `curve_buttonX_state_template` | Template used to decide curve button active state. |
+| `curve_buttons_lock_position` | Locks curve button positions so they do not compress/reflow. |
+
 ---
 
 
