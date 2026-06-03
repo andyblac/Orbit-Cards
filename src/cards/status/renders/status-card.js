@@ -131,50 +131,21 @@ function renderPersonBadge(position, icon, color, entityId = null) {
     <span
       class="person-badge person-badge-${position} ${entityId ? "clickable" : ""}"
       style="background:${color}"
-      @pointerdown=${(ev) => entityId && ev.stopPropagation()}
-      @pointerup=${(ev) => handlePersonBadgeTap.call(this, ev, entityId)}
-      @pointerleave=${(ev) => entityId && ev.stopPropagation()}
-      @pointercancel=${(ev) => entityId && ev.stopPropagation()}
-      @touchstart=${(ev) => entityId && ev.stopPropagation()}
-      @touchend=${(ev) => entityId && ev.stopPropagation()}
-      @touchcancel=${(ev) => entityId && ev.stopPropagation()}
-      @click=${(ev) => {
-        if (!entityId) return;
-
-        ev.stopPropagation();
-        if (this._personBadgeActionFired) {
-          this._personBadgeActionFired = false;
-          return;
-        }
-
-        openPersonBadgeMoreInfo.call(this, entityId);
-      }}
+      .dataEntity=${entityId}
+      @pointerdown=${this._handlePersonBadgeStop}
+      @pointerup=${this._handlePersonBadgePointerUp}
+      @pointerleave=${this._handlePersonBadgeStop}
+      @pointercancel=${this._handlePersonBadgeStop}
+      @touchstart=${this._handlePersonBadgeStop}
+      @touchend=${this._handlePersonBadgeStop}
+      @touchcancel=${this._handlePersonBadgeStop}
+      @click=${this._handlePersonBadgeClick}
     >
       <span class="person-badge-icon">
         <ha-icon .icon=${icon}></ha-icon>
       </span>
     </span>
   `;
-}
-
-function handlePersonBadgeTap(ev, entityId) {
-  if (!entityId) return;
-
-  ev.stopPropagation();
-  this._personBadgeActionFired = true;
-  openPersonBadgeMoreInfo.call(this, entityId);
-}
-
-function openPersonBadgeMoreInfo(entityId) {
-  this.dispatchEvent(
-    new CustomEvent("hass-more-info", {
-      detail: {
-        entityId,
-      },
-      bubbles: true,
-      composed: true,
-    })
-  );
 }
 
 function getIconOnlyStatusText(statusText) {

@@ -223,6 +223,49 @@ class OrbitStatusCard extends LitElement {
     return navigate.call(this, path);
   }
 
+  _handlePersonBadgeStop(ev) {
+    if (ev.currentTarget?.dataEntity) {
+      ev.stopPropagation();
+    }
+  }
+
+  _handlePersonBadgePointerUp(ev) {
+    const entityId = ev.currentTarget?.dataEntity;
+
+    if (!entityId) return;
+
+    ev.stopPropagation();
+    this._personBadgeActionFired = true;
+    this._openPersonBadgeMoreInfo(entityId);
+  }
+
+  _handlePersonBadgeClick(ev) {
+    const entityId = ev.currentTarget?.dataEntity;
+
+    if (!entityId) return;
+
+    ev.stopPropagation();
+
+    if (this._personBadgeActionFired) {
+      this._personBadgeActionFired = false;
+      return;
+    }
+
+    this._openPersonBadgeMoreInfo(entityId);
+  }
+
+  _openPersonBadgeMoreInfo(entityId) {
+    this.dispatchEvent(
+      new CustomEvent("hass-more-info", {
+        detail: {
+          entityId,
+        },
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
+
   _computeFullColor(colorInput) {
     return computeFullColor.call(this, colorInput);
   }
