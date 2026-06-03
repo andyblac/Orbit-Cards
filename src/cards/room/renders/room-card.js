@@ -2,7 +2,7 @@ import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 export function renderCard() {
-  const buttons = this._getButtonEntities();
+  const buttons = this._buttonModels || [];
   const iconPath = this._isImageIcon(this._icon)
     ? this._resolveIconPath(this._icon)
     : "";
@@ -28,7 +28,7 @@ export function renderCard() {
           ${buttons.length
             ? html`
                 <div class="button-column" style="--button-count:${buttons.length}">
-                  ${buttons.map((id, i) => this._renderButtons(id, i))}
+                  ${buttons.map((button) => this._renderButtons(button))}
                 </div>
               `
             : ""}

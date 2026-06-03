@@ -53,10 +53,6 @@ import {
 } from "../common/helpers/svg-cache.js";
 
 import {
-  getButtonEntities,
-  getCurveButtonConfig,
-} from "./room/helpers/entity.js";
-import {
   updateRoomCard,
 } from "./room/helpers/lifecycle.js";
 
@@ -184,10 +180,6 @@ class OrbitRoomCard extends LitElement {
     return formatEntityState(stateObj);
   }
 
-  _getButtonEntities() {
-    return getButtonEntities.call(this);
-  }
-
   _getEntityActiveState(stateObj) {
     return getEntityActiveState(stateObj);
   }
@@ -206,10 +198,6 @@ class OrbitRoomCard extends LitElement {
 
   _getDefaultDomainIcon(domain, stateObj = null) {
     return getDefaultDomainIcon.call(this, domain, stateObj);
-  }
-
-  _getCurveButtonConfig(index) {
-    return getCurveButtonConfig.call(this, index);
   }
 
   _isImageIcon(icon) {
@@ -264,8 +252,8 @@ class OrbitRoomCard extends LitElement {
     ];
   }
 
-  _renderButtons(entityId, index) {
-    return renderButtons.call(this, entityId, index);
+  _renderButtons(button) {
+    return renderButtons.call(this, button);
   }
 
   _renderCurveButtons() {

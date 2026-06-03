@@ -64,4 +64,224 @@ export function updateRoomCard(changedProps) {
     .map((id) => this.hass?.states[id])
     .map((s) => (s ? this.formatState(s) : "—"))
     .join(" | ");
+
+  this._buttonModels = getButtonModels.call(this);
+  this._curveButtonModels = getCurveButtonModels.call(this);
+}
+
+function getButtonModels() {
+  return [
+    this._config.button1,
+    this._config.button2,
+    this._config.button3,
+    this._config.button4,
+  ]
+    .filter(Boolean)
+    .map((entityId, index) =>
+      getRoomButtonModel.call(
+        this,
+        "button",
+        entityId,
+        index,
+        {
+          defaultAction: { action: "toggle" },
+          getIconColor: getButtonIconColor,
+          getBackgroundColor: getButtonBackgroundColor,
+        }
+      )
+    )
+    .filter(Boolean);
+}
+
+function getCurveButtonModels() {
+  const lockPositions =
+    this._config?.curve_buttons_lock_position ?? false;
+
+  const curveButtons = [
+    this._config.curve_button1,
+    this._config.curve_button2,
+    this._config.curve_button3,
+    this._config.curve_button4,
+    this._config.curve_button5,
+    this._config.curve_button6,
+  ];
+
+  const activeCurveButtons = curveButtons.filter(Boolean);
+
+  return curveButtons
+    .map((entityId, index) => {
+      if (!lockPositions && !entityId) return null;
+
+      if (lockPositions && !entityId) {
+        return {
+          empty: true,
+          position: index,
+        };
+      }
+
+      const model = getRoomButtonModel.call(
+        this,
+        "curve_button",
+        entityId,
+        index,
+        {
+          defaultAction: { action: "more-info" },
+          getIconColor: getCurveButtonIconColor,
+          getBackgroundColor: null,
+        }
+      );
+
+      if (!model) return null;
+
+      model.position = lockPositions
+        ? index
+        : activeCurveButtons.indexOf(entityId);
+
+      return model;
+    })
+    .filter(Boolean);
+}
+
+function getRoomButtonModel(prefix, entityId, index, options) {
+  const stateObj = this.hass?.states[entityId];
+
+  if (!stateObj) return null;
+
+  const key = `${prefix}${index + 1}`;
+  const stateTemplate = this._config?.[`${key}_state_template`];
+  const evaluatedState = this._evaluateStateTemplate(
+    stateTemplate,
+    entityId
+  );
+
+  const isOn =
+    evaluatedState === null || evaluatedState === undefined
+      ? this._getEntityActiveState(stateObj)
+      : evaluatedState === true ||
+        evaluatedState === "on";
+
+  const icon = getButtonIcon.call(
+    this,
+    key,
+    entityId,
+    stateObj,
+    isOn
+  );
+
+  const isImage = this._isImageIcon(icon);
+
+  return {
+    entityId,
+    holdAction: this._config?.[`${key}_hold_action`],
+    tapAction:
+      this._config?.[`${key}_tap_action`] ||
+      options.defaultAction,
+    backgroundColor: options.getBackgroundColor
+      ? options.getBackgroundColor.call(this, key, stateObj, isOn)
+      : "",
+    icon,
+    iconColor: options.getIconColor.call(this, key, stateObj, isOn),
+    iconPath: isImage
+      ? this._resolveIconPath(icon)
+      : "",
+    isImage,
+  };
+}
+
+function getButtonIcon(key, entityId, stateObj, isOn) {
+  const customIcon = this._config?.[`${key}_icon`];
+  const customIconOn = this._config?.[`${key}_icon_on`];
+  const customIconOff = this._config?.[`${key}_icon_off`];
+  const domain = entityId.split(".")[0];
+
+  const defaultIcon =
+    this._getDefaultDomainIcon(domain, stateObj);
+
+  const entityIcon =
+    stateObj?.attributes?.icon ||
+    this.hass?.entities?.[entityId]?.icon;
+
+  return (
+    (isOn ? customIconOn : customIconOff) ||
+    customIcon ||
+    entityIcon ||
+    defaultIcon ||
+    "mdi:help-circle"
+  );
+}
+
+function getButtonBackgroundColor(key, stateObj, isOn) {
+  if (isOn) {
+    return this._computeButtonBackground(
+      getResolvedButtonOnColor.call(this, key, stateObj)
+    );
+  }
+
+  const offColor =
+    this._config[`${key}_off_color`] || "theme";
+
+  if (offColor.startsWith("rgb(") || offColor.startsWith("#")) {
+    return `color-mix(in srgb, transparent, ${offColor} 90%)`;
+  }
+
+  if (!offColor || offColor === "theme") {
+    return "rgba(var(--color-theme),0.05)";
+  }
+
+  return `rgba(var(--color-${offColor}),0.1)`;
+}
+
+function getButtonIconColor(key, stateObj, isOn) {
+  if (isOn) {
+    return this._computeFullColor(
+      getResolvedButtonOnColor.call(this, key, stateObj)
+    );
+  }
+
+  const offColor =
+    this._config[`${key}_off_color`] || "theme";
+
+  if (offColor.startsWith("rgba(")) return offColor;
+
+  if (offColor.startsWith("rgb(") || offColor.startsWith("#")) {
+    return `color-mix(in srgb, transparent, ${offColor} 80%)`;
+  }
+
+  return `rgba(var(--color-${offColor}),0.2)`;
+}
+
+function getResolvedButtonOnColor(key, stateObj) {
+  const onColor =
+    this._config[`${key}_on_color`] || "theme";
+
+  if (onColor !== "light") return onColor;
+
+  return (
+    this._getEntityColor(stateObj) ||
+    this._config.accent_color ||
+    "theme"
+  );
+}
+
+function getCurveButtonIconColor(_key, _stateObj, isOn) {
+  const roomColor = this._config.accent_color || "theme";
+
+  if (roomColor === "theme") {
+    return isOn
+      ? "rgba(var(--color-theme),0.7)"
+      : "rgba(var(--color-theme),0.2)";
+  }
+
+  if (
+    roomColor.startsWith("rgb") ||
+    roomColor.startsWith("#")
+  ) {
+    return isOn
+      ? roomColor
+      : `color-mix(in srgb, ${roomColor} 40%, transparent)`;
+  }
+
+  return isOn
+    ? `rgba(var(--color-${roomColor}),1)`
+    : `rgba(var(--color-${roomColor}),0.4)`;
 }
