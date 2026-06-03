@@ -20,9 +20,12 @@ import {
 
 import { renderStatusSection } from "./status/sections/status.js";
 import { editorStyles } from "../common/editor/styles/editor-styles.js";
+import {
+  sharedSvgCache,
+} from "../common/helpers/svg-cache.js";
 
 class OrbitStatusCardEditor extends LitElement {
-  static svgCache = {};
+  static svgCache = sharedSvgCache;
 
   static properties = {
     hass: { attribute: false },

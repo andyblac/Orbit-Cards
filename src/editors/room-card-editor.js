@@ -27,10 +27,13 @@ import { renderRoomSection } from "./room/sections/room.js";
 import { renderButtonsSection } from "./room/sections/buttons.js";
 import { renderCurvedButtonsSection } from "./room/sections/curve-buttons.js";
 import { editorStyles } from "../common/editor/styles/editor-styles.js";
+import {
+  sharedSvgCache,
+} from "../common/helpers/svg-cache.js";
 
 
 class OrbitRoomCardEditor extends LitElement {
-  static svgCache = {};
+  static svgCache = sharedSvgCache;
 
 
   static properties = {

@@ -44,6 +44,13 @@ import {
 import {
   evaluateStateTemplate,
 } from "../common/helpers/templates.js";
+import {
+  hasTemplateConfig,
+  shouldUpdateForEntities,
+} from "../common/helpers/updates.js";
+import {
+  sharedSvgCache,
+} from "../common/helpers/svg-cache.js";
 
 import {
   getButtonEntities,
@@ -64,7 +71,7 @@ import "../editors/room-card-editor.js";
 import { CARD_VERSIONS } from "../version.js";
 
 class OrbitRoomCard extends LitElement {
-  static svgCache = {};
+  static svgCache = sharedSvgCache;
 
   static get properties() {
     return {
@@ -112,6 +119,17 @@ class OrbitRoomCard extends LitElement {
 
   updated(changedProps) {
     return updateRoomCard.call(this, changedProps);
+  }
+
+  shouldUpdate(changedProps) {
+    return shouldUpdateForEntities.call(
+      this,
+      changedProps,
+      this._getRelevantEntities(),
+      {
+        hasTemplates: hasTemplateConfig(this._config),
+      }
+    );
   }
 
   _handleAction(actionConfig, entityId = null) {
@@ -224,6 +242,26 @@ class OrbitRoomCard extends LitElement {
 
   _evaluateStateTemplate(template, entityId) {
     return evaluateStateTemplate.call(this, template, entityId);
+  }
+
+  _getRelevantEntities() {
+    return [
+      this._config?.main_entity,
+      this._config?.entity,
+      this._config?.status1,
+      this._config?.status2,
+      this._config?.status3,
+      this._config?.button1,
+      this._config?.button2,
+      this._config?.button3,
+      this._config?.button4,
+      this._config?.curve_button1,
+      this._config?.curve_button2,
+      this._config?.curve_button3,
+      this._config?.curve_button4,
+      this._config?.curve_button5,
+      this._config?.curve_button6,
+    ];
   }
 
   _renderButtons(entityId, index) {

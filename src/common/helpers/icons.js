@@ -230,10 +230,12 @@ export function getInlineSvg(path) {
   }
 
   if (cached === "loading") {
+    addSvgSubscriber(path, this);
     return "";
   }
 
   svgCache[path] = "loading";
+  addSvgSubscriber(path, this);
 
   fetchInlineSvg(path)
     .then((response) => {
@@ -258,21 +260,42 @@ export function getInlineSvg(path) {
 
       svgCache[path] = svg;
 
-      requestAnimationFrame(() => {
-        this.requestUpdate();
-      });
+      notifySvgSubscribers(path);
     })
     .catch((err) => {
       console.error("SVG load failed:", path, err);
 
       delete svgCache[path];
 
-      requestAnimationFrame(() => {
-        this.requestUpdate();
-      });
+      notifySvgSubscribers(path);
     });
 
   return "";
+}
+
+const svgSubscribers = {};
+
+function addSvgSubscriber(path, element) {
+  if (!element) return;
+
+  svgSubscribers[path] = svgSubscribers[path] || new Set();
+  svgSubscribers[path].add(element);
+}
+
+function notifySvgSubscribers(path) {
+  const subscribers = svgSubscribers[path];
+
+  if (!subscribers) return;
+
+  delete svgSubscribers[path];
+
+  requestAnimationFrame(() => {
+    subscribers.forEach((element) => {
+      if (element.isConnected) {
+        element.requestUpdate();
+      }
+    });
+  });
 }
 
 function fetchInlineSvg(path) {

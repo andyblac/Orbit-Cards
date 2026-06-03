@@ -30,6 +30,13 @@ import {
 import {
   evaluateStateTemplate,
 } from "../common/helpers/templates.js";
+import {
+  hasTemplateConfig,
+  shouldUpdateForEntities,
+} from "../common/helpers/updates.js";
+import {
+  sharedSvgCache,
+} from "../common/helpers/svg-cache.js";
 
 import {
   updateStatusCard,
@@ -42,7 +49,7 @@ import "../editors/status-card-editor.js";
 import { CARD_VERSIONS } from "../version.js";
 
 class OrbitStatusCard extends LitElement {
-  static svgCache = {};
+  static svgCache = sharedSvgCache;
 
   static get properties() {
     return {
@@ -104,6 +111,18 @@ class OrbitStatusCard extends LitElement {
 
   updated(changedProps) {
     return updateStatusCard.call(this, changedProps);
+  }
+
+  shouldUpdate(changedProps) {
+    return shouldUpdateForEntities.call(
+      this,
+      changedProps,
+      this._getRelevantEntities(),
+      {
+        hasTemplates: hasTemplateConfig(this._config),
+        includeZones: this._config?.mode === "person",
+      }
+    );
   }
 
   _handleAction(actionConfig, entityId = null) {
@@ -254,6 +273,16 @@ class OrbitStatusCard extends LitElement {
 
   _evaluateStateTemplate(template, entityId) {
     return evaluateStateTemplate.call(this, template, entityId);
+  }
+
+  _getRelevantEntities() {
+    return [
+      this._config?.main_entity,
+      this._config?.tracker_entity,
+      this._config?.eta_entity,
+      this._config?.battery_entity_1,
+      this._config?.battery_entity_2,
+    ];
   }
 
   get _LONG_PRESS_DELAY() {
