@@ -23,6 +23,8 @@ export function renderCurveButtons() {
       this._config.curve_button6,
     ];
 
+    const activeCurveButtons = curveButtons.filter(Boolean);
+
     return html`
       <div class="curve-buttons">
 
@@ -37,9 +39,7 @@ export function renderCurveButtons() {
           // DYNAMIC POSITIONING
           const visualIndex = lockPositions
             ? index
-            : curveButtons
-                .filter(Boolean)
-                .indexOf(entityId);
+            : activeCurveButtons.indexOf(entityId);
 
           // NORMAL MODE (OLD BEHAVIOUR)
           if (!lockPositions && !entityId) {
@@ -83,11 +83,6 @@ export function renderCurveButtons() {
             this._config?.[`curve_button${index + 1}_icon_off`];
 
           const domain = entityId.split(".")[0];
-
-          const binaryIcon =
-            domain === "binary_sensor"
-              ? this._getBinarySensorIcon(stateObj)
-              : null;
 
           let icon;
 

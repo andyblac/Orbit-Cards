@@ -109,7 +109,7 @@ class OrbitStatusCard extends LitElement {
     this._circleColor = this._computeCircleColor(color);
   }
 
-  updated(changedProps) {
+  willUpdate(changedProps) {
     return updateStatusCard.call(this, changedProps);
   }
 

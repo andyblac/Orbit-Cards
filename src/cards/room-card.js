@@ -117,7 +117,7 @@ class OrbitRoomCard extends LitElement {
     this._circleColor = this._computeCircleColor(config.accent_color);
   }
 
-  updated(changedProps) {
+  willUpdate(changedProps) {
     return updateRoomCard.call(this, changedProps);
   }
 
