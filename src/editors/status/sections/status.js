@@ -4,6 +4,17 @@ export function renderStatusSection() {
   const mode = this._config?.mode || "standard";
   const isIconOnly = mode === "icon_only";
   const isPerson = mode === "person";
+  const cardActionDefault =
+    isIconOnly || isPerson
+      ? "more-info"
+      : "navigate";
+  const effectiveCardAction =
+    this._config?.tap_action?.action ||
+    cardActionDefault;
+  const mainEntityActionDefault =
+    isIconOnly || isPerson
+      ? effectiveCardAction
+      : "more-info";
 
   return html`
     <div class="section">
@@ -58,12 +69,12 @@ export function renderStatusSection() {
             ${this._renderActionSelector(
               "Card Action",
               "tap_action",
-              isIconOnly || isPerson ? "more-info" : "navigate"
+              cardActionDefault
             )}
             ${this._renderActionSelector(
               "Main Entity Action",
               "main_entity_tap_action",
-              isIconOnly || isPerson ? "none" : "more-info"
+              mainEntityActionDefault
             )}
             ${this._renderActionSelector(
               "Hold Action",
