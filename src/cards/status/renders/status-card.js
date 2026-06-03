@@ -27,7 +27,9 @@ export function renderStatusCard() {
           @click=${this._handleMainIconClick}
           @contextmenu=${this._handleMainIconContextMenu}
         >
-          ${this._isImageIcon(this._icon)
+          ${mode === "person"
+            ? renderPersonIcon.call(this)
+            : this._isImageIcon(this._icon)
             ? html`
                 <div
                   class="main-image-icon"
@@ -73,6 +75,106 @@ export function renderStatusCard() {
       </div>
     </ha-card>
   `;
+}
+
+function renderPersonIcon() {
+  return html`
+    <div class="person-main-icon">
+      ${this._personPicture
+        ? html`
+            <img
+              class="person-picture"
+              src=${this._personPicture}
+              alt=""
+            />
+          `
+        : html`
+          <ha-icon
+            class="person-fallback-icon"
+            .icon=${this._icon || "mdi:account"}
+            style="color:${this._iconColor}"
+          ></ha-icon>
+          `}
+
+      ${renderPersonBadge.call(
+        this,
+        "zone",
+        this._personZoneIcon || "mdi:home-minus",
+        this._computeFullColor("blue")
+      )}
+
+      ${this._personBattery1
+        ? renderPersonBadge.call(
+            this,
+            "battery-1",
+            this._personBattery1.icon,
+            this._personBattery1.color,
+            this._personBattery1.entityId
+          )
+        : ""}
+
+      ${this._personBattery2
+        ? renderPersonBadge.call(
+            this,
+            "battery-2",
+            this._personBattery2.icon,
+            this._personBattery2.color,
+            this._personBattery2.entityId
+          )
+        : ""}
+    </div>
+  `;
+}
+
+function renderPersonBadge(position, icon, color, entityId = null) {
+  return html`
+    <span
+      class="person-badge person-badge-${position} ${entityId ? "clickable" : ""}"
+      style="background:${color}"
+      @pointerdown=${(ev) => entityId && ev.stopPropagation()}
+      @pointerup=${(ev) => handlePersonBadgeTap.call(this, ev, entityId)}
+      @pointerleave=${(ev) => entityId && ev.stopPropagation()}
+      @pointercancel=${(ev) => entityId && ev.stopPropagation()}
+      @touchstart=${(ev) => entityId && ev.stopPropagation()}
+      @touchend=${(ev) => entityId && ev.stopPropagation()}
+      @touchcancel=${(ev) => entityId && ev.stopPropagation()}
+      @click=${(ev) => {
+        if (!entityId) return;
+
+        ev.stopPropagation();
+        if (this._personBadgeActionFired) {
+          this._personBadgeActionFired = false;
+          return;
+        }
+
+        openPersonBadgeMoreInfo.call(this, entityId);
+      }}
+    >
+      <span class="person-badge-icon">
+        <ha-icon .icon=${icon}></ha-icon>
+      </span>
+    </span>
+  `;
+}
+
+function handlePersonBadgeTap(ev, entityId) {
+  if (!entityId) return;
+
+  ev.stopPropagation();
+  this._personBadgeActionFired = true;
+  openPersonBadgeMoreInfo.call(this, entityId);
+}
+
+function openPersonBadgeMoreInfo(entityId) {
+  this.dispatchEvent(
+    new CustomEvent("hass-more-info", {
+      detail: {
+        entityId,
+      },
+      bubbles: true,
+      composed: true,
+    })
+  );
 }
 
 function getIconOnlyStatusText(statusText) {

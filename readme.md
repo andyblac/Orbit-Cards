@@ -435,7 +435,9 @@ main_entity: sensor.number_of_lights_on
 
 Icon Only mode shows a square icon card with a numeric badge. The badge is hidden when the displayed number is `0`.
 
-Both modes use:
+Person mode shows a person profile picture, tracker status, optional ETA, zone badge, and up to two battery badges. Battery badges always open `more-info` for their battery entity when tapped.
+
+All Status modes use:
 
 ```yaml
 accent_on_color: amber
@@ -484,22 +486,42 @@ accent_on_color: green
 accent_off_color: theme
 ```
 
+### Person example
+
+```yaml
+type: custom:orbit-status-card
+mode: person
+main_entity: person.andrew
+tracker_entity: device_tracker.andrew_phone
+eta_entity: sensor.andrew_eta
+battery_entity_1: sensor.andrew_phone_battery
+battery_entity_2: sensor.andrew_watch_battery
+tap_action:
+  action: more-info
+main_entity_tap_action:
+  action: none
+```
+
 ### Config options
 
 | Option | Description |
 | --- | --- |
-| `mode` | `standard` or `icon_only`. Defaults to `standard`. |
-| `main_entity` | Required entity used for icon, status, name, state, actions, and attributes. |
+| `mode` | `standard`, `icon_only`, or `person`. Defaults to `standard`. |
+| `main_entity` | Required main entity. Standard/Icon Only use it for icon, status, state, actions, and attributes. Person mode uses it as the person entity for profile picture, name fallback, and actions. |
 | `status_name` | Standard mode only. Overrides the entity `friendly_name`. |
-| `state_template` | Template used for ON/OFF detection. Numeric `0` is OFF, numeric values greater than `0` are ON. |
-| `label_template` | Template used for displayed status text or Icon Only badge. |
+| `tracker_entity` | Person mode only. Tracker entity used for the displayed location/status. |
+| `eta_entity` | Person mode only. Optional ETA entity appended to the status when the tracker is not `home`. |
+| `battery_entity_1` | Person mode only. First battery badge entity. Tapping the badge opens `more-info` for this entity. |
+| `battery_entity_2` | Person mode only. Second battery badge entity. Tapping the badge opens `more-info` for this entity. |
+| `state_template` | Standard/Icon Only only. Template used for ON/OFF detection. Numeric `0` is OFF, numeric values greater than `0` are ON. |
+| `label_template` | Standard/Icon Only only. Template used for displayed status text or Icon Only badge. |
 | `accent_on_color` | ON colour override. If unset, the entity `color` attribute is used when available. |
 | `accent_off_color` | OFF colour override. Defaults to `theme`. |
-| `main_entity_icon` | Main entity icon override. Falls back to entity `icon` attribute. |
-| `main_entity_icon_on` | Main entity icon used when the status is ON. |
-| `main_entity_icon_off` | Main entity icon used when the status is OFF. |
-| `tap_action` | Card tap action. Defaults to `navigate` in Standard mode and `more-info` in Icon Only mode. |
-| `main_entity_tap_action` | Main entity/icon tap action. Defaults to `more-info` in Standard mode. In Icon Only mode it falls back to `tap_action` when unset or `none`. |
+| `main_entity_icon` | Standard/Icon Only only. Main entity icon override. Falls back to entity `icon` attribute. |
+| `main_entity_icon_on` | Standard/Icon Only only. Main entity icon used when the status is ON. |
+| `main_entity_icon_off` | Standard/Icon Only only. Main entity icon used when the status is OFF. |
+| `tap_action` | Card tap action. Defaults to `navigate` in Standard mode and `more-info` in Icon Only/Person modes. |
+| `main_entity_tap_action` | Main entity/icon tap action. Defaults to `more-info` in Standard mode. In Icon Only/Person modes it falls back to `tap_action` when unset or `none`. |
 | `main_entity_hold_action` | Main entity/icon hold action. Defaults to `none`. |
 
 ---

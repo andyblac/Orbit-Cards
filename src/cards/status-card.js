@@ -56,6 +56,10 @@ class OrbitStatusCard extends LitElement {
       _iconColor: { type: String },
       _circleColor: { type: String },
       _navigationPath: { type: String },
+      _personPicture: { type: String },
+      _personZoneIcon: { type: String },
+      _personBattery1: { type: Object },
+      _personBattery2: { type: Object },
     };
   }
 
@@ -117,7 +121,7 @@ class OrbitStatusCard extends LitElement {
       return;
     }
 
-    ev.stopPropagation();
+    this._stopEvent(ev);
 
     this._handleCardTapAction();
   }
@@ -380,7 +384,7 @@ class OrbitStatusCard extends LitElement {
     if (actionConfig?.action === "none") return null;
     if (actionConfig?.action) return actionConfig;
 
-    return this._isIconOnlyMode()
+    return this._isIconOnlyMode() || this._isPersonMode()
       ? null
       : {
           action: "more-info",
@@ -388,18 +392,25 @@ class OrbitStatusCard extends LitElement {
   }
 
   _getCardTapAction() {
-    return (
-      this._config.tap_action ||
-      {
-        action: this._isIconOnlyMode()
-          ? "more-info"
-          : "navigate",
-      }
-    );
+    const defaultAction = {
+      action: this._isIconOnlyMode() || this._isPersonMode()
+        ? "more-info"
+        : "navigate",
+    };
+
+    const actionConfig = this._config.tap_action;
+
+    if (!actionConfig?.action) return defaultAction;
+
+    return actionConfig;
   }
 
   _isIconOnlyMode() {
     return this._config?.mode === "icon_only";
+  }
+
+  _isPersonMode() {
+    return this._config?.mode === "person";
   }
 
   _trackPointerEvent(ev) {

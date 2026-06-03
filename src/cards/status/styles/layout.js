@@ -9,6 +9,10 @@ export const StatusCardLayoutStyles = css`
     aspect-ratio: 1 / 1;
   }
 
+  ha-card.mode-person {
+    aspect-ratio: 3 / 1;
+  }
+
   .status-container {
     overflow: hidden;
   }
@@ -49,20 +53,106 @@ export const StatusCardLayoutStyles = css`
   }
 
   .status-container.mode-icon_only .status-circle {
-    left: -9%;
+    left: -12%;
     top: auto;
-    bottom: -8%;
-    width: 88%;
+    bottom: -12%;
+    width: 82%;
     transform: none;
   }
 
   .status-container.mode-icon_only .status-circle .main-icon {
-    --mdc-icon-size: 58%;
+    --mdc-icon-size: 54%;
   }
 
   .status-container.mode-icon_only .status-circle .main-image-icon {
-    width: 58%;
-    height: 58%;
+    width: 54%;
+    height: 54%;
+  }
+
+  .status-container.mode-person .status-circle {
+    overflow: visible;
+  }
+
+  .status-container.mode-person .person-main-icon {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .status-container.mode-person .person-picture,
+  .status-container.mode-person .person-fallback-icon {
+    width: 100%;
+    height: 100%;
+  }
+
+  .status-container.mode-person .person-picture {
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .status-container.mode-person .person-fallback-icon {
+    --mdc-icon-size: 100%;
+  }
+
+  .person-badge {
+    --person-badge-size: clamp(16px, 18%, 40px);
+    --person-badge-ring: clamp(2px, 0.55cqw, 4px);
+    position: absolute;
+    width: var(--person-badge-size);
+    height: var(--person-badge-size);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 var(--person-badge-ring) var(--ha-card-background, var(--card-background-color));
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .person-badge.clickable {
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .person-badge-icon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .person-badge ha-icon {
+    --mdc-icon-size: 92%;
+    width: 92%;
+    height: 92%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: none;
+    color: var(--primary-background-color);
+  }
+
+  .person-badge-zone {
+    left: 34%;
+    top: 4%;
+    z-index: 6;
+  }
+
+  .person-badge-zone ha-icon {
+    transform: none;
+  }
+
+  .person-badge-battery-1 {
+    left: 66%;
+    top: 4%;
+  }
+
+  .person-badge-battery-2 {
+    left: 88%;
+    top: 22%;
   }
 
   .status-badge {
