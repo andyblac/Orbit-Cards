@@ -27,12 +27,7 @@ export function renderCurveButtons() {
             <button
               class="curve-button pos-${button.position}"
                 @click=${this._handleCurveButtonClick}
-                @pointerdown=${(ev) =>
-                  this._startLongPress(
-                    ev,
-                    button.entityId,
-                    button.holdAction
-                  )}
+                @pointerdown=${this._handleButtonPointerDown}
 
                 @pointerup=${this._finishLongPress}
                 @pointerleave=${this._cancelLongPress}
@@ -40,6 +35,7 @@ export function renderCurveButtons() {
 
                 .dataEntity=${button.entityId}
                 .dataAction=${button.tapAction}
+                .dataHoldAction=${button.holdAction}
             >
               ${button.isImage
                 ? html`

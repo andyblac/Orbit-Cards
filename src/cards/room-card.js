@@ -156,6 +156,24 @@ class OrbitRoomCard extends LitElement {
     return handleMainEntityTap.call(this, ev);
   }
 
+  _handleMainEntityPointerDown(ev) {
+    return this._startLongPress(
+      ev,
+      this._config.main_entity || this._config.entity,
+      this._config.main_entity_hold_action
+    );
+  }
+
+  _handleButtonPointerDown(ev) {
+    const target = ev.currentTarget;
+
+    return this._startLongPress(
+      ev,
+      target.dataEntity,
+      target.dataHoldAction
+    );
+  }
+
   _computeFullColor(colorInput) {
     return computeFullColor.call(this, colorInput);
   }

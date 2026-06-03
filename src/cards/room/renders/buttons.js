@@ -14,12 +14,7 @@ export function renderButtons(button) {
         style="background:${button.backgroundColor};"
         @click=${this._handleButtonClick}
 
-        @pointerdown=${(ev) =>
-          this._startLongPress(
-            ev,
-            button.entityId,
-            button.holdAction
-          )}
+        @pointerdown=${this._handleButtonPointerDown}
 
         @pointerup=${this._finishLongPress}
         @pointerleave=${this._cancelLongPress}
@@ -27,6 +22,7 @@ export function renderButtons(button) {
 
         .dataEntity=${button.entityId}
         .dataAction=${button.tapAction}
+        .dataHoldAction=${button.holdAction}
       >
         ${button.isImage
           ? html`

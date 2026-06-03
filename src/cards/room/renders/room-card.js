@@ -39,14 +39,9 @@ export function renderCard() {
           class="circle"
           style="background:${this._circleColor}"
 
-          @click=${(ev) => this._handleMainEntityTap(ev)}
+          @click=${this._handleMainEntityTap}
 
-          @pointerdown=${(ev) =>
-            this._startLongPress(
-              ev,
-              this._config.main_entity || this._config.entity,
-              this._config.main_entity_hold_action
-            )}
+          @pointerdown=${this._handleMainEntityPointerDown}
 
           @pointerup=${this._finishLongPress}
           @pointerleave=${this._cancelLongPress}
