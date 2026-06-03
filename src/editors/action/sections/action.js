@@ -1,0 +1,182 @@
+import { html } from "lit";
+
+export function renderActionSection() {
+  const items = this._getActionItems();
+  const selectedIndex = Math.min(
+    this._selectedActionIndex || 0,
+    items.length - 1
+  );
+  const selectedItem = items[selectedIndex] || {};
+
+  return html`
+    <div class="section">
+      <div class="action-tabs">
+        ${items.map((_, index) => html`
+          <button
+            type="button"
+            class="action-tab ${index === selectedIndex ? "active" : ""}"
+            @click=${() => this._selectActionItem(index)}
+          >
+            ${index + 1}
+          </button>
+        `)}
+
+        <button
+          type="button"
+          class="action-tab-add"
+          @click=${() => this._addActionItem()}
+        >
+          +
+        </button>
+      </div>
+
+      ${items.length > 1
+        ? html`
+            <div class="action-editor-tools">
+              <button
+                type="button"
+                class="action-tool-button"
+                title="Move left"
+                ?disabled=${selectedIndex === 0}
+                @click=${() => this._moveActionItem(selectedIndex, -1)}
+              >
+                <ha-icon icon="mdi:arrow-left"></ha-icon>
+              </button>
+
+              <button
+                type="button"
+                class="action-tool-button"
+                title="Move right"
+                ?disabled=${selectedIndex === items.length - 1}
+                @click=${() => this._moveActionItem(selectedIndex, 1)}
+              >
+                <ha-icon icon="mdi:arrow-right"></ha-icon>
+              </button>
+
+              <button
+                type="button"
+                class="action-tool-button"
+                title="Remove"
+                @click=${() => this._removeActionItem(selectedIndex)}
+              >
+                <ha-icon icon="mdi:trash-can"></ha-icon>
+              </button>
+            </div>
+          `
+        : ""}
+
+      <div class="field">
+        <label>Main Entity</label>
+
+        <div class="entity-row">
+          <ha-selector
+            class="entity-picker"
+            .hass=${this.hass}
+            .selector=${{ entity: {} }}
+            .value=${selectedItem.entity || ""}
+            @value-changed=${(e) =>
+              this._updateActionItem(selectedIndex, {
+                entity: e.detail.value || "",
+              })}
+          ></ha-selector>
+
+          ${selectedItem.entity
+            ? html`
+                <button
+                  type="button"
+                  class="clear-button"
+                  @click=${() =>
+                    this._updateActionItem(selectedIndex, {
+                      entity: "",
+                    })}
+                >
+                  ✕
+                </button>
+              `
+            : ""}
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Accent Color</label>
+
+        <div class="color-row">
+          <input
+            .value=${selectedItem.accent_color || ""}
+            placeholder="green / blue / theme / light / #hex / rgb()"
+            @input=${(e) =>
+              this._updateActionItem(selectedIndex, {
+                accent_color: e.target.value,
+              })}
+          />
+
+          <div
+            class="color-preview"
+            style=${this._getColorStyle(selectedItem.accent_color || "")}
+          ></div>
+        </div>
+      </div>
+
+      ${this._renderActionItemIconInput(
+        "Main Entity Icon",
+        "main_entity_icon",
+        selectedIndex
+      )}
+
+      ${selectedItem.entity
+        ? html`
+            ${this._renderActionItemActionSelector(
+              "Tap Action",
+              "tap_action",
+              selectedIndex,
+              getDefaultTapAction(selectedItem.entity)
+            )}
+            ${this._renderActionItemActionSelector(
+              "Hold Action",
+              "hold_action",
+              selectedIndex,
+              "more-info"
+            )}
+          `
+        : ""}
+    </div>
+  `;
+}
+
+function getDefaultTapAction(entityId) {
+  const domain = entityId?.split(".")[0];
+
+  if (domain === "scene") {
+    return {
+      action: "call-service",
+      service: "scene.turn_on",
+      service_data: {
+        entity_id: entityId,
+      },
+    };
+  }
+
+  if (domain === "script") {
+    return {
+      action: "call-service",
+      service: "script.turn_on",
+      service_data: {
+        entity_id: entityId,
+      },
+    };
+  }
+
+  if (domain === "automation") {
+    return {
+      action: "call-service",
+      service: "automation.trigger",
+      service_data: {
+        entity_id: entityId,
+      },
+    };
+  }
+
+  return {
+    action: "toggle",
+  };
+}

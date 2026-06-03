@@ -1,18 +1,18 @@
 export function getMainIconColor(stateObj, isOn) {
-  const roomColor = this._config.accent_color || "theme";
+  const accentColor = this._config.accent_color || "theme";
 
   if (!isOn) {
-    return this._computeIconColor(roomColor);
+    return this._computeIconColor(accentColor);
   }
 
-  if (roomColor === "light") {
+  if (accentColor === "light") {
     return (
       this._getEntityColor(stateObj) ||
       this._computeFullColor("theme")
     );
   }
 
-  return this._computeFullColor(roomColor);
+  return this._computeFullColor(accentColor);
 }
 
 export function getEntityColor(stateObj) {
@@ -172,6 +172,15 @@ export function getDefaultDomainIcon(domain, stateObj = null) {
 
     case "sensor":
       return "mdi:gauge";
+
+    case "scene":
+      return "mdi:palette";
+
+    case "script":
+      return "mdi:script-text";
+
+    case "automation":
+      return "mdi:robot";
 
     case "person":
       return "mdi:account";

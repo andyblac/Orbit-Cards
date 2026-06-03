@@ -1,7 +1,7 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
-export function renderCard() {
+export function renderRoomCard() {
   const buttons = this._buttonModels || [];
   const iconPath = this._isImageIcon(this._icon)
     ? this._resolveIconPath(this._icon)

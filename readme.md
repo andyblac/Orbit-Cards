@@ -413,7 +413,7 @@ main_entity_hold_action:
 
 ## Status Card Modes
 
-Status Card supports two modes.
+Status Card supports three modes.
 
 ### Standard
 
@@ -523,6 +523,67 @@ main_entity_tap_action:
 | `tap_action` | Card tap action. Defaults to `navigate` in Standard mode and `more-info` in Icon Only/Person modes. |
 | `main_entity_tap_action` | Main entity/icon tap action. Defaults to `more-info` in Standard mode. In Icon Only/Person modes it falls back to `tap_action` when unset or `none`. |
 | `main_entity_hold_action` | Main entity/icon hold action. Defaults to `none`. |
+
+---
+
+## Action Card
+
+Action Card is a compact 1:1 card for activating scenes, scripts, automations, and other action-like entities.
+
+```yaml
+type: custom:orbit-action-card
+main_entity: scene.movie_time
+accent_color: blue
+```
+
+Default tap actions are selected from the entity domain:
+
+| Domain | Default tap action |
+| --- | --- |
+| `scene` | `scene.turn_on` |
+| `script` | `script.turn_on` |
+| `automation` | `automation.trigger` |
+| Other domains | `toggle` |
+
+Hold action defaults to `more-info`.
+
+### Action Card example
+
+```yaml
+type: custom:orbit-action-card
+main_entity: script.good_night
+accent_color: purple
+main_entity_icon: mdi:weather-night
+hold_action:
+  action: more-info
+```
+
+### Action Card group example
+
+```yaml
+type: custom:orbit-action-card
+entities:
+  - entity: scene.movie_time
+    accent_color: blue
+    main_entity_icon: mdi:movie-open
+  - entity: script.good_night
+    accent_color: purple
+    main_entity_icon: mdi:weather-night
+  - entity: automation.motion_lights
+    accent_color: amber
+    main_entity_icon: mdi:motion-sensor
+```
+
+### Action Card config options
+
+| Option | Description |
+| --- | --- |
+| `main_entity` | Required entity to activate. Intended for `scene`, `script`, or `automation`. |
+| `entities` | Optional list of action items to show side by side. Each item supports `entity`, `accent_color`, `main_entity_icon`, `tap_action`, and `hold_action`. |
+| `accent_color` | Base card/icon colour. Defaults to `theme`. |
+| `main_entity_icon` | Optional icon override. Falls back to entity icon, then a domain icon. |
+| `tap_action` | Optional tap action override. Defaults by entity domain. |
+| `hold_action` | Optional hold action override. Defaults to `more-info`. |
 
 ---
 

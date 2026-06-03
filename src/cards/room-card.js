@@ -57,7 +57,7 @@ import {
 } from "./room/helpers/lifecycle.js";
 
 import { renderButtons } from "./room/renders/buttons.js";
-import { renderCard } from "./room/renders/room-card.js";
+import { renderRoomCard } from "./room/renders/room-card.js";
 import { renderCurveButtons } from "./room/renders/curve-buttons.js";
 
 import { roomCardStyles } from "./room/styles/room-card-styles.js";
@@ -279,7 +279,7 @@ class OrbitRoomCard extends LitElement {
   }
 
   render() {
-    return renderCard.call(this);
+    return renderRoomCard.call(this);
   }
 
   static styles = roomCardStyles;

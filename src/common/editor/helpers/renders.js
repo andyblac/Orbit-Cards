@@ -87,18 +87,22 @@ export function renderStatusSection() {
 
 export function renderActionSelector(label, key, defaultAction) {
   const raw = this._config?.[key];
+  const defaultValue =
+    typeof defaultAction === "object"
+      ? defaultAction
+      : { action: defaultAction };
 
   const value =
     raw && typeof raw === "object"
       ? raw
-      : { action: defaultAction };
+      : defaultValue;
 
   return html`
     <div class="field">
       <label>${label}</label>
 
       <select
-        .value=${value.action || defaultAction}
+        .value=${value.action || defaultValue.action}
         @change=${(e) =>
           this._updateConfig({
             [key]: {
