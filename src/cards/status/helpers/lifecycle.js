@@ -4,6 +4,9 @@ import {
   getStatusColor,
   getStatusNavigationPath,
 } from "./attributes.js";
+import {
+  getActiveZoneIndex,
+} from "../../../common/helpers/zones.js";
 
 export function updateStatusCard(changedProps) {
   if (!changedProps.has("_config") && !changedProps.has("hass")) return;
@@ -224,13 +227,12 @@ function getPersonZoneIcon(trackerObj, personObj) {
     return "mdi:home-variant";
   }
 
+  const zoneIndex = getActiveZoneIndex(this.hass);
   const personId = personObj?.entity_id;
 
-  if (personId && this.hass?.states) {
-    const zone = Object.values(this.hass.states)
+  if (personId) {
+    const zone = zoneIndex.zones
       .find((stateObj) =>
-        stateObj.entity_id?.startsWith("zone.") &&
-        !stateObj.attributes?.passive &&
         Array.isArray(stateObj.attributes?.persons) &&
         stateObj.attributes.persons.includes(personId)
       );
@@ -243,23 +245,7 @@ function getPersonZoneIcon(trackerObj, personObj) {
   const trackerState = trackerObj?.state?.toLowerCase();
 
   if (trackerState && trackerState !== "not_home") {
-    const zone = Object.values(this.hass?.states || {})
-      .find((stateObj) => {
-        if (
-          !stateObj.entity_id?.startsWith("zone.") ||
-          stateObj.attributes?.passive
-        ) {
-          return false;
-        }
-
-        const zoneName =
-          stateObj.attributes?.friendly_name ||
-          stateObj.entity_id.replace(/^zone\./, "");
-
-        return zoneName
-          .toLowerCase()
-          .replace(/\s+/g, "_") === trackerState;
-      });
+    const zone = zoneIndex.zoneByTrackerState.get(trackerState);
 
     if (zone?.attributes?.icon) {
       return zone.attributes.icon;
