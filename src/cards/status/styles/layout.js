@@ -14,10 +14,15 @@ export const StatusCardLayoutStyles = css`
   }
 
   .status-container {
+    --status-circle-color: rgba(var(--color-theme),0.05);
+    --status-icon-color: rgba(var(--color-theme),0.4);
+    --status-name-color: rgb(var(--color-theme));
+    --status-text-color: rgb(var(--color-theme));
     overflow: hidden;
   }
 
   .status-circle {
+    background: var(--status-circle-color);
     position: absolute;
     left: -8%;
     top: 18%;
@@ -35,11 +40,13 @@ export const StatusCardLayoutStyles = css`
 
   .status-circle .main-icon {
     --mdc-icon-size: 45%;
+    color: var(--status-icon-color);
   }
 
   .status-circle .main-image-icon {
     width: 45%;
     height: 45%;
+    color: var(--status-icon-color);
   }
 
   .status-container .content {
@@ -49,7 +56,12 @@ export const StatusCardLayoutStyles = css`
   }
 
   .status-container .status {
+    color: var(--status-text-color);
     font-size: clamp(16px, 8cqw, 32px);
+  }
+
+  .status-container .card-name {
+    color: var(--status-name-color);
   }
 
   .status-container.mode-icon_only .status-circle {
@@ -93,6 +105,7 @@ export const StatusCardLayoutStyles = css`
 
   .status-container.mode-person .person-fallback-icon {
     --mdc-icon-size: 100%;
+    color: var(--status-icon-color);
   }
 
   .person-badge {
@@ -156,6 +169,8 @@ export const StatusCardLayoutStyles = css`
   }
 
   .status-badge {
+    background: var(--status-circle-color);
+    color: var(--status-icon-color);
     position: absolute;
     top: 5%;
     right: 5%;

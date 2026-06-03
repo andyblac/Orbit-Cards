@@ -13,10 +13,17 @@ export function renderStatusCard() {
 
   return html`
     <ha-card class="mode-${mode}" tabindex="0" @click=${this._handleTap}>
-      <div class="container status-container mode-${mode}">
+      <div
+        class="container status-container mode-${mode}"
+        style="
+          --status-circle-color:${this._circleColor};
+          --status-icon-color:${this._iconColor};
+          --status-name-color:${this._nameColor};
+          --status-text-color:${this._statusColor};
+        "
+      >
         <div
           class="circle status-circle"
-          style="background:${this._circleColor}"
           @pointerdown=${this._handleMainIconPointerDown}
           @pointerup=${this._handleMainIconPointerUp}
           @pointerleave=${this._handleMainIconPointerCancel}
@@ -33,7 +40,6 @@ export function renderStatusCard() {
             ? html`
                 <div
                   class="main-image-icon"
-                  style="color:${this._iconColor};"
                 >
                   ${inlineSvg
                     ? unsafeHTML(inlineSvg)
@@ -44,7 +50,6 @@ export function renderStatusCard() {
                 <ha-icon
                   class="main-icon"
                   .icon=${this._icon}
-                  style="color:${this._iconColor}"
                 ></ha-icon>
               `}
         </div>
@@ -54,7 +59,6 @@ export function renderStatusCard() {
               <div
                 class="status-badge"
                 ?hidden=${!badgeText}
-                style="background:${this._circleColor}; color:${this._iconColor}"
               >
                 ${badgeText}
               </div>
@@ -62,11 +66,11 @@ export function renderStatusCard() {
           : html`
               <div class="content">
                 <div class="header">
-                  <div class="card-name" style="color:${this._nameColor}">
+                  <div class="card-name">
                     ${this._cardName}
                   </div>
 
-                  <div class="status" style="color:${this._statusColor}">
+                  <div class="status">
                     ${this._statusText || ""}
                   </div>
                 </div>
@@ -92,7 +96,6 @@ function renderPersonIcon() {
           <ha-icon
             class="person-fallback-icon"
             .icon=${this._icon || "mdi:account"}
-            style="color:${this._iconColor}"
           ></ha-icon>
           `}
 
