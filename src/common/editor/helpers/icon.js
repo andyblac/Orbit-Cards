@@ -1,8 +1,6 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
-const ICON_CACHE_KEY = Date.now().toString(36);
-
 /* ==========================================
  * ICON HELPERS
  * ========================================== */
@@ -23,24 +21,17 @@ export function isImageIcon(icon) {
 export function resolveIconPath(iconPath) {
   if (!iconPath) return "";
 
-  const withCacheBust = (path) =>
-    path.includes("?")
-      ? path
-      : `${path}?orbit-icon=${ICON_CACHE_KEY}`;
-
   if (
     iconPath.startsWith("/")
   ) {
-    return iconPath.startsWith("/local/")
-      ? withCacheBust(iconPath)
-      : iconPath;
+    return iconPath;
   }
 
   if (iconPath.startsWith("http")) {
     return iconPath;
   }
 
-  return withCacheBust(`/local/icons/${iconPath}`);
+  return `/local/icons/${iconPath}`;
 }
 
 export function renderIconInput(label, key, placeholder) {

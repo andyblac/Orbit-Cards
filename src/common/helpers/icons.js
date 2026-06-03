@@ -1,5 +1,3 @@
-const ICON_CACHE_KEY = Date.now().toString(36);
-
 export function getMainIconColor(stateObj, isOn) {
   const roomColor = this._config.accent_color || "theme";
 
@@ -205,24 +203,17 @@ export function isImageIcon(icon) {
 export function resolveIconPath(iconPath) {
   if (!iconPath) return "";
 
-  const withCacheBust = (path) =>
-    path.includes("?")
-      ? path
-      : `${path}?orbit-icon=${ICON_CACHE_KEY}`;
-
   if (
     iconPath.startsWith("/")
   ) {
-    return iconPath.startsWith("/local/")
-      ? withCacheBust(iconPath)
-      : iconPath;
+    return iconPath;
   }
 
   if (iconPath.startsWith("http")) {
     return iconPath;
   }
 
-  return withCacheBust(`/local/icons/${iconPath}`);
+  return `/local/icons/${iconPath}`;
 }
 
 export function getInlineSvg(path) {
@@ -244,7 +235,7 @@ export function getInlineSvg(path) {
 
   svgCache[path] = "loading";
 
-  fetch(path)
+  fetchInlineSvg(path)
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -282,4 +273,13 @@ export function getInlineSvg(path) {
     });
 
   return "";
+}
+
+function fetchInlineSvg(path) {
+  return fetch(path)
+    .then((response) => {
+      if (response.ok) return response;
+
+      return fetch(path, { cache: "reload" });
+    });
 }
