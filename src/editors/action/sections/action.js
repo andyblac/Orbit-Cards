@@ -160,7 +160,18 @@ export function renderActionSection() {
           <div
             class="color-preview"
             style=${this._getColorStyle(selectedItem.accent_color || "")}
-          ></div>
+            title="Choose colour"
+          >
+            <input
+              class="color-picker"
+              type="color"
+              .value=${this._getColorPickerValue(selectedItem.accent_color || "")}
+              @change=${(e) =>
+                this._updateActionItem(selectedIndex, {
+                  accent_color: e.target.value,
+                })}
+            />
+          </div>
         </div>
       </div>
 

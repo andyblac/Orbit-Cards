@@ -62,7 +62,16 @@ export function renderColor(label, key) {
         <div
           class="color-preview"
           style=${this._getColorStyle(value)}
-        ></div>
+          title="Choose colour"
+        >
+          <input
+            class="color-picker"
+            type="color"
+            .value=${this._getColorPickerValue(value)}
+            @change=${(e) =>
+              this._handleConfigUpdate(key, e.target.value)}
+          />
+        </div>
       </div>
     </div>
   `;

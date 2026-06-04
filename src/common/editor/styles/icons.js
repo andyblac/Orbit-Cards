@@ -7,15 +7,30 @@ export const iconStyles = css`
   align-items: center;
 }
 
-.color-row input {
+.color-row input:not(.color-picker) {
   flex: 1;
 }
 
 .color-preview {
+  position: relative;
+  flex: none;
   width: 28px;
   height: 28px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.color-picker {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  cursor: pointer;
+  opacity: 0;
+  padding: 0;
 }
 
 .icon-input-row {

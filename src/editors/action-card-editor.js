@@ -6,6 +6,7 @@ import { LitElement, css, html } from "lit";
 
 import {
   getColorStyle,
+  getColorPickerValue,
   isImageIcon,
   renderActionSelector,
   renderColor,
@@ -203,6 +204,10 @@ class OrbitActionCardEditor extends LitElement {
 
   _getColorStyle(value) {
     return getColorStyle(value);
+  }
+
+  _getColorPickerValue(value) {
+    return getColorPickerValue(value);
   }
 
   _renderActionSelector(label, key, defaultAction) {

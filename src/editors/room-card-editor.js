@@ -7,6 +7,7 @@ import { LitElement, css, html } from "lit";
 
 import {
   getColorStyle,
+  getColorPickerValue,
   isImageIcon,
   toggleSection,
   renderSectionHeader,
@@ -70,6 +71,10 @@ class OrbitRoomCardEditor extends LitElement {
   
   _getColorStyle(value) {
     return getColorStyle(value);
+  }
+
+  _getColorPickerValue(value) {
+    return getColorPickerValue(value);
   }
 
   setConfig(config) {

@@ -332,7 +332,18 @@ function renderStatusItemColor(label, key, index, item) {
         <div
           class="color-preview"
           style=${this._getColorStyle(item[key] || "")}
-        ></div>
+          title="Choose colour"
+        >
+          <input
+            class="color-picker"
+            type="color"
+            .value=${this._getColorPickerValue(item[key] || "")}
+            @change=${(e) =>
+              this._updateStatusItem(index, {
+                [key]: e.target.value,
+              })}
+          />
+        </div>
       </div>
     </div>
   `;
