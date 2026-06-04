@@ -47,6 +47,20 @@ export function renderSubSectionHeader(title, key) {
 export function renderColor(label, key) {
   const value = this._config?.[key] || "";
 
+  return renderColorControl.call(
+    this,
+    label,
+    key,
+    value,
+    (nextValue) => this._handleConfigUpdate(key, nextValue)
+  );
+}
+
+export function renderColorControl(label, pickerKey, value, onUpdate) {
+  const isOpen = this._colorPickerKey === pickerKey;
+  const activeTab = this._colorPickerTab || "picker";
+  const defaultTab = getDefaultColorTab(value);
+
   return html`
     <div class="field">
       <label>${label}</label>
@@ -56,25 +70,148 @@ export function renderColor(label, key) {
           .value=${value}
           placeholder="green / blue / theme / light / #hex / rgb()"
           @input=${(e) =>
-            this._handleConfigUpdate(key, e.target.value)}
+            onUpdate(e.target.value)}
         />
 
         <div
           class="color-preview"
           style=${this._getColorStyle(value)}
           title="Choose colour"
+          @click=${(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            this._colorPickerKey = isOpen ? "" : pickerKey;
+            this._colorPickerTab = defaultTab;
+          }}
         >
-          <input
-            class="color-picker"
-            type="color"
-            .value=${this._getColorPickerValue(value)}
-            @change=${(e) =>
-              this._handleConfigUpdate(key, e.target.value)}
-          />
         </div>
+
+        ${isOpen
+          ? html`
+              <div
+                class="color-popover"
+                @click=${(e) => e.stopPropagation()}
+              >
+                <div class="color-tabs">
+                  <button
+                    type="button"
+                    class=${activeTab === "picker" ? "active" : ""}
+                    @click=${() => {
+                      this._colorPickerTab = "picker";
+                    }}
+                  >
+                    Picker
+                    <input
+                      class="tab-color-picker"
+                      type="color"
+                      .value=${this._getColorPickerValue(value)}
+                      @input=${(e) => onUpdate(e.target.value)}
+                      @change=${(e) => onUpdate(e.target.value)}
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    class=${activeTab === "theme" ? "active" : ""}
+                    @click=${() => {
+                      this._colorPickerTab = "theme";
+                    }}
+                  >
+                    Theme
+                  </button>
+                </div>
+
+                ${activeTab === "theme"
+                  ? html`
+                      <div class="theme-colors">
+                        ${THEME_COLOR_OPTIONS.map(
+                          (color) => html`
+                            <button
+                              type="button"
+                              class="theme-color-option"
+                              title=${color}
+                              @click=${() => {
+                                onUpdate(color);
+                                this._colorPickerKey = "";
+                              }}
+                            >
+                              <span
+                                class="theme-color-swatch"
+                                style=${this._getColorStyle(color)}
+                              ></span>
+                              <span>${color}</span>
+                            </button>
+                          `
+                        )}
+                      </div>
+                    `
+                  : html`
+                      <input
+                        class="native-color-picker"
+                        type="color"
+                        .value=${this._getColorPickerValue(value)}
+                        @input=${(e) => onUpdate(e.target.value)}
+                        @change=${(e) => onUpdate(e.target.value)}
+                      />
+                    `}
+              </div>
+            `
+          : ""}
       </div>
     </div>
   `;
+}
+
+const THEME_COLOR_OPTIONS = [
+  "theme",
+  "red",
+  "green",
+  "yellow",
+  "amber",
+  "blue",
+  "purple",
+  "violet",
+  "grey",
+  "orange",
+  "gold",
+  "brown",
+  "primary-color",
+  "accent-color",
+  "state-icon-color",
+  "state-light-active-color",
+  "google-red",
+  "google-green",
+  "google-yellow",
+  "google-blue",
+  "google-violet",
+  "google-grey",
+  "color-red",
+  "color-green",
+  "color-yellow",
+  "color-amber",
+  "color-blue",
+  "color-purple",
+  "color-violet",
+  "color-grey",
+  "color-darkgrey",
+  "color-pink",
+  "color-orange",
+  "color-gold",
+  "color-brown",
+];
+
+function getDefaultColorTab(value) {
+  const color = value?.toString().trim();
+
+  if (!color) return "picker";
+
+  return (
+    color.startsWith("#") ||
+    color.startsWith("rgb") ||
+    color.startsWith("hsl")
+  )
+    ? "picker"
+    : "theme";
 }
 
 

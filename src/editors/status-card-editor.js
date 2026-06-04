@@ -12,6 +12,7 @@ import {
   renderEntity,
   renderArea,
   renderColor,
+  renderColorControl,
   renderInput,
   renderTemplateInput,
   getInlineSvg,
@@ -33,12 +34,16 @@ class OrbitStatusCardEditor extends LitElement {
     hass: { attribute: false },
     _config: { state: true },
     _selectedStatusIndex: { state: true },
+    _colorPickerKey: { state: true },
+    _colorPickerTab: { state: true },
   };
 
   constructor() {
     super();
     this._config = this._config || {};
     this._selectedStatusIndex = 0;
+    this._colorPickerKey = "";
+    this._colorPickerTab = "picker";
   }
 
   _getColorStyle(value) {
@@ -264,6 +269,16 @@ class OrbitStatusCardEditor extends LitElement {
 
   _renderColor(label, key) {
     return renderColor.call(this, label, key);
+  }
+
+  _renderColorControl(label, pickerKey, value, onUpdate) {
+    return renderColorControl.call(
+      this,
+      label,
+      pickerKey,
+      value,
+      onUpdate
+    );
   }
 
   _renderEntity(label, key) {

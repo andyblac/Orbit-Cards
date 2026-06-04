@@ -8,6 +8,9 @@ import {
 import {
   getInlineSvg,
 } from "../../helpers/icons.js";
+import {
+  getCssColor,
+} from "../../helpers/colors.js";
 
 import {
   renderInput,
@@ -22,6 +25,7 @@ import {
   renderEntity,
   renderArea,
   renderColor,
+  renderColorControl,
 } from "./renders.js";
 
 /* ==========================================
@@ -68,7 +72,7 @@ export function getColorStyle(value) {
     return "background-color: rgb(var(--color-theme));";
   }
 
-  return `background-color: rgb(var(--color-${cleaned}));`;
+  return `background-color: ${getCssColor(cleaned)};`;
 }
 
 export function getColorPickerValue(value) {
@@ -76,6 +80,80 @@ export function getColorPickerValue(value) {
 
   if (!color) return "#ffffff";
 
+  const directHex = normalizeHex(color);
+
+  if (directHex) return directHex;
+
+  const directRgb = getRgbHex(color);
+
+  if (directRgb) return directRgb;
+
+  return resolveThemeColorValue(color) || "#ffffff";
+}
+
+function resolveThemeColorValue(value, seen = new Set()) {
+  const color = value
+    ?.toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]/g, "");
+
+  if (!color || seen.has(color)) return "";
+
+  seen.add(color);
+
+  const direct = getCssVariableValue(color);
+  const fallback =
+    color.startsWith("color-")
+      ? ""
+      : getCssVariableValue(`color-${color}`);
+
+  return getResolvedCssColorValue(direct, seen) ||
+    getResolvedCssColorValue(fallback, seen) ||
+    "";
+}
+
+function getResolvedCssColorValue(value, seen) {
+  const color = value?.trim();
+
+  if (!color) return "";
+
+  const hex = normalizeHex(color);
+
+  if (hex) return hex;
+
+  const rgb = getRgbHex(color);
+
+  if (rgb) return rgb;
+
+  const cssVar = color.match(/^var\(\s*--([^),\s]+)\s*\)$/i);
+
+  if (cssVar) {
+    return resolveThemeColorValue(cssVar[1], seen);
+  }
+
+  return "";
+}
+
+function getCssVariableValue(name) {
+  const variable = `--${name}`;
+  const roots = [
+    document.documentElement,
+    document.body,
+  ].filter(Boolean);
+
+  for (const root of roots) {
+    const value = getComputedStyle(root)
+      .getPropertyValue(variable)
+      .trim();
+
+    if (value) return value;
+  }
+
+  return "";
+}
+
+function normalizeHex(color) {
   if (/^#[0-9a-f]{6}$/i.test(color)) {
     return color;
   }
@@ -84,19 +162,35 @@ export function getColorPickerValue(value) {
     return `#${color[1]}${color[1]}${color[2]}${color[2]}${color[3]}${color[3]}`;
   }
 
-  const rgbMatch = color.match(
+  return "";
+}
+
+function getRgbHex(color) {
+  const cssRgbMatch = color.match(
     /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i
   );
 
-  if (rgbMatch) {
+  if (cssRgbMatch) {
     return rgbToHex(
-      Number(rgbMatch[1]),
-      Number(rgbMatch[2]),
-      Number(rgbMatch[3])
+      Number(cssRgbMatch[1]),
+      Number(cssRgbMatch[2]),
+      Number(cssRgbMatch[3])
     );
   }
 
-  return "#ffffff";
+  const themeRgbMatch = color.match(
+    /^\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*$/i
+  );
+
+  if (themeRgbMatch) {
+    return rgbToHex(
+      Number(themeRgbMatch[1]),
+      Number(themeRgbMatch[2]),
+      Number(themeRgbMatch[3])
+    );
+  }
+
+  return "";
 }
 
 function rgbToHex(r, g, b) {
@@ -117,6 +211,7 @@ export {
   renderEntity,
   renderArea,
   renderColor,
+  renderColorControl,
   renderInput,
   renderTemplateInput,
   isImageIcon,

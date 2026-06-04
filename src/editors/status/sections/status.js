@@ -327,36 +327,13 @@ function renderStatusItemInput(label, key, index, item) {
 }
 
 function renderStatusItemColor(label, key, index, item) {
-  return html`
-    <div class="field">
-      <label>${label}</label>
-
-      <div class="color-row">
-        <input
-          .value=${item[key] || ""}
-          placeholder="green / blue / theme / light / #hex / rgb()"
-          @input=${(e) =>
-            this._updateStatusItem(index, {
-              [key]: e.target.value,
-            })}
-        />
-
-        <div
-          class="color-preview"
-          style=${this._getColorStyle(item[key] || "")}
-          title="Choose colour"
-        >
-          <input
-            class="color-picker"
-            type="color"
-            .value=${this._getColorPickerValue(item[key] || "")}
-            @change=${(e) =>
-              this._updateStatusItem(index, {
-                [key]: e.target.value,
-              })}
-          />
-        </div>
-      </div>
-    </div>
-  `;
+  return this._renderColorControl(
+    label,
+    `status-${index}-${key}`,
+    item[key] || "",
+    (value) =>
+      this._updateStatusItem(index, {
+        [key]: value,
+      })
+  );
 }

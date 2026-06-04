@@ -1,3 +1,8 @@
+import {
+  getColorMix,
+  isCssColor,
+} from "../../../common/helpers/colors.js";
+
 export function updateRoomCard(changedProps) {
   if (!changedProps.has("_config") && !changedProps.has("hass")) return;
 
@@ -220,7 +225,7 @@ function getButtonBackgroundColor(key, stateObj, isOn) {
   const offColor =
     this._config[`${key}_off_color`] || "theme";
 
-  if (offColor.startsWith("rgb(") || offColor.startsWith("#")) {
+  if (isCssColor(offColor)) {
     return `color-mix(in srgb, transparent, ${offColor} 90%)`;
   }
 
@@ -228,7 +233,7 @@ function getButtonBackgroundColor(key, stateObj, isOn) {
     return "rgba(var(--color-theme),0.05)";
   }
 
-  return `rgba(var(--color-${offColor}),0.1)`;
+  return getColorMix(offColor, 10);
 }
 
 function getButtonIconColor(key, stateObj, isOn) {
@@ -243,11 +248,11 @@ function getButtonIconColor(key, stateObj, isOn) {
 
   if (offColor.startsWith("rgba(")) return offColor;
 
-  if (offColor.startsWith("rgb(") || offColor.startsWith("#")) {
+  if (isCssColor(offColor)) {
     return `color-mix(in srgb, transparent, ${offColor} 80%)`;
   }
 
-  return `rgba(var(--color-${offColor}),0.2)`;
+  return getColorMix(offColor, 20);
 }
 
 function getResolvedButtonOnColor(key, stateObj) {
@@ -272,16 +277,13 @@ function getCurveButtonIconColor(_key, _stateObj, isOn) {
       : "rgba(var(--color-theme),0.2)";
   }
 
-  if (
-    roomColor.startsWith("rgb") ||
-    roomColor.startsWith("#")
-  ) {
+  if (isCssColor(roomColor)) {
     return isOn
       ? roomColor
       : `color-mix(in srgb, ${roomColor} 40%, transparent)`;
   }
 
   return isOn
-    ? `rgba(var(--color-${roomColor}),1)`
-    : `rgba(var(--color-${roomColor}),0.4)`;
+    ? this._computeFullColor(roomColor)
+    : getColorMix(roomColor, 40);
 }

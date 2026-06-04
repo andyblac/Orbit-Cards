@@ -17,6 +17,7 @@ import {
   renderEntity,
   renderArea,
   renderColor,
+  renderColorControl,
   renderInput,
   renderTemplateInput,
   getInlineSvg,
@@ -42,11 +43,15 @@ class OrbitRoomCardEditor extends LitElement {
     hass: { attribute: false },
     _config: { state: true },
     _collapsed: { state: true },
+    _colorPickerKey: { state: true },
+    _colorPickerTab: { state: true },
   };
 
   constructor() {
     super();
     this._config = this._config || {};
+    this._colorPickerKey = "";
+    this._colorPickerTab = "picker";
     this._collapsed = {
       room: false,
       status: true,
@@ -136,6 +141,16 @@ class OrbitRoomCardEditor extends LitElement {
 
   _renderColor(label, key) {
     return renderColor.call(this, label, key);
+  }
+
+  _renderColorControl(label, pickerKey, value, onUpdate) {
+    return renderColorControl.call(
+      this,
+      label,
+      pickerKey,
+      value,
+      onUpdate
+    );
   }
 
   

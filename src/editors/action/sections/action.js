@@ -156,36 +156,15 @@ export function renderActionSection() {
         </div>
       </div>
 
-      <div class="field">
-        <label>Accent Color</label>
-
-        <div class="color-row">
-          <input
-            .value=${selectedItem.accent_color || ""}
-            placeholder="green / blue / theme / light / #hex / rgb()"
-            @input=${(e) =>
-              this._updateActionItem(selectedIndex, {
-                accent_color: e.target.value,
-              })}
-          />
-
-          <div
-            class="color-preview"
-            style=${this._getColorStyle(selectedItem.accent_color || "")}
-            title="Choose colour"
-          >
-            <input
-              class="color-picker"
-              type="color"
-              .value=${this._getColorPickerValue(selectedItem.accent_color || "")}
-              @change=${(e) =>
-                this._updateActionItem(selectedIndex, {
-                  accent_color: e.target.value,
-                })}
-            />
-          </div>
-        </div>
-      </div>
+      ${this._renderColorControl(
+        "Accent Color",
+        `action-${selectedIndex}-accent_color`,
+        selectedItem.accent_color || "",
+        (value) =>
+          this._updateActionItem(selectedIndex, {
+            accent_color: value,
+          })
+      )}
 
       ${this._renderActionItemIconInput(
         "Main Entity Icon",

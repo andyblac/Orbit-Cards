@@ -3,11 +3,11 @@ export function computeFullColor(colorInput) {
 
   const color = colorInput.toString().trim();
 
-  if (color.startsWith("rgb") || color.startsWith("#")) {
+  if (isCssColor(color)) {
     return color;
   }
 
-  return `rgb(var(--color-${color}))`;
+  return getCssColor(color);
 }
 
 export function computeIconColor(colorInput) {
@@ -19,11 +19,11 @@ export function computeIconColor(colorInput) {
     return "rgba(var(--color-theme), 0.4)";
   }
 
-  if (color.startsWith("rgb") || color.startsWith("#")) {
+  if (isCssColor(color)) {
     return `color-mix(in srgb, transparent, ${color} 70%)`;
   }
 
-  return `rgba(var(--color-${color}), 0.7)`;
+  return getColorMix(color, 70);
 }
 
 export function computeCircleColor(colorInput) {
@@ -31,7 +31,7 @@ export function computeCircleColor(colorInput) {
 
   const color = colorInput.toString().trim();
 
-  if (color.startsWith("rgb") || color.startsWith("#")) {
+  if (isCssColor(color)) {
     return `color-mix(in srgb, transparent, ${color} 20%)`;
   }
 
@@ -39,7 +39,7 @@ export function computeCircleColor(colorInput) {
     return "rgba(var(--color-theme), 0.05)";
   }
 
-  return `rgba(var(--color-${color}), 0.2)`;
+  return getColorMix(color, 20);
 }
 
 export function computeButtonBackground(colorInput) {
@@ -47,9 +47,43 @@ export function computeButtonBackground(colorInput) {
 
   const color = colorInput.toString().trim();
 
-  if (color.startsWith("rgb") || color.startsWith("#")) {
+  if (isCssColor(color)) {
     return `color-mix(in srgb, ${color} 25%, transparent)`;
   }
 
-  return `rgba(var(--color-${color}), 0.25)`;
+  return getColorMix(color, 25);
+}
+
+export function getCssColor(colorInput) {
+  const color = cleanColorName(colorInput);
+
+  if (!color) return "rgb(var(--color-theme))";
+
+  if (color.startsWith("color-")) {
+    return `rgb(var(--${color}))`;
+  }
+
+  return `var(--${color}, rgb(var(--color-${color}, var(--color-theme))))`;
+}
+
+export function getColorMix(colorInput, percent) {
+  return `color-mix(in srgb, transparent, ${getCssColor(colorInput)} ${percent}%)`;
+}
+
+export function isCssColor(colorInput) {
+  const color = colorInput.toString().trim();
+
+  return (
+    color.startsWith("rgb") ||
+    color.startsWith("hsl") ||
+    color.startsWith("#")
+  );
+}
+
+function cleanColorName(colorInput) {
+  return colorInput
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]/g, "");
 }
