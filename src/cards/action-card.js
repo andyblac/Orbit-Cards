@@ -71,7 +71,7 @@ class OrbitActionCard extends LitElement {
     const columns = getActionColumnCount(this._config, count);
 
     return {
-      grid_columns: Math.max(0.5, columns * 0.5),
+      grid_columns: Math.max(1, columns * 1),
       grid_min_columns: 0.5,
     };
   }
