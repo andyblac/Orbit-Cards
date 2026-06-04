@@ -8,12 +8,13 @@ export const actionCardStyles = [
   MainIconStyles,
   css`
     ha-card {
-      aspect-ratio: var(--action-count, 1) / 1;
+      aspect-ratio: var(--action-columns, var(--action-count, 1)) / var(--action-rows, 1);
     }
 
     .action-container {
       display: grid;
-      grid-template-columns: repeat(var(--action-count, 1), minmax(0, 1fr));
+      grid-template-columns: repeat(var(--action-columns, var(--action-count, 1)), minmax(0, 1fr));
+      grid-auto-rows: minmax(0, 1fr);
       align-items: center;
       gap: clamp(4px, 2cqw, 10px);
       padding: 0;

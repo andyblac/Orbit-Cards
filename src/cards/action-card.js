@@ -68,9 +68,10 @@ class OrbitActionCard extends LitElement {
 
   getLayoutOptions() {
     const count = getActionItems(this._config).length;
+    const columns = getActionColumnCount(this._config, count);
 
     return {
-      grid_columns: Math.max(0.5, count * 0.5),
+      grid_columns: Math.max(0.5, columns * 0.5),
       grid_min_columns: 0.5,
     };
   }
@@ -186,6 +187,16 @@ class OrbitActionCard extends LitElement {
     return action?.entityId || action?.entity || this._config.main_entity;
   }
 
+  _getActionColumnCount(count = this._actions?.length || 1) {
+    return getActionColumnCount(this._config, count);
+  }
+
+  _getActionRowCount(count = this._actions?.length || 1) {
+    const columns = this._getActionColumnCount(count);
+
+    return Math.max(1, Math.ceil(count / columns));
+  }
+
   _handleAction(actionConfig, entityId = null) {
     return handleAction.call(this, actionConfig, entityId);
   }
@@ -239,6 +250,19 @@ class OrbitActionCard extends LitElement {
   }
 
   static styles = actionCardStyles;
+}
+
+function getActionColumnCount(config = {}, count = 1) {
+  if (!config.wrap) {
+    return Math.max(1, count);
+  }
+
+  const requestedColumns = Number(config.actions_per_row);
+  const columns = Number.isFinite(requestedColumns)
+    ? Math.floor(requestedColumns)
+    : 3;
+
+  return Math.max(1, Math.min(count, columns || 1));
 }
 
 function getDefaultTapAction(entityId) {

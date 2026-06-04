@@ -295,6 +295,18 @@ class OrbitActionCardEditor extends LitElement {
         overflow-x: auto;
       }
 
+      .action-wrap-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        opacity: 1;
+      }
+
+      .action-wrap-toggle input {
+        width: auto;
+        margin: 0;
+      }
+
       .action-tab,
       .action-tab-add {
         border: none;

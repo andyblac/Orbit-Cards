@@ -149,7 +149,7 @@ export const StatusCardLayoutStyles = css`
   }
 
   .person-badge-zone {
-    left: 34%;
+    left: 37%;
     top: 4%;
     z-index: 6;
   }
@@ -159,12 +159,12 @@ export const StatusCardLayoutStyles = css`
   }
 
   .person-badge-battery-1 {
-    left: 66%;
+    left: 69%;
     top: 4%;
   }
 
   .person-badge-battery-2 {
-    left: 88%;
+    left: 91%;
     top: 22%;
   }
 

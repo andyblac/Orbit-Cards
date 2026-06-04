@@ -10,6 +10,45 @@ export function renderActionSection() {
 
   return html`
     <div class="section">
+      <div class="field">
+        <label class="action-wrap-toggle">
+          <input
+            type="checkbox"
+            .checked=${!!this._config?.wrap}
+            @change=${(e) =>
+              this._updateConfig({
+                wrap: e.target.checked,
+                actions_per_row: e.target.checked
+                  ? this._config?.actions_per_row || 3
+                  : this._config?.actions_per_row,
+              })}
+          />
+          <span>Wrap</span>
+        </label>
+      </div>
+
+      ${this._config?.wrap
+        ? html`
+            <div class="field">
+              <label>Actions Per Row</label>
+
+              <input
+                type="number"
+                min="1"
+                step="1"
+                .value=${String(this._config?.actions_per_row || 3)}
+                @input=${(e) =>
+                  this._updateConfig({
+                    actions_per_row: Math.max(
+                      1,
+                      Number(e.target.value) || 1
+                    ),
+                  })}
+              />
+            </div>
+          `
+        : ""}
+
       <div class="action-tabs">
         ${items.map((_, index) => html`
           <button
@@ -72,7 +111,15 @@ export function renderActionSection() {
           <ha-selector
             class="entity-picker"
             .hass=${this.hass}
-            .selector=${{ entity: {} }}
+            .selector=${{
+              entity: {
+                domain: [
+                  "scene",
+                  "script",
+                  "automation",
+                ],
+              },
+            }}
             .value=${selectedItem.entity || ""}
             @value-changed=${(e) =>
               this._updateActionItem(selectedIndex, {

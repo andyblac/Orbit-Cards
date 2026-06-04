@@ -562,6 +562,8 @@ hold_action:
 
 ```yaml
 type: custom:orbit-action-card
+wrap: true
+actions_per_row: 3
 entities:
   - entity: scene.movie_time
     accent_color: blue
@@ -580,6 +582,8 @@ entities:
 | --- | --- |
 | `main_entity` | Required entity to activate. Intended for `scene`, `script`, or `automation`. |
 | `entities` | Optional list of action items to show side by side. Each item supports `entity`, `accent_color`, `main_entity_icon`, `tap_action`, and `hold_action`. |
+| `wrap` | Optional grouped-layout setting. When enabled, actions wrap onto additional rows. |
+| `actions_per_row` | Number of actions to show per row when `wrap` is enabled. Defaults to `3`. |
 | `accent_color` | Base card/icon colour. Defaults to `theme`. |
 | `main_entity_icon` | Optional icon override. Falls back to entity icon, then a domain icon. |
 | `tap_action` | Optional tap action override. Defaults by entity domain. |

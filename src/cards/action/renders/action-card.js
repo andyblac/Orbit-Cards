@@ -3,11 +3,18 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 export function renderActionCard() {
   const actions = this._actions || [];
+  const actionCount = Math.max(actions.length, 1);
+  const columnCount = this._getActionColumnCount(actionCount);
+  const rowCount = this._getActionRowCount(actionCount);
 
   return html`
     <ha-card
       tabindex="0"
-      style="--action-count:${Math.max(actions.length, 1)};"
+      style="
+        --action-count:${actionCount};
+        --action-columns:${columnCount};
+        --action-rows:${rowCount};
+      "
     >
       <div class="container action-container">
         ${actions.map((action, index) =>
