@@ -117,6 +117,7 @@ export const iconStyles = css`
 }
 
 .icon-input-row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -136,6 +137,7 @@ export const iconStyles = css`
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .preview-image-stack {
@@ -171,5 +173,105 @@ export const iconStyles = css`
 
 .icon-preview ha-icon {
   --mdc-icon-size: 24px;
+}
+
+.icon-popover {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(360px, 100%);
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--card-background-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.icon-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.icon-tabs button {
+  border: 0;
+  border-radius: 9px;
+  padding: 7px 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.icon-tabs button.active {
+  background: rgba(130, 177, 255, 0.22);
+  color: #82b1ff;
+}
+
+.file-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  max-height: 250px;
+  overflow: auto;
+}
+
+.file-icon-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 7px;
+  border: 0;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.file-icon-option.active {
+  background: rgba(130, 177, 255, 0.22);
+}
+
+.file-icon-preview {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  color: currentColor;
+}
+
+.file-icon-preview svg,
+.file-icon-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.file-icon-preview img {
+  filter: brightness(0) invert(1);
+}
+
+.file-icon-option span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon-picker-note {
+  padding: 10px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: 0.76;
+}
+
+.icon-picker-note code {
+  display: block;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
 }
 `;

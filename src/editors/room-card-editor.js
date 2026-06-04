@@ -23,6 +23,7 @@ import {
   getInlineSvg,
   resolveIconPath,
   renderIconInput,
+  loadLocalIconFiles,
 } from "../common/editor/helpers/helpers.js";
 
 import { renderRoomSection } from "./room/sections/room.js";
@@ -45,6 +46,10 @@ class OrbitRoomCardEditor extends LitElement {
     _collapsed: { state: true },
     _colorPickerKey: { state: true },
     _colorPickerTab: { state: true },
+    _iconPickerKey: { state: true },
+    _iconPickerTab: { state: true },
+    _localIconFiles: { state: true },
+    _localIconFilesLoading: { state: true },
   };
 
   constructor() {
@@ -52,6 +57,10 @@ class OrbitRoomCardEditor extends LitElement {
     this._config = this._config || {};
     this._colorPickerKey = "";
     this._colorPickerTab = "picker";
+    this._iconPickerKey = "";
+    this._iconPickerTab = "ha";
+    this._localIconFiles = [];
+    this._localIconFilesLoading = false;
     this._collapsed = {
       room: false,
       status: true,
@@ -160,6 +169,10 @@ class OrbitRoomCardEditor extends LitElement {
 
   _renderIconInput(label, key, placeholder = "mdi:lightbulb or icon.svg") {
     return renderIconInput.call(this, label, key, placeholder);
+  }
+
+  _loadLocalIconFiles(currentIcon = "") {
+    return loadLocalIconFiles.call(this, currentIcon);
   }
 
   _isImageIcon(icon) {

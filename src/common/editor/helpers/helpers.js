@@ -4,6 +4,7 @@ import {
   isImageIcon,
   resolveIconPath,
   renderIconInput,
+  loadLocalIconFiles,
 } from "./icon.js";
 import {
   getInlineSvg,
@@ -217,5 +218,6 @@ export {
   isImageIcon,
   resolveIconPath,
   renderIconInput,
+  loadLocalIconFiles,
   getInlineSvg,
 };

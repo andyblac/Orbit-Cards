@@ -18,6 +18,7 @@ import {
   getInlineSvg,
   resolveIconPath,
   renderIconInput,
+  loadLocalIconFiles,
 } from "../common/editor/helpers/helpers.js";
 
 import { renderStatusSection } from "./status/sections/status.js";
@@ -36,6 +37,10 @@ class OrbitStatusCardEditor extends LitElement {
     _selectedStatusIndex: { state: true },
     _colorPickerKey: { state: true },
     _colorPickerTab: { state: true },
+    _iconPickerKey: { state: true },
+    _iconPickerTab: { state: true },
+    _localIconFiles: { state: true },
+    _localIconFilesLoading: { state: true },
   };
 
   constructor() {
@@ -44,6 +49,10 @@ class OrbitStatusCardEditor extends LitElement {
     this._selectedStatusIndex = 0;
     this._colorPickerKey = "";
     this._colorPickerTab = "picker";
+    this._iconPickerKey = "";
+    this._iconPickerTab = "ha";
+    this._localIconFiles = [];
+    this._localIconFilesLoading = false;
   }
 
   _getColorStyle(value) {
@@ -314,19 +323,55 @@ class OrbitStatusCardEditor extends LitElement {
     return renderIconInput.call(this, label, key, placeholder);
   }
 
+  _loadLocalIconFiles(currentIcon = "") {
+    return loadLocalIconFiles.call(this, currentIcon);
+  }
+
   _renderStatusItemIconInput(label, key, index, placeholder = "mdi:information-outline or icon.svg") {
     const items = this._getStatusItems();
     const item = items[index] || {};
     const scopedEditor = {
       _config: item,
+      _iconPickerPrefix: `status-${index}-icon`,
       _isImageIcon: (icon) => this._isImageIcon(icon),
       _resolveIconPath: (path) => this._resolveIconPath(path),
       _getInlineSvg: (path) => this._getInlineSvg(path),
+      _loadLocalIconFiles: (currentIcon) =>
+        this._loadLocalIconFiles(currentIcon),
+      requestUpdate: () => this.requestUpdate(),
+      renderRoot: this.renderRoot,
       _handleConfigUpdate: (fieldKey, value) =>
         this._updateStatusItem(index, {
           [fieldKey]: value,
         }),
     };
+
+    Object.defineProperties(scopedEditor, {
+      _iconPickerKey: {
+        get: () => this._iconPickerKey,
+        set: (value) => {
+          this._iconPickerKey = value;
+        },
+      },
+      _iconPickerTab: {
+        get: () => this._iconPickerTab,
+        set: (value) => {
+          this._iconPickerTab = value;
+        },
+      },
+      _localIconFiles: {
+        get: () => this._localIconFiles,
+        set: (value) => {
+          this._localIconFiles = value;
+        },
+      },
+      _localIconFilesLoading: {
+        get: () => this._localIconFilesLoading,
+        set: (value) => {
+          this._localIconFilesLoading = value;
+        },
+      },
+    });
 
     return renderIconInput.call(
       scopedEditor,
