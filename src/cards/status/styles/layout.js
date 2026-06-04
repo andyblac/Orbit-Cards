@@ -3,6 +3,7 @@ import { css } from "lit";
 export const StatusCardLayoutStyles = css`
   ha-card {
     aspect-ratio: 3 / 1;
+    border-radius: 15px;
   }
 
   ha-card.mode-icon_only {
@@ -101,7 +102,7 @@ export const StatusCardLayoutStyles = css`
 
   .status-icon-item {
     background: var(--ha-card-background, var(--card-background-color));
-    border-radius: var(--ha-card-border-radius, 18px);
+    border-radius: 15px;
     container-type: size;
     cursor: pointer;
     overflow: hidden;

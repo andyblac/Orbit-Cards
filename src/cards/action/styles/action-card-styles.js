@@ -9,6 +9,7 @@ export const actionCardStyles = [
   css`
     ha-card {
       aspect-ratio: 0.93 / 1;
+      border-radius: 15px;
     }
 
     ha-card.grouped {
@@ -35,7 +36,7 @@ export const actionCardStyles = [
 
     .action-button {
       background: var(--ha-card-background, var(--card-background-color));
-      border-radius: var(--ha-card-border-radius, 18px);
+      border-radius: 15px;
       overflow: hidden;
       width: 100%;
       height: 100%;
