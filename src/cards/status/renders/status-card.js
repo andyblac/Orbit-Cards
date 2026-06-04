@@ -3,6 +3,12 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 export function renderStatusCard() {
   const mode = this._config?.mode || "standard";
+  const statusItems = this._statusItems || [];
+  const isGroupedIconOnly =
+    mode === "icon_only" && statusItems.length > 1;
+  const itemCount = Math.max(statusItems.length, 1);
+  const columnCount = this._getStatusColumnCount(itemCount);
+  const rowCount = this._getStatusRowCount(itemCount);
   const badgeText = getIconOnlyStatusText(this._statusText);
   const iconPath = this._isImageIcon(this._icon)
     ? this._resolveIconPath(this._icon)
@@ -12,9 +18,18 @@ export function renderStatusCard() {
     : "";
 
   return html`
-    <ha-card class="mode-${mode}" tabindex="0" @click=${this._handleTap}>
+    <ha-card
+      class="mode-${mode} ${isGroupedIconOnly ? "grouped" : ""}"
+      tabindex="0"
+      style="
+        --status-item-count:${itemCount};
+        --status-columns:${columnCount};
+        --status-rows:${rowCount};
+      "
+      @click=${this._handleTap}
+    >
       <div
-        class="container status-container mode-${mode}"
+        class="container status-container mode-${mode} ${isGroupedIconOnly ? "grouped" : ""}"
         style="
           --status-circle-color:${this._circleColor};
           --status-icon-color:${this._iconColor};
@@ -22,6 +37,9 @@ export function renderStatusCard() {
           --status-text-color:${this._statusColor};
         "
       >
+        ${isGroupedIconOnly
+          ? renderIconOnlyStatusGrid.call(this, statusItems)
+          : html`
         <div
           class="circle status-circle"
           @pointerdown=${this._handleMainIconPointerDown}
@@ -51,7 +69,7 @@ export function renderStatusCard() {
                   class="main-icon"
                   .icon=${this._icon}
                 ></ha-icon>
-              `}
+            `}
         </div>
 
         ${mode === "icon_only"
@@ -76,8 +94,69 @@ export function renderStatusCard() {
                 </div>
               </div>
             `}
+          `}
       </div>
     </ha-card>
+  `;
+}
+
+function renderIconOnlyStatusGrid(items) {
+  return html`
+    <div class="status-icon-grid">
+      ${items.map((item, index) =>
+        renderIconOnlyStatusItem.call(this, item, index)
+      )}
+    </div>
+  `;
+}
+
+function renderIconOnlyStatusItem(item, index) {
+  const badgeText = getIconOnlyStatusText(item.statusText);
+  const iconPath = this._isImageIcon(item.icon)
+    ? this._resolveIconPath(item.icon)
+    : "";
+  const inlineSvg = iconPath
+    ? this._getInlineSvg(iconPath)
+    : "";
+
+  return html`
+    <div
+      class="status-icon-item"
+      style="
+        --status-circle-color:${item.circleColor};
+        --status-icon-color:${item.iconColor};
+      "
+      @click=${(ev) => this._handleStatusItemClick(ev, index)}
+      @pointerdown=${(ev) => this._handleStatusItemPointerDown(ev, index)}
+      @pointerup=${this._handleStatusItemPointerUp}
+      @pointerleave=${this._handleStatusItemPointerCancel}
+      @pointercancel=${this._handleStatusItemPointerCancel}
+      @contextmenu=${(ev) => this._handleStatusItemContextMenu(ev, index)}
+    >
+      <div class="circle status-circle">
+        ${this._isImageIcon(item.icon)
+          ? html`
+              <div class="main-image-icon">
+                ${inlineSvg
+                  ? unsafeHTML(inlineSvg)
+                  : html`<img src=${iconPath} alt="" />`}
+              </div>
+            `
+          : html`
+              <ha-icon
+                class="main-icon"
+                .icon=${item.icon}
+              ></ha-icon>
+            `}
+      </div>
+
+      <div
+        class="status-badge"
+        ?hidden=${!badgeText}
+      >
+        ${badgeText}
+      </div>
+    </div>
   `;
 }
 

@@ -6,7 +6,11 @@ export const StatusCardLayoutStyles = css`
   }
 
   ha-card.mode-icon_only {
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 0.93 / 1;
+  }
+
+  ha-card.mode-icon_only.grouped {
+    aspect-ratio: calc(var(--status-columns, 1) * 0.975) / var(--status-rows, 1);
   }
 
   ha-card.mode-person {
@@ -70,6 +74,38 @@ export const StatusCardLayoutStyles = css`
     bottom: -12%;
     width: 82%;
     transform: none;
+  }
+
+  .status-container.mode-icon_only.grouped {
+    display: grid;
+    padding: 0;
+  }
+
+  .status-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--status-columns, 1), minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    gap: clamp(4px, 2cqw, 10px);
+    width: 100%;
+    height: 100%;
+  }
+
+  .status-icon-item {
+    background: var(--ha-card-background, var(--card-background-color));
+    border-radius: inherit;
+    container-type: size;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .status-icon-item .status-circle {
+    left: -12%;
+    top: auto;
+    bottom: -12%;
+    width: 82%;
   }
 
   .status-container.mode-icon_only .status-circle .main-icon {

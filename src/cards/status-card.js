@@ -39,6 +39,7 @@ import {
 } from "../common/helpers/svg-cache.js";
 
 import {
+  getIconOnlyStatusItems,
   updateStatusCard,
 } from "./status/helpers/lifecycle.js";
 import { renderStatusCard } from "./status/renders/status-card.js";
@@ -67,6 +68,7 @@ class OrbitStatusCard extends LitElement {
       _personZoneIcon: { type: String },
       _personBattery1: { type: Object },
       _personBattery2: { type: Object },
+      _statusItems: { type: Array },
     };
   }
 
@@ -86,8 +88,11 @@ class OrbitStatusCard extends LitElement {
 
   getLayoutOptions() {
     if (this._config?.mode === "icon_only") {
+      const count = getIconOnlyStatusItems(this._config).length;
+      const columns = getStatusColumnCount(this._config, count);
+
       return {
-        grid_columns: 1,
+        grid_columns: Math.max(1, columns),
         grid_min_columns: 0.5,
       };
     }
@@ -107,6 +112,7 @@ class OrbitStatusCard extends LitElement {
     this._statusColor = this._computeFullColor(color);
     this._iconColor = this._computeIconColor(color);
     this._circleColor = this._computeCircleColor(color);
+    this._statusItems = [];
   }
 
   willUpdate(changedProps) {
@@ -219,6 +225,75 @@ class OrbitStatusCard extends LitElement {
     );
   }
 
+  _handleStatusItemClick(ev, index = 0) {
+    if (this._statusItemLongPressTriggered) {
+      this._statusItemLongPressTriggered = false;
+      this._stopEvent(ev);
+      return;
+    }
+
+    this._stopEvent(ev);
+
+    const entityId = this._getStatusItemEntityId(index);
+
+    if (!entityId) return;
+
+    const actionConfig = this._getStatusItemTapAction(index);
+
+    if (actionConfig?.action === "none") return;
+
+    this._handleAction(
+      actionConfig?.action
+        ? actionConfig
+        : { action: "more-info" },
+      entityId
+    );
+  }
+
+  _handleStatusItemPointerDown(ev, index = 0) {
+    this._stopEvent(ev);
+    this._clearStatusItemHoldTimer();
+
+    const holdAction = this._getStatusItemHoldAction(index);
+
+    if (!holdAction) return;
+
+    this._statusItemHoldTimer = setTimeout(() => {
+      this._statusItemLongPressTriggered = true;
+
+      this._handleAction(
+        holdAction,
+        this._getStatusItemEntityId(index)
+      );
+    }, this._LONG_PRESS_DELAY);
+  }
+
+  _handleStatusItemPointerUp(ev) {
+    this._stopEvent(ev);
+    this._clearStatusItemHoldTimer();
+  }
+
+  _handleStatusItemPointerCancel(ev) {
+    this._stopEvent(ev);
+    this._clearStatusItemHoldTimer();
+  }
+
+  _handleStatusItemContextMenu(ev, index = 0) {
+    this._stopEvent(ev);
+
+    const holdAction = this._getStatusItemHoldAction(index);
+
+    if (!holdAction) return;
+
+    this._clearStatusItemHoldTimer();
+    this._statusItemLongPressTriggered = true;
+
+    this._handleAction(
+      holdAction,
+      this._getStatusItemEntityId(index)
+    );
+  }
+
   _navigate(path) {
     return navigate.call(this, path);
   }
@@ -319,6 +394,12 @@ class OrbitStatusCard extends LitElement {
   }
 
   _getRelevantEntities() {
+    if (this._config?.mode === "icon_only") {
+      return getIconOnlyStatusItems(this._config).map((item) =>
+        item.entity || item.main_entity
+      );
+    }
+
     return [
       this._config?.main_entity,
       this._config?.tracker_entity,
@@ -444,6 +525,13 @@ class OrbitStatusCard extends LitElement {
     }
   }
 
+  _clearStatusItemHoldTimer() {
+    if (this._statusItemHoldTimer) {
+      clearTimeout(this._statusItemHoldTimer);
+      this._statusItemHoldTimer = null;
+    }
+  }
+
   _getMainEntityHoldAction() {
     return isActionEnabled(this._config.main_entity_hold_action)
       ? this._config.main_entity_hold_action
@@ -477,12 +565,68 @@ class OrbitStatusCard extends LitElement {
     return actionConfig;
   }
 
+  _getStatusItemTapAction(index = 0) {
+    const item = this._statusItems?.[index];
+
+    if (item?.main_entity_tap_action?.action) {
+      return item.main_entity_tap_action;
+    }
+
+    if (item?.tap_action?.action) {
+      return item.tap_action;
+    }
+
+    if (this._config.main_entity_tap_action?.action) {
+      return this._config.main_entity_tap_action;
+    }
+
+    if (this._config.tap_action?.action) {
+      return this._config.tap_action;
+    }
+
+    return {
+      action: "more-info",
+    };
+  }
+
+  _getStatusItemHoldAction(index = 0) {
+    const item = this._statusItems?.[index];
+
+    if (item?.main_entity_hold_action?.action) {
+      return item.main_entity_hold_action.action === "none"
+        ? null
+        : item.main_entity_hold_action;
+    }
+
+    if (this._config.main_entity_hold_action?.action) {
+      return this._config.main_entity_hold_action.action === "none"
+        ? null
+        : this._config.main_entity_hold_action;
+    }
+
+    return null;
+  }
+
   _isIconOnlyMode() {
     return this._config?.mode === "icon_only";
   }
 
   _isPersonMode() {
     return this._config?.mode === "person";
+  }
+
+  _getStatusItemEntityId(index = 0) {
+    const item = this._statusItems?.[index];
+
+    return item?.entityId || item?.entity || this._config.main_entity;
+  }
+
+  _getStatusColumnCount(count = this._statusItems?.length || 1) {
+    return getStatusColumnCount(this._config, count);
+  }
+
+  _getStatusRowCount(count = this._statusItems?.length || 1) {
+    return getStatusRowCount(this._config, count);
   }
 
   _trackPointerEvent(ev) {
@@ -528,6 +672,25 @@ function isActionEnabled(actionConfig) {
     actionConfig.action &&
     actionConfig.action !== "none"
   );
+}
+
+function getStatusColumnCount(config = {}, count = 1) {
+  if (!config.wrap) {
+    return Math.max(1, count);
+  }
+
+  const requestedColumns = Number(config.items_per_row);
+  const columns = Number.isFinite(requestedColumns)
+    ? Math.floor(requestedColumns)
+    : 3;
+
+  return Math.max(1, Math.min(count, columns || 1));
+}
+
+function getStatusRowCount(config = {}, count = 1) {
+  const columns = getStatusColumnCount(config, count);
+
+  return Math.max(1, Math.ceil(count / columns));
 }
 
 customElements.define("orbit-status-card", OrbitStatusCard);

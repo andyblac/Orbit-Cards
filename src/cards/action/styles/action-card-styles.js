@@ -8,7 +8,11 @@ export const actionCardStyles = [
   MainIconStyles,
   css`
     ha-card {
-      aspect-ratio: var(--action-columns, var(--action-count, 1)) / var(--action-rows, 1);
+      aspect-ratio: 0.93 / 1;
+    }
+
+    ha-card.grouped {
+      aspect-ratio: calc(var(--action-columns, var(--action-count, 1)) * 0.975) / var(--action-rows, 1);
     }
 
     .action-container {

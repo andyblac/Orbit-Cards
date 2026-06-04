@@ -16,40 +16,103 @@ export function updateStatusCard(changedProps) {
     return;
   }
 
+  if (this._config.mode === "icon_only") {
+    const items = getIconOnlyStatusItems(this._config);
+
+    this._statusItems = items.map((item) =>
+      getStatusState.call(this, item, this._config)
+    );
+
+    applyStatusState.call(
+      this,
+      this._statusItems[0] || {}
+    );
+    return;
+  }
+
   const entityId = this._config.main_entity;
+  const statusState = getStatusState.call(
+    this,
+    {
+      entity: entityId,
+    },
+    this._config
+  );
+
+  this._statusItems = [statusState];
+  applyStatusState.call(this, statusState);
+}
+
+export function getIconOnlyStatusItems(config = {}) {
+  if (
+    Array.isArray(config.entities) &&
+    config.entities.length
+  ) {
+    return config.entities.map((item) =>
+      typeof item === "string"
+        ? { entity: item }
+        : item || {}
+    );
+  }
+
+  return [
+    {
+      entity: config.main_entity,
+      accent_on_color: config.accent_on_color,
+      accent_off_color: config.accent_off_color,
+      main_entity_icon: config.main_entity_icon,
+      main_entity_icon_on: config.main_entity_icon_on,
+      main_entity_icon_off: config.main_entity_icon_off,
+      state_template: config.state_template,
+      label_template: config.label_template,
+      tap_action: config.tap_action,
+      main_entity_tap_action: config.main_entity_tap_action,
+      main_entity_hold_action: config.main_entity_hold_action,
+    },
+  ];
+}
+
+function getStatusState(item, rootConfig = {}) {
+  const entityId = item.entity || rootConfig.main_entity;
   const stateObj =
     entityId && this.hass
       ? this.hass.states[entityId]
       : null;
 
-  const isIconOnly =
-    this._config.mode === "icon_only";
+  const config = {
+    ...rootConfig,
+    ...item,
+    main_entity: entityId,
+  };
 
-  this._cardName =
+  const isIconOnly =
+    config.mode === "icon_only";
+
+  const cardName =
     (!isIconOnly
-      ? this._config.status_name
+      ? config.status_name
       : null) ||
     getStatusAttribute(stateObj, "friendly_name") ||
     entityId ||
     "Status";
 
   const templatedState =
-    this._config.state_template
+    config.state_template
       ? this._evaluateStateTemplate(
-          this._config.state_template,
+          config.state_template,
           entityId
         )
       : null;
 
   const templatedLabel =
-    this._config.label_template
+    config.label_template
       ? this._evaluateStateTemplate(
-          this._config.label_template,
+          config.label_template,
           entityId
         )
       : null;
 
-  this._statusText =
+  const statusText =
     templatedLabel ??
     (
       getStatusAttribute(stateObj, "label") ||
@@ -59,13 +122,13 @@ export function updateStatusCard(changedProps) {
     );
 
   const customIcon =
-    this._config.main_entity_icon;
+    config.main_entity_icon;
 
   const customIconOn =
-    this._config.main_entity_icon_on;
+    config.main_entity_icon_on;
 
   const customIconOff =
-    this._config.main_entity_icon_off;
+    config.main_entity_icon_off;
 
   const isOn = getStatusActiveState(
     stateObj,
@@ -73,7 +136,7 @@ export function updateStatusCard(changedProps) {
     templatedState
   );
 
-  this._icon =
+  const icon =
     (isOn ? customIconOn : customIconOff) ||
     customIcon ||
     getStatusAttribute(stateObj, "icon") ||
@@ -85,29 +148,46 @@ export function updateStatusCard(changedProps) {
       : "mdi:information-outline");
 
   const statusColor = getStatusColor(
-    this._config,
+    config,
     stateObj,
     isOn
   );
 
-  this._navigationPath = getStatusNavigationPath(
-    this._config,
+  const navigationPath = getStatusNavigationPath(
+    config,
     stateObj
   );
 
-  this._nameColor = this._computeFullColor(
-    statusColor
-  );
-
-  this._statusColor = this._computeFullColor(
-    statusColor
-  );
-
-  this._circleColor = this._computeCircleColor(statusColor);
-
-  this._iconColor = isOn
+  const nameColor = this._computeFullColor(statusColor);
+  const statusColorValue = this._computeFullColor(statusColor);
+  const circleColor = this._computeCircleColor(statusColor);
+  const iconColor = isOn
     ? this._computeFullColor(statusColor)
     : this._computeIconColor(statusColor);
+
+  return {
+    ...item,
+    entityId,
+    cardName,
+    statusText,
+    icon,
+    navigationPath,
+    nameColor,
+    statusColor: statusColorValue,
+    circleColor,
+    iconColor,
+  };
+}
+
+function applyStatusState(state) {
+  this._cardName = state.cardName || "Status";
+  this._statusText = state.statusText || "";
+  this._icon = state.icon || "mdi:information-outline";
+  this._navigationPath = state.navigationPath || "";
+  this._nameColor = state.nameColor || this._nameColor;
+  this._statusColor = state.statusColor || this._statusColor;
+  this._circleColor = state.circleColor || this._circleColor;
+  this._iconColor = state.iconColor || this._iconColor;
 }
 
 function updatePersonStatusCard() {

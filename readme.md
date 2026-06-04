@@ -474,6 +474,25 @@ tap_action:
   action: more-info
 ```
 
+### Icon Only group example
+
+```yaml
+type: custom:orbit-status-card
+mode: icon_only
+wrap: true
+items_per_row: 3
+entities:
+  - entity: sensor.number_of_lights_on
+    accent_on_color: amber
+    main_entity_icon: mdi:lightbulb-group
+  - entity: sensor.open_doors
+    accent_on_color: blue
+    main_entity_icon: mdi:door-open
+  - entity: sensor.unavailable_entities
+    accent_on_color: red
+    main_entity_icon: mdi:alert-circle-outline
+```
+
 ### Template example
 
 ```yaml
@@ -508,6 +527,9 @@ main_entity_tap_action:
 | --- | --- |
 | `mode` | `standard`, `icon_only`, or `person`. Defaults to `standard`. |
 | `main_entity` | Required main entity. Standard/Icon Only use it for icon, status, state, actions, and attributes. Person mode uses it as the person entity for profile picture, name fallback, and actions. |
+| `entities` | Icon Only only. Optional list of status items to show inside one grouped card. Each item supports `entity`, colours, icons, templates, and actions. |
+| `wrap` | Icon Only only. Optional grouped-layout setting. When enabled, items wrap onto additional rows. |
+| `items_per_row` | Icon Only only. Number of items to show per row when `wrap` is enabled. Defaults to `3`. |
 | `status_name` | Standard mode only. Overrides the entity `friendly_name`. |
 | `tracker_entity` | Person mode only. Tracker entity used for the displayed location/status. |
 | `eta_entity` | Person mode only. Optional ETA entity appended to the status when the tracker is not `home`. |

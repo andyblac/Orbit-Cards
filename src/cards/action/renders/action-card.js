@@ -9,6 +9,7 @@ export function renderActionCard() {
 
   return html`
     <ha-card
+      class=${actionCount > 1 ? "grouped" : ""}
       tabindex="0"
       style="
         --action-count:${actionCount};

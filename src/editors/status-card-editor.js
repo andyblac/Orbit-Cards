@@ -31,11 +31,13 @@ class OrbitStatusCardEditor extends LitElement {
   static properties = {
     hass: { attribute: false },
     _config: { state: true },
+    _selectedStatusIndex: { state: true },
   };
 
   constructor() {
     super();
     this._config = this._config || {};
+    this._selectedStatusIndex = 0;
   }
 
   _getColorStyle(value) {
@@ -44,13 +46,25 @@ class OrbitStatusCardEditor extends LitElement {
 
   setConfig(config) {
     this._config = config || {};
+    this._selectedStatusIndex = Math.min(
+      this._selectedStatusIndex || 0,
+      this._getStatusItems(config).length - 1
+    );
   }
 
   _updateConfig(changes) {
-    this._config = {
+    const nextConfig = {
       ...(this._config || {}),
       ...changes,
     };
+
+    Object.keys(nextConfig).forEach((key) => {
+      if (nextConfig[key] === undefined) {
+        delete nextConfig[key];
+      }
+    });
+
+    this._config = nextConfig;
 
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
@@ -69,6 +83,170 @@ class OrbitStatusCardEditor extends LitElement {
 
   _handleConfigUpdate(key, value) {
     this._updateConfig({ [key]: value });
+  }
+
+  _getStatusItems(config = this._config) {
+    if (Array.isArray(config?.entities) && config.entities.length) {
+      return config.entities.map((item) =>
+        typeof item === "string"
+          ? { entity: item }
+          : item || {}
+      );
+    }
+
+    return [
+      {
+        entity: config?.main_entity || "",
+        accent_on_color: config?.accent_on_color || "",
+        accent_off_color: config?.accent_off_color || "",
+        main_entity_icon: config?.main_entity_icon || "",
+        main_entity_icon_on: config?.main_entity_icon_on || "",
+        main_entity_icon_off: config?.main_entity_icon_off || "",
+        state_template: config?.state_template || "",
+        label_template: config?.label_template || "",
+        tap_action: config?.tap_action,
+        main_entity_tap_action: config?.main_entity_tap_action,
+        main_entity_hold_action: config?.main_entity_hold_action,
+      },
+    ];
+  }
+
+  _selectStatusItem(index) {
+    this._selectedStatusIndex = index;
+  }
+
+  _addStatusItem() {
+    const items = this._getStatusItems();
+
+    this._selectedStatusIndex = items.length;
+    this._updateConfig({
+      main_entity: undefined,
+      accent_on_color: undefined,
+      accent_off_color: undefined,
+      main_entity_icon: undefined,
+      main_entity_icon_on: undefined,
+      main_entity_icon_off: undefined,
+      state_template: undefined,
+      label_template: undefined,
+      tap_action: undefined,
+      main_entity_tap_action: undefined,
+      main_entity_hold_action: undefined,
+      entities: [
+        ...items,
+        {
+          entity: "",
+        },
+      ],
+    });
+  }
+
+  _removeStatusItem(index) {
+    const items = this._getStatusItems();
+
+    if (items.length <= 1) {
+      this._updateConfig({
+        main_entity: "",
+        main_entity_icon: "",
+        main_entity_icon_on: "",
+        main_entity_icon_off: "",
+        state_template: "",
+        label_template: "",
+        tap_action: undefined,
+        main_entity_tap_action: undefined,
+        main_entity_hold_action: undefined,
+      });
+      return;
+    }
+
+    const nextItems = items.filter((_, itemIndex) => itemIndex !== index);
+    this._selectedStatusIndex = Math.max(
+      0,
+      Math.min(index, nextItems.length - 1)
+    );
+
+    this._updateConfig({
+      entities: nextItems,
+    });
+  }
+
+  _moveStatusItem(index, direction) {
+    const items = this._getStatusItems();
+    const nextIndex = index + direction;
+
+    if (
+      nextIndex < 0 ||
+      nextIndex >= items.length
+    ) {
+      return;
+    }
+
+    const nextItems = [...items];
+    const [item] = nextItems.splice(index, 1);
+    nextItems.splice(nextIndex, 0, item);
+
+    this._selectedStatusIndex = nextIndex;
+    this._updateConfig({
+      main_entity: undefined,
+      accent_on_color: undefined,
+      accent_off_color: undefined,
+      main_entity_icon: undefined,
+      main_entity_icon_on: undefined,
+      main_entity_icon_off: undefined,
+      state_template: undefined,
+      label_template: undefined,
+      tap_action: undefined,
+      main_entity_tap_action: undefined,
+      main_entity_hold_action: undefined,
+      entities: nextItems,
+    });
+  }
+
+  _updateStatusItem(index, changes) {
+    const items = this._getStatusItems();
+    const nextItem = {
+      ...(items[index] || {}),
+      ...changes,
+    };
+
+    if (Array.isArray(this._config?.entities)) {
+      const nextItems = [...items];
+      nextItems[index] = nextItem;
+
+      const configChanges = {
+        entities: nextItems,
+      };
+
+      if (nextItems.length > 1) {
+        configChanges.main_entity = undefined;
+        configChanges.accent_on_color = undefined;
+        configChanges.accent_off_color = undefined;
+        configChanges.main_entity_icon = undefined;
+        configChanges.main_entity_icon_on = undefined;
+        configChanges.main_entity_icon_off = undefined;
+        configChanges.state_template = undefined;
+        configChanges.label_template = undefined;
+        configChanges.tap_action = undefined;
+        configChanges.main_entity_tap_action = undefined;
+        configChanges.main_entity_hold_action = undefined;
+      }
+
+      this._updateConfig(configChanges);
+      return;
+    }
+
+    this._updateConfig({
+      main_entity: nextItem.entity || "",
+      accent_on_color: nextItem.accent_on_color || "",
+      accent_off_color: nextItem.accent_off_color || "",
+      main_entity_icon: nextItem.main_entity_icon || "",
+      main_entity_icon_on: nextItem.main_entity_icon_on || "",
+      main_entity_icon_off: nextItem.main_entity_icon_off || "",
+      state_template: nextItem.state_template || "",
+      label_template: nextItem.label_template || "",
+      tap_action: nextItem.tap_action,
+      main_entity_tap_action: nextItem.main_entity_tap_action,
+      main_entity_hold_action: nextItem.main_entity_hold_action,
+    });
   }
 
   _renderInput(label, key, placeholder = "") {
@@ -91,12 +269,51 @@ class OrbitStatusCardEditor extends LitElement {
     return renderActionSelector.call(this, label, key, defaultAction);
   }
 
+  _renderStatusItemActionSelector(label, key, index, defaultAction) {
+    const items = this._getStatusItems();
+    const item = items[index] || {};
+    const scopedEditor = {
+      _config: item,
+      _updateConfig: (changes) =>
+        this._updateStatusItem(index, changes),
+    };
+
+    return renderActionSelector.call(
+      scopedEditor,
+      label,
+      key,
+      defaultAction
+    );
+  }
+
   _renderArea(label, key) {
     return renderArea.call(this, label, key);
   }
 
   _renderIconInput(label, key, placeholder = "mdi:information-outline or icon.svg") {
     return renderIconInput.call(this, label, key, placeholder);
+  }
+
+  _renderStatusItemIconInput(label, key, index, placeholder = "mdi:information-outline or icon.svg") {
+    const items = this._getStatusItems();
+    const item = items[index] || {};
+    const scopedEditor = {
+      _config: item,
+      _isImageIcon: (icon) => this._isImageIcon(icon),
+      _resolveIconPath: (path) => this._resolveIconPath(path),
+      _getInlineSvg: (path) => this._getInlineSvg(path),
+      _handleConfigUpdate: (fieldKey, value) =>
+        this._updateStatusItem(index, {
+          [fieldKey]: value,
+        }),
+    };
+
+    return renderIconInput.call(
+      scopedEditor,
+      label,
+      key,
+      placeholder
+    );
   }
 
   _isImageIcon(icon) {
@@ -129,6 +346,82 @@ class OrbitStatusCardEditor extends LitElement {
   static styles = [
     editorStyles,
     css`
+      .status-wrap-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        opacity: 1;
+      }
+
+      .status-wrap-toggle input {
+        width: auto;
+        margin: 0;
+      }
+
+      .status-tabs {
+        display: flex;
+        align-items: end;
+        gap: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+        margin-bottom: 12px;
+        overflow-x: auto;
+      }
+
+      .status-tab,
+      .status-tab-add {
+        border: none;
+        background: transparent;
+        color: inherit;
+        min-width: 44px;
+        height: 42px;
+        padding: 0 12px;
+        font: inherit;
+        font-weight: 700;
+        opacity: 0.6;
+        cursor: pointer;
+      }
+
+      .status-tab.active {
+        color: var(--primary-color);
+        opacity: 1;
+        border-bottom: 3px solid var(--primary-color);
+      }
+
+      .status-tab-add {
+        margin-left: auto;
+        font-size: 24px;
+        opacity: 0.9;
+      }
+
+      .status-editor-tools {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-bottom: 4px;
+      }
+
+      .status-tool-button {
+        width: 44px;
+        height: 44px;
+        border: none;
+        border-radius: 10px;
+        background: var(--card-background-color);
+        color: inherit;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .status-tool-button:disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
+
+      .status-tool-button ha-icon {
+        --mdc-icon-size: 22px;
+      }
+
       .editor-version {
         padding: 0 14px;
         font-size: 11px;
