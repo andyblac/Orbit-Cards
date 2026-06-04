@@ -13,6 +13,11 @@ export const StatusCardLayoutStyles = css`
     aspect-ratio: calc(var(--status-columns, 1) * 0.975) / var(--status-rows, 1);
   }
 
+  ha-card.mode-icon_only.grouped.separate-cards {
+    background: transparent;
+    box-shadow: none;
+  }
+
   ha-card.mode-person {
     aspect-ratio: 3 / 1;
   }
@@ -90,9 +95,13 @@ export const StatusCardLayoutStyles = css`
     height: 100%;
   }
 
+  ha-card.mode-icon_only.grouped.separate-cards .status-icon-grid {
+    gap: clamp(3px, 1cqw, 6px);
+  }
+
   .status-icon-item {
     background: var(--ha-card-background, var(--card-background-color));
-    border-radius: inherit;
+    border-radius: var(--ha-card-border-radius, 18px);
     container-type: size;
     cursor: pointer;
     overflow: hidden;

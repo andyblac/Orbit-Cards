@@ -304,6 +304,14 @@ class OrbitActionCardEditor extends LitElement {
         overflow-x: auto;
       }
 
+      .action-group-options {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+
       .action-wrap-toggle {
         display: flex;
         align-items: center;
@@ -345,8 +353,8 @@ class OrbitActionCardEditor extends LitElement {
       .action-editor-tools {
         display: flex;
         gap: 8px;
+        margin-left: auto;
         justify-content: flex-end;
-        margin-bottom: 4px;
       }
 
       .action-tool-button {

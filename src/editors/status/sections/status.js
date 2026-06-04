@@ -101,7 +101,7 @@ function renderIconOnlyStatusConfig({
 
   return html`
     <div class="section">
-      <div class="field">
+      <div class="status-group-options">
         <label class="status-wrap-toggle">
           <input
             type="checkbox"
@@ -116,6 +116,53 @@ function renderIconOnlyStatusConfig({
           />
           <span>Wrap</span>
         </label>
+
+        ${items.length > 1
+          ? html`
+              <label class="status-wrap-toggle">
+                <input
+                  type="checkbox"
+                  .checked=${!!this._config?.separate_cards}
+                  @change=${(e) =>
+                    this._updateConfig({
+                      separate_cards: e.target.checked,
+                    })}
+                />
+                <span>Separate Cards</span>
+              </label>
+
+              <div class="status-editor-tools">
+                <button
+                  type="button"
+                  class="status-tool-button"
+                  title="Move left"
+                  ?disabled=${selectedIndex === 0}
+                  @click=${() => this._moveStatusItem(selectedIndex, -1)}
+                >
+                  <ha-icon icon="mdi:arrow-left"></ha-icon>
+                </button>
+
+                <button
+                  type="button"
+                  class="status-tool-button"
+                  title="Move right"
+                  ?disabled=${selectedIndex === items.length - 1}
+                  @click=${() => this._moveStatusItem(selectedIndex, 1)}
+                >
+                  <ha-icon icon="mdi:arrow-right"></ha-icon>
+                </button>
+
+                <button
+                  type="button"
+                  class="status-tool-button"
+                  title="Remove"
+                  @click=${() => this._removeStatusItem(selectedIndex)}
+                >
+                  <ha-icon icon="mdi:trash-can"></ha-icon>
+                </button>
+              </div>
+            `
+          : ""}
       </div>
 
       ${this._config?.wrap
@@ -159,41 +206,6 @@ function renderIconOnlyStatusConfig({
           +
         </button>
       </div>
-
-      ${items.length > 1
-        ? html`
-            <div class="status-editor-tools">
-              <button
-                type="button"
-                class="status-tool-button"
-                title="Move left"
-                ?disabled=${selectedIndex === 0}
-                @click=${() => this._moveStatusItem(selectedIndex, -1)}
-              >
-                <ha-icon icon="mdi:arrow-left"></ha-icon>
-              </button>
-
-              <button
-                type="button"
-                class="status-tool-button"
-                title="Move right"
-                ?disabled=${selectedIndex === items.length - 1}
-                @click=${() => this._moveStatusItem(selectedIndex, 1)}
-              >
-                <ha-icon icon="mdi:arrow-right"></ha-icon>
-              </button>
-
-              <button
-                type="button"
-                class="status-tool-button"
-                title="Remove"
-                @click=${() => this._removeStatusItem(selectedIndex)}
-              >
-                <ha-icon icon="mdi:trash-can"></ha-icon>
-              </button>
-            </div>
-          `
-        : ""}
 
       <div class="field">
         <label>Main Entity</label>

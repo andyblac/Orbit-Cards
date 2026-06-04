@@ -19,7 +19,7 @@ export function renderStatusCard() {
 
   return html`
     <ha-card
-      class="mode-${mode} ${isGroupedIconOnly ? "grouped" : ""}"
+      class="mode-${mode} ${isGroupedIconOnly ? "grouped" : ""} ${isGroupedIconOnly && this._config?.separate_cards ? "separate-cards" : ""}"
       tabindex="0"
       style="
         --status-item-count:${itemCount};

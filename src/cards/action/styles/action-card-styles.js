@@ -15,6 +15,11 @@ export const actionCardStyles = [
       aspect-ratio: calc(var(--action-columns, var(--action-count, 1)) * 0.975) / var(--action-rows, 1);
     }
 
+    ha-card.grouped.separate-cards {
+      background: transparent;
+      box-shadow: none;
+    }
+
     .action-container {
       display: grid;
       grid-template-columns: repeat(var(--action-columns, var(--action-count, 1)), minmax(0, 1fr));
@@ -24,7 +29,14 @@ export const actionCardStyles = [
       padding: 0;
     }
 
+    ha-card.grouped.separate-cards .action-container {
+      gap: clamp(3px, 1cqw, 6px);
+    }
+
     .action-button {
+      background: var(--ha-card-background, var(--card-background-color));
+      border-radius: var(--ha-card-border-radius, 18px);
+      overflow: hidden;
       width: 100%;
       height: 100%;
       display: flex;

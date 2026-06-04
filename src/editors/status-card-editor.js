@@ -363,6 +363,14 @@ class OrbitStatusCardEditor extends LitElement {
         margin: 0;
       }
 
+      .status-group-options {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+
       .status-tabs {
         display: flex;
         align-items: end;
@@ -401,8 +409,8 @@ class OrbitStatusCardEditor extends LitElement {
       .status-editor-tools {
         display: flex;
         gap: 8px;
+        margin-left: auto;
         justify-content: flex-end;
-        margin-bottom: 4px;
       }
 
       .status-tool-button {

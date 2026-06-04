@@ -238,7 +238,9 @@ class OrbitStatusCard extends LitElement {
 
     if (!entityId) return;
 
-    const actionConfig = this._getStatusItemTapAction(index);
+    const actionConfig = this._isStatusItemMainIconEvent(ev)
+      ? this._getStatusItemMainEntityTapAction(index)
+      : this._getStatusItemCardTapAction(index);
 
     if (actionConfig?.action === "none") return;
 
@@ -565,12 +567,8 @@ class OrbitStatusCard extends LitElement {
     return actionConfig;
   }
 
-  _getStatusItemTapAction(index = 0) {
+  _getStatusItemCardTapAction(index = 0) {
     const item = this._statusItems?.[index];
-
-    if (item?.main_entity_tap_action?.action) {
-      return item.main_entity_tap_action;
-    }
 
     if (item?.tap_action?.action) {
       return item.tap_action;
@@ -587,6 +585,26 @@ class OrbitStatusCard extends LitElement {
     return {
       action: "more-info",
     };
+  }
+
+  _getStatusItemMainEntityTapAction(index = 0) {
+    const item = this._statusItems?.[index];
+
+    if (
+      item?.main_entity_tap_action?.action &&
+      item.main_entity_tap_action.action !== "none"
+    ) {
+      return item.main_entity_tap_action;
+    }
+
+    if (
+      this._config.main_entity_tap_action?.action &&
+      this._config.main_entity_tap_action.action !== "none"
+    ) {
+      return this._config.main_entity_tap_action;
+    }
+
+    return this._getStatusItemCardTapAction(index);
   }
 
   _getStatusItemHoldAction(index = 0) {
@@ -627,6 +645,20 @@ class OrbitStatusCard extends LitElement {
 
   _getStatusRowCount(count = this._statusItems?.length || 1) {
     return getStatusRowCount(this._config, count);
+  }
+
+  _isStatusItemMainIconEvent(ev) {
+    const path = ev.composedPath();
+
+    return path.some(
+      (el) =>
+        el?.classList &&
+        (
+          el.classList.contains("status-circle") ||
+          el.classList.contains("main-icon") ||
+          el.classList.contains("main-image-icon")
+        )
+    );
   }
 
   _trackPointerEvent(ev) {

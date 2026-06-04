@@ -10,7 +10,7 @@ export function renderActionSection() {
 
   return html`
     <div class="section">
-      <div class="field">
+      <div class="action-group-options">
         <label class="action-wrap-toggle">
           <input
             type="checkbox"
@@ -25,6 +25,53 @@ export function renderActionSection() {
           />
           <span>Wrap</span>
         </label>
+
+        ${items.length > 1
+          ? html`
+              <label class="action-wrap-toggle">
+                <input
+                  type="checkbox"
+                  .checked=${!!this._config?.separate_cards}
+                  @change=${(e) =>
+                    this._updateConfig({
+                      separate_cards: e.target.checked,
+                    })}
+                />
+                <span>Separate Cards</span>
+              </label>
+
+              <div class="action-editor-tools">
+                <button
+                  type="button"
+                  class="action-tool-button"
+                  title="Move left"
+                  ?disabled=${selectedIndex === 0}
+                  @click=${() => this._moveActionItem(selectedIndex, -1)}
+                >
+                  <ha-icon icon="mdi:arrow-left"></ha-icon>
+                </button>
+
+                <button
+                  type="button"
+                  class="action-tool-button"
+                  title="Move right"
+                  ?disabled=${selectedIndex === items.length - 1}
+                  @click=${() => this._moveActionItem(selectedIndex, 1)}
+                >
+                  <ha-icon icon="mdi:arrow-right"></ha-icon>
+                </button>
+
+                <button
+                  type="button"
+                  class="action-tool-button"
+                  title="Remove"
+                  @click=${() => this._removeActionItem(selectedIndex)}
+                >
+                  <ha-icon icon="mdi:trash-can"></ha-icon>
+                </button>
+              </div>
+            `
+          : ""}
       </div>
 
       ${this._config?.wrap
@@ -68,41 +115,6 @@ export function renderActionSection() {
           +
         </button>
       </div>
-
-      ${items.length > 1
-        ? html`
-            <div class="action-editor-tools">
-              <button
-                type="button"
-                class="action-tool-button"
-                title="Move left"
-                ?disabled=${selectedIndex === 0}
-                @click=${() => this._moveActionItem(selectedIndex, -1)}
-              >
-                <ha-icon icon="mdi:arrow-left"></ha-icon>
-              </button>
-
-              <button
-                type="button"
-                class="action-tool-button"
-                title="Move right"
-                ?disabled=${selectedIndex === items.length - 1}
-                @click=${() => this._moveActionItem(selectedIndex, 1)}
-              >
-                <ha-icon icon="mdi:arrow-right"></ha-icon>
-              </button>
-
-              <button
-                type="button"
-                class="action-tool-button"
-                title="Remove"
-                @click=${() => this._removeActionItem(selectedIndex)}
-              >
-                <ha-icon icon="mdi:trash-can"></ha-icon>
-              </button>
-            </div>
-          `
-        : ""}
 
       <div class="field">
         <label>Main Entity</label>

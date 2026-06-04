@@ -530,6 +530,7 @@ main_entity_tap_action:
 | `entities` | Icon Only only. Optional list of status items to show inside one grouped card. Each item supports `entity`, colours, icons, templates, and actions. |
 | `wrap` | Icon Only only. Optional grouped-layout setting. When enabled, items wrap onto additional rows. |
 | `items_per_row` | Icon Only only. Number of items to show per row when `wrap` is enabled. Defaults to `3`. |
+| `separate_cards` | Icon Only grouped mode only. Adds extra spacing and a transparent group background so each item reads as a separate card. |
 | `status_name` | Standard mode only. Overrides the entity `friendly_name`. |
 | `tracker_entity` | Person mode only. Tracker entity used for the displayed location/status. |
 | `eta_entity` | Person mode only. Optional ETA entity appended to the status when the tracker is not `home`. |
@@ -606,6 +607,7 @@ entities:
 | `entities` | Optional list of action items to show side by side. Each item supports `entity`, `accent_color`, `main_entity_icon`, `tap_action`, and `hold_action`. |
 | `wrap` | Optional grouped-layout setting. When enabled, actions wrap onto additional rows. |
 | `actions_per_row` | Number of actions to show per row when `wrap` is enabled. Defaults to `3`. |
+| `separate_cards` | Grouped mode only. Adds extra spacing and a transparent group background so each action reads as a separate card. |
 | `accent_color` | Base card/icon colour. Defaults to `theme`. |
 | `main_entity_icon` | Optional icon override. Falls back to entity icon, then a domain icon. |
 | `tap_action` | Optional tap action override. Defaults by entity domain. |
