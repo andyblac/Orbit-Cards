@@ -3,7 +3,7 @@
 // COLLAPSIBLE SECTIONS
 // ==========================================
 
-import { LitElement, html } from "lit";
+import { LitElement, css, html } from "lit";
 
 import {
   getColorStyle,
@@ -30,6 +30,7 @@ import { editorStyles } from "../common/editor/styles/editor-styles.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import { CARD_VERSIONS } from "../version.js";
 
 
 class OrbitRoomCardEditor extends LitElement {
@@ -192,6 +193,9 @@ class OrbitRoomCardEditor extends LitElement {
         ${this._renderStatusSection()}
         ${this._renderButtonsSection()}
         ${this._renderCurvedButtonsSection()}
+        <div class="editor-version">
+          Orbit Room Card v${CARD_VERSIONS.room}
+        </div>
       </div>
     `;
   }
@@ -200,7 +204,17 @@ class OrbitRoomCardEditor extends LitElement {
   // STYLES
   // =========================
 
-  static styles = editorStyles;
+  static styles = [
+    editorStyles,
+    css`
+      .editor-version {
+        padding: 0 14px;
+        font-size: 11px;
+        opacity: 0.5;
+        text-align: right;
+      }
+    `,
+  ];
 }
 
 customElements.define(

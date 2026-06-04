@@ -2,7 +2,7 @@
 // Orbit Status Card Editor
 // ==========================================
 
-import { LitElement, html } from "lit";
+import { LitElement, css, html } from "lit";
 
 import {
   getColorStyle,
@@ -23,6 +23,7 @@ import { editorStyles } from "../common/editor/styles/editor-styles.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import { CARD_VERSIONS } from "../version.js";
 
 class OrbitStatusCardEditor extends LitElement {
   static svgCache = sharedSvgCache;
@@ -118,11 +119,24 @@ class OrbitStatusCardEditor extends LitElement {
     return html`
       <div class="wrapper">
         ${this._renderStatusSection()}
+        <div class="editor-version">
+          Orbit Status Card v${CARD_VERSIONS.status}
+        </div>
       </div>
     `;
   }
 
-  static styles = editorStyles;
+  static styles = [
+    editorStyles,
+    css`
+      .editor-version {
+        padding: 0 14px;
+        font-size: 11px;
+        opacity: 0.5;
+        text-align: right;
+      }
+    `,
+  ];
 }
 
 customElements.define(

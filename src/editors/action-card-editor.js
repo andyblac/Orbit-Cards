@@ -20,6 +20,7 @@ import { editorStyles } from "../common/editor/styles/editor-styles.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import { CARD_VERSIONS } from "../version.js";
 
 class OrbitActionCardEditor extends LitElement {
   static svgCache = sharedSvgCache;
@@ -279,6 +280,9 @@ class OrbitActionCardEditor extends LitElement {
     return html`
       <div class="wrapper">
         ${this._renderActionSection()}
+        <div class="editor-version">
+          Orbit Action Card v${CARD_VERSIONS.action}
+        </div>
       </div>
     `;
   }
@@ -360,6 +364,13 @@ class OrbitActionCardEditor extends LitElement {
 
       .action-tool-button ha-icon {
         --mdc-icon-size: 22px;
+      }
+
+      .editor-version {
+        padding: 0 14px;
+        font-size: 11px;
+        opacity: 0.5;
+        text-align: right;
       }
     `,
   ];
