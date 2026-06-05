@@ -193,6 +193,10 @@ class OrbitActionCardEditor extends LitElement {
       ...changes,
     };
 
+    if (changes.entity === "") {
+      cleanClearedActionItem(nextItem);
+    }
+
     if (Array.isArray(this._config?.entities)) {
       const nextItems = [...items];
       nextItems[index] = nextItem;
@@ -210,6 +214,17 @@ class OrbitActionCardEditor extends LitElement {
       }
 
       this._updateConfig(changes);
+      return;
+    }
+
+    if (changes.entity === "") {
+      this._updateConfig({
+        main_entity: "",
+        accent_color: undefined,
+        main_entity_icon: undefined,
+        tap_action: undefined,
+        hold_action: undefined,
+      });
       return;
     }
 
@@ -502,3 +517,10 @@ customElements.define(
   "orbit-action-card-editor",
   OrbitActionCardEditor
 );
+
+function cleanClearedActionItem(item) {
+  item.accent_color = undefined;
+  item.main_entity_icon = undefined;
+  item.tap_action = undefined;
+  item.hold_action = undefined;
+}

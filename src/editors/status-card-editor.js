@@ -108,6 +108,60 @@ class OrbitStatusCardEditor extends LitElement {
     this._updateConfig({ [key]: value });
   }
 
+  _handleEntityUpdate(key, value) {
+    if (value) {
+      this._handleConfigUpdate(key, value);
+      return;
+    }
+
+    if (key === "main_entity") {
+      this._clearMainEntity();
+      return;
+    }
+
+    if (key === "tracker_entity") {
+      this._updateConfig({
+        tracker_entity: "",
+        eta_entity: undefined,
+      });
+      return;
+    }
+
+    this._handleConfigUpdate(key, value);
+  }
+
+  _clearMainEntity() {
+    if (this._config?.mode === "person") {
+      this._updateConfig({
+        main_entity: "",
+        tracker_entity: undefined,
+        eta_entity: undefined,
+        battery_entity_1: undefined,
+        battery_entity_2: undefined,
+        accent_on_color: undefined,
+        accent_off_color: undefined,
+        tap_action: undefined,
+        main_entity_tap_action: undefined,
+        main_entity_hold_action: undefined,
+      });
+      return;
+    }
+
+    this._updateConfig({
+      main_entity: "",
+      accent_on_color: undefined,
+      accent_off_color: undefined,
+      main_entity_icon: undefined,
+      main_entity_icon_on: undefined,
+      main_entity_icon_off: undefined,
+      state_template: undefined,
+      label_template: undefined,
+      tap_action: undefined,
+      main_entity_tap_action: undefined,
+      main_entity_hold_action: undefined,
+    });
+  }
+
   _getStatusItems(config = this._config) {
     if (Array.isArray(config?.entities) && config.entities.length) {
       return config.entities.map((item) =>
@@ -231,6 +285,10 @@ class OrbitStatusCardEditor extends LitElement {
       ...changes,
     };
 
+    if (changes.entity === "") {
+      cleanClearedStatusItem(nextItem);
+    }
+
     if (Array.isArray(this._config?.entities)) {
       const nextItems = [...items];
       nextItems[index] = nextItem;
@@ -254,6 +312,23 @@ class OrbitStatusCardEditor extends LitElement {
       }
 
       this._updateConfig(configChanges);
+      return;
+    }
+
+    if (changes.entity === "") {
+      this._updateConfig({
+        main_entity: "",
+        accent_on_color: undefined,
+        accent_off_color: undefined,
+        main_entity_icon: undefined,
+        main_entity_icon_on: undefined,
+        main_entity_icon_off: undefined,
+        state_template: undefined,
+        label_template: undefined,
+        tap_action: undefined,
+        main_entity_tap_action: undefined,
+        main_entity_hold_action: undefined,
+      });
       return;
     }
 
@@ -527,3 +602,16 @@ customElements.define(
   "orbit-status-card-editor",
   OrbitStatusCardEditor
 );
+
+function cleanClearedStatusItem(item) {
+  item.accent_on_color = undefined;
+  item.accent_off_color = undefined;
+  item.main_entity_icon = undefined;
+  item.main_entity_icon_on = undefined;
+  item.main_entity_icon_off = undefined;
+  item.state_template = undefined;
+  item.label_template = undefined;
+  item.tap_action = undefined;
+  item.main_entity_tap_action = undefined;
+  item.main_entity_hold_action = undefined;
+}

@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import { cp, mkdir, rm } from "node:fs/promises";
+import { access, cp, mkdir, rm } from "node:fs/promises";
 import { resolve } from "node:path";
 
 function copyOrbitIcons() {
@@ -8,6 +8,12 @@ function copyOrbitIcons() {
     async writeBundle() {
       const source = resolve("src/icons");
       const target = resolve("dist/icons");
+
+      try {
+        await access(source);
+      } catch (_err) {
+        return;
+      }
 
       await rm(target, {
         recursive: true,

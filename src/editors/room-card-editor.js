@@ -100,10 +100,18 @@ class OrbitRoomCardEditor extends LitElement {
   }
 
   _updateConfig(changes) {
-    this._config = {
+    const nextConfig = {
       ...(this._config || {}),
       ...changes,
     };
+
+    Object.keys(nextConfig).forEach((key) => {
+      if (nextConfig[key] === undefined) {
+        delete nextConfig[key];
+      }
+    });
+
+    this._config = nextConfig;
 
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
@@ -137,6 +145,63 @@ class OrbitRoomCardEditor extends LitElement {
   _handleInput(key, e) {
     this._updateConfig({
       [key]: e.target.value,
+    });
+  }
+
+  _handleEntityUpdate(key, value) {
+    if (value) {
+      this._handleConfigUpdate(key, value);
+      return;
+    }
+
+    if (key.startsWith("button")) {
+      this._clearButtonEntity(key);
+      return;
+    }
+
+    if (key.startsWith("curve_button")) {
+      this._clearCurveButtonEntity(key);
+      return;
+    }
+
+    if (key !== "main_entity") {
+      this._handleConfigUpdate(key, value);
+      return;
+    }
+
+    this._updateConfig({
+      main_entity: "",
+      main_entity_icon: undefined,
+      main_entity_icon_on: undefined,
+      main_entity_icon_off: undefined,
+      main_entity_tap_action: undefined,
+      main_entity_hold_action: undefined,
+    });
+  }
+
+  _clearButtonEntity(key) {
+    this._updateConfig({
+      [key]: "",
+      [`${key}_on_color`]: undefined,
+      [`${key}_off_color`]: undefined,
+      [`${key}_icon`]: undefined,
+      [`${key}_icon_on`]: undefined,
+      [`${key}_icon_off`]: undefined,
+      [`${key}_state_template`]: undefined,
+      [`${key}_tap_action`]: undefined,
+      [`${key}_hold_action`]: undefined,
+    });
+  }
+
+  _clearCurveButtonEntity(key) {
+    this._updateConfig({
+      [key]: "",
+      [`${key}_icon`]: undefined,
+      [`${key}_icon_on`]: undefined,
+      [`${key}_icon_off`]: undefined,
+      [`${key}_state_template`]: undefined,
+      [`${key}_tap_action`]: undefined,
+      [`${key}_hold_action`]: undefined,
     });
   }
 

@@ -416,7 +416,9 @@ export function renderEntity(label, key) {
           .selector=${{ entity: {} }}
           .value=${this._config?.[key] || ""}
           @value-changed=${(e) =>
-            this._handleConfigUpdate(key, e.detail.value || "")}
+            this._handleEntityUpdate
+              ? this._handleEntityUpdate(key, e.detail.value || "")
+              : this._handleConfigUpdate(key, e.detail.value || "")}
         ></ha-selector>
 
         ${this._config?.[key]
@@ -425,9 +427,11 @@ export function renderEntity(label, key) {
                 type="button"
                 class="clear-button"
                 @click=${() =>
-                  this._updateConfig({
-                    [key]: "",
-                  })}
+                  this._handleEntityUpdate
+                    ? this._handleEntityUpdate(key, "")
+                    : this._updateConfig({
+                        [key]: "",
+                      })}
               >
                 ✕
               </button>

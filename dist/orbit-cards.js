@@ -2109,14 +2109,14 @@ function mr(e, t) {
           .hass=${this.hass}
           .selector=${{ entity: {} }}
           .value=${this._config?.[t] || ""}
-          @value-changed=${(e) => this._handleConfigUpdate(t, e.detail.value || "")}
+          @value-changed=${(e) => this._handleEntityUpdate ? this._handleEntityUpdate(t, e.detail.value || "") : this._handleConfigUpdate(t, e.detail.value || "")}
         ></ha-selector>
 
         ${this._config?.[t] ? O`
               <button
                 type="button"
                 class="clear-button"
-                @click=${() => this._updateConfig({ [t]: "" })}
+                @click=${() => this._handleEntityUpdate ? this._handleEntityUpdate(t, "") : this._updateConfig({ [t]: "" })}
               >
                 ✕
               </button>
@@ -2902,9 +2902,9 @@ select {
 	];
 })), Z, Q = e((() => {
 	Z = {
-		room: "0.6.20",
-		status: "0.11.18",
-		action: "0.4.18"
+		room: "0.6.22",
+		status: "0.11.19",
+		action: "0.4.19"
 	};
 })), Zr = /* @__PURE__ */ t((() => {
 	L(), Or(), Ar(), Mr(), Pr(), Xr(), W(), Q();
@@ -2951,10 +2951,13 @@ select {
 			this._config = e || {};
 		}
 		_updateConfig(e) {
-			this._config = {
+			let t = {
 				...this._config || {},
 				...e
-			}, this.dispatchEvent(new CustomEvent("config-changed", {
+			};
+			Object.keys(t).forEach((e) => {
+				t[e] === void 0 && delete t[e];
+			}), this._config = t, this.dispatchEvent(new CustomEvent("config-changed", {
 				detail: { config: this._config },
 				bubbles: !0,
 				composed: !0
@@ -2971,6 +2974,56 @@ select {
 		}
 		_handleInput(e, t) {
 			this._updateConfig({ [e]: t.target.value });
+		}
+		_handleEntityUpdate(e, t) {
+			if (t) {
+				this._handleConfigUpdate(e, t);
+				return;
+			}
+			if (e.startsWith("button")) {
+				this._clearButtonEntity(e);
+				return;
+			}
+			if (e.startsWith("curve_button")) {
+				this._clearCurveButtonEntity(e);
+				return;
+			}
+			if (e !== "main_entity") {
+				this._handleConfigUpdate(e, t);
+				return;
+			}
+			this._updateConfig({
+				main_entity: "",
+				main_entity_icon: void 0,
+				main_entity_icon_on: void 0,
+				main_entity_icon_off: void 0,
+				main_entity_tap_action: void 0,
+				main_entity_hold_action: void 0
+			});
+		}
+		_clearButtonEntity(e) {
+			this._updateConfig({
+				[e]: "",
+				[`${e}_on_color`]: void 0,
+				[`${e}_off_color`]: void 0,
+				[`${e}_icon`]: void 0,
+				[`${e}_icon_on`]: void 0,
+				[`${e}_icon_off`]: void 0,
+				[`${e}_state_template`]: void 0,
+				[`${e}_tap_action`]: void 0,
+				[`${e}_hold_action`]: void 0
+			});
+		}
+		_clearCurveButtonEntity(e) {
+			this._updateConfig({
+				[e]: "",
+				[`${e}_icon`]: void 0,
+				[`${e}_icon_on`]: void 0,
+				[`${e}_icon_off`]: void 0,
+				[`${e}_state_template`]: void 0,
+				[`${e}_tap_action`]: void 0,
+				[`${e}_hold_action`]: void 0
+			});
 		}
 		_renderInput(e, t, n = "") {
 			return ir.call(this, e, t, n);
@@ -4087,6 +4140,54 @@ var Ni = e((() => {
 		_handleConfigUpdate(e, t) {
 			this._updateConfig({ [e]: t });
 		}
+		_handleEntityUpdate(e, t) {
+			if (t) {
+				this._handleConfigUpdate(e, t);
+				return;
+			}
+			if (e === "main_entity") {
+				this._clearMainEntity();
+				return;
+			}
+			if (e === "tracker_entity") {
+				this._updateConfig({
+					tracker_entity: "",
+					eta_entity: void 0
+				});
+				return;
+			}
+			this._handleConfigUpdate(e, t);
+		}
+		_clearMainEntity() {
+			if (this._config?.mode === "person") {
+				this._updateConfig({
+					main_entity: "",
+					tracker_entity: void 0,
+					eta_entity: void 0,
+					battery_entity_1: void 0,
+					battery_entity_2: void 0,
+					accent_on_color: void 0,
+					accent_off_color: void 0,
+					tap_action: void 0,
+					main_entity_tap_action: void 0,
+					main_entity_hold_action: void 0
+				});
+				return;
+			}
+			this._updateConfig({
+				main_entity: "",
+				accent_on_color: void 0,
+				accent_off_color: void 0,
+				main_entity_icon: void 0,
+				main_entity_icon_on: void 0,
+				main_entity_icon_off: void 0,
+				state_template: void 0,
+				label_template: void 0,
+				tap_action: void 0,
+				main_entity_tap_action: void 0,
+				main_entity_hold_action: void 0
+			});
+		}
 		_getStatusItems(e = this._config) {
 			return Array.isArray(e?.entities) && e.entities.length ? e.entities.map((e) => typeof e == "string" ? { entity: e } : e || {}) : [{
 				entity: e?.main_entity || "",
@@ -4160,30 +4261,46 @@ var Ni = e((() => {
 				entities: i
 			});
 		}
-		_updateStatusItem(e, t) {
-			let n = this._getStatusItems(), r = {
-				...n[e] || {},
-				...t
+		_updateStatusItem(e, n) {
+			let r = this._getStatusItems(), i = {
+				...r[e] || {},
+				...n
 			};
-			if (Array.isArray(this._config?.entities)) {
-				let t = [...n];
-				t[e] = r;
-				let i = { entities: t };
-				t.length > 1 && (i.main_entity = void 0, i.accent_on_color = void 0, i.accent_off_color = void 0, i.main_entity_icon = void 0, i.main_entity_icon_on = void 0, i.main_entity_icon_off = void 0, i.state_template = void 0, i.label_template = void 0, i.tap_action = void 0, i.main_entity_tap_action = void 0, i.main_entity_hold_action = void 0), this._updateConfig(i);
+			if (n.entity === "" && t(i), Array.isArray(this._config?.entities)) {
+				let t = [...r];
+				t[e] = i;
+				let n = { entities: t };
+				t.length > 1 && (n.main_entity = void 0, n.accent_on_color = void 0, n.accent_off_color = void 0, n.main_entity_icon = void 0, n.main_entity_icon_on = void 0, n.main_entity_icon_off = void 0, n.state_template = void 0, n.label_template = void 0, n.tap_action = void 0, n.main_entity_tap_action = void 0, n.main_entity_hold_action = void 0), this._updateConfig(n);
+				return;
+			}
+			if (n.entity === "") {
+				this._updateConfig({
+					main_entity: "",
+					accent_on_color: void 0,
+					accent_off_color: void 0,
+					main_entity_icon: void 0,
+					main_entity_icon_on: void 0,
+					main_entity_icon_off: void 0,
+					state_template: void 0,
+					label_template: void 0,
+					tap_action: void 0,
+					main_entity_tap_action: void 0,
+					main_entity_hold_action: void 0
+				});
 				return;
 			}
 			this._updateConfig({
-				main_entity: r.entity || "",
-				accent_on_color: r.accent_on_color || "",
-				accent_off_color: r.accent_off_color || "",
-				main_entity_icon: r.main_entity_icon || "",
-				main_entity_icon_on: r.main_entity_icon_on || "",
-				main_entity_icon_off: r.main_entity_icon_off || "",
-				state_template: r.state_template || "",
-				label_template: r.label_template || "",
-				tap_action: r.tap_action,
-				main_entity_tap_action: r.main_entity_tap_action,
-				main_entity_hold_action: r.main_entity_hold_action
+				main_entity: i.entity || "",
+				accent_on_color: i.accent_on_color || "",
+				accent_off_color: i.accent_off_color || "",
+				main_entity_icon: i.main_entity_icon || "",
+				main_entity_icon_on: i.main_entity_icon_on || "",
+				main_entity_icon_off: i.main_entity_icon_off || "",
+				state_template: i.state_template || "",
+				label_template: i.label_template || "",
+				tap_action: i.tap_action,
+				main_entity_tap_action: i.main_entity_tap_action,
+				main_entity_hold_action: i.main_entity_hold_action
 			});
 		}
 		_renderInput(e, t, n = "") {
@@ -4387,6 +4504,9 @@ var Ni = e((() => {
     `];
 	};
 	customElements.define("orbit-status-card-editor", e);
+	function t(e) {
+		e.accent_on_color = void 0, e.accent_off_color = void 0, e.main_entity_icon = void 0, e.main_entity_icon_on = void 0, e.main_entity_icon_off = void 0, e.state_template = void 0, e.label_template = void 0, e.tap_action = void 0, e.main_entity_tap_action = void 0, e.main_entity_hold_action = void 0;
+	}
 })), Fi = /* @__PURE__ */ t((() => {
 	L(), Ke(), B(), rt(), gt(), bt(), St(), Et(), At(), W(), _i(), wi(), Oi(), Pi(), Q();
 	var e = class extends I {
@@ -5226,24 +5346,34 @@ var Yi, Xi = e((() => {
 				entities: i
 			});
 		}
-		_updateActionItem(e, t) {
-			let n = this._getActionItems(), r = {
-				...n[e] || {},
-				...t
+		_updateActionItem(e, n) {
+			let r = this._getActionItems(), i = {
+				...r[e] || {},
+				...n
 			};
-			if (Array.isArray(this._config?.entities)) {
-				let t = [...n];
-				t[e] = r;
-				let i = { entities: t };
-				t.length > 1 && (i.main_entity = void 0, i.accent_color = void 0, i.main_entity_icon = void 0, i.tap_action = void 0, i.hold_action = void 0), this._updateConfig(i);
+			if (n.entity === "" && t(i), Array.isArray(this._config?.entities)) {
+				let t = [...r];
+				t[e] = i;
+				let n = { entities: t };
+				t.length > 1 && (n.main_entity = void 0, n.accent_color = void 0, n.main_entity_icon = void 0, n.tap_action = void 0, n.hold_action = void 0), this._updateConfig(n);
+				return;
+			}
+			if (n.entity === "") {
+				this._updateConfig({
+					main_entity: "",
+					accent_color: void 0,
+					main_entity_icon: void 0,
+					tap_action: void 0,
+					hold_action: void 0
+				});
 				return;
 			}
 			this._updateConfig({
-				main_entity: r.entity || "",
-				accent_color: r.accent_color || "",
-				main_entity_icon: r.main_entity_icon || "",
-				tap_action: r.tap_action,
-				hold_action: r.hold_action
+				main_entity: i.entity || "",
+				accent_color: i.accent_color || "",
+				main_entity_icon: i.main_entity_icon || "",
+				tap_action: i.tap_action,
+				hold_action: i.hold_action
 			});
 		}
 		_getColorStyle(e) {
@@ -5473,6 +5603,9 @@ var Yi, Xi = e((() => {
     `];
 	};
 	customElements.define("orbit-action-card-editor", e);
+	function t(e) {
+		e.accent_color = void 0, e.main_entity_icon = void 0, e.tap_action = void 0, e.hold_action = void 0;
+	}
 })), Qi = /* @__PURE__ */ t((() => {
 	L(), Ke(), B(), gt(), Et(), At(), W(), Bi(), Ui(), Gi(), Zi(), Q();
 	var e = class extends I {
