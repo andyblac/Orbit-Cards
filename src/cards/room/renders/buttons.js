@@ -31,7 +31,10 @@ export function renderButtons(button) {
                 style="color:${button.iconColor};"
               >
                 ${button.iconPath
-                  ? unsafeHTML(this._getInlineSvg(button.iconPath))
+                  ? unsafeHTML(this._getInlineSvg(
+                      button.iconPath,
+                      button.svgForceColor
+                    ))
                   : ""}
               </div>
             `

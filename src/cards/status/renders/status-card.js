@@ -14,7 +14,7 @@ export function renderStatusCard() {
     ? this._resolveIconPath(this._icon)
     : "";
   const inlineSvg = iconPath
-    ? this._getInlineSvg(iconPath)
+    ? this._getInlineSvg(iconPath, this._iconSvgForceColor)
     : "";
 
   return html`
@@ -116,7 +116,7 @@ function renderIconOnlyStatusItem(item, index) {
     ? this._resolveIconPath(item.icon)
     : "";
   const inlineSvg = iconPath
-    ? this._getInlineSvg(iconPath)
+    ? this._getInlineSvg(iconPath, item.svgForceColor)
     : "";
 
   return html`

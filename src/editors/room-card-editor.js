@@ -162,7 +162,6 @@ class OrbitRoomCardEditor extends LitElement {
     );
   }
 
-  
   // =========================
   // ICON HELPERS
   // =========================
@@ -184,7 +183,9 @@ class OrbitRoomCardEditor extends LitElement {
   }
 
   _getInlineSvg(path) {
-    return getInlineSvg.call(this, path);
+    return getInlineSvg.call(this, path, {
+      forceColor: true,
+    });
   }
 
   // =========================

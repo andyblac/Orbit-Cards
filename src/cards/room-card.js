@@ -32,6 +32,7 @@ import {
   getEntityColor,
   getInlineSvg,
   getMainIconColor,
+  getSvgColorOverride,
   isImageIcon,
   resolveIconPath,
 } from "../common/helpers/icons.js";
@@ -230,8 +231,14 @@ class OrbitRoomCard extends LitElement {
     return resolveIconPath(iconPath);
   }
 
-  _getInlineSvg(path) {
-    return getInlineSvg.call(this, path);
+  _getInlineSvg(path, forceColor = true) {
+    return getInlineSvg.call(this, path, {
+      forceColor,
+    });
+  }
+
+  _getSvgColorOverride(iconKey) {
+    return getSvgColorOverride(this._config, iconKey);
   }
 
   get _LONG_PRESS_DELAY() {

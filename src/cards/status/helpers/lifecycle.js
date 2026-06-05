@@ -63,6 +63,12 @@ export function getIconOnlyStatusItems(config = {}) {
       main_entity_icon: config.main_entity_icon,
       main_entity_icon_on: config.main_entity_icon_on,
       main_entity_icon_off: config.main_entity_icon_off,
+      main_entity_icon_svg_color_override:
+        config.main_entity_icon_svg_color_override,
+      main_entity_icon_on_svg_color_override:
+        config.main_entity_icon_on_svg_color_override,
+      main_entity_icon_off_svg_color_override:
+        config.main_entity_icon_off_svg_color_override,
       state_template: config.state_template,
       label_template: config.label_template,
       tap_action: config.tap_action,
@@ -147,6 +153,15 @@ function getStatusState(item, rootConfig = {}) {
         )
       : "mdi:information-outline");
 
+  const selectedIconKey =
+    isOn && customIconOn
+      ? "main_entity_icon_on"
+      : !isOn && customIconOff
+        ? "main_entity_icon_off"
+        : customIcon
+          ? "main_entity_icon"
+          : "";
+
   const statusColor = getStatusColor(
     config,
     stateObj,
@@ -176,6 +191,9 @@ function getStatusState(item, rootConfig = {}) {
     statusColor: statusColorValue,
     circleColor,
     iconColor,
+    svgForceColor: selectedIconKey
+      ? this._getSvgColorOverride(config, selectedIconKey)
+      : true,
   };
 }
 
@@ -188,6 +206,7 @@ function applyStatusState(state) {
   this._statusColor = state.statusColor || this._statusColor;
   this._circleColor = state.circleColor || this._circleColor;
   this._iconColor = state.iconColor || this._iconColor;
+  this._iconSvgForceColor = state.svgForceColor ?? true;
 }
 
 function updatePersonStatusCard() {
@@ -300,6 +319,7 @@ function updatePersonStatusCard() {
   this._iconColor = isOn
     ? this._computeFullColor(statusColor)
     : this._computeIconColor(statusColor);
+  this._iconSvgForceColor = true;
 }
 
 function getPersonZoneIcon(trackerObj, personObj) {

@@ -132,6 +132,14 @@ In the visual editor, tap an icon preview to open the icon selector. The `Icons`
 ]
 ```
 
+Inline SVG icons use the configured card/icon colour by default. For advanced multi-colour SVGs, set the matching icon override key to `false` to preserve the SVG's own colours:
+
+```yaml
+main_entity_icon_svg_color_override: false
+button1_icon_svg_color_override: false
+curve_button1_icon_svg_color_override: false
+```
+
 ### Actions
 
 Supported action types:
@@ -313,6 +321,7 @@ curve_button2_tap_action:
 | `main_entity_icon` | Main entity icon override. Falls back to entity icon, area icon, or default room icon. |
 | `main_entity_icon_on` | Main entity icon used when `main_entity` is ON or active. |
 | `main_entity_icon_off` | Main entity icon used when `main_entity` is OFF or inactive. |
+| `main_entity_icon_svg_color_override`, `main_entity_icon_on_svg_color_override`, `main_entity_icon_off_svg_color_override` | Advanced YAML-only SVG colour controls. Defaults to `true`, which forces the configured icon colour. Set the matching key to `false` to preserve the SVG's own colours. |
 | `main_entity_tap_action` | Main entity/icon tap action. Defaults to `more-info`. |
 | `main_entity_hold_action` | Main entity/icon hold action. Defaults to `none`. |
 | `navigate.navigation_path` | Card body navigation path. Room Card body tap is navigation-only. |
@@ -321,6 +330,7 @@ curve_button2_tap_action:
 | `buttonX_icon` | Icon override for side button `X`. |
 | `buttonX_icon_on` | Icon override when side button `X` is ON or active. |
 | `buttonX_icon_off` | Icon override when side button `X` is OFF or inactive. |
+| `buttonX_icon_svg_color_override`, `buttonX_icon_on_svg_color_override`, `buttonX_icon_off_svg_color_override` | Advanced YAML-only SVG colour controls for side button icons. Defaults to `true`. Set the matching key to `false` to preserve the SVG's own colours. |
 | `buttonX_on_color` | ON colour for side button `X`. Supports shared colour formats and `light`. |
 | `buttonX_off_color` | OFF colour for side button `X`. |
 | `buttonX_tap_action` | Tap action for side button `X`. Defaults to `toggle`. |
@@ -330,6 +340,7 @@ curve_button2_tap_action:
 | `curve_buttonX_icon` | Icon override for curve button `X`. |
 | `curve_buttonX_icon_on` | Icon override when curve button `X` is ON or active. |
 | `curve_buttonX_icon_off` | Icon override when curve button `X` is OFF or inactive. |
+| `curve_buttonX_icon_svg_color_override`, `curve_buttonX_icon_on_svg_color_override`, `curve_buttonX_icon_off_svg_color_override` | Advanced YAML-only SVG colour controls for curve button icons. Defaults to `true`. Set the matching key to `false` to preserve the SVG's own colours. |
 | `curve_buttonX_tap_action` | Tap action for curve button `X`. Defaults to `toggle`. |
 | `curve_buttonX_hold_action` | Hold action for curve button `X`. Defaults to `none`. |
 | `curve_buttonX_state_template` | Template used to decide whether curve button `X` is active. |
@@ -497,6 +508,7 @@ For Icon Only mode, numeric `0` is OFF and values greater than `0` are ON unless
 | `main_entity_icon` | Standard/Icon Only only. Main entity icon override. Falls back to entity icon. |
 | `main_entity_icon_on` | Standard/Icon Only only. Icon used when the status is ON. |
 | `main_entity_icon_off` | Standard/Icon Only only. Icon used when the status is OFF. |
+| `main_entity_icon_svg_color_override`, `main_entity_icon_on_svg_color_override`, `main_entity_icon_off_svg_color_override` | Advanced YAML-only SVG colour controls. Defaults to `true`, which forces the configured icon colour. Set the matching key to `false` to preserve the SVG's own colours. |
 | `tap_action` | Card tap action. Defaults to `navigate` in Standard mode and `more-info` in Icon Only/Person modes. |
 | `main_entity_tap_action` | Main entity/icon tap action. Defaults to `more-info` in Standard mode. In Icon Only/Person modes it falls back to `tap_action` when unset or `none`. |
 | `main_entity_hold_action` | Main entity/icon hold action. Defaults to `none`. |
@@ -551,12 +563,13 @@ Set `separate_cards: true` to add a small gap and make each grouped action read 
 | Option | Description |
 | --- | --- |
 | `main_entity` | Required for a single Action Card. Entity to activate. |
-| `entities` | Optional list of grouped action items. Each item supports `entity`, `accent_color`, `main_entity_icon`, `tap_action`, and `hold_action`. |
+| `entities` | Optional list of grouped action items. Each item supports `entity`, `accent_color`, `main_entity_icon`, `main_entity_icon_svg_color_override`, `tap_action`, and `hold_action`. |
 | `wrap` | Grouped mode only. Allows actions to wrap onto additional rows. |
 | `actions_per_row` | Grouped mode only. Number of actions per row when `wrap` is enabled. Defaults to `3`. |
 | `separate_cards` | Grouped mode only. Adds a small gap between grouped items and gives each item its own rounded card background. |
 | `accent_color` | Base card/icon colour. Defaults to `theme`. |
 | `main_entity_icon` | Optional icon override. Falls back to entity icon, then a domain icon. |
+| `main_entity_icon_svg_color_override` | Advanced YAML-only SVG colour control. Defaults to `true`, which forces the configured icon colour. Set to `false` to preserve the SVG's own colours. |
 | `tap_action` | Optional tap action override. Defaults by entity domain. |
 | `hold_action` | Optional hold action override. Defaults to `more-info`. |
 

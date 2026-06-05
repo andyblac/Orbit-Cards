@@ -31,7 +31,7 @@ function renderActionButton(action, index) {
     ? this._resolveIconPath(action.icon)
     : "";
   const inlineSvg = iconPath
-    ? this._getInlineSvg(iconPath)
+    ? this._getInlineSvg(iconPath, action.svgForceColor)
     : "";
 
   return html`

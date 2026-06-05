@@ -21,6 +21,7 @@ import {
   getBinarySensorIcon,
   getDefaultDomainIcon,
   getInlineSvg,
+  getSvgColorOverride,
   isImageIcon,
   resolveIconPath,
 } from "../common/helpers/icons.js";
@@ -391,8 +392,14 @@ class OrbitStatusCard extends LitElement {
     return resolveIconPath(iconPath);
   }
 
-  _getInlineSvg(path) {
-    return getInlineSvg.call(this, path);
+  _getInlineSvg(path, forceColor = true) {
+    return getInlineSvg.call(this, path, {
+      forceColor,
+    });
+  }
+
+  _getSvgColorOverride(config, iconKey) {
+    return getSvgColorOverride(config, iconKey);
   }
 
   _evaluateStateTemplate(template, entityId) {

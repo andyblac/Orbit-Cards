@@ -225,11 +225,13 @@ export function resolveIconPath(iconPath) {
   return `/local/icons/${iconPath}`;
 }
 
-export function getInlineSvg(path) {
+export function getInlineSvg(path, options = {}) {
   if (!path) return "";
 
+  const forceColor = options.forceColor !== false;
+  const cacheKey = `${path}::${forceColor ? "forced" : "auto"}`;
   const svgCache = this.constructor.svgCache;
-  const cached = svgCache[path];
+  const cached = svgCache[cacheKey];
 
   if (
     typeof cached === "string" &&
@@ -239,12 +241,12 @@ export function getInlineSvg(path) {
   }
 
   if (cached === "loading") {
-    addSvgSubscriber(path, this);
+    addSvgSubscriber(cacheKey, this);
     return "";
   }
 
-  svgCache[path] = "loading";
-  addSvgSubscriber(path, this);
+  svgCache[cacheKey] = "loading";
+  addSvgSubscriber(cacheKey, this);
 
   fetchInlineSvg(path)
     .then((response) => {
@@ -255,31 +257,55 @@ export function getInlineSvg(path) {
       return response.text();
     })
     .then((svg) => {
-      svg = svg
-        .replace(
-          /fill="(?!none)[^"]*"/gi,
-          'fill="currentColor"'
-        )
-        .replace(
-          /stroke="(?!none)[^"]*"/gi,
-          'stroke="currentColor"'
-        )
-        .replace(/width="[^"]*"/gi, 'width="100%"')
-        .replace(/height="[^"]*"/gi, 'height="100%"');
+      svg = prepareInlineSvg(svg, forceColor);
 
-      svgCache[path] = svg;
+      svgCache[cacheKey] = svg;
 
-      notifySvgSubscribers(path);
+      notifySvgSubscribers(cacheKey);
     })
     .catch((err) => {
       console.error("SVG load failed:", path, err);
 
-      delete svgCache[path];
+      delete svgCache[cacheKey];
 
-      notifySvgSubscribers(path);
+      notifySvgSubscribers(cacheKey);
     });
 
   return "";
+}
+
+export function getSvgColorOverride(config, iconKey) {
+  if (!config || !iconKey) return true;
+
+  return config[`${iconKey}_svg_color_override`] !== false;
+}
+
+function prepareInlineSvg(svg, forceColor) {
+  let prepared = svg
+    .replace(/width="[^"]*"/gi, 'width="100%"')
+    .replace(/height="[^"]*"/gi, 'height="100%"');
+
+  if (!forceColor) {
+    return prepared;
+  }
+
+  return prepared
+    .replace(
+      /fill="(?!none|transparent|currentColor|inherit|initial|unset|url\()[^"]*"/gi,
+      'fill="currentColor"'
+    )
+    .replace(
+      /stroke="(?!none|transparent|currentColor|inherit|initial|unset|url\()[^"]*"/gi,
+      'stroke="currentColor"'
+    )
+    .replace(
+      /fill:\s*(?!none|transparent|currentColor|inherit|initial|unset|url\()[^;"]+/gi,
+      "fill:currentColor"
+    )
+    .replace(
+      /stroke:\s*(?!none|transparent|currentColor|inherit|initial|unset|url\()[^;"]+/gi,
+      "stroke:currentColor"
+    );
 }
 
 const svgSubscribers = {};

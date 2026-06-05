@@ -7,7 +7,7 @@ export function renderRoomCard() {
     ? this._resolveIconPath(this._icon)
     : "";
   const inlineSvg = iconPath
-    ? this._getInlineSvg(iconPath)
+    ? this._getInlineSvg(iconPath, this._iconSvgForceColor)
     : "";
 
   return html`

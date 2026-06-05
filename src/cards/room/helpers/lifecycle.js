@@ -54,10 +54,24 @@ export function updateRoomCard(changedProps) {
       "mdi:sofa";
   }
 
+  const selectedIconKey =
+    isOn && customIconOn
+      ? "main_entity_icon_on"
+      : !isOn && customIconOff
+        ? "main_entity_icon_off"
+        : customIcon
+          ? "main_entity_icon"
+          : "";
+
   this._icon =
     (isOn ? customIconOn : customIconOff) ||
     customIcon ||
     autoIcon;
+
+  this._iconSvgForceColor =
+    selectedIconKey
+      ? this._getSvgColorOverride(selectedIconKey)
+      : true;
 
   const statusEntities = [
     this._config.status1,
@@ -189,8 +203,28 @@ function getRoomButtonModel(prefix, entityId, index, options) {
     iconPath: isImage
       ? this._resolveIconPath(icon)
       : "",
+    svgForceColor: getButtonSvgColorOverride.call(this, key, isOn),
     isImage,
   };
+}
+
+function getButtonSvgColorOverride(key, isOn) {
+  const customIcon = this._config?.[`${key}_icon`];
+  const customIconOn = this._config?.[`${key}_icon_on`];
+  const customIconOff = this._config?.[`${key}_icon_off`];
+
+  const iconKey =
+    isOn && customIconOn
+      ? `${key}_icon_on`
+      : !isOn && customIconOff
+        ? `${key}_icon_off`
+        : customIcon
+          ? `${key}_icon`
+          : "";
+
+  return iconKey
+    ? this._getSvgColorOverride(iconKey)
+    : true;
 }
 
 function getButtonIcon(key, entityId, stateObj, isOn) {

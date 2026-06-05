@@ -20,6 +20,8 @@ export function getActionItems(config = {}) {
       entity: config.main_entity,
       accent_color: config.accent_color,
       main_entity_icon: config.main_entity_icon,
+      main_entity_icon_svg_color_override:
+        config.main_entity_icon_svg_color_override,
       tap_action: config.tap_action,
       hold_action: config.hold_action,
     },
@@ -42,6 +44,13 @@ function getActionState(item) {
     ? this._computeFullColor(accentColor)
     : this._computeIconColor(accentColor);
 
+  const selectedIconKey =
+    item.main_entity_icon
+      ? "main_entity_icon"
+      : item.icon
+        ? "icon"
+        : "";
+
   const icon =
     item.main_entity_icon ||
     item.icon ||
@@ -62,6 +71,9 @@ function getActionState(item) {
     iconColor,
     cardBackground,
     isRunning,
+    svgForceColor: selectedIconKey
+      ? this._getSvgColorOverride(item, selectedIconKey)
+      : true,
   };
 }
 

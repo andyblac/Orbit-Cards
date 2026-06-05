@@ -43,7 +43,10 @@ export function renderCurveButtons() {
                       class="curve-image-icon"
                       style="color:${button.iconColor};"
                     >
-                      ${unsafeHTML(this._getInlineSvg(button.iconPath))}
+                      ${unsafeHTML(this._getInlineSvg(
+                        button.iconPath,
+                        button.svgForceColor
+                      ))}
                     </div>
                   `
                 : html`
