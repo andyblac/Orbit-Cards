@@ -45,17 +45,7 @@ export function getStatusActiveState(
     return numericState > 0;
   }
 
-  const isActiveStatusState = ![
-    "",
-    "0",
-    "off",
-    "false",
-    "idle",
-    "standby",
-    "unknown",
-    "unavailable",
-    "none",
-  ].includes(state);
+  const isActiveStatusState = !INACTIVE_STATUS_STATES.includes(state);
 
   if (!isActiveStatusState) return false;
 
@@ -69,6 +59,34 @@ export function getStatusActiveState(
     ? getEntityActiveState(stateObj)
     : true;
 }
+
+const INACTIVE_STATUS_STATES = [
+  "",
+  "0",
+  "off",
+  "false",
+  "no",
+  "none",
+  "unknown",
+  "unavailable",
+  "idle",
+  "standby",
+  "docked",
+  "disarmed",
+  "closed",
+  "locked",
+  "clear",
+  "cleared",
+  "normal",
+  "ok",
+  "okay",
+  "safe",
+  "home",
+  "online",
+  "connected",
+  "available",
+  "disabled",
+];
 
 export function getStatusNavigationPath(config, stateObj) {
   const navigation = getStatusAttribute(stateObj, "navigation");

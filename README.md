@@ -495,7 +495,7 @@ accent_on_color: green
 accent_off_color: theme
 ```
 
-For Icon Only mode, numeric `0` is OFF and values greater than `0` are ON unless a `state_template` overrides the detection.
+For Icon Only mode, numeric `0` is OFF and values greater than `0` are ON unless a `state_template` overrides the detection. Common normal/safe text states such as `off`, `disarmed`, `closed`, `locked`, `clear`, `normal`, `home`, `online`, and `connected` are treated as OFF.
 
 ### Status Card Options
 
