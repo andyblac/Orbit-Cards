@@ -1832,7 +1832,7 @@ function nr(e, t, n, r) {
       <div class="color-row">
         <input
           .value=${n}
-          placeholder="green / blue / theme / light / #hex / rgb()"
+          placeholder="green / blue / light / #hex / rgb()"
           @input=${(e) => r(e.target.value)}
         />
 
@@ -2835,9 +2835,9 @@ select {
 	];
 })), Z, Q = e((() => {
 	Z = {
-		room: "0.6.18",
-		status: "0.11.16",
-		action: "0.4.14"
+		room: "0.6.19",
+		status: "0.11.17",
+		action: "0.4.15"
 	};
 })), Ur = /* @__PURE__ */ t((() => {
 	F(), br(), Sr(), wr(), Er(), Hr(), H(), Q();

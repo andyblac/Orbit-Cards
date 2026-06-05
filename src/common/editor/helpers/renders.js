@@ -68,7 +68,7 @@ export function renderColorControl(label, pickerKey, value, onUpdate) {
       <div class="color-row">
         <input
           .value=${value}
-          placeholder="green / blue / theme / light / #hex / rgb()"
+          placeholder="green / blue / light / #hex / rgb()"
           @input=${(e) =>
             onUpdate(e.target.value)}
         />
