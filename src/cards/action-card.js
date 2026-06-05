@@ -301,6 +301,16 @@ function getDefaultTapAction(entityId) {
     };
   }
 
+  if (domain === "button" || domain === "input_button") {
+    return {
+      action: "call-service",
+      service: "button.press",
+      service_data: {
+        entity_id: entityId,
+      },
+    };
+  }
+
   return {
     action: "toggle",
   };

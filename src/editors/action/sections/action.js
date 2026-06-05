@@ -129,6 +129,8 @@ export function renderActionSection() {
                   "scene",
                   "script",
                   "automation",
+                  "button",
+                  "input_button",
                 ],
               },
             }}
@@ -219,6 +221,16 @@ function getDefaultTapAction(entityId) {
     return {
       action: "call-service",
       service: "automation.trigger",
+      service_data: {
+        entity_id: entityId,
+      },
+    };
+  }
+
+  if (domain === "button" || domain === "input_button") {
+    return {
+      action: "call-service",
+      service: "button.press",
       service_data: {
         entity_id: entityId,
       },
