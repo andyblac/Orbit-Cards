@@ -14,7 +14,7 @@ Orbit Cards currently includes:
 | Status Card | `custom:orbit-status-card` | A status summary card with Standard, Icon Only, grouped Icon Only, and Person modes.                               |
 | Action Card | `custom:orbit-action-card` | A compact action card for scenes, scripts, automations, and grouped action shortcuts.                              |
 
-<img title="" src="file:///Users/andrewblackburn/GitHub/orbit-room-card/images/Room-Card.png" alt="" width="252"><img title="" src="file:///Users/andrewblackburn/GitHub/orbit-room-card/images/Status-Action-Cards.png" alt="" width="361">
+<img title="" src="images/Room-Card.png" alt="" width="252"><img title="" src="images/Status-Action-Cards.png" alt="" width="361">
 
 ## Features
 
