@@ -43,7 +43,7 @@ Orbit Cards currently includes:
    https://github.com/andyblac/Orbit-Cards
    ```
 
-5. Select category `Lovelace`.
+5. Select category `Dashboard`.
 
 6. Install `Orbit Cards`.
 
