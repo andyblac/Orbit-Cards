@@ -7,6 +7,8 @@ export function renderActionSection() {
     items.length - 1
   );
   const selectedItem = items[selectedIndex] || {};
+  const domainFilter = this._actionEntityDomainFilter || "all";
+  const selectorDomains = getActionEntityDomains(domainFilter);
 
   return html`
     <div class="section">
@@ -119,19 +121,27 @@ export function renderActionSection() {
       <div class="field">
         <label>Main Entity</label>
 
+        <div class="action-domain-filters">
+          ${ACTION_DOMAIN_FILTERS.map((filter) => html`
+            <button
+              type="button"
+              class=${filter.value === domainFilter ? "active" : ""}
+              @click=${() => {
+                this._actionEntityDomainFilter = filter.value;
+              }}
+            >
+              ${filter.label}
+            </button>
+          `)}
+        </div>
+
         <div class="entity-row">
           <ha-selector
             class="entity-picker"
             .hass=${this.hass}
             .selector=${{
               entity: {
-                domain: [
-                  "scene",
-                  "script",
-                  "automation",
-                  "button",
-                  "input_button",
-                ],
+                domain: selectorDomains,
               },
             }}
             .value=${selectedItem.entity || ""}
@@ -192,6 +202,47 @@ export function renderActionSection() {
         : ""}
     </div>
   `;
+}
+
+const ACTION_DOMAIN_FILTERS = [
+  {
+    label: "All",
+    value: "all",
+    domains: [
+      "scene",
+      "script",
+      "automation",
+      "button",
+      "input_button",
+    ],
+  },
+  {
+    label: "Scenes",
+    value: "scene",
+    domains: ["scene"],
+  },
+  {
+    label: "Scripts",
+    value: "script",
+    domains: ["script"],
+  },
+  {
+    label: "Automations",
+    value: "automation",
+    domains: ["automation"],
+  },
+  {
+    label: "Buttons",
+    value: "button",
+    domains: ["button", "input_button", "input_boolean"],
+  },
+];
+
+function getActionEntityDomains(value) {
+  return (
+    ACTION_DOMAIN_FILTERS.find((filter) => filter.value === value) ||
+    ACTION_DOMAIN_FILTERS[0]
+  ).domains;
 }
 
 function getDefaultTapAction(entityId) {

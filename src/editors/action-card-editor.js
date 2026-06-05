@@ -32,6 +32,7 @@ class OrbitActionCardEditor extends LitElement {
     hass: { attribute: false },
     _config: { state: true },
     _selectedActionIndex: { state: true },
+    _actionEntityDomainFilter: { state: true },
     _colorPickerKey: { state: true },
     _colorPickerTab: { state: true },
     _iconPickerKey: { state: true },
@@ -44,6 +45,7 @@ class OrbitActionCardEditor extends LitElement {
     super();
     this._config = this._config || {};
     this._selectedActionIndex = 0;
+    this._actionEntityDomainFilter = "all";
     this._colorPickerKey = "";
     this._colorPickerTab = "picker";
     this._iconPickerKey = "";
@@ -417,6 +419,35 @@ class OrbitActionCardEditor extends LitElement {
         gap: 8px;
         margin-left: auto;
         justify-content: flex-end;
+      }
+
+      .action-domain-filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 0 0 10px;
+      }
+
+      .action-domain-filters button {
+        min-height: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 7px;
+        padding: 0 12px;
+        background: rgba(255, 255, 255, 0.04);
+        color: inherit;
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .action-domain-filters button.active {
+        border-color: var(--primary-color);
+        background: color-mix(
+          in srgb,
+          var(--primary-color) 18%,
+          transparent
+        );
+        color: var(--primary-color);
       }
 
       .action-tool-button {

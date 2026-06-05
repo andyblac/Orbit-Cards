@@ -2837,7 +2837,7 @@ select {
 	Z = {
 		room: "0.6.19",
 		status: "0.11.17",
-		action: "0.4.15"
+		action: "0.4.17"
 	};
 })), Ur = /* @__PURE__ */ t((() => {
 	F(), br(), Sr(), wr(), Er(), Hr(), H(), Q();
@@ -4850,7 +4850,7 @@ var Fi = e((() => {
 //#endregion
 //#region src/editors/action/sections/action.js
 function Ri() {
-	let e = this._getActionItems(), t = Math.min(this._selectedActionIndex || 0, e.length - 1), n = e[t] || {};
+	let e = this._getActionItems(), t = Math.min(this._selectedActionIndex || 0, e.length - 1), n = e[t] || {}, r = this._actionEntityDomainFilter || "all", i = zi(r);
 	return D`
     <div class="section">
       <div class="action-group-options">
@@ -4946,17 +4946,25 @@ function Ri() {
       <div class="field">
         <label>Main Entity</label>
 
+        <div class="action-domain-filters">
+          ${Vi.map((e) => D`
+            <button
+              type="button"
+              class=${e.value === r ? "active" : ""}
+              @click=${() => {
+		this._actionEntityDomainFilter = e.value;
+	}}
+            >
+              ${e.label}
+            </button>
+          `)}
+        </div>
+
         <div class="entity-row">
           <ha-selector
             class="entity-picker"
             .hass=${this.hass}
-            .selector=${{ entity: { domain: [
-		"scene",
-		"script",
-		"automation",
-		"button",
-		"input_button"
-	] } }}
+            .selector=${{ entity: { domain: i } }}
             .value=${n.entity || ""}
             @value-changed=${(e) => this._updateActionItem(t, { entity: e.detail.value || "" })}
           ></ha-selector>
@@ -4978,13 +4986,16 @@ function Ri() {
       ${this._renderActionItemIconInput("Main Entity Icon", "main_entity_icon", t)}
 
       ${n.entity ? D`
-            ${this._renderActionItemActionSelector("Tap Action", "tap_action", t, zi(n.entity))}
+            ${this._renderActionItemActionSelector("Tap Action", "tap_action", t, Bi(n.entity))}
             ${this._renderActionItemActionSelector("Hold Action", "hold_action", t, "more-info")}
           ` : ""}
     </div>
   `;
 }
 function zi(e) {
+	return (Vi.find((t) => t.value === e) || Vi[0]).domains;
+}
+function Bi(e) {
 	let t = e?.split(".")[0];
 	return t === "scene" ? {
 		action: "call-service",
@@ -5004,16 +5015,53 @@ function zi(e) {
 		service_data: { entity_id: e }
 	} : { action: "toggle" };
 }
-var Bi = e((() => {
-	F();
-})), Vi = /* @__PURE__ */ t((() => {
-	F(), br(), Bi(), Hr(), H(), Q();
+var Vi, Hi = e((() => {
+	F(), Vi = [
+		{
+			label: "All",
+			value: "all",
+			domains: [
+				"scene",
+				"script",
+				"automation",
+				"button",
+				"input_button"
+			]
+		},
+		{
+			label: "Scenes",
+			value: "scene",
+			domains: ["scene"]
+		},
+		{
+			label: "Scripts",
+			value: "script",
+			domains: ["script"]
+		},
+		{
+			label: "Automations",
+			value: "automation",
+			domains: ["automation"]
+		},
+		{
+			label: "Buttons",
+			value: "button",
+			domains: [
+				"button",
+				"input_button",
+				"input_boolean"
+			]
+		}
+	];
+})), Ui = /* @__PURE__ */ t((() => {
+	F(), br(), Hi(), Hr(), H(), Q();
 	var e = class extends P {
 		static svgCache = V;
 		static properties = {
 			hass: { attribute: !1 },
 			_config: { state: !0 },
 			_selectedActionIndex: { state: !0 },
+			_actionEntityDomainFilter: { state: !0 },
 			_colorPickerKey: { state: !0 },
 			_colorPickerTab: { state: !0 },
 			_iconPickerKey: { state: !0 },
@@ -5022,7 +5070,7 @@ var Bi = e((() => {
 			_localIconFilesLoading: { state: !0 }
 		};
 		constructor() {
-			super(), this._config = this._config || {}, this._selectedActionIndex = 0, this._colorPickerKey = "", this._colorPickerTab = "picker", this._iconPickerKey = "", this._iconPickerTab = "ha", this._localIconFiles = [], this._localIconFilesLoading = !1;
+			super(), this._config = this._config || {}, this._selectedActionIndex = 0, this._actionEntityDomainFilter = "all", this._colorPickerKey = "", this._colorPickerTab = "picker", this._iconPickerKey = "", this._iconPickerTab = "ha", this._localIconFiles = [], this._localIconFilesLoading = !1;
 		}
 		setConfig(e) {
 			this._config = e || {}, this._selectedActionIndex = Math.min(this._selectedActionIndex || 0, this._getActionItems(e).length - 1);
@@ -5268,6 +5316,35 @@ var Bi = e((() => {
         justify-content: flex-end;
       }
 
+      .action-domain-filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 0 0 10px;
+      }
+
+      .action-domain-filters button {
+        min-height: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 7px;
+        padding: 0 12px;
+        background: rgba(255, 255, 255, 0.04);
+        color: inherit;
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
+      .action-domain-filters button.active {
+        border-color: var(--primary-color);
+        background: color-mix(
+          in srgb,
+          var(--primary-color) 18%,
+          transparent
+        );
+        color: var(--primary-color);
+      }
+
       .action-tool-button {
         width: 44px;
         height: 44px;
@@ -5299,8 +5376,8 @@ var Bi = e((() => {
     `];
 	};
 	customElements.define("orbit-action-card-editor", e);
-})), Hi = /* @__PURE__ */ t((() => {
-	F(), Je(), R(), _t(), Dt(), jt(), H(), Mi(), Fi(), Li(), Vi(), Q();
+})), Wi = /* @__PURE__ */ t((() => {
+	F(), Je(), R(), _t(), Dt(), jt(), H(), Mi(), Fi(), Li(), Ui(), Q();
 	var e = class extends P {
 		static svgCache = V;
 		static get properties() {
@@ -5466,8 +5543,8 @@ var Bi = e((() => {
 			main_entity: t
 		} } : null;
 	}
-})), Ui = /* @__PURE__ */ t((() => {
-	Wr(), Di(), Hi();
+})), Gi = /* @__PURE__ */ t((() => {
+	Wr(), Di(), Wi();
 }));
 //#endregion
-export default Ui();
+export default Gi();
