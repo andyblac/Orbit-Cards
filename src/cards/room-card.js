@@ -49,6 +49,10 @@ import {
   shouldUpdateForEntities,
 } from "../common/helpers/updates.js";
 import {
+  getEntityAreaId,
+  getEntityDomain,
+} from "../common/helpers/suggestions.js";
+import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
 
@@ -294,6 +298,7 @@ window.customCards.push({
   description: "Responsive room card",
   preview: true,
   version: CARD_VERSIONS.room,
+  getEntitySuggestion: getRoomEntitySuggestion,
 });
 
 console.info(
@@ -301,3 +306,36 @@ console.info(
   "color: orange; font-weight: bold; background: black;",
   "color: white; font-weight: bold; background: dimgray;"
 );
+
+const ROOM_SUGGESTION_DOMAINS = new Set([
+  "light",
+  "fan",
+  "climate",
+  "media_player",
+  "switch",
+  "cover",
+  "lock",
+]);
+
+function getRoomEntitySuggestion(hass, entityId) {
+  const domain = getEntityDomain(entityId);
+
+  if (!ROOM_SUGGESTION_DOMAINS.has(domain)) {
+    return null;
+  }
+
+  const area = getEntityAreaId(hass, entityId);
+  const config = {
+    type: "custom:orbit-room-card",
+    main_entity: entityId,
+    accent_color: domain === "light" ? "light" : "theme",
+  };
+
+  if (area) {
+    config.area = area;
+  }
+
+  return {
+    config,
+  };
+}

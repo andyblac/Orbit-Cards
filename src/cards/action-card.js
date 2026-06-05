@@ -23,6 +23,9 @@ import {
   shouldUpdateForEntities,
 } from "../common/helpers/updates.js";
 import {
+  getEntityDomain,
+} from "../common/helpers/suggestions.js";
+import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
 
@@ -312,6 +315,7 @@ window.customCards.push({
   description: "Compact scene, script, and automation launcher",
   preview: true,
   version: CARD_VERSIONS.action,
+  getEntitySuggestion: getActionEntitySuggestion,
 });
 
 console.info(
@@ -319,3 +323,24 @@ console.info(
   "color: orange; font-weight: bold; background: black;",
   "color: white; font-weight: bold; background: dimgray;"
 );
+
+const ACTION_SUGGESTION_DOMAINS = new Set([
+  "automation",
+  "button",
+  "input_button",
+  "scene",
+  "script",
+]);
+
+function getActionEntitySuggestion(_hass, entityId) {
+  if (!ACTION_SUGGESTION_DOMAINS.has(getEntityDomain(entityId))) {
+    return null;
+  }
+
+  return {
+    config: {
+      type: "custom:orbit-action-card",
+      main_entity: entityId,
+    },
+  };
+}

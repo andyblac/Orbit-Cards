@@ -35,6 +35,10 @@ import {
   shouldUpdateForEntities,
 } from "../common/helpers/updates.js";
 import {
+  getEntityDomain,
+  isNumericEntity,
+} from "../common/helpers/suggestions.js";
+import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
 
@@ -734,6 +738,7 @@ window.customCards.push({
   description: "Responsive status card",
   preview: true,
   version: CARD_VERSIONS.status,
+  getEntitySuggestion: getStatusEntitySuggestion,
 });
 
 console.info(
@@ -741,3 +746,56 @@ console.info(
   "color: orange; font-weight: bold; background: black;",
   "color: white; font-weight: bold; background: dimgray;"
 );
+
+const STATUS_EXCLUDED_DOMAINS = new Set([
+  "automation",
+  "button",
+  "input_button",
+  "scene",
+  "script",
+]);
+
+function getStatusEntitySuggestion(hass, entityId) {
+  const domain = getEntityDomain(entityId);
+
+  if (domain === "person") {
+    return {
+      config: {
+        type: "custom:orbit-status-card",
+        mode: "person",
+        main_entity: entityId,
+      },
+    };
+  }
+
+  if (STATUS_EXCLUDED_DOMAINS.has(domain)) {
+    return null;
+  }
+
+  const standard = {
+    label: "Standard",
+    config: {
+      type: "custom:orbit-status-card",
+      mode: "standard",
+      main_entity: entityId,
+    },
+  };
+
+  if (!isNumericEntity(hass, entityId)) {
+    return {
+      config: standard.config,
+    };
+  }
+
+  return [
+    standard,
+    {
+      label: "Icon Only",
+      config: {
+        type: "custom:orbit-status-card",
+        mode: "icon_only",
+        main_entity: entityId,
+      },
+    },
+  ];
+}
