@@ -212,6 +212,14 @@ export function isImageIcon(icon) {
 export function resolveIconPath(iconPath) {
   if (!iconPath) return "";
 
+  if (iconPath.startsWith("orbit:")) {
+    return getOrbitIconPath(iconPath.slice(6));
+  }
+
+  if (iconPath.startsWith("local:")) {
+    return `/local/icons/${iconPath.slice(6)}`;
+  }
+
   if (
     iconPath.startsWith("/")
   ) {
@@ -223,6 +231,13 @@ export function resolveIconPath(iconPath) {
   }
 
   return `/local/icons/${iconPath}`;
+}
+
+function getOrbitIconPath(file) {
+  const moduleUrl = import.meta.url.split("?")[0];
+  const base = moduleUrl.slice(0, moduleUrl.lastIndexOf("/") + 1);
+
+  return `${base}icons/${file}`;
 }
 
 export function getInlineSvg(path, options = {}) {

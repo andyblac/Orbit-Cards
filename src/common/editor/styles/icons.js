@@ -214,7 +214,22 @@ export const iconStyles = css`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
-  max-height: 250px;
+}
+
+.file-icon-section + .file-icon-section {
+  margin-top: 10px;
+}
+
+.file-icon-section-title {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.62;
+  text-transform: uppercase;
+}
+
+.icon-popover {
+  max-height: 320px;
   overflow: auto;
 }
 

@@ -48,6 +48,8 @@ class OrbitRoomCardEditor extends LitElement {
     _colorPickerTab: { state: true },
     _iconPickerKey: { state: true },
     _iconPickerTab: { state: true },
+    _orbitIconFiles: { state: true },
+    _orbitIconFilesLoading: { state: true },
     _localIconFiles: { state: true },
     _localIconFilesLoading: { state: true },
   };
@@ -59,6 +61,8 @@ class OrbitRoomCardEditor extends LitElement {
     this._colorPickerTab = "picker";
     this._iconPickerKey = "";
     this._iconPickerTab = "ha";
+    this._orbitIconFiles = [];
+    this._orbitIconFilesLoading = false;
     this._localIconFiles = [];
     this._localIconFilesLoading = false;
     this._collapsed = {

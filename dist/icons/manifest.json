@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Fan",
+    "file": "fan.svg",
+    "tags": ["bathroom", "fan"]
+  },
+  {
+    "name": "Garage Door Closed",
+    "file": "garage-door_closed.svg",
+    "tags": ["garage", "door"]
+  },
+  {
+    "name": "Garage Door Open",
+    "file": "garage-door_open.svg",
+    "tags": ["garage", "door"]
+  },
+  {
+    "name": "Motion Detected",
+    "file": "motion_detected.svg",
+    "tags": ["motion", "sensor"]
+  },
+  {
+    "name": "No Motion",
+    "file": "motion_off.svg",
+    "tags": ["motion", "sensor"]
+  },
+  {
+    "name": "Shower On",
+    "file": "shower_on.svg",
+    "tags": ["bathroom", "water"]
+  },
+  {
+    "name": "Shower Off",
+    "file": "shower_off.svg",
+    "tags": ["bathroom", "water"]
+  },
+  {
+    "name": "Washing Machine Running",
+    "file": "washing-machine-running.svg",
+    "tags": ["kitchen", "washing"]
+  }
+]

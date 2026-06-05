@@ -39,6 +39,8 @@ class OrbitStatusCardEditor extends LitElement {
     _colorPickerTab: { state: true },
     _iconPickerKey: { state: true },
     _iconPickerTab: { state: true },
+    _orbitIconFiles: { state: true },
+    _orbitIconFilesLoading: { state: true },
     _localIconFiles: { state: true },
     _localIconFilesLoading: { state: true },
   };
@@ -51,6 +53,8 @@ class OrbitStatusCardEditor extends LitElement {
     this._colorPickerTab = "picker";
     this._iconPickerKey = "";
     this._iconPickerTab = "ha";
+    this._orbitIconFiles = [];
+    this._orbitIconFilesLoading = false;
     this._localIconFiles = [];
     this._localIconFilesLoading = false;
   }
@@ -365,10 +369,22 @@ class OrbitStatusCardEditor extends LitElement {
           this._localIconFiles = value;
         },
       },
+      _orbitIconFiles: {
+        get: () => this._orbitIconFiles,
+        set: (value) => {
+          this._orbitIconFiles = value;
+        },
+      },
       _localIconFilesLoading: {
         get: () => this._localIconFilesLoading,
         set: (value) => {
           this._localIconFilesLoading = value;
+        },
+      },
+      _orbitIconFilesLoading: {
+        get: () => this._orbitIconFilesLoading,
+        set: (value) => {
+          this._orbitIconFilesLoading = value;
         },
       },
     });

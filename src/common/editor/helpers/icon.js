@@ -21,6 +21,14 @@ export function isImageIcon(icon) {
 export function resolveIconPath(iconPath) {
   if (!iconPath) return "";
 
+  if (iconPath.startsWith("orbit:")) {
+    return getOrbitIconPath(iconPath.slice(6));
+  }
+
+  if (iconPath.startsWith("local:")) {
+    return `/local/icons/${iconPath.slice(6)}`;
+  }
+
   if (
     iconPath.startsWith("/")
   ) {
@@ -32,6 +40,13 @@ export function resolveIconPath(iconPath) {
   }
 
   return `/local/icons/${iconPath}`;
+}
+
+function getOrbitIconPath(file) {
+  const moduleUrl = import.meta.url.split("?")[0];
+  const base = moduleUrl.slice(0, moduleUrl.lastIndexOf("/") + 1);
+
+  return `${base}icons/${file}`;
 }
 
 export function renderIconInput(label, key, placeholder) {
@@ -164,18 +179,28 @@ export function renderIconInput(label, key, placeholder) {
 }
 
 export async function loadLocalIconFiles(currentIcon = "") {
-  const currentFile = getIconFilename(currentIcon);
+  const currentFile = getIconRecordFromValue(currentIcon);
 
   this._localIconFilesLoading = true;
+  this._orbitIconFilesLoading = true;
   this.requestUpdate();
 
-  const discoveredFiles = await discoverLocalIconFiles();
-  const files = [
-    currentFile,
-    ...discoveredFiles,
-  ].filter(Boolean);
+  const [
+    orbitFiles,
+    localFiles,
+  ] = await Promise.all([
+    discoverOrbitIconFiles(),
+    discoverLocalIconFiles(),
+  ]);
 
-  this._localIconFiles = [...new Set(files)].sort();
+  this._orbitIconFiles = uniqueIconRecords(orbitFiles);
+  this._localIconFiles = uniqueIconRecords([
+    currentFile?.source === "local" || !currentFile?.source
+      ? currentFile
+      : null,
+    ...localFiles,
+  ]);
+  this._orbitIconFilesLoading = false;
   this._localIconFilesLoading = false;
   this.requestUpdate();
 }
@@ -193,54 +218,90 @@ function renderHaIconPicker(key, value) {
 }
 
 function renderFileIconPicker(key, value) {
-  const files = this._localIconFiles || [];
+  const orbitFiles = this._orbitIconFiles || [];
+  const localFiles = this._localIconFiles || [];
+  const isLoading =
+    this._orbitIconFilesLoading ||
+    this._localIconFilesLoading;
 
-  if (this._localIconFilesLoading) {
+  if (isLoading) {
     return html`
       <div class="icon-picker-note">Loading files...</div>
     `;
   }
 
-  if (!files.length) {
+  if (!orbitFiles.length && !localFiles.length) {
     return html`
       <div class="icon-picker-note">
-        No files found. Add an icon manifest at
-        <code>/local/icons/orbit-icons.json</code>
+        No files found. Add a local icon manifest at
+        <code>/local/icons/manifest.json</code>
         or type the filename manually.
       </div>
     `;
   }
 
   return html`
-    <div class="file-icon-grid">
-      ${files.map((file) =>
-        renderFileIconOption.call(
+    ${orbitFiles.length
+      ? renderFileIconSection.call(
           this,
+          "Orbit Icons",
           key,
-          file,
+          orbitFiles,
           value
         )
-      )}
+      : ""}
+
+    ${localFiles.length
+      ? renderFileIconSection.call(
+          this,
+          "Local Icons",
+          key,
+          localFiles,
+          value
+        )
+      : ""}
+  `;
+}
+
+function renderFileIconSection(title, key, files, value) {
+  return html`
+    <div class="file-icon-section">
+      <div class="file-icon-section-title">${title}</div>
+      <div class="file-icon-grid">
+        ${files.map((file) =>
+          renderFileIconOption.call(
+            this,
+            key,
+            file,
+            value
+          )
+        )}
+      </div>
     </div>
   `;
 }
 
-function renderFileIconOption(key, file, value) {
-  const iconPath = this._resolveIconPath(file);
+function renderFileIconOption(key, icon, value) {
+  const iconValue = getIconRecordValue(icon);
+  const iconPath = this._resolveIconPath(iconValue);
   const inlineSvg =
     this._getInlineSvg
       ? this._getInlineSvg(iconPath)
       : "";
+  const isActive =
+    value === iconValue ||
+    value === icon.file ||
+    value === iconPath;
 
   return html`
     <button
       type="button"
-      class=${value === file || value === iconPath
+      class=${isActive
         ? "file-icon-option active"
         : "file-icon-option"}
-      title=${file}
+      title=${icon.name || icon.file}
       @click=${() => {
-        this._handleConfigUpdate(key, file);
+        this._handleConfigUpdate(key, iconValue);
         this._iconPickerKey = "";
       }}
     >
@@ -251,9 +312,21 @@ function renderFileIconOption(key, file, value) {
               <img src=${iconPath} alt="" />
             `}
       </span>
-      <span>${file}</span>
+      <span>${icon.name || icon.file}</span>
     </button>
   `;
+}
+
+async function discoverOrbitIconFiles() {
+  const files = await loadIconManifest([
+    getOrbitIconPath("manifest.json"),
+    getOrbitIconPath("orbit-icons.json"),
+  ]);
+
+  return files.map((file) => ({
+    ...file,
+    source: "orbit",
+  }));
 }
 
 async function discoverLocalIconFiles() {
@@ -261,7 +334,11 @@ async function discoverLocalIconFiles() {
     ? window.ORBIT_ICON_FILES
     : [];
 
-  const manifestFiles = await loadIconManifest();
+  const manifestFiles = await loadIconManifest([
+    "/local/icons/manifest.json",
+    "/local/icons/orbit-icons.json",
+    "/local/icons/icons.json",
+  ]);
   const directoryFiles = await loadDirectoryListing();
 
   return [
@@ -269,16 +346,10 @@ async function discoverLocalIconFiles() {
     ...manifestFiles,
     ...directoryFiles,
   ].filter(isIconFile)
-    .map(getIconFilename);
+    .map((file) => normalizeIconRecord(file, "local"));
 }
 
-async function loadIconManifest() {
-  const paths = [
-    "/local/icons/orbit-icons.json",
-    "/local/icons/icons.json",
-    "/local/icons/manifest.json",
-  ];
-
+async function loadIconManifest(paths) {
   for (const path of paths) {
     try {
       const response = await fetch(path, {
@@ -292,7 +363,11 @@ async function loadIconManifest() {
         ? data
         : data.files;
 
-      if (Array.isArray(files)) return files;
+      if (Array.isArray(files)) {
+        return files
+          .filter(isIconFile)
+          .map((file) => normalizeIconRecord(file));
+      }
     } catch (_err) {
       // Home Assistant often does not expose local manifests.
     }
@@ -321,7 +396,11 @@ async function loadDirectoryListing() {
 function getIconFilename(icon) {
   if (!icon) return "";
 
-  return icon
+  const file = typeof icon === "object"
+    ? icon.file
+    : icon;
+
+  return file
     .toString()
     .split("?")[0]
     .split("/")
@@ -330,4 +409,70 @@ function getIconFilename(icon) {
 
 function isIconFile(file) {
   return isImageIcon(getIconFilename(file));
+}
+
+function normalizeIconRecord(icon, source = "") {
+  const file = getIconFilename(icon);
+
+  if (!file) return null;
+
+  return {
+    file,
+    name: typeof icon === "object"
+      ? icon.name || file
+      : file,
+    tags: Array.isArray(icon?.tags)
+      ? icon.tags
+      : [],
+    source: icon?.source || source,
+  };
+}
+
+function getIconRecordFromValue(value) {
+  const file = getIconFilename(value);
+
+  if (!file) return null;
+
+  const source = value?.toString().startsWith("orbit:")
+    ? "orbit"
+    : value?.toString().startsWith("local:")
+      ? "local"
+      : "";
+
+  return {
+    file,
+    name: file,
+    tags: [],
+    source,
+  };
+}
+
+function getIconRecordValue(icon) {
+  if (icon.source === "orbit") {
+    return `orbit:${icon.file}`;
+  }
+
+  if (icon.source === "local") {
+    return `local:${icon.file}`;
+  }
+
+  return icon.file;
+}
+
+function uniqueIconRecords(records) {
+  const seen = new Set();
+
+  return records
+    .filter(Boolean)
+    .filter((record) => {
+      const key = `${record.source || ""}:${record.file}`;
+
+      if (seen.has(key)) return false;
+
+      seen.add(key);
+      return true;
+    })
+    .sort((a, b) =>
+      (a.name || a.file).localeCompare(b.name || b.file)
+    );
 }

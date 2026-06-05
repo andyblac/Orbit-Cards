@@ -61,17 +61,23 @@ Orbit Cards currently includes:
    /config/www/orbit-cards.js
    ```
 
-3. In Home Assistant, go to `Settings` -> `Dashboards` -> `Resources`.
+3. Optional: to use bundled `orbit:` icons with a manual install, copy `dist/icons` to:
+   
+   ```text
+   /config/www/icons
+   ```
 
-4. Add this resource:
+4. In Home Assistant, go to `Settings` -> `Dashboards` -> `Resources`.
+
+5. Add this resource:
    
    ```text
    /local/orbit-cards.js
    ```
 
-5. Set the resource type to `JavaScript module`.
+6. Set the resource type to `JavaScript module`.
 
-6. Refresh Home Assistant.
+7. Refresh Home Assistant.
 
 ## Updating
 
@@ -125,14 +131,26 @@ Use local SVG or image files:
 ```yaml
 main_entity_icon: motion_detected.svg
 main_entity_icon: /local/icons/motion_detected.svg
+main_entity_icon: local:motion_detected.svg
+main_entity_icon: orbit:shower_on.svg
 ```
 
 Short filenames are resolved from `/local/icons/`.
 
-In the visual editor, tap an icon preview to open the icon selector. The `Icons` tab uses the Home Assistant icon picker. The `Files` tab shows local files from `/local/icons` when they can be discovered. Home Assistant does not always expose directory listings, so you can add a manifest file:
+Orbit Cards includes a small bundled icon set. These icons are installed with the card and appear in the editor's `Files` tab under `Orbit Icons`. Select one from the picker or reference it directly with the `orbit:` prefix:
+
+```yaml
+main_entity_icon: orbit:fan.svg
+main_entity_icon: orbit:motion_detected.svg
+main_entity_icon: orbit:shower_on.svg
+```
+
+Bundled icons are resolved from the card's installed `icons` folder. With HACS this is served from `/hacsfiles/Orbit-Cards/icons/`. With a manual install, copy `dist/icons` beside the JavaScript file as described above.
+
+In the visual editor, tap an icon preview to open the icon selector. The `Icons` tab uses the Home Assistant icon picker. The `Files` tab shows bundled Orbit icons and local files from `/local/icons`. Home Assistant does not always expose directory listings, so users can add a local manifest file:
 
 ```text
-/config/www/icons/orbit-icons.json
+/config/www/icons/manifest.json
 ```
 
 ```json
@@ -140,6 +158,18 @@ In the visual editor, tap an icon preview to open the icon selector. The `Icons`
   "motion_detected.svg",
   "motion_on.svg",
   "motion_off.svg"
+]
+```
+
+The local manifest also supports richer entries:
+
+```json
+[
+  {
+    "name": "My Custom Icon",
+    "file": "my_custom_icon.svg",
+    "tags": ["custom"]
+  }
 ]
 ```
 
