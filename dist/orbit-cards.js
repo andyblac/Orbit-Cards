@@ -2836,7 +2836,7 @@ select {
 })), Z, Q = e((() => {
 	Z = {
 		room: "0.6.18",
-		status: "0.11.15",
+		status: "0.11.16",
 		action: "0.4.14"
 	};
 })), Ur = /* @__PURE__ */ t((() => {
@@ -3176,7 +3176,8 @@ function Gr(e) {
 	return typeof t == "string" && t.trim() || null;
 }
 function Kr(e, t, n) {
-	return n ? e.accent_on_color || $(t, "color") || "theme" : e.accent_off_color || "theme";
+	let r = $(t, "color");
+	return n ? e.accent_on_color || r || "theme" : e.accent_off_color || r || "theme";
 }
 function qr(e, t = null, n = null) {
 	if (!e) return !1;

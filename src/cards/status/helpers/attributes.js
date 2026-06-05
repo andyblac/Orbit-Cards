@@ -18,14 +18,11 @@ export function getConfiguredNavigationPath(config) {
 }
 
 export function getStatusColor(config, stateObj, isOn) {
-  return (
-    isOn
-      ? config.accent_on_color ||
-        getStatusAttribute(stateObj, "color") ||
-        "theme"
-      : config.accent_off_color ||
-        "theme"
-  );
+  const entityColor = getStatusAttribute(stateObj, "color");
+
+  return isOn
+    ? config.accent_on_color || entityColor || "theme"
+    : config.accent_off_color || entityColor || "theme";
 }
 
 export function getStatusActiveState(

@@ -389,7 +389,7 @@ Standard mode uses:
 - Otherwise the entity `label` attribute when available.
 - Otherwise the formatted entity state.
 - The entity `navigation` attribute when no explicit navigation path is set.
-- The entity `color` attribute for ON colour when `accent_on_color` is unset.
+- Colour priority is `accent_on_color`/`accent_off_color`, then the entity `color` attribute, then the theme fallback.
 
 ### Icon Only Mode
 
@@ -514,8 +514,8 @@ For Icon Only mode, numeric `0` is OFF and values greater than `0` are ON unless
 | `battery_entity_2`                                                                                                         | Person mode only. Second battery badge entity.                                                                                                                          |
 | `state_template`                                                                                                           | Standard/Icon Only only. Template used for ON/OFF detection.                                                                                                            |
 | `label_template`                                                                                                           | Standard/Icon Only only. Template used for displayed status text or badge value.                                                                                        |
-| `accent_on_color`                                                                                                          | ON colour override. If unset, the entity `color` attribute is used when available.                                                                                      |
-| `accent_off_color`                                                                                                         | OFF colour override. Defaults to `theme`.                                                                                                                               |
+| `accent_on_color`                                                                                                          | ON colour override. If unset, the entity `color` attribute is used when available, then `theme`.                                                                        |
+| `accent_off_color`                                                                                                         | OFF colour override. If unset, the entity `color` attribute is used when available, then `theme`.                                                                       |
 | `main_entity_icon`                                                                                                         | Standard/Icon Only only. Main entity icon override. Falls back to entity icon.                                                                                          |
 | `main_entity_icon_on`                                                                                                      | Standard/Icon Only only. Icon used when the status is ON.                                                                                                               |
 | `main_entity_icon_off`                                                                                                     | Standard/Icon Only only. Icon used when the status is OFF.                                                                                                              |
