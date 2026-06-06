@@ -12,7 +12,10 @@ import {
   renderColor,
   renderColorControl,
   renderEntity,
+  clearEntityConfig,
+  clearKeys,
   getInlineSvg,
+  mergeConfig,
   resolveIconPath,
   renderIconInput,
   loadLocalIconFiles,
@@ -67,18 +70,7 @@ class OrbitActionCardEditor extends LitElement {
   }
 
   _updateConfig(changes) {
-    const nextConfig = {
-      ...(this._config || {}),
-      ...changes,
-    };
-
-    Object.keys(nextConfig).forEach((key) => {
-      if (nextConfig[key] === undefined) {
-        delete nextConfig[key];
-      }
-    });
-
-    this._config = nextConfig;
+    this._config = mergeConfig(this._config, changes);
 
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
@@ -121,31 +113,27 @@ class OrbitActionCardEditor extends LitElement {
     const items = this._getActionItems();
 
     this._selectedActionIndex = items.length;
-    this._updateConfig({
-      main_entity: undefined,
-      accent_color: undefined,
-      main_entity_icon: undefined,
-      tap_action: undefined,
-      hold_action: undefined,
-      entities: [
-        ...items,
-        {
-          entity: "",
-        },
-      ],
-    });
+    this._updateConfig(clearKeys(
+      ACTION_GROUP_ROOT_KEYS,
+      {
+        entities: [
+          ...items,
+          {
+            entity: "",
+          },
+        ],
+      }
+    ));
   }
 
   _removeActionItem(index) {
     const items = this._getActionItems();
 
     if (items.length <= 1) {
-      this._updateConfig({
-        main_entity: "",
-        main_entity_icon: "",
-        tap_action: undefined,
-        hold_action: undefined,
-      });
+      this._updateConfig(clearEntityConfig(
+        "main_entity",
+        ACTION_ENTITY_DEPENDENT_KEYS
+      ));
       return;
     }
 
@@ -176,14 +164,10 @@ class OrbitActionCardEditor extends LitElement {
     nextItems.splice(nextIndex, 0, item);
 
     this._selectedActionIndex = nextIndex;
-    this._updateConfig({
-      main_entity: undefined,
-      accent_color: undefined,
-      main_entity_icon: undefined,
-      tap_action: undefined,
-      hold_action: undefined,
-      entities: nextItems,
-    });
+    this._updateConfig(clearKeys(
+      ACTION_GROUP_ROOT_KEYS,
+      { entities: nextItems }
+    ));
   }
 
   _updateActionItem(index, changes) {
@@ -201,30 +185,26 @@ class OrbitActionCardEditor extends LitElement {
       const nextItems = [...items];
       nextItems[index] = nextItem;
 
-      const changes = {
+      const configChanges = {
         entities: nextItems,
       };
 
       if (nextItems.length > 1) {
-        changes.main_entity = undefined;
-        changes.accent_color = undefined;
-        changes.main_entity_icon = undefined;
-        changes.tap_action = undefined;
-        changes.hold_action = undefined;
+        Object.assign(
+          configChanges,
+          clearKeys(ACTION_GROUP_ROOT_KEYS)
+        );
       }
 
-      this._updateConfig(changes);
+      this._updateConfig(configChanges);
       return;
     }
 
     if (changes.entity === "") {
-      this._updateConfig({
-        main_entity: "",
-        accent_color: undefined,
-        main_entity_icon: undefined,
-        tap_action: undefined,
-        hold_action: undefined,
-      });
+      this._updateConfig(clearEntityConfig(
+        "main_entity",
+        ACTION_ENTITY_DEPENDENT_KEYS
+      ));
       return;
     }
 
@@ -519,8 +499,20 @@ customElements.define(
 );
 
 function cleanClearedActionItem(item) {
-  item.accent_color = undefined;
-  item.main_entity_icon = undefined;
-  item.tap_action = undefined;
-  item.hold_action = undefined;
+  Object.assign(
+    item,
+    clearKeys(ACTION_ENTITY_DEPENDENT_KEYS)
+  );
 }
+
+const ACTION_ENTITY_DEPENDENT_KEYS = [
+  "accent_color",
+  "main_entity_icon",
+  "tap_action",
+  "hold_action",
+];
+
+const ACTION_GROUP_ROOT_KEYS = [
+  "main_entity",
+  ...ACTION_ENTITY_DEPENDENT_KEYS,
+];

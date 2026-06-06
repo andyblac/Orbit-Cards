@@ -15,7 +15,10 @@ import {
   renderColorControl,
   renderInput,
   renderTemplateInput,
+  clearEntityConfig,
+  clearKeys,
   getInlineSvg,
+  mergeConfig,
   resolveIconPath,
   renderIconInput,
   loadLocalIconFiles,
@@ -76,18 +79,7 @@ class OrbitStatusCardEditor extends LitElement {
   }
 
   _updateConfig(changes) {
-    const nextConfig = {
-      ...(this._config || {}),
-      ...changes,
-    };
-
-    Object.keys(nextConfig).forEach((key) => {
-      if (nextConfig[key] === undefined) {
-        delete nextConfig[key];
-      }
-    });
-
-    this._config = nextConfig;
+    this._config = mergeConfig(this._config, changes);
 
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
@@ -120,10 +112,10 @@ class OrbitStatusCardEditor extends LitElement {
     }
 
     if (key === "tracker_entity") {
-      this._updateConfig({
-        tracker_entity: "",
-        eta_entity: undefined,
-      });
+      this._updateConfig(clearEntityConfig(
+        "tracker_entity",
+        TRACKER_ENTITY_DEPENDENT_KEYS
+      ));
       return;
     }
 
@@ -132,34 +124,17 @@ class OrbitStatusCardEditor extends LitElement {
 
   _clearMainEntity() {
     if (this._config?.mode === "person") {
-      this._updateConfig({
-        main_entity: "",
-        tracker_entity: undefined,
-        eta_entity: undefined,
-        battery_entity_1: undefined,
-        battery_entity_2: undefined,
-        accent_on_color: undefined,
-        accent_off_color: undefined,
-        tap_action: undefined,
-        main_entity_tap_action: undefined,
-        main_entity_hold_action: undefined,
-      });
+      this._updateConfig(clearEntityConfig(
+        "main_entity",
+        PERSON_ENTITY_DEPENDENT_KEYS
+      ));
       return;
     }
 
-    this._updateConfig({
-      main_entity: "",
-      accent_on_color: undefined,
-      accent_off_color: undefined,
-      main_entity_icon: undefined,
-      main_entity_icon_on: undefined,
-      main_entity_icon_off: undefined,
-      state_template: undefined,
-      label_template: undefined,
-      tap_action: undefined,
-      main_entity_tap_action: undefined,
-      main_entity_hold_action: undefined,
-    });
+    this._updateConfig(clearEntityConfig(
+      "main_entity",
+      STATUS_ENTITY_DEPENDENT_KEYS
+    ));
   }
 
   _getStatusItems(config = this._config) {
@@ -196,42 +171,27 @@ class OrbitStatusCardEditor extends LitElement {
     const items = this._getStatusItems();
 
     this._selectedStatusIndex = items.length;
-    this._updateConfig({
-      main_entity: undefined,
-      accent_on_color: undefined,
-      accent_off_color: undefined,
-      main_entity_icon: undefined,
-      main_entity_icon_on: undefined,
-      main_entity_icon_off: undefined,
-      state_template: undefined,
-      label_template: undefined,
-      tap_action: undefined,
-      main_entity_tap_action: undefined,
-      main_entity_hold_action: undefined,
-      entities: [
-        ...items,
-        {
-          entity: "",
-        },
-      ],
-    });
+    this._updateConfig(clearKeys(
+      STATUS_GROUP_ROOT_KEYS,
+      {
+        entities: [
+          ...items,
+          {
+            entity: "",
+          },
+        ],
+      }
+    ));
   }
 
   _removeStatusItem(index) {
     const items = this._getStatusItems();
 
     if (items.length <= 1) {
-      this._updateConfig({
-        main_entity: "",
-        main_entity_icon: "",
-        main_entity_icon_on: "",
-        main_entity_icon_off: "",
-        state_template: "",
-        label_template: "",
-        tap_action: undefined,
-        main_entity_tap_action: undefined,
-        main_entity_hold_action: undefined,
-      });
+      this._updateConfig(clearEntityConfig(
+        "main_entity",
+        STATUS_ENTITY_DEPENDENT_KEYS
+      ));
       return;
     }
 
@@ -262,20 +222,10 @@ class OrbitStatusCardEditor extends LitElement {
     nextItems.splice(nextIndex, 0, item);
 
     this._selectedStatusIndex = nextIndex;
-    this._updateConfig({
-      main_entity: undefined,
-      accent_on_color: undefined,
-      accent_off_color: undefined,
-      main_entity_icon: undefined,
-      main_entity_icon_on: undefined,
-      main_entity_icon_off: undefined,
-      state_template: undefined,
-      label_template: undefined,
-      tap_action: undefined,
-      main_entity_tap_action: undefined,
-      main_entity_hold_action: undefined,
-      entities: nextItems,
-    });
+    this._updateConfig(clearKeys(
+      STATUS_GROUP_ROOT_KEYS,
+      { entities: nextItems }
+    ));
   }
 
   _updateStatusItem(index, changes) {
@@ -298,17 +248,10 @@ class OrbitStatusCardEditor extends LitElement {
       };
 
       if (nextItems.length > 1) {
-        configChanges.main_entity = undefined;
-        configChanges.accent_on_color = undefined;
-        configChanges.accent_off_color = undefined;
-        configChanges.main_entity_icon = undefined;
-        configChanges.main_entity_icon_on = undefined;
-        configChanges.main_entity_icon_off = undefined;
-        configChanges.state_template = undefined;
-        configChanges.label_template = undefined;
-        configChanges.tap_action = undefined;
-        configChanges.main_entity_tap_action = undefined;
-        configChanges.main_entity_hold_action = undefined;
+        Object.assign(
+          configChanges,
+          clearKeys(STATUS_GROUP_ROOT_KEYS)
+        );
       }
 
       this._updateConfig(configChanges);
@@ -316,19 +259,10 @@ class OrbitStatusCardEditor extends LitElement {
     }
 
     if (changes.entity === "") {
-      this._updateConfig({
-        main_entity: "",
-        accent_on_color: undefined,
-        accent_off_color: undefined,
-        main_entity_icon: undefined,
-        main_entity_icon_on: undefined,
-        main_entity_icon_off: undefined,
-        state_template: undefined,
-        label_template: undefined,
-        tap_action: undefined,
-        main_entity_tap_action: undefined,
-        main_entity_hold_action: undefined,
-      });
+      this._updateConfig(clearEntityConfig(
+        "main_entity",
+        STATUS_ENTITY_DEPENDENT_KEYS
+      ));
       return;
     }
 
@@ -604,14 +538,42 @@ customElements.define(
 );
 
 function cleanClearedStatusItem(item) {
-  item.accent_on_color = undefined;
-  item.accent_off_color = undefined;
-  item.main_entity_icon = undefined;
-  item.main_entity_icon_on = undefined;
-  item.main_entity_icon_off = undefined;
-  item.state_template = undefined;
-  item.label_template = undefined;
-  item.tap_action = undefined;
-  item.main_entity_tap_action = undefined;
-  item.main_entity_hold_action = undefined;
+  Object.assign(
+    item,
+    clearKeys(STATUS_ENTITY_DEPENDENT_KEYS)
+  );
 }
+
+const STATUS_ENTITY_DEPENDENT_KEYS = [
+  "accent_on_color",
+  "accent_off_color",
+  "main_entity_icon",
+  "main_entity_icon_on",
+  "main_entity_icon_off",
+  "state_template",
+  "label_template",
+  "tap_action",
+  "main_entity_tap_action",
+  "main_entity_hold_action",
+];
+
+const STATUS_GROUP_ROOT_KEYS = [
+  "main_entity",
+  ...STATUS_ENTITY_DEPENDENT_KEYS,
+];
+
+const PERSON_ENTITY_DEPENDENT_KEYS = [
+  "tracker_entity",
+  "eta_entity",
+  "battery_entity_1",
+  "battery_entity_2",
+  "accent_on_color",
+  "accent_off_color",
+  "tap_action",
+  "main_entity_tap_action",
+  "main_entity_hold_action",
+];
+
+const TRACKER_ENTITY_DEPENDENT_KEYS = [
+  "eta_entity",
+];

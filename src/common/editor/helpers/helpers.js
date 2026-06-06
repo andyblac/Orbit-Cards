@@ -17,6 +17,12 @@ import {
   renderInput,
   renderTemplateInput,
 } from "./inputs.js";
+export {
+  clearEntityConfig,
+  clearKeys,
+  clearPrefixedEntityConfig,
+  mergeConfig,
+} from "./config.js";
 
 import {
   renderSectionHeader,

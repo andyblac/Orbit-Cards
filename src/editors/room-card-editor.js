@@ -1,6 +1,5 @@
 // ==========================================
-// Orbit Room Card Editor (FULL VERSION)
-// COLLAPSIBLE SECTIONS
+// Orbit Room Card Editor
 // ==========================================
 
 import { LitElement, css, html } from "lit";
@@ -20,7 +19,10 @@ import {
   renderColorControl,
   renderInput,
   renderTemplateInput,
+  clearEntityConfig,
+  clearPrefixedEntityConfig,
   getInlineSvg,
+  mergeConfig,
   resolveIconPath,
   renderIconInput,
   loadLocalIconFiles,
@@ -35,10 +37,8 @@ import {
 } from "../common/helpers/svg-cache.js";
 import { CARD_VERSIONS } from "../version.js";
 
-
 class OrbitRoomCardEditor extends LitElement {
   static svgCache = sharedSvgCache;
-
 
   static properties = {
     hass: { attribute: false },
@@ -85,8 +85,6 @@ class OrbitRoomCardEditor extends LitElement {
     };
   }
   
-  // HELPERS //
-  
   _getColorStyle(value) {
     return getColorStyle(value);
   }
@@ -100,18 +98,7 @@ class OrbitRoomCardEditor extends LitElement {
   }
 
   _updateConfig(changes) {
-    const nextConfig = {
-      ...(this._config || {}),
-      ...changes,
-    };
-
-    Object.keys(nextConfig).forEach((key) => {
-      if (nextConfig[key] === undefined) {
-        delete nextConfig[key];
-      }
-    });
-
-    this._config = nextConfig;
+    this._config = mergeConfig(this._config, changes);
 
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
@@ -121,10 +108,6 @@ class OrbitRoomCardEditor extends LitElement {
       composed: true,
     }));
   }
-
-  // =========================
-  // COLLAPSE
-  // =========================
 
   _renderSectionHeader(title, key) {
     return renderSectionHeader.call(this, title, key);
@@ -137,10 +120,6 @@ class OrbitRoomCardEditor extends LitElement {
   _toggleSection(section) {
     return toggleSection.call(this, section);
   }
-
-  // =========================
-  // INPUTS
-  // =========================
 
   _handleInput(key, e) {
     this._updateConfig({
@@ -169,40 +148,24 @@ class OrbitRoomCardEditor extends LitElement {
       return;
     }
 
-    this._updateConfig({
-      main_entity: "",
-      main_entity_icon: undefined,
-      main_entity_icon_on: undefined,
-      main_entity_icon_off: undefined,
-      main_entity_tap_action: undefined,
-      main_entity_hold_action: undefined,
-    });
+    this._updateConfig(clearEntityConfig(
+      "main_entity",
+      MAIN_ENTITY_DEPENDENT_KEYS
+    ));
   }
 
   _clearButtonEntity(key) {
-    this._updateConfig({
-      [key]: "",
-      [`${key}_on_color`]: undefined,
-      [`${key}_off_color`]: undefined,
-      [`${key}_icon`]: undefined,
-      [`${key}_icon_on`]: undefined,
-      [`${key}_icon_off`]: undefined,
-      [`${key}_state_template`]: undefined,
-      [`${key}_tap_action`]: undefined,
-      [`${key}_hold_action`]: undefined,
-    });
+    this._updateConfig(clearPrefixedEntityConfig(
+      key,
+      BUTTON_ENTITY_DEPENDENT_SUFFIXES
+    ));
   }
 
   _clearCurveButtonEntity(key) {
-    this._updateConfig({
-      [key]: "",
-      [`${key}_icon`]: undefined,
-      [`${key}_icon_on`]: undefined,
-      [`${key}_icon_off`]: undefined,
-      [`${key}_state_template`]: undefined,
-      [`${key}_tap_action`]: undefined,
-      [`${key}_hold_action`]: undefined,
-    });
+    this._updateConfig(clearPrefixedEntityConfig(
+      key,
+      CURVE_BUTTON_ENTITY_DEPENDENT_SUFFIXES
+    ));
   }
 
   _renderInput(label, key, placeholder = "") {
@@ -231,10 +194,6 @@ class OrbitRoomCardEditor extends LitElement {
     );
   }
 
-  // =========================
-  // ICON HELPERS
-  // =========================
-
   _renderIconInput(label, key, placeholder = "mdi:lightbulb or icon.svg") {
     return renderIconInput.call(this, label, key, placeholder);
   }
@@ -256,10 +215,6 @@ class OrbitRoomCardEditor extends LitElement {
       forceColor: true,
     });
   }
-
-  // =========================
-  // RENDER
-  // =========================
 
   _renderActionSelector(label, key, defaultAction) {
     return renderActionSelector.call(this, label, key, defaultAction);
@@ -303,10 +258,6 @@ class OrbitRoomCardEditor extends LitElement {
     `;
   }
 
-  // =========================
-  // STYLES
-  // =========================
-
   static styles = [
     editorStyles,
     css`
@@ -324,3 +275,31 @@ customElements.define(
   "orbit-room-card-editor",
   OrbitRoomCardEditor
 );
+
+const MAIN_ENTITY_DEPENDENT_KEYS = [
+  "main_entity_icon",
+  "main_entity_icon_on",
+  "main_entity_icon_off",
+  "main_entity_tap_action",
+  "main_entity_hold_action",
+];
+
+const BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
+  "_on_color",
+  "_off_color",
+  "_icon",
+  "_icon_on",
+  "_icon_off",
+  "_state_template",
+  "_tap_action",
+  "_hold_action",
+];
+
+const CURVE_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
+  "_icon",
+  "_icon_on",
+  "_icon_off",
+  "_state_template",
+  "_tap_action",
+  "_hold_action",
+];
