@@ -2,7 +2,7 @@
 // Orbit Room Card Editor
 // ==========================================
 
-import { LitElement, css, html } from "lit";
+import { LitElement, html } from "lit";
 
 import {
   getColorStyle,
@@ -258,17 +258,7 @@ class OrbitRoomCardEditor extends LitElement {
     `;
   }
 
-  static styles = [
-    editorStyles,
-    css`
-      .editor-version {
-        padding: 0 14px;
-        font-size: 11px;
-        opacity: 0.5;
-        text-align: right;
-      }
-    `,
-  ];
+  static styles = editorStyles;
 }
 
 customElements.define(

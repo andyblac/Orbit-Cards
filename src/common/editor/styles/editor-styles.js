@@ -6,6 +6,7 @@ import { fieldStyles } from "./fields.js";
 import { entityStyles } from "./entities.js";
 import { iconStyles } from "./icons.js";
 import { actionStyles } from "./actions.js";
+import { editorVersionStyles } from "./version.js";
 
 export const editorStyles = [
   layoutStyles,
@@ -15,4 +16,5 @@ export const editorStyles = [
   entityStyles,
   iconStyles,
   actionStyles,
+  editorVersionStyles,
 ];
