@@ -104,6 +104,7 @@ function getButtonModels() {
         index,
         {
           defaultAction: { action: "toggle" },
+          defaultHoldAction: { action: "more-info" },
           getIconColor: getButtonIconColor,
           getBackgroundColor: getButtonBackgroundColor,
         }
@@ -145,6 +146,7 @@ function getCurveButtonModels() {
         index,
         {
           defaultAction: { action: "more-info" },
+          defaultHoldAction: null,
           getIconColor: getCurveButtonIconColor,
           getBackgroundColor: null,
         }
@@ -191,7 +193,9 @@ function getRoomButtonModel(prefix, entityId, index, options) {
 
   return {
     entityId,
-    holdAction: this._config?.[`${key}_hold_action`],
+    holdAction:
+      this._config?.[`${key}_hold_action`] ||
+      options.defaultHoldAction,
     tapAction:
       this._config?.[`${key}_tap_action`] ||
       options.defaultAction,

@@ -57,7 +57,8 @@ export function renderButtonsSection() {
 
                           ${this._renderActionSelector(
                             `Tap Action`,
-                            `button${i}_tap_action`
+                            `button${i}_tap_action`,
+                            "toggle"
                           )}
 
                           ${this._renderActionSelector(

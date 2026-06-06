@@ -236,11 +236,11 @@ export function renderActionSelector(label, key, defaultAction) {
   const defaultValue =
     typeof defaultAction === "object"
       ? defaultAction
-      : { action: defaultAction };
+      : { action: defaultAction || "none" };
 
   const value =
     raw && typeof raw === "object"
-      ? raw
+      ? normalizeActionValue(raw, defaultValue)
       : defaultValue;
 
   return html`
@@ -251,12 +251,10 @@ export function renderActionSelector(label, key, defaultAction) {
         .value=${value.action || defaultValue.action}
         @change=${(e) =>
           this._updateConfig({
-            [key]: {
-              ...getActionDefaults(
-                e.target.value,
-                value
-              ),
-            },
+            [key]: getActionDefaults(
+              e.target.value,
+              value
+            ),
           })}
       >
         <option value="toggle">toggle</option>
@@ -277,10 +275,10 @@ export function renderActionSelector(label, key, defaultAction) {
                 placeholder="/lovelace/home"
                 @input=${(e) =>
                   this._updateConfig({
-                    [key]: {
+                    [key]: cleanActionConfig({
                       ...value,
                       navigation_path: e.target.value,
-                    },
+                    }),
                   })}
               />
             </div>
@@ -299,10 +297,10 @@ export function renderActionSelector(label, key, defaultAction) {
                 placeholder="button.press"
                 @input=${(e) =>
                   this._updateConfig({
-                    [key]: {
+                    [key]: cleanActionConfig({
                       ...value,
                       service: e.target.value,
-                    },
+                    }),
                   })}
               />
             </div>
@@ -316,13 +314,13 @@ export function renderActionSelector(label, key, defaultAction) {
                 placeholder="button.hot_water_low"
                 @input=${(e) =>
                   this._updateConfig({
-                    [key]: {
+                    [key]: cleanActionConfig({
                       ...value,
                       service_data: {
                         ...(value.service_data || {}),
                         entity_id: e.target.value,
                       },
-                    },
+                    }),
                   })}
               />
             </div>
@@ -340,10 +338,10 @@ export function renderActionSelector(label, key, defaultAction) {
                 placeholder="Security"
                 @input=${(e) =>
                   this._updateConfig({
-                    [key]: {
+                    [key]: cleanActionConfig({
                       ...value,
                       popup_title: e.target.value,
-                    },
+                    }),
                   })}
               />
             </div>
@@ -360,10 +358,10 @@ export function renderActionSelector(label, key, defaultAction) {
                 placeholder=""
                 @input=${(e) =>
                   this._updateConfig({
-                    [key]: {
+                    [key]: cleanActionConfig({
                       ...value,
                       popup_content: e.target.value,
-                    },
+                    }),
                   })}
               />
             </div>
@@ -374,21 +372,17 @@ export function renderActionSelector(label, key, defaultAction) {
 }
 
 function getActionDefaults(action, currentValue) {
-  const value = {
+  const value = cleanActionConfig({
     ...currentValue,
     action,
-  };
+  });
 
   if (action !== "popup") return value;
 
-  return {
+  return cleanActionConfig({
     ...value,
-    popup_title:
-      value.popup_title ||
-      "Security",
-    popup_content:
-      value.popup_content ||
-      {
+    popup_title: value.popup_title || "Security",
+    popup_content: value.popup_content || {
         type: "vertical-stack",
         cards: [
           {
@@ -398,10 +392,54 @@ function getActionDefaults(action, currentValue) {
           },
         ],
       },
-    style:
-      value.style ||
+    style: value.style ||
       "--popup-min-width: 400px;\n--popup-max-width: 500px;\n--popup-border-radius: 20px;",
-  };
+  });
+}
+
+function normalizeActionValue(value, defaultValue) {
+  return cleanActionConfig({
+    ...defaultValue,
+    ...value,
+    action: value.action || defaultValue.action || "none",
+  });
+}
+
+function cleanActionConfig(value) {
+  const action = value?.action || "none";
+  const config = { action };
+
+  if (action === "navigate") {
+    config.navigation_path = value.navigation_path || "";
+    return config;
+  }
+
+  if (action === "call-service") {
+    config.service = value.service || "";
+
+    if (value.service_data) {
+      config.service_data = { ...value.service_data };
+    }
+
+    return config;
+  }
+
+  if (action === "popup") {
+    config.popup_title = value.popup_title || "";
+    config.popup_content = value.popup_content || "";
+
+    if (value.style) {
+      config.style = value.style;
+    }
+
+    if (value.card_mod) {
+      config.card_mod = value.card_mod;
+    }
+
+    return config;
+  }
+
+  return config;
 }
 
 export function renderEntity(label, key) {

@@ -1,7 +1,7 @@
-export const ORBIT_CARDS_VERSION = "0.11.34";
+export const ORBIT_CARDS_VERSION = "0.11.37";
 
 export const CARD_VERSIONS = {
-  room: "0.6.25",
-  status: "0.11.22",
-  action: "0.4.22",
+  room: "0.6.28",
+  status: "0.11.23",
+  action: "0.4.23",
 };
