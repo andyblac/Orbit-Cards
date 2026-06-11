@@ -28,6 +28,7 @@ Orbit Cards currently includes:
 ## Features
 
 - Built-in visual editors for all cards.
+- Tabbed editor sections with grouped controls for room/card settings, status fields, buttons, and curved buttons.
 - Shared colour handling across cards.
 - Named colours, theme colours, hex colours, `rgb()`, `hsl()`, and light colour support where supported.
 - Colour preview swatches with a native colour picker and selectable theme colour previews.
@@ -298,6 +299,7 @@ navigate:
   navigation_path: /lovelace/living-room
 status1: sensor.living_room_temperature
 status2: sensor.living_room_humidity
+status_separator: "|"
 button1: light.floor_lamp
 ```
 
@@ -325,8 +327,13 @@ navigate:
   navigation_path: /lovelace/living-room
 
 status1: sensor.living_room_temperature
+status1_icon: mdi:thermometer
+status1_decimal_places: 1
 status2: sensor.living_room_humidity
+status2_icon: mdi:water-percent
+status2_decimal_places: 0
 status3: binary_sensor.living_room_motion
+status3_icon: mdi:motion-sensor
 
 button1: light.floor_lamp
 button1_icon: mdi:floor-lamp
@@ -376,6 +383,9 @@ curve_button2_tap_action:
 | `main_entity_hold_action`                                                                                                        | Main entity/icon hold action. Defaults to `none`.                                                                                                                       |
 | `navigate.navigation_path`                                                                                                       | Card body navigation path. Room Card body tap is navigation-only.                                                                                                       |
 | `status1`, `status2`, `status3`                                                                                                  | Optional status entities shown under the room/card name.                                                                                                                |
+| `status_separator`                                                                                                                | Separator shown between status values. Defaults to `\|`; spaces are added automatically in the rendered card.                                                           |
+| `statusX_icon`                                                                                                                    | Optional prefix icon for status `X`. Supports MDI/custom icon packs, local SVG/image files, bundled `orbit:` icons, or pasted text/emoji such as `🌡️`.                   |
+| `statusX_decimal_places`                                                                                                         | Optional decimal place override for numeric status `X`. Leave unset to use the entity's Home Assistant display precision.                                               |
 | `button1` to `button4`                                                                                                           | Optional side button entities.                                                                                                                                          |
 | `buttonX_icon`                                                                                                                   | Icon override for side button `X`.                                                                                                                                      |
 | `buttonX_icon_on`                                                                                                                | Icon override when side button `X` is ON or active.                                                                                                                     |
@@ -565,7 +575,7 @@ For Icon Only mode, numeric `0` is OFF and values greater than `0` are ON unless
 
 ## Action Card
 
-Action Card is a compact square card for activating scenes, scripts, automations, and other action-like entities.
+Action Card is a compact square card for activating scenes, scripts, automations, buttons, input buttons, input booleans, and other action-like entities.
 
 ### Basic Example
 
@@ -583,6 +593,7 @@ Default tap actions are selected from the entity domain:
 | `script`                 | `script.turn_on`     |
 | `automation`             | `automation.trigger` |
 | `button`, `input_button` | `button.press`       |
+| `input_boolean`          | `toggle`             |
 | Other domains            | `toggle`             |
 
 Hold action defaults to `more-info`.
@@ -630,6 +641,8 @@ Each card includes a visual editor. The editor supports:
 - Entity pickers.
 - Area picker for Room Card.
 - Mode selection for Status Card.
+- Tabbed Room Card sections: `Card`, `Status`, `Buttons`, and `Curve Buttons`.
+- Segmented selectors for Room Card status slots, side buttons, and curved buttons.
 - Grouped item add, remove, and reorder controls.
 - Wrap and separate-card layout controls for grouped cards.
 - Action selectors.
@@ -701,7 +714,7 @@ Action-style domains such as `scene`, `script`, `automation`, `button`, and `inp
 Action Card is suggested for action-style entities:
 
 ```text
-scene, script, automation, button, input_button
+scene, script, automation, button, input_button, input_boolean
 ```
 
 Example generated config:
