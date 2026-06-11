@@ -8,10 +8,6 @@ import {
   getColorStyle,
   getColorPickerValue,
   isImageIcon,
-  toggleSection,
-  renderSectionHeader,
-  renderSubSectionHeader,
-  renderStatusSection,
   renderActionSelector,
   renderEntity,
   renderArea,
@@ -43,7 +39,10 @@ class OrbitRoomCardEditor extends LitElement {
   static properties = {
     hass: { attribute: false },
     _config: { state: true },
-    _collapsed: { state: true },
+    _activeSection: { state: true },
+    _selectedStatusIndex: { state: true },
+    _selectedButtonIndex: { state: true },
+    _selectedCurveButtonIndex: { state: true },
     _colorPickerKey: { state: true },
     _colorPickerTab: { state: true },
     _iconPickerKey: { state: true },
@@ -57,6 +56,10 @@ class OrbitRoomCardEditor extends LitElement {
   constructor() {
     super();
     this._config = this._config || {};
+    this._activeSection = "card";
+    this._selectedStatusIndex = 1;
+    this._selectedButtonIndex = 1;
+    this._selectedCurveButtonIndex = 1;
     this._colorPickerKey = "";
     this._colorPickerTab = "picker";
     this._iconPickerKey = "";
@@ -65,24 +68,6 @@ class OrbitRoomCardEditor extends LitElement {
     this._orbitIconFilesLoading = false;
     this._localIconFiles = [];
     this._localIconFilesLoading = false;
-    this._collapsed = {
-      room: false,
-      status: true,
-      buttons: true,
-      curve: true,
-
-      button1: true,
-      button2: true,
-      button3: true,
-      button4: true,
-
-      curve1: true,
-      curve2: true,
-      curve3: true,
-      curve4: true,
-      curve5: true,
-      curve6: true,
-    };
   }
   
   _getColorStyle(value) {
@@ -98,7 +83,9 @@ class OrbitRoomCardEditor extends LitElement {
   }
 
   _updateConfig(changes) {
-    this._config = mergeConfig(this._config, changes);
+    this._config = orderRoomConfig(
+      mergeConfig(this._config, changes)
+    );
 
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
@@ -107,18 +94,6 @@ class OrbitRoomCardEditor extends LitElement {
       bubbles: true,
       composed: true,
     }));
-  }
-
-  _renderSectionHeader(title, key) {
-    return renderSectionHeader.call(this, title, key);
-  }
-
-  _renderSubSectionHeader(title, key) {
-    return renderSubSectionHeader.call(this, title, key);
-  }
-
-  _toggleSection(section) {
-    return toggleSection.call(this, section);
   }
 
   _handleInput(key, e) {
@@ -143,6 +118,11 @@ class OrbitRoomCardEditor extends LitElement {
       return;
     }
 
+    if (/^status[1-3]$/.test(key)) {
+      this._clearStatusEntity(key);
+      return;
+    }
+
     if (key !== "main_entity") {
       this._handleConfigUpdate(key, value);
       return;
@@ -151,6 +131,13 @@ class OrbitRoomCardEditor extends LitElement {
     this._updateConfig(clearEntityConfig(
       "main_entity",
       MAIN_ENTITY_DEPENDENT_KEYS
+    ));
+  }
+
+  _clearStatusEntity(key) {
+    this._updateConfig(clearPrefixedEntityConfig(
+      key,
+      STATUS_ENTITY_DEPENDENT_SUFFIXES
     ));
   }
 
@@ -233,7 +220,53 @@ class OrbitRoomCardEditor extends LitElement {
   }
 
   _renderStatusSection() {
-    return renderStatusSection.call(this);
+    const selected = this._selectedStatusIndex || 1;
+
+    return html`
+      <div class="section">
+        ${this._renderInput(
+          "Separator",
+          "status_separator",
+          "|"
+        )}
+
+        <div
+          class="editor-segment-menu"
+          style="--editor-segment-columns: 3;"
+        >
+          ${[1, 2, 3].map((index) => html`
+            <button
+              type="button"
+              class="editor-segment-item ${selected === index ? "active" : ""}"
+              @click=${() => {
+                this._selectedStatusIndex = index;
+              }}
+            >
+              Status ${index}
+            </button>
+          `)}
+        </div>
+
+        <div class="sub-section selected-button-section">
+          ${this._renderEntity(
+            "Entity",
+            `status${selected}`
+          )}
+
+          ${this._renderIconInput(
+            "Prefix Icon",
+            `status${selected}_icon`,
+            "mdi:thermometer / icon.svg / 🌡️"
+          )}
+
+          ${this._renderInput(
+            "Decimal Places",
+            `status${selected}_decimal_places`,
+            "entity default"
+          )}
+        </div>
+      </div>
+    `;
   }
 
   _renderButtonsSection() {
@@ -244,13 +277,37 @@ class OrbitRoomCardEditor extends LitElement {
     return renderCurvedButtonsSection.call(this);
   }
 
+  _renderEditorTabs() {
+    return html`
+      <div class="editor-tabs">
+        ${ROOM_EDITOR_TABS.map((tab) => html`
+          <button
+            type="button"
+            class="editor-tab ${this._activeSection === tab.key ? "active" : ""}"
+            @click=${() => {
+              this._activeSection = tab.key;
+            }}
+          >
+            ${tab.label}
+          </button>
+        `)}
+      </div>
+    `;
+  }
+
+  _renderActiveSection() {
+    const activeTab =
+      ROOM_EDITOR_TABS.find((tab) => tab.key === this._activeSection) ||
+      ROOM_EDITOR_TABS[0];
+
+    return this[activeTab.render]();
+  }
+
   render() {
     return html`
       <div class="wrapper">
-        ${this._renderRoomSection()}
-        ${this._renderStatusSection()}
-        ${this._renderButtonsSection()}
-        ${this._renderCurvedButtonsSection()}
+        ${this._renderEditorTabs()}
+        ${this._renderActiveSection()}
         <div class="editor-version">
           Orbit Room Card v${CARD_VERSIONS.room}
         </div>
@@ -260,6 +317,29 @@ class OrbitRoomCardEditor extends LitElement {
 
   static styles = editorStyles;
 }
+
+const ROOM_EDITOR_TABS = [
+  {
+    key: "card",
+    label: "Card",
+    render: "_renderRoomSection",
+  },
+  {
+    key: "status",
+    label: "Status",
+    render: "_renderStatusSection",
+  },
+  {
+    key: "buttons",
+    label: "Buttons",
+    render: "_renderButtonsSection",
+  },
+  {
+    key: "curve",
+    label: "Curve Buttons",
+    render: "_renderCurvedButtonsSection",
+  },
+];
 
 customElements.define(
   "orbit-room-card-editor",
@@ -272,6 +352,11 @@ const MAIN_ENTITY_DEPENDENT_KEYS = [
   "main_entity_icon_off",
   "main_entity_tap_action",
   "main_entity_hold_action",
+];
+
+const STATUS_ENTITY_DEPENDENT_SUFFIXES = [
+  "_icon",
+  "_decimal_places",
 ];
 
 const BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
@@ -293,3 +378,76 @@ const CURVE_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
   "_tap_action",
   "_hold_action",
 ];
+
+const ROOM_CONFIG_ORDER = [
+  "type",
+  "room_name",
+  "accent_color",
+  "status_color",
+  "area",
+  "navigate",
+  "main_entity",
+  "main_entity_icon",
+  "main_entity_icon_on",
+  "main_entity_icon_off",
+  "main_entity_icon_svg_color_override",
+  "main_entity_icon_on_svg_color_override",
+  "main_entity_icon_off_svg_color_override",
+  "main_entity_tap_action",
+  "main_entity_hold_action",
+  "status_separator",
+  ...[1, 2, 3].flatMap((index) => [
+    `status${index}`,
+    `status${index}_icon`,
+    `status${index}_decimal_places`,
+  ]),
+  ...[1, 2, 3, 4].flatMap((index) => [
+    `button${index}`,
+    `button${index}_on_color`,
+    `button${index}_off_color`,
+    `button${index}_icon`,
+    `button${index}_icon_on`,
+    `button${index}_icon_off`,
+    `button${index}_icon_svg_color_override`,
+    `button${index}_icon_on_svg_color_override`,
+    `button${index}_icon_off_svg_color_override`,
+    `button${index}_state_template`,
+    `button${index}_tap_action`,
+    `button${index}_hold_action`,
+  ]),
+  "curve_buttons_lock_position",
+  ...[1, 2, 3, 4, 5, 6].flatMap((index) => [
+    `curve_button${index}`,
+    `curve_button${index}_icon`,
+    `curve_button${index}_icon_on`,
+    `curve_button${index}_icon_off`,
+    `curve_button${index}_icon_svg_color_override`,
+    `curve_button${index}_icon_on_svg_color_override`,
+    `curve_button${index}_icon_off_svg_color_override`,
+    `curve_button${index}_state_template`,
+    `curve_button${index}_tap_action`,
+    `curve_button${index}_hold_action`,
+  ]),
+  "grid_options",
+  "view_layout",
+];
+
+function orderRoomConfig(config) {
+  const ordered = {};
+  const usedKeys = new Set();
+
+  ROOM_CONFIG_ORDER.forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(config, key)) {
+      ordered[key] = config[key];
+      usedKeys.add(key);
+    }
+  });
+
+  Object.keys(config).forEach((key) => {
+    if (!usedKeys.has(key)) {
+      ordered[key] = config[key];
+    }
+  });
+
+  return ordered;
+}

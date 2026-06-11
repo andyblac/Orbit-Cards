@@ -80,7 +80,9 @@ class OrbitStatusCardEditor extends LitElement {
   }
 
   _updateConfig(changes) {
-    this._config = mergeConfig(this._config, changes);
+    this._config = orderStatusConfig(
+      mergeConfig(this._config, changes)
+    );
 
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
@@ -487,3 +489,101 @@ const PERSON_ENTITY_DEPENDENT_KEYS = [
 const TRACKER_ENTITY_DEPENDENT_KEYS = [
   "eta_entity",
 ];
+
+const STATUS_ITEM_KEYS = [
+  "entity",
+  "accent_on_color",
+  "accent_off_color",
+  "main_entity_icon",
+  "main_entity_icon_on",
+  "main_entity_icon_off",
+  "main_entity_icon_svg_color_override",
+  "main_entity_icon_on_svg_color_override",
+  "main_entity_icon_off_svg_color_override",
+  "state_template",
+  "label_template",
+  "tap_action",
+  "main_entity_tap_action",
+  "main_entity_hold_action",
+];
+
+const STATUS_CONFIG_ORDER = [
+  "type",
+  "mode",
+  "status_name",
+  "main_entity",
+  "tracker_entity",
+  "eta_entity",
+  "battery_entity_1",
+  "battery_entity_2",
+  "accent_on_color",
+  "accent_off_color",
+  "main_entity_icon",
+  "main_entity_icon_on",
+  "main_entity_icon_off",
+  "main_entity_icon_svg_color_override",
+  "main_entity_icon_on_svg_color_override",
+  "main_entity_icon_off_svg_color_override",
+  "state_template",
+  "label_template",
+  "tap_action",
+  "main_entity_tap_action",
+  "main_entity_hold_action",
+  "wrap",
+  "items_per_row",
+  "separate_cards",
+  "entities",
+  "grid_options",
+  "view_layout",
+];
+
+function orderStatusConfig(config) {
+  const ordered = {};
+  const usedKeys = new Set();
+
+  STATUS_CONFIG_ORDER.forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(config, key)) {
+      ordered[key] =
+        key === "entities" && Array.isArray(config[key])
+          ? config[key].map(orderStatusItem)
+          : config[key];
+      usedKeys.add(key);
+    }
+  });
+
+  Object.keys(config).forEach((key) => {
+    if (!usedKeys.has(key)) {
+      ordered[key] = config[key];
+    }
+  });
+
+  return ordered;
+}
+
+function orderStatusItem(item) {
+  if (!item || typeof item !== "object" || Array.isArray(item)) {
+    return item;
+  }
+
+  return orderObjectKeys(item, STATUS_ITEM_KEYS);
+}
+
+function orderObjectKeys(config, keyOrder) {
+  const ordered = {};
+  const usedKeys = new Set();
+
+  keyOrder.forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(config, key)) {
+      ordered[key] = config[key];
+      usedKeys.add(key);
+    }
+  });
+
+  Object.keys(config).forEach((key) => {
+    if (!usedKeys.has(key)) {
+      ordered[key] = config[key];
+    }
+  });
+
+  return ordered;
+}

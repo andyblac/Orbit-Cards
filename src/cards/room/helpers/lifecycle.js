@@ -73,19 +73,61 @@ export function updateRoomCard(changedProps) {
       ? this._getSvgColorOverride(selectedIconKey)
       : true;
 
-  const statusEntities = [
-    this._config.status1,
-    this._config.status2,
-    this._config.status3,
-  ].filter(Boolean);
-
-  this._statusText = statusEntities
-    .map((id) => this.hass?.states[id])
-    .map((s) => (s ? this.formatState(s) : "—"))
-    .join(" | ");
+  this._statusItems = getStatusItems.call(this);
 
   this._buttonModels = getButtonModels.call(this);
   this._curveButtonModels = getCurveButtonModels.call(this);
+}
+
+function getStatusItems() {
+  return [1, 2, 3]
+    .map((index) => {
+      const entityId = this._config[`status${index}`];
+
+      if (!entityId) return null;
+
+      const stateObj = this.hass?.states[entityId];
+      const icon = this._config[`status${index}_icon`] || "";
+
+      return {
+        entityId,
+        text: formatStatusText.call(
+          this,
+          stateObj,
+          this._config[`status${index}_decimal_places`]
+        ),
+        icon,
+        iconPath: this._isImageIcon(icon)
+          ? this._resolveIconPath(icon)
+          : "",
+        isImage: this._isImageIcon(icon),
+        isHaIcon: isHaIconName(icon),
+      };
+    })
+    .filter(Boolean);
+}
+
+function isHaIconName(icon) {
+  return /^[a-z0-9_-]+:/i.test(icon || "");
+}
+
+function formatStatusText(stateObj, decimalPlaces) {
+  if (!stateObj) return "—";
+
+  if (decimalPlaces === undefined || decimalPlaces === "") {
+    return this.formatState(stateObj);
+  }
+
+  const places = Number(decimalPlaces);
+  const value = Number(stateObj.state);
+
+  if (!Number.isFinite(places) || !Number.isFinite(value)) {
+    return this.formatState(stateObj);
+  }
+
+  const unit = stateObj.attributes.unit_of_measurement || "";
+
+  return `${value.toFixed(Math.max(0, places))}${unit}`;
 }
 
 function getButtonModels() {

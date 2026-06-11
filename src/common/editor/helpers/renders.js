@@ -203,7 +203,7 @@ const THEME_COLOR_OPTIONS = [
 function getDefaultColorTab(value) {
   const color = value?.toString().trim();
 
-  if (!color) return "picker";
+  if (!color) return "theme";
 
   return (
     color.startsWith("#") ||

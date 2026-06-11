@@ -80,6 +80,7 @@ class OrbitRoomCard extends LitElement {
       _config: { type: Object },
       _cardName: { type: String },
       _statusText: { type: String },
+      _statusItems: { type: Array },
       _icon: { type: String },
       _roomColor: { type: String },
       _statusColor: { type: String },

@@ -71,7 +71,9 @@ class OrbitActionCardEditor extends LitElement {
   }
 
   _updateConfig(changes) {
-    this._config = mergeConfig(this._config, changes);
+    this._config = orderActionConfig(
+      mergeConfig(this._config, changes)
+    );
 
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
@@ -397,3 +399,79 @@ const ACTION_GROUP_ROOT_KEYS = [
   "main_entity",
   ...ACTION_ENTITY_DEPENDENT_KEYS,
 ];
+
+const ACTION_ITEM_KEYS = [
+  "entity",
+  "accent_color",
+  "main_entity_icon",
+  "main_entity_icon_svg_color_override",
+  "tap_action",
+  "hold_action",
+];
+
+const ACTION_CONFIG_ORDER = [
+  "type",
+  "main_entity",
+  "accent_color",
+  "main_entity_icon",
+  "main_entity_icon_svg_color_override",
+  "tap_action",
+  "hold_action",
+  "wrap",
+  "actions_per_row",
+  "separate_cards",
+  "entities",
+  "grid_options",
+  "view_layout",
+];
+
+function orderActionConfig(config) {
+  const ordered = {};
+  const usedKeys = new Set();
+
+  ACTION_CONFIG_ORDER.forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(config, key)) {
+      ordered[key] =
+        key === "entities" && Array.isArray(config[key])
+          ? config[key].map(orderActionItem)
+          : config[key];
+      usedKeys.add(key);
+    }
+  });
+
+  Object.keys(config).forEach((key) => {
+    if (!usedKeys.has(key)) {
+      ordered[key] = config[key];
+    }
+  });
+
+  return ordered;
+}
+
+function orderActionItem(item) {
+  if (!item || typeof item !== "object" || Array.isArray(item)) {
+    return item;
+  }
+
+  return orderObjectKeys(item, ACTION_ITEM_KEYS);
+}
+
+function orderObjectKeys(config, keyOrder) {
+  const ordered = {};
+  const usedKeys = new Set();
+
+  keyOrder.forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(config, key)) {
+      ordered[key] = config[key];
+      usedKeys.add(key);
+    }
+  });
+
+  Object.keys(config).forEach((key) => {
+    if (!usedKeys.has(key)) {
+      ordered[key] = config[key];
+    }
+  });
+
+  return ordered;
+}

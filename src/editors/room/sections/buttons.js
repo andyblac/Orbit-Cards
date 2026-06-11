@@ -1,80 +1,70 @@
 import { html } from "lit";
 
 export function renderButtonsSection() {
-    return html`
-      <div class="section">
-        ${this._renderSectionHeader("Buttons", "buttons")}
+  const selected = this._selectedButtonIndex || 1;
 
-        ${!this._collapsed.buttons
-          ? html`
+  return html`
+    <div class="section">
+      ${renderButtonMenu.call(
+        this,
+        [1, 2, 3, 4],
+        selected,
+        (index) => {
+          this._selectedButtonIndex = index;
+        }
+      )}
 
-              ${[1, 2, 3, 4].map(
-                (i) => html`
-                  <div class="sub-section">
+      ${renderButtonFields.call(this, selected)}
+    </div>
+  `;
+}
 
-                    ${this._renderSubSectionHeader(
-                      `Button ${i}`,
-                      `button${i}`
-                    )}
+function renderButtonMenu(items, selected, onSelect) {
+  return html`
+    <div
+      class="editor-segment-menu"
+      style="--editor-segment-columns: 4;"
+    >
+      ${items.map((index) => html`
+        <button
+          type="button"
+          class="editor-segment-item ${selected === index ? "active" : ""}"
+          @click=${() => onSelect(index)}
+        >
+          Button ${index}
+        </button>
+      `)}
+    </div>
+  `;
+}
 
-                    ${!this._collapsed[`button${i}`]
-                      ? html`
+function renderButtonFields(index) {
+  const key = `button${index}`;
 
-                          ${this._renderEntity(
-                            `Entity`,
-                            `button${i}`
-                          )}
+  return html`
+    <div class="sub-section selected-button-section">
+      ${this._renderEntity("Entity", key)}
 
-                          ${this._renderColor(
-                            `ON Color`,
-                            `button${i}_on_color`
-                          )}
+      ${this._renderColor("ON Color", `${key}_on_color`)}
+      ${this._renderColor("OFF Color", `${key}_off_color`)}
 
-                          ${this._renderColor(
-                            `OFF Color`,
-                            `button${i}_off_color`
-                          )}
+      ${this._renderIconInput("Icon", `${key}_icon`)}
+      ${this._renderIconInput("ON Icon", `${key}_icon_on`)}
+      ${this._renderIconInput("OFF Icon", `${key}_icon_off`)}
 
-                          ${this._renderIconInput(
-                            `Icon`,
-                            `button${i}_icon`
-                          )}
+      ${this._renderTemplateInput("State Template", `${key}_state_template`)}
 
-                          ${this._renderIconInput(
-                            `ON Icon`,
-                            `button${i}_icon_on`
-                          )}
+      ${this._renderActionSelector(
+        "Tap Action",
+        `${key}_tap_action`,
+        "toggle"
+      )}
 
-                          ${this._renderIconInput(
-                            `OFF Icon`,
-                            `button${i}_icon_off`
-                          )}
-
-                          ${this._renderTemplateInput(
-                            `State Template`,
-                            `button${i}_state_template`
-                          )}
-
-                          ${this._renderActionSelector(
-                            `Tap Action`,
-                            `button${i}_tap_action`,
-                            "toggle"
-                          )}
-
-                          ${this._renderActionSelector(
-                            `Hold Action`,
-                            `button${i}_hold_action`,
-                            "more-info"
-                          )}
-                        `
-                      : ""}
-
-                  </div>
-                `
-              )}
-
-            `
-          : ""}
-      </div>
-    `;
-  }
+      ${this._renderActionSelector(
+        "Hold Action",
+        `${key}_hold_action`,
+        "more-info"
+      )}
+    </div>
+  `;
+}

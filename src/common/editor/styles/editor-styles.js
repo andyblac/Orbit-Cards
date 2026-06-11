@@ -7,6 +7,7 @@ import { entityStyles } from "./entities.js";
 import { iconStyles } from "./icons.js";
 import { actionStyles } from "./actions.js";
 import { editorVersionStyles } from "./version.js";
+import { editorTabStyles } from "./tabs.js";
 
 export const editorStyles = [
   layoutStyles,
@@ -17,4 +18,5 @@ export const editorStyles = [
   iconStyles,
   actionStyles,
   editorVersionStyles,
+  editorTabStyles,
 ];

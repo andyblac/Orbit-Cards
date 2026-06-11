@@ -21,7 +21,7 @@ export function renderRoomCard() {
             </div>
 
             <div class="status" style="color:${this._statusColor}">
-              ${this._statusText || ""}
+              ${renderStatusItems.call(this)}
             </div>
           </div>
 
@@ -73,5 +73,58 @@ export function renderRoomCard() {
 
       </div>
     </ha-card>
+  `;
+}
+
+function renderStatusItems() {
+  const items = this._statusItems || [];
+
+  if (!items.length) {
+    return this._statusText || "";
+  }
+
+  const separator = this._config?.status_separator || "|";
+
+  return items.map((item, index) => html`
+    ${index > 0
+      ? html`
+          <span class="status-separator">
+            ${separator}
+          </span>
+        `
+      : ""}
+    <span class="status-item">
+      ${renderStatusIcon.call(this, item)}
+      <span>${item.text}</span>
+    </span>
+  `);
+}
+
+function renderStatusIcon(item) {
+  if (!item.icon) return "";
+
+  if (item.isImage) {
+    return html`
+      <span class="status-prefix-icon status-prefix-image">
+        ${item.iconPath
+          ? unsafeHTML(this._getInlineSvg(item.iconPath, true))
+          : ""}
+      </span>
+    `;
+  }
+
+  if (item.isHaIcon) {
+    return html`
+      <ha-icon
+        class="status-prefix-icon"
+        .icon=${item.icon}
+      ></ha-icon>
+    `;
+  }
+
+  return html`
+    <span class="status-prefix-text">
+      ${item.icon}
+    </span>
   `;
 }
