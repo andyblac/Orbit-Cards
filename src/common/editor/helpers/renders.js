@@ -1,5 +1,11 @@
 import { html } from "lit";
 
+function t(editor, key, replacements) {
+  return editor._t
+    ? editor._t(key, replacements)
+    : key;
+}
+
 /* ==========================================
  * COLLAPSE HELPERS
  * ========================================== */
@@ -15,7 +21,7 @@ export function renderSectionHeader(title, key) {
         this._toggleSection(key);
       }}
     >
-      <span>${title}</span>
+      <span>${t(this, title)}</span>
 
       <span class="collapse-icon">
         ${this._collapsed[key] ? "+" : "−"}
@@ -35,7 +41,7 @@ export function renderSubSectionHeader(title, key) {
         this._toggleSection(key);
       }}
     >
-      <span>${title}</span>
+      <span>${t(this, title)}</span>
 
       <span class="collapse-icon">
         ${this._collapsed[key] ? "+" : "−"}
@@ -63,7 +69,7 @@ export function renderColorControl(label, pickerKey, value, onUpdate) {
 
   return html`
     <div class="field">
-      <label>${label}</label>
+      <label>${t(this, label)}</label>
 
       <div class="color-row">
         <input
@@ -76,7 +82,7 @@ export function renderColorControl(label, pickerKey, value, onUpdate) {
         <div
           class="color-preview"
           style=${this._getColorStyle(value)}
-          title="Choose colour"
+          title=${t(this, "Choose colour")}
           @click=${(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -101,7 +107,7 @@ export function renderColorControl(label, pickerKey, value, onUpdate) {
                       this._colorPickerTab = "picker";
                     }}
                   >
-                    Picker
+                    ${t(this, "Picker")}
                     <input
                       class="tab-color-picker"
                       type="color"
@@ -117,7 +123,7 @@ export function renderColorControl(label, pickerKey, value, onUpdate) {
                       this._colorPickerTab = "theme";
                     }}
                   >
-                    Theme
+                    ${t(this, "Theme")}
                   </button>
                 </div>
 
@@ -245,7 +251,7 @@ export function renderActionSelector(label, key, defaultAction) {
 
   return html`
     <div class="field">
-      <label>${label}</label>
+      <label>${t(this, label)}</label>
 
       <select
         .value=${value.action || defaultValue.action}
@@ -257,18 +263,18 @@ export function renderActionSelector(label, key, defaultAction) {
             ),
           })}
       >
-        <option value="toggle">toggle</option>
-        <option value="more-info">more-info</option>
-        <option value="navigate">navigate</option>
-        <option value="call-service">call-service</option>
-        <option value="popup">popup</option>
-        <option value="none">none</option>
+        <option value="toggle">${t(this, "toggle")}</option>
+        <option value="more-info">${t(this, "more-info")}</option>
+        <option value="navigate">${t(this, "navigate")}</option>
+        <option value="call-service">${t(this, "call-service")}</option>
+        <option value="popup">${t(this, "popup")}</option>
+        <option value="none">${t(this, "none")}</option>
       </select>
 
       ${value.action === "navigate"
         ? html`
             <div class="inline-field">
-              <span class="inline-label">path</span>
+              <span class="inline-label">${t(this, "path")}</span>
 
               <input
                 .value=${value.navigation_path || ""}
@@ -290,7 +296,7 @@ export function renderActionSelector(label, key, defaultAction) {
 
             <!-- SERVICE -->
             <div class="inline-field">
-              <span class="inline-label">service</span>
+              <span class="inline-label">${t(this, "service")}</span>
 
               <input
                 .value=${value.service || ""}
@@ -307,7 +313,7 @@ export function renderActionSelector(label, key, defaultAction) {
 
             <!-- ENTITY ID -->
             <div class="inline-field">
-              <span class="inline-label">entity_id</span>
+              <span class="inline-label">${t(this, "entity_id")}</span>
 
               <input
                 .value=${value.service_data?.entity_id || ""}
@@ -331,7 +337,7 @@ export function renderActionSelector(label, key, defaultAction) {
       ${value.action === "popup"
         ? html`
             <div class="inline-field">
-              <span class="inline-label">title</span>
+              <span class="inline-label">${t(this, "title")}</span>
 
               <input
                 .value=${value.popup_title || ""}
@@ -347,7 +353,7 @@ export function renderActionSelector(label, key, defaultAction) {
             </div>
 
             <div class="inline-field">
-              <span class="inline-label">content</span>
+              <span class="inline-label">${t(this, "content")}</span>
 
               <input
                 .value=${typeof value.popup_content === "string"
@@ -381,7 +387,7 @@ function getActionDefaults(action, currentValue) {
 
   return cleanActionConfig({
     ...value,
-    popup_title: value.popup_title || "Security",
+    popup_title: value.popup_title || t(this, "Security"),
     popup_content: value.popup_content || {
         type: "vertical-stack",
         cards: [
@@ -445,7 +451,7 @@ function cleanActionConfig(value) {
 export function renderEntity(label, key) {
   return html`
     <div class="field">
-      <label>${label}</label>
+      <label>${t(this, label)}</label>
 
       <div class="entity-row">
         <ha-selector
@@ -483,7 +489,7 @@ export function renderEntity(label, key) {
 export function renderArea(label, key) {
   return html`
     <div class="field">
-      <label>${label}</label>
+      <label>${t(this, label)}</label>
 
       <ha-selector
         .hass=${this.hass}

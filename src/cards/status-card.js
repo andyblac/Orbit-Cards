@@ -42,6 +42,7 @@ import {
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import { localize } from "../common/localize.js";
 
 import {
   getIconOnlyStatusItems,
@@ -780,7 +781,7 @@ function getStatusEntitySuggestion(hass, entityId) {
   }
 
   const standard = {
-    label: "Standard",
+    label: localize(hass, "Standard"),
     config: {
       type: "custom:orbit-status-card",
       mode: "standard",
@@ -797,7 +798,7 @@ function getStatusEntitySuggestion(hass, entityId) {
   return [
     standard,
     {
-      label: "Icon Only",
+      label: localize(hass, "Icon Only"),
       config: {
         type: "custom:orbit-status-card",
         mode: "icon_only",

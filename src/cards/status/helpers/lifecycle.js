@@ -7,6 +7,7 @@ import {
 import {
   getActiveZoneIndex,
 } from "../../../common/helpers/zones.js";
+import { localize } from "../../../common/localize.js";
 
 export function updateStatusCard(changedProps) {
   if (!changedProps.has("_config") && !changedProps.has("hass")) return;
@@ -100,7 +101,7 @@ function getStatusState(item, rootConfig = {}) {
       : null) ||
     getStatusAttribute(stateObj, "friendly_name") ||
     entityId ||
-    "Status";
+    localize(this.hass, "Status");
 
   const templatedState =
     config.state_template
@@ -198,7 +199,9 @@ function getStatusState(item, rootConfig = {}) {
 }
 
 function applyStatusState(state) {
-  this._cardName = state.cardName || "Status";
+  this._cardName =
+    state.cardName ||
+    localize(this.hass, "Status");
   this._statusText = state.statusText || "";
   this._icon = state.icon || "mdi:information-outline";
   this._navigationPath = state.navigationPath || "";
@@ -235,7 +238,7 @@ function updatePersonStatusCard() {
     getStatusAttribute(trackerObj, "friendly_name") ||
     personId ||
     trackerId ||
-    "Person";
+    localize(this.hass, "Person");
 
   const templatedLabel =
     this._config.label_template
@@ -249,7 +252,7 @@ function updatePersonStatusCard() {
     templatedLabel ??
     (
       trackerObj
-        ? formatPersonTrackerState(trackerObj)
+        ? formatPersonTrackerState.call(this, trackerObj)
         : ""
     );
 
@@ -359,8 +362,13 @@ function formatPersonTrackerState(stateObj) {
   const state = stateObj?.state;
 
   if (!state) return "";
-  if (state === "home") return "Home";
-  if (state === "not_home") return "Away";
+  if (state === "home") {
+    return localize(this.hass, "Home");
+  }
+
+  if (state === "not_home") {
+    return localize(this.hass, "Away");
+  }
 
   return state
     .replace(/_/g, " ")

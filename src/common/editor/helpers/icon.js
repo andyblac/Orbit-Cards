@@ -1,6 +1,12 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
+function t(editor, key) {
+  return editor._t
+    ? editor._t(key)
+    : key;
+}
+
 /* ==========================================
  * ICON HELPERS
  * ========================================== */
@@ -65,7 +71,7 @@ export function renderIconInput(label, key, placeholder) {
 
   return html`
     <div class="field">
-      <label>${label}</label>
+      <label>${t(this, label)}</label>
 
       <div class="icon-input-row">
 
@@ -81,7 +87,7 @@ export function renderIconInput(label, key, placeholder) {
 
         <div
           class="icon-preview"
-          title="Choose icon"
+          title=${t(this, "Choose icon")}
           @click=${(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -144,7 +150,7 @@ export function renderIconInput(label, key, placeholder) {
                       this._iconPickerTab = "ha";
                     }}
                   >
-                    Icons
+                    ${t(this, "Icons")}
                   </button>
                   <button
                     type="button"
@@ -154,7 +160,7 @@ export function renderIconInput(label, key, placeholder) {
                       this._loadLocalIconFiles?.(value);
                     }}
                   >
-                    Files
+                    ${t(this, "Files")}
                   </button>
                 </div>
 
@@ -226,16 +232,17 @@ function renderFileIconPicker(key, value) {
 
   if (isLoading) {
     return html`
-      <div class="icon-picker-note">Loading files...</div>
+      <div class="icon-picker-note">${t(this, "Loading files...")}</div>
     `;
   }
 
   if (!orbitFiles.length && !localFiles.length) {
     return html`
       <div class="icon-picker-note">
-        No files found. Add a local icon manifest at
-        <code>/local/icons/manifest.json</code>
-        or type the filename manually.
+        ${t(
+          this,
+          "No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually."
+        )}
       </div>
     `;
   }
@@ -244,7 +251,7 @@ function renderFileIconPicker(key, value) {
     ${orbitFiles.length
       ? renderFileIconSection.call(
           this,
-          "Orbit Icons",
+          t(this, "Orbit Icons"),
           key,
           orbitFiles,
           value
@@ -254,7 +261,7 @@ function renderFileIconPicker(key, value) {
     ${localFiles.length
       ? renderFileIconSection.call(
           this,
-          "Local Icons",
+          t(this, "Local Icons"),
           key,
           localFiles,
           value

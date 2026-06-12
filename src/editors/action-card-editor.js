@@ -27,6 +27,7 @@ import { actionEditorStyles } from "../common/editor/styles/action-editor.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
 
 class OrbitActionCardEditor extends LitElement {
@@ -68,6 +69,10 @@ class OrbitActionCardEditor extends LitElement {
       this._selectedActionIndex || 0,
       this._getActionItems(config).length - 1
     );
+  }
+
+  _t(key, replacements) {
+    return localize(this.hass, key, replacements);
   }
 
   _updateConfig(changes) {
@@ -237,6 +242,8 @@ class OrbitActionCardEditor extends LitElement {
     const item = items[index] || {};
     const scopedEditor = {
       _config: item,
+      _t: (key, replacements) =>
+        this._t(key, replacements),
       _updateConfig: (changes) =>
         this._updateActionItem(index, changes),
     };
@@ -281,6 +288,8 @@ class OrbitActionCardEditor extends LitElement {
     const scopedEditor = {
       _config: item,
       _iconPickerPrefix: `action-${index}-icon`,
+      _t: (translationKey, replacements) =>
+        this._t(translationKey, replacements),
       _isImageIcon: (icon) => this._isImageIcon(icon),
       _resolveIconPath: (path) => this._resolveIconPath(path),
       _getInlineSvg: (path) => this._getInlineSvg(path),
@@ -364,7 +373,9 @@ class OrbitActionCardEditor extends LitElement {
       <div class="wrapper">
         ${this._renderActionSection()}
         <div class="editor-version">
-          Orbit Action Card v${CARD_VERSIONS.action}
+          ${this._t("Orbit Action Card v{version}", {
+            version: CARD_VERSIONS.action,
+          })}
         </div>
       </div>
     `;

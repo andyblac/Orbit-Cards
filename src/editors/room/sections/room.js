@@ -6,7 +6,7 @@ export function renderRoomSection() {
       ${this._renderInput("Room Name", "room_name")}
 
       <div class="field">
-        <label>Room Navigation Path</label>
+        <label>${this._t("Room Navigation Path")}</label>
 
         <input
           .value=${this._config?.navigate?.navigation_path || ""}

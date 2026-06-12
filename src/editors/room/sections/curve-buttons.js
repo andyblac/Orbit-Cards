@@ -6,7 +6,7 @@ export function renderCurvedButtonsSection() {
   return html`
     <div class="section">
       <div class="field">
-        <label>Lock Curve Button Positions</label>
+        <label>${this._t("Lock Curve Button Positions")}</label>
 
         <select
           .value=${this._config?.curve_buttons_lock_position
@@ -18,8 +18,8 @@ export function renderCurvedButtonsSection() {
                 e.target.value === "true",
             })}
         >
-          <option value="false">Disabled</option>
-          <option value="true">Enabled</option>
+          <option value="false">${this._t("Disabled")}</option>
+          <option value="true">${this._t("Enabled")}</option>
         </select>
       </div>
 
@@ -48,7 +48,7 @@ function renderCurveButtonMenu(items, selected, onSelect) {
           class="editor-segment-item ${selected === index ? "active" : ""}"
           @click=${() => onSelect(index)}
         >
-          Button ${index}
+          ${this._t("Button {index}", { index })}
         </button>
       `)}
     </div>

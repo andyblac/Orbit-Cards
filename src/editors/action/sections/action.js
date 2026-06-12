@@ -25,7 +25,7 @@ export function renderActionSection() {
                   : this._config?.actions_per_row,
               })}
           />
-          <span>Wrap</span>
+          <span>${this._t("Wrap")}</span>
         </label>
 
         ${items.length > 1
@@ -39,14 +39,14 @@ export function renderActionSection() {
                       separate_cards: e.target.checked,
                     })}
                 />
-                <span>Separate Cards</span>
+                <span>${this._t("Separate Cards")}</span>
               </label>
 
               <div class="action-editor-tools">
                 <button
                   type="button"
                   class="action-tool-button"
-                  title="Move left"
+                  title=${this._t("Move left")}
                   ?disabled=${selectedIndex === 0}
                   @click=${() => this._moveActionItem(selectedIndex, -1)}
                 >
@@ -56,7 +56,7 @@ export function renderActionSection() {
                 <button
                   type="button"
                   class="action-tool-button"
-                  title="Move right"
+                  title=${this._t("Move right")}
                   ?disabled=${selectedIndex === items.length - 1}
                   @click=${() => this._moveActionItem(selectedIndex, 1)}
                 >
@@ -66,7 +66,7 @@ export function renderActionSection() {
                 <button
                   type="button"
                   class="action-tool-button"
-                  title="Remove"
+                  title=${this._t("Remove")}
                   @click=${() => this._removeActionItem(selectedIndex)}
                 >
                   <ha-icon icon="mdi:trash-can"></ha-icon>
@@ -79,7 +79,7 @@ export function renderActionSection() {
       ${this._config?.wrap
         ? html`
             <div class="field">
-              <label>Actions Per Row</label>
+              <label>${this._t("Actions Per Row")}</label>
 
               <input
                 type="number"
@@ -119,7 +119,7 @@ export function renderActionSection() {
       </div>
 
       <div class="field">
-        <label>Main Entity</label>
+        <label>${this._t("Main Entity")}</label>
 
         <div class="action-domain-filters">
           ${ACTION_DOMAIN_FILTERS.map((filter) => html`
@@ -130,7 +130,7 @@ export function renderActionSection() {
                 this._actionEntityDomainFilter = filter.value;
               }}
             >
-              ${filter.label}
+              ${this._t(filter.label)}
             </button>
           `)}
         </div>

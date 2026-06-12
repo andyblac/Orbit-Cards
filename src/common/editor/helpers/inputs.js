@@ -1,5 +1,11 @@
 import { html } from "lit";
 
+function t(editor, key) {
+  return editor._t
+    ? editor._t(key)
+    : key;
+}
+
 /* ==========================================
  * COLLAPSE HELPERS
  * ========================================== */
@@ -7,7 +13,7 @@ import { html } from "lit";
 export function renderInput(label, key, placeholder) {
     return html`
       <div class="field">
-        <label>${label}</label>
+        <label>${t(this, label)}</label>
 
         <input
           .value=${this._config?.[key] || ""}
@@ -21,7 +27,7 @@ export function renderInput(label, key, placeholder) {
 export function renderTemplateInput(label, key) {
     return html`
       <div class="field">
-        <label>${label}</label>
+        <label>${t(this, label)}</label>
 
         <input
           .value=${this._config?.[key] || ""}

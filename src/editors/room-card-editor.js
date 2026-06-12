@@ -31,6 +31,7 @@ import { editorStyles } from "../common/editor/styles/editor-styles.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
 
 class OrbitRoomCardEditor extends LitElement {
@@ -76,6 +77,10 @@ class OrbitRoomCardEditor extends LitElement {
 
   _getColorPickerValue(value) {
     return getColorPickerValue(value);
+  }
+
+  _t(key, replacements) {
+    return localize(this.hass, key, replacements);
   }
 
   setConfig(config) {
@@ -242,7 +247,7 @@ class OrbitRoomCardEditor extends LitElement {
                 this._selectedStatusIndex = index;
               }}
             >
-              Status ${index}
+              ${this._t("Status {index}", { index })}
             </button>
           `)}
         </div>
@@ -288,7 +293,7 @@ class OrbitRoomCardEditor extends LitElement {
               this._activeSection = tab.key;
             }}
           >
-            ${tab.label}
+            ${this._t(tab.label)}
           </button>
         `)}
       </div>
@@ -309,7 +314,9 @@ class OrbitRoomCardEditor extends LitElement {
         ${this._renderEditorTabs()}
         ${this._renderActiveSection()}
         <div class="editor-version">
-          Orbit Room Card v${CARD_VERSIONS.room}
+          ${this._t("Orbit Room Card v{version}", {
+            version: CARD_VERSIONS.room,
+          })}
         </div>
       </div>
     `;

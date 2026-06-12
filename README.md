@@ -652,6 +652,18 @@ Each card includes a visual editor. The editor supports:
 
 Most card configuration can be completed without writing YAML. YAML remains useful for larger grouped cards, complex popup content, and templates.
 
+### Localisation
+
+Orbit Cards includes built-in translation support for editor labels, picker text, and default fallback card names. The active Home Assistant language is detected from `hass.locale.language`; missing strings fall back to English.
+
+Translations live in:
+
+```text
+src/translations/
+```
+
+Add a new language file such as `fr.json`, then register it in `src/common/localize.js`.
+
 ## Entity Suggestions
 
 Home Assistant 2026.6 and newer can suggest custom cards when a user chooses an entity from the card picker. Orbit Cards supports entity suggestions for all included cards.

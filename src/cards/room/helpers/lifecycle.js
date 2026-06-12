@@ -2,11 +2,14 @@ import {
   getColorMix,
   isCssColor,
 } from "../../../common/helpers/colors.js";
+import { localize } from "../../../common/localize.js";
 
 export function updateRoomCard(changedProps) {
   if (!changedProps.has("_config") && !changedProps.has("hass")) return;
 
-  this._cardName = this._getCardName("Room");
+  this._cardName = this._getCardName(
+    localize(this.hass, "Room")
+  );
 
   const mainEntity = this._config.main_entity || this._config.entity;
   const areaId = this._config.area;

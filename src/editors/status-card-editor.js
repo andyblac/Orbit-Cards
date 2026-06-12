@@ -30,6 +30,7 @@ import { statusEditorStyles } from "../common/editor/styles/status-editor.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
 
 class OrbitStatusCardEditor extends LitElement {
@@ -69,6 +70,10 @@ class OrbitStatusCardEditor extends LitElement {
 
   _getColorPickerValue(value) {
     return getColorPickerValue(value);
+  }
+
+  _t(key, replacements) {
+    return localize(this.hass, key, replacements);
   }
 
   setConfig(config) {
@@ -319,6 +324,8 @@ class OrbitStatusCardEditor extends LitElement {
     const item = items[index] || {};
     const scopedEditor = {
       _config: item,
+      _t: (key, replacements) =>
+        this._t(key, replacements),
       _updateConfig: (changes) =>
         this._updateStatusItem(index, changes),
     };
@@ -349,6 +356,8 @@ class OrbitStatusCardEditor extends LitElement {
     const scopedEditor = {
       _config: item,
       _iconPickerPrefix: `status-${index}-icon`,
+      _t: (translationKey, replacements) =>
+        this._t(translationKey, replacements),
       _isImageIcon: (icon) => this._isImageIcon(icon),
       _resolveIconPath: (path) => this._resolveIconPath(path),
       _getInlineSvg: (path) => this._getInlineSvg(path),
@@ -432,7 +441,9 @@ class OrbitStatusCardEditor extends LitElement {
       <div class="wrapper">
         ${this._renderStatusSection()}
         <div class="editor-version">
-          Orbit Status Card v${CARD_VERSIONS.status}
+          ${this._t("Orbit Status Card v{version}", {
+            version: CARD_VERSIONS.status,
+          })}
         </div>
       </div>
     `;

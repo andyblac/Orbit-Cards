@@ -19,7 +19,7 @@ export function renderStatusSection() {
   return html`
     <div class="section">
       <div class="field">
-        <label>Mode</label>
+        <label>${this._t("Mode")}</label>
 
         <select
           .value=${this._config?.mode || "standard"}
@@ -28,9 +28,9 @@ export function renderStatusSection() {
               mode: e.target.value,
             })}
         >
-          <option value="standard">Standard</option>
-          <option value="icon_only">Icon Only</option>
-          <option value="person">Person</option>
+          <option value="standard">${this._t("Standard")}</option>
+          <option value="icon_only">${this._t("Icon Only")}</option>
+          <option value="person">${this._t("Person")}</option>
         </select>
       </div>
     </div>
@@ -114,7 +114,7 @@ function renderIconOnlyStatusConfig({
                   : this._config?.items_per_row,
               })}
           />
-          <span>Wrap</span>
+          <span>${this._t("Wrap")}</span>
         </label>
 
         ${items.length > 1
@@ -128,14 +128,14 @@ function renderIconOnlyStatusConfig({
                       separate_cards: e.target.checked,
                     })}
                 />
-                <span>Separate Cards</span>
+                <span>${this._t("Separate Cards")}</span>
               </label>
 
               <div class="status-editor-tools">
                 <button
                   type="button"
                   class="status-tool-button"
-                  title="Move left"
+                  title=${this._t("Move left")}
                   ?disabled=${selectedIndex === 0}
                   @click=${() => this._moveStatusItem(selectedIndex, -1)}
                 >
@@ -145,7 +145,7 @@ function renderIconOnlyStatusConfig({
                 <button
                   type="button"
                   class="status-tool-button"
-                  title="Move right"
+                  title=${this._t("Move right")}
                   ?disabled=${selectedIndex === items.length - 1}
                   @click=${() => this._moveStatusItem(selectedIndex, 1)}
                 >
@@ -155,7 +155,7 @@ function renderIconOnlyStatusConfig({
                 <button
                   type="button"
                   class="status-tool-button"
-                  title="Remove"
+                  title=${this._t("Remove")}
                   @click=${() => this._removeStatusItem(selectedIndex)}
                 >
                   <ha-icon icon="mdi:trash-can"></ha-icon>
@@ -168,7 +168,7 @@ function renderIconOnlyStatusConfig({
       ${this._config?.wrap
         ? html`
             <div class="field">
-              <label>Items Per Row</label>
+              <label>${this._t("Items Per Row")}</label>
 
               <input
                 type="number"
@@ -208,7 +208,7 @@ function renderIconOnlyStatusConfig({
       </div>
 
       <div class="field">
-        <label>Main Entity</label>
+        <label>${this._t("Main Entity")}</label>
 
         <div class="entity-row">
           <ha-selector
@@ -314,7 +314,7 @@ function renderIconOnlyStatusConfig({
 function renderStatusItemInput(label, key, index, item) {
   return html`
     <div class="field">
-      <label>${label}</label>
+      <label>${this._t(label)}</label>
       <input
         .value=${item[key] || ""}
         @input=${(e) =>

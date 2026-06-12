@@ -31,7 +31,7 @@ function renderButtonMenu(items, selected, onSelect) {
           class="editor-segment-item ${selected === index ? "active" : ""}"
           @click=${() => onSelect(index)}
         >
-          Button ${index}
+          ${this._t("Button {index}", { index })}
         </button>
       `)}
     </div>
