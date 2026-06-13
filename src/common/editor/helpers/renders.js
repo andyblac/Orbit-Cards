@@ -62,7 +62,13 @@ export function renderColor(label, key) {
   );
 }
 
-export function renderColorControl(label, pickerKey, value, onUpdate) {
+export function renderColorControl(
+  label,
+  pickerKey,
+  value,
+  onUpdate,
+  previewValue = value
+) {
   const isOpen = this._colorPickerKey === pickerKey;
   const activeTab = this._colorPickerTab || "picker";
   const defaultTab = getDefaultColorTab(value);
@@ -81,7 +87,7 @@ export function renderColorControl(label, pickerKey, value, onUpdate) {
 
         <div
           class="color-preview"
-          style=${this._getColorStyle(value)}
+          style=${this._getColorStyle(previewValue)}
           title=${t(this, "Choose colour")}
           @click=${(e) => {
             e.preventDefault();
@@ -111,7 +117,7 @@ export function renderColorControl(label, pickerKey, value, onUpdate) {
                     <input
                       class="tab-color-picker"
                       type="color"
-                      .value=${this._getColorPickerValue(value)}
+                      .value=${this._getColorPickerValue(previewValue)}
                       @input=${(e) => onUpdate(e.target.value)}
                       @change=${(e) => onUpdate(e.target.value)}
                     />
@@ -155,7 +161,7 @@ export function renderColorControl(label, pickerKey, value, onUpdate) {
                       <input
                         class="native-color-picker"
                         type="color"
-                        .value=${this._getColorPickerValue(value)}
+                        .value=${this._getColorPickerValue(previewValue)}
                         @input=${(e) => onUpdate(e.target.value)}
                         @change=${(e) => onUpdate(e.target.value)}
                       />

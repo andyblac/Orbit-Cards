@@ -2,6 +2,7 @@ import {
   getColorMix,
   isCssColor,
 } from "../../../common/helpers/colors.js";
+import { getDefaultEntityAction } from "../../../common/helpers/default-actions.js";
 import { localize } from "../../../common/localize.js";
 
 export function updateRoomCard(changedProps) {
@@ -80,6 +81,7 @@ export function updateRoomCard(changedProps) {
 
   this._buttonModels = getButtonModels.call(this);
   this._curveButtonModels = getCurveButtonModels.call(this);
+  this._actionButtonModel = getActionButtonModel.call(this);
 }
 
 function getStatusItems() {
@@ -208,12 +210,32 @@ function getCurveButtonModels() {
     .filter(Boolean);
 }
 
+function getActionButtonModel() {
+  const entityId = this._config.action_button;
+
+  if (!entityId) return null;
+
+  return getRoomButtonModel.call(
+    this,
+    "action_button",
+    entityId,
+    0,
+    {
+      key: "action_button",
+      defaultAction: getDefaultEntityAction(entityId),
+      defaultHoldAction: null,
+      getIconColor: getActionButtonIconColor,
+      getBackgroundColor: null,
+    }
+  );
+}
+
 function getRoomButtonModel(prefix, entityId, index, options) {
   const stateObj = this.hass?.states[entityId];
 
   if (!stateObj) return null;
 
-  const key = `${prefix}${index + 1}`;
+  const key = options.key || `${prefix}${index + 1}`;
   const stateTemplate = this._config?.[`${key}_state_template`];
   const evaluatedState = this._evaluateStateTemplate(
     stateTemplate,
@@ -369,4 +391,18 @@ function getCurveButtonIconColor(_key, _stateObj, isOn) {
   return isOn
     ? this._computeFullColor(roomColor)
     : getColorMix(roomColor, 40);
+}
+
+function getActionButtonIconColor(key, stateObj, isOn) {
+  const customColor = isOn
+    ? this._config[`${key}_on_color`]
+    : this._config[`${key}_off_color`];
+
+  const hasCustomColor =
+    Boolean(customColor) &&
+    customColor !== "theme";
+
+  return hasCustomColor
+    ? getButtonIconColor.call(this, key, stateObj, isOn)
+    : getCurveButtonIconColor.call(this, key, stateObj, isOn);
 }

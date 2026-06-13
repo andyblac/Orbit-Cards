@@ -66,19 +66,23 @@ export const actionEditorStyles = css`
 .action-domain-filters {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   margin: 0 0 10px;
 }
 
 .action-domain-filters button {
+  flex: 1 1 auto;
+  min-width: fit-content;
   min-height: 32px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 7px;
-  padding: 0 12px;
+  padding: 0 8px;
   background: rgba(255, 255, 255, 0.04);
   color: inherit;
   font: inherit;
   font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
 }
 
@@ -86,10 +90,12 @@ export const actionEditorStyles = css`
   border-color: var(--primary-color);
   background: color-mix(
     in srgb,
-    var(--primary-color) 18%,
+    var(--primary-color) 28%,
     transparent
   );
-  color: var(--primary-color);
+  color: var(--primary-color) !important;
+  box-shadow: inset 0 0 0 1px var(--primary-color);
+  font-weight: 700;
 }
 
 .action-tool-button {

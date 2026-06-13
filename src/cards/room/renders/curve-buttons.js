@@ -9,6 +9,7 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 export function renderCurveButtons() {
     const curveButtons = this._curveButtonModels || [];
+    const actionButton = this._actionButtonModel;
 
     return html`
       <div class="curve-buttons">
@@ -60,6 +61,47 @@ export function renderCurveButtons() {
         }
       )}
 
+      ${actionButton
+        ? renderActionButton.call(this, actionButton)
+        : ""}
+
       </div>
     `;
   }
+
+function renderActionButton(button) {
+  return html`
+    <button
+      class="curve-button action-button"
+        @click=${this._handleCurveButtonClick}
+        @pointerdown=${this._handleButtonPointerDown}
+
+        @pointerup=${this._finishLongPress}
+        @pointerleave=${this._cancelLongPress}
+        @pointercancel=${this._cancelLongPress}
+
+        .dataEntity=${button.entityId}
+        .dataAction=${button.tapAction}
+        .dataHoldAction=${button.holdAction}
+    >
+      ${button.isImage
+        ? html`
+            <div
+              class="curve-image-icon"
+              style="color:${button.iconColor};"
+            >
+              ${unsafeHTML(this._getInlineSvg(
+                button.iconPath,
+                button.svgForceColor
+              ))}
+            </div>
+          `
+        : html`
+            <ha-icon
+              .icon=${button.icon}
+              style="color:${button.iconColor};"
+            ></ha-icon>
+          `}
+    </button>
+  `;
+}

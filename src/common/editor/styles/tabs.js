@@ -69,4 +69,13 @@ export const editorTabStyles = css`
   margin-bottom: 0;
   padding-bottom: 0;
 }
+
+.sub-section-title {
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  opacity: 0.62;
+}
 `;

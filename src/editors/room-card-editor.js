@@ -26,8 +26,12 @@ import {
 
 import { renderRoomSection } from "./room/sections/room.js";
 import { renderButtonsSection } from "./room/sections/buttons.js";
-import { renderCurvedButtonsSection } from "./room/sections/curve-buttons.js";
+import {
+  renderActionButtonSection,
+  renderCurvedButtonsSection,
+} from "./room/sections/curve-buttons.js";
 import { editorStyles } from "../common/editor/styles/editor-styles.js";
+import { actionEditorStyles } from "../common/editor/styles/action-editor.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
@@ -123,6 +127,11 @@ class OrbitRoomCardEditor extends LitElement {
       return;
     }
 
+    if (key === "action_button") {
+      this._clearActionButtonEntity(key);
+      return;
+    }
+
     if (/^status[1-3]$/.test(key)) {
       this._clearStatusEntity(key);
       return;
@@ -160,6 +169,13 @@ class OrbitRoomCardEditor extends LitElement {
     ));
   }
 
+  _clearActionButtonEntity(key) {
+    this._updateConfig(clearPrefixedEntityConfig(
+      key,
+      ACTION_BUTTON_ENTITY_DEPENDENT_SUFFIXES
+    ));
+  }
+
   _renderInput(label, key, placeholder = "") {
     return renderInput.call(this, label, key, placeholder);
   }
@@ -176,13 +192,14 @@ class OrbitRoomCardEditor extends LitElement {
     return renderColor.call(this, label, key);
   }
 
-  _renderColorControl(label, pickerKey, value, onUpdate) {
+  _renderColorControl(label, pickerKey, value, onUpdate, previewValue = value) {
     return renderColorControl.call(
       this,
       label,
       pickerKey,
       value,
-      onUpdate
+      onUpdate,
+      previewValue
     );
   }
 
@@ -282,6 +299,10 @@ class OrbitRoomCardEditor extends LitElement {
     return renderCurvedButtonsSection.call(this);
   }
 
+  _renderActionButtonSection() {
+    return renderActionButtonSection.call(this);
+  }
+
   _renderEditorTabs() {
     return html`
       <div class="editor-tabs">
@@ -322,7 +343,10 @@ class OrbitRoomCardEditor extends LitElement {
     `;
   }
 
-  static styles = editorStyles;
+  static styles = [
+    editorStyles,
+    actionEditorStyles,
+  ];
 }
 
 const ROOM_EDITOR_TABS = [
@@ -345,6 +369,11 @@ const ROOM_EDITOR_TABS = [
     key: "curve",
     label: "Curve Buttons",
     render: "_renderCurvedButtonsSection",
+  },
+  {
+    key: "action",
+    label: "Action Button",
+    render: "_renderActionButtonSection",
   },
 ];
 
@@ -378,6 +407,15 @@ const BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
 ];
 
 const CURVE_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
+  "_icon",
+  "_icon_on",
+  "_icon_off",
+  "_state_template",
+  "_tap_action",
+  "_hold_action",
+];
+
+const ACTION_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
   "_icon",
   "_icon_on",
   "_icon_off",
@@ -435,6 +473,16 @@ const ROOM_CONFIG_ORDER = [
     `curve_button${index}_tap_action`,
     `curve_button${index}_hold_action`,
   ]),
+  "action_button",
+  "action_button_icon",
+  "action_button_icon_on",
+  "action_button_icon_off",
+  "action_button_icon_svg_color_override",
+  "action_button_icon_on_svg_color_override",
+  "action_button_icon_off_svg_color_override",
+  "action_button_state_template",
+  "action_button_tap_action",
+  "action_button_hold_action",
   "grid_options",
   "view_layout",
 ];

@@ -30,4 +30,10 @@ export const CurveButtonPositionStyles = css`
     bottom: 16%;
     right: 7%;
   }
+
+  .curve-button.action-button {
+    top: -12%;
+    right: 0%;
+    width: 27%;
+  }
 `;

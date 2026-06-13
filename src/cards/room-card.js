@@ -279,6 +279,7 @@ class OrbitRoomCard extends LitElement {
       this._config?.curve_button4,
       this._config?.curve_button5,
       this._config?.curve_button6,
+      this._config?.action_button,
     ];
   }
 

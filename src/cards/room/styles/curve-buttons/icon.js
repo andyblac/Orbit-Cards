@@ -23,4 +23,10 @@ export const CurveButtonIconStyles = css`
     width: 100%;
     height: 100%;
   }
+
+  .curve-button.action-button ha-icon,
+  .curve-button.action-button .curve-image-icon {
+    width: clamp(30px, 16cqw, 96px);
+    height: clamp(30px, 16cqw, 96px);
+  }
 `;

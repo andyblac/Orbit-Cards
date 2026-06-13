@@ -28,7 +28,7 @@ Orbit Cards currently includes:
 ## Features
 
 - Built-in visual editors for all cards.
-- Tabbed editor sections with grouped controls for room/card settings, status fields, buttons, and curved buttons.
+- Tabbed editor sections with grouped controls for room/card settings, status fields, buttons, curved buttons, and action buttons.
 - Shared colour handling across cards.
 - Named colours, theme colours, hex colours, `rgb()`, `hsl()`, and light colour support where supported.
 - Colour preview swatches with a native colour picker and selectable theme colour previews.
@@ -364,6 +364,9 @@ curve_button2_tap_action:
   service: script.turn_on
   service_data:
     entity_id: script.good_night
+
+action_button: script.room_shortcut
+action_button_icon: mdi:dots-horizontal-circle
 ```
 
 ### Room Card Options
@@ -394,17 +397,27 @@ curve_button2_tap_action:
 | `buttonX_on_color`                                                                                                               | ON colour for side button `X`. Supports shared colour formats and `light`.                                                                                              |
 | `buttonX_off_color`                                                                                                              | OFF colour for side button `X`.                                                                                                                                         |
 | `buttonX_tap_action`                                                                                                             | Tap action for side button `X`. Defaults to `toggle`.                                                                                                                   |
-| `buttonX_hold_action`                                                                                                            | Hold action for side button `X`. Defaults to `none`.                                                                                                                    |
+| `buttonX_hold_action`                                                                                                            | Hold action for side button `X`. Defaults to `more-info`.                                                                                                               |
 | `buttonX_state_template`                                                                                                         | Template used to decide whether side button `X` is active.                                                                                                              |
 | `curve_button1` to `curve_button6`                                                                                               | Optional curved button entities shown around the main icon.                                                                                                             |
 | `curve_buttonX_icon`                                                                                                             | Icon override for curve button `X`.                                                                                                                                     |
 | `curve_buttonX_icon_on`                                                                                                          | Icon override when curve button `X` is ON or active.                                                                                                                    |
 | `curve_buttonX_icon_off`                                                                                                         | Icon override when curve button `X` is OFF or inactive.                                                                                                                 |
 | `curve_buttonX_icon_svg_color_override`, `curve_buttonX_icon_on_svg_color_override`, `curve_buttonX_icon_off_svg_color_override` | Advanced YAML-only SVG colour controls for curve button icons. Defaults to `true`. Set the matching key to `false` to preserve the SVG's own colours.                   |
-| `curve_buttonX_tap_action`                                                                                                       | Tap action for curve button `X`. Defaults to `toggle`.                                                                                                                  |
+| `curve_buttonX_tap_action`                                                                                                       | Tap action for curve button `X`. Defaults to `more-info`.                                                                                                               |
 | `curve_buttonX_hold_action`                                                                                                      | Hold action for curve button `X`. Defaults to `none`.                                                                                                                   |
 | `curve_buttonX_state_template`                                                                                                   | Template used to decide whether curve button `X` is active.                                                                                                             |
 | `curve_buttons_lock_position`                                                                                                    | Locks curved button positions so they do not compress or reflow.                                                                                                        |
+| `action_button`                                                                                                                   | Optional standalone action button shown near the upper-right edge of the main circle. It uses curved-button style icon/state controls, but has no button background.      |
+| `action_button_icon`, `action_button_icon_on`, `action_button_icon_off`                                                          | Icon overrides for the standalone action button.                                                                                                                        |
+| `action_button_icon_svg_color_override`, `action_button_icon_on_svg_color_override`, `action_button_icon_off_svg_color_override` | Advanced YAML-only SVG colour controls for the standalone action button. Defaults to `true`.                                                                            |
+| `action_button_on_color`                                                                                                          | Optional ON icon colour override for the standalone action button. If unset, the card `accent_color` is used.                                                           |
+| `action_button_off_color`                                                                                                         | Optional OFF icon colour override for the standalone action button. If unset, the card `accent_color` is used.                                                          |
+| `action_button_tap_action`                                                                                                        | Tap action for the standalone action button. Defaults from the selected entity domain, for example `scene.turn_on`, `script.turn_on`, `automation.trigger`, `button.press`, `input_button.press`, `toggle`, or `more-info` for passive entities. |
+| `action_button_hold_action`                                                                                                       | Hold action for the standalone action button. Defaults to `none`.                                                                                                       |
+| `action_button_state_template`                                                                                                    | Template used to decide whether the standalone action button is active.                                                                                                 |
+
+The Room Card editor includes quick entity filters for the Action Button picker: `All`, `Automations`, `Buttons`, `Cameras`, `Scenes`, and `Scripts`. `All` keeps the picker unrestricted.
 
 ## Status Card
 
