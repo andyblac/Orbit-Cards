@@ -311,9 +311,9 @@ window.customCards.push({
 });
 
 console.info(
-  `%c ORBIT-ROOM-CARD %c Version ${CARD_VERSIONS.room}`,
-  "color: orange; font-weight: bold; background: black;",
-  "color: white; font-weight: bold; background: dimgray;"
+  `%c Orbit Room Card %c v${CARD_VERSIONS.room} `,
+  "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;",
+  "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;"
 );
 
 const ROOM_SUGGESTION_DOMAINS = new Set([

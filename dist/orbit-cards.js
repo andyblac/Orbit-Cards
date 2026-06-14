@@ -4686,7 +4686,7 @@ select {
 		preview: !0,
 		version: Z.room,
 		getEntitySuggestion: n
-	}), console.info(`%c ORBIT-ROOM-CARD %c Version ${Z.room}`, "color: orange; font-weight: bold; background: black;", "color: white; font-weight: bold; background: dimgray;");
+	}), console.info(`%c Orbit Room Card %c v${Z.room} `, "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;", "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;");
 	var t = new Set([
 		"light",
 		"fan",
@@ -6243,7 +6243,7 @@ var Wl = e((() => {
 		preview: !0,
 		version: Z.status,
 		getEntitySuggestion: a
-	}), console.info(`%c ORBIT-STATUS-CARD %c Version ${Z.status}`, "color: orange; font-weight: bold; background: black;", "color: white; font-weight: bold; background: dimgray;");
+	}), console.info(`%c Orbit Status Card %c v${Z.status} `, "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;", "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;");
 	var i = new Set([
 		"automation",
 		"button",
@@ -7055,7 +7055,7 @@ var cu, lu = e((() => {
 		preview: !0,
 		version: Z.action,
 		getEntitySuggestion: i
-	}), console.info(`%c ORBIT-ACTION-CARD %c Version ${Z.action}`, "color: orange; font-weight: bold; background: black;", "color: white; font-weight: bold; background: dimgray;");
+	}), console.info(`%c Orbit Action Card %c v${Z.action} `, "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;", "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;");
 	var r = new Set([
 		"automation",
 		"button",

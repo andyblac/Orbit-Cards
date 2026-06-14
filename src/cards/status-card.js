@@ -750,9 +750,9 @@ window.customCards.push({
 });
 
 console.info(
-  `%c ORBIT-STATUS-CARD %c Version ${CARD_VERSIONS.status}`,
-  "color: orange; font-weight: bold; background: black;",
-  "color: white; font-weight: bold; background: dimgray;"
+  `%c Orbit Status Card %c v${CARD_VERSIONS.status} `,
+  "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;",
+  "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;"
 );
 
 const STATUS_EXCLUDED_DOMAINS = new Set([
