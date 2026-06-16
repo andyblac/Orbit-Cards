@@ -11,7 +11,8 @@ export const StatusCardLayoutStyles = css`
   }
 
   ha-card.mode-icon_only.grouped {
-    aspect-ratio: calc(var(--status-columns, 1) * 0.93) / var(--status-rows, 1);
+    aspect-ratio: auto;
+    container-type: inline-size;
   }
 
   ha-card.mode-icon_only.grouped.separate-cards {

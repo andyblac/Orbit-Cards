@@ -4166,8 +4166,8 @@ select {
 })), Z, Q = e((() => {
 	Z = {
 		room: "0.7.0",
-		status: "0.12.1",
-		action: "0.5.1"
+		status: "0.12.2",
+		action: "0.5.2"
 	};
 })), cl = /* @__PURE__ */ t((() => {
 	N(), wc(), Ec(), Ac(), zc(), al(), sl(), z(), V(), Q();
@@ -5069,7 +5069,8 @@ var Fl = e((() => {
   }
 
   ha-card.mode-icon_only.grouped {
-    aspect-ratio: calc(var(--status-columns, 1) * 0.93) / var(--status-rows, 1);
+    aspect-ratio: auto;
+    container-type: inline-size;
   }
 
   ha-card.mode-icon_only.grouped.separate-cards {
@@ -6387,7 +6388,8 @@ var nu = e((() => {
     }
 
     ha-card.grouped {
-      aspect-ratio: calc(var(--action-columns, var(--action-count, 1)) * 0.93) / var(--action-rows, 1);
+      aspect-ratio: auto;
+      container-type: inline-size;
     }
 
     ha-card.grouped.separate-cards {

@@ -13,7 +13,8 @@ export const actionCardStyles = [
     }
 
     ha-card.grouped {
-      aspect-ratio: calc(var(--action-columns, var(--action-count, 1)) * 0.93) / var(--action-rows, 1);
+      aspect-ratio: auto;
+      container-type: inline-size;
     }
 
     ha-card.grouped.separate-cards {
