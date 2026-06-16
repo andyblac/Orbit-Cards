@@ -4166,8 +4166,8 @@ select {
 })), Z, Q = e((() => {
 	Z = {
 		room: "0.7.0",
-		status: "0.12.0",
-		action: "0.5.0"
+		status: "0.12.1",
+		action: "0.5.1"
 	};
 })), cl = /* @__PURE__ */ t((() => {
 	N(), wc(), Ec(), Ac(), zc(), al(), sl(), z(), V(), Q();
@@ -5069,7 +5069,7 @@ var Fl = e((() => {
   }
 
   ha-card.mode-icon_only.grouped {
-    aspect-ratio: calc(var(--status-columns, 1) * 0.975) / var(--status-rows, 1);
+    aspect-ratio: calc(var(--status-columns, 1) * 0.93) / var(--status-rows, 1);
   }
 
   ha-card.mode-icon_only.grouped.separate-cards {
@@ -5149,9 +5149,15 @@ var Fl = e((() => {
     display: grid;
     grid-template-columns: repeat(var(--status-columns, 1), minmax(0, 1fr));
     grid-auto-rows: minmax(0, 1fr);
+    align-content: start;
     gap: clamp(4px, 2cqw, 10px);
     width: 100%;
     height: 100%;
+  }
+
+  .status-container.mode-icon_only.grouped .status-icon-grid {
+    grid-auto-rows: auto;
+    height: auto;
   }
 
   ha-card.mode-icon_only.grouped.separate-cards .status-icon-grid {
@@ -5167,6 +5173,10 @@ var Fl = e((() => {
     position: relative;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  .status-container.mode-icon_only.grouped .status-icon-item {
+    aspect-ratio: 0.93 / 1;
   }
 
   .status-icon-item .status-circle {
@@ -5941,7 +5951,8 @@ var Wl = e((() => {
 				let e = xl(this._config).length, t = n(this._config, e);
 				return {
 					grid_columns: Math.max(1, t),
-					grid_min_columns: .5
+					grid_min_columns: .5,
+					grid_rows: "auto"
 				};
 			}
 			return {
@@ -6376,7 +6387,7 @@ var nu = e((() => {
     }
 
     ha-card.grouped {
-      aspect-ratio: calc(var(--action-columns, var(--action-count, 1)) * 0.975) / var(--action-rows, 1);
+      aspect-ratio: calc(var(--action-columns, var(--action-count, 1)) * 0.93) / var(--action-rows, 1);
     }
 
     ha-card.grouped.separate-cards {
@@ -6397,6 +6408,12 @@ var nu = e((() => {
       gap: clamp(3px, 1cqw, 6px);
     }
 
+    ha-card.grouped .action-container {
+      align-content: start;
+      grid-auto-rows: auto;
+      height: auto;
+    }
+
     .action-button {
       background: var(--ha-card-background, var(--card-background-color));
       border-radius: 15px;
@@ -6408,6 +6425,11 @@ var nu = e((() => {
       justify-content: center;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
+    }
+
+    ha-card.grouped .action-button {
+      aspect-ratio: 0.93 / 1;
+      height: auto;
     }
 
     .action-circle {
@@ -6931,7 +6953,8 @@ var cu, lu = e((() => {
 			let e = Xl(this._config).length, n = t(this._config, e);
 			return {
 				grid_columns: Math.max(1, n * 1),
-				grid_min_columns: .5
+				grid_min_columns: .5,
+				grid_rows: "auto"
 			};
 		}
 		setConfig(e) {

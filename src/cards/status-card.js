@@ -100,6 +100,7 @@ class OrbitStatusCard extends LitElement {
       return {
         grid_columns: Math.max(1, columns),
         grid_min_columns: 0.5,
+        grid_rows: "auto",
       };
     }
 
