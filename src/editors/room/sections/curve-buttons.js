@@ -6,23 +6,16 @@ export function renderCurvedButtonsSection() {
 
   return html`
     <div class="section">
-      <div class="field">
-        <label>${this._t("Lock Curve Button Positions")}</label>
-
-        <select
-          .value=${this._config?.curve_buttons_lock_position
-            ? "true"
-            : "false"}
+      <label class="editor-toggle-row">
+        <span>${this._t("Lock Curve Button Positions")}</span>
+        <ha-switch
+          .checked=${Boolean(this._config?.curve_buttons_lock_position)}
           @change=${(e) =>
             this._updateConfig({
-              curve_buttons_lock_position:
-                e.target.value === "true",
+              curve_buttons_lock_position: e.target.checked,
             })}
-        >
-          <option value="false">${this._t("Disabled")}</option>
-          <option value="true">${this._t("Enabled")}</option>
-        </select>
-      </div>
+        ></ha-switch>
+      </label>
 
       <div class="curve-divider"></div>
 

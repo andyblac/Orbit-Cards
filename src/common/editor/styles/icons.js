@@ -15,10 +15,10 @@ export const iconStyles = css`
 .color-preview {
   position: relative;
   flex: none;
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--orbit-editor-border);
   cursor: pointer;
   overflow: hidden;
 }
@@ -31,9 +31,9 @@ export const iconStyles = css`
   width: min(280px, 100%);
   padding: 10px;
   border-radius: 12px;
-  background: var(--card-background-color);
+  background: var(--orbit-editor-popover);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--orbit-editor-border);
 }
 
 .color-tabs {
@@ -47,7 +47,7 @@ export const iconStyles = css`
 .theme-color-option {
   border: 0;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--orbit-editor-control);
   color: inherit;
   cursor: pointer;
 }
@@ -60,8 +60,8 @@ export const iconStyles = css`
 }
 
 .color-tabs button.active {
-  background: rgba(130, 177, 255, 0.22);
-  color: #82b1ff;
+  background: var(--orbit-editor-active);
+  color: var(--primary-color);
 }
 
 .native-color-picker {
@@ -113,7 +113,7 @@ export const iconStyles = css`
   width: 18px;
   height: 18px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--orbit-editor-border);
 }
 
 .icon-input-row {
@@ -128,11 +128,12 @@ export const iconStyles = css`
 }
 
 .icon-preview {
-  width: 42px;
-  height: 42px;
-  min-width: 42px;
-  border-radius: 10px;
-  background: #000;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 8px;
+  background: var(--orbit-editor-control);
+  border: 1px solid var(--orbit-editor-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -161,9 +162,9 @@ export const iconStyles = css`
 }
 
 .icon-preview .preview-svg {
-  color: white;
+  color: currentColor;
   display: flex;
-  background: #000;
+  background: transparent;
 }
 
 .icon-preview .preview-svg svg {
@@ -183,9 +184,9 @@ export const iconStyles = css`
   width: min(360px, 100%);
   padding: 10px;
   border-radius: 12px;
-  background: var(--card-background-color);
+  background: var(--orbit-editor-popover);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--orbit-editor-border);
 }
 
 .icon-tabs {
@@ -199,15 +200,15 @@ export const iconStyles = css`
   border: 0;
   border-radius: 9px;
   padding: 7px 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--orbit-editor-control);
   color: inherit;
   cursor: pointer;
   font-size: 12px;
 }
 
 .icon-tabs button.active {
-  background: rgba(130, 177, 255, 0.22);
-  color: #82b1ff;
+  background: var(--orbit-editor-active);
+  color: var(--primary-color);
 }
 
 .file-icon-grid {
@@ -241,14 +242,14 @@ export const iconStyles = css`
   padding: 7px;
   border: 0;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--orbit-editor-control);
   color: inherit;
   cursor: pointer;
   text-align: left;
 }
 
 .file-icon-option.active {
-  background: rgba(130, 177, 255, 0.22);
+  background: var(--orbit-editor-active);
 }
 
 .file-icon-preview {
@@ -278,7 +279,7 @@ export const iconStyles = css`
 .icon-picker-note {
   padding: 10px;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--orbit-editor-control);
   font-size: 12px;
   line-height: 1.4;
   opacity: 0.76;

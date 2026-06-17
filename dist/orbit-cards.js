@@ -3245,17 +3245,13 @@ function jc() {
 	let e = this._selectedCurveButtonIndex || 1;
 	return T`
     <div class="section">
-      <div class="field">
-        <label>${this._t("Lock Curve Button Positions")}</label>
-
-        <select
-          .value=${this._config?.curve_buttons_lock_position ? "true" : "false"}
-          @change=${(e) => this._updateConfig({ curve_buttons_lock_position: e.target.value === "true" })}
-        >
-          <option value="false">${this._t("Disabled")}</option>
-          <option value="true">${this._t("Enabled")}</option>
-        </select>
-      </div>
+      <label class="editor-toggle-row">
+        <span>${this._t("Lock Curve Button Positions")}</span>
+        <ha-switch
+          .checked=${!!this._config?.curve_buttons_lock_position}
+          @change=${(e) => this._updateConfig({ curve_buttons_lock_position: e.target.checked })}
+        ></ha-switch>
+      </label>
 
       <div class="curve-divider"></div>
 
@@ -3421,6 +3417,37 @@ var Rc, zc = e((() => {
 	N(), Bc = c`
 :host {
   display: block;
+
+  --orbit-editor-surface: color-mix(
+    in srgb,
+    var(--primary-text-color, #fff) 5%,
+    transparent
+  );
+  --orbit-editor-control: color-mix(
+    in srgb,
+    var(--primary-text-color, #fff) 4%,
+    transparent
+  );
+  --orbit-editor-control-hover: color-mix(
+    in srgb,
+    var(--primary-text-color, #fff) 8%,
+    transparent
+  );
+  --orbit-editor-border: color-mix(
+    in srgb,
+    var(--primary-text-color, #fff) 13%,
+    transparent
+  );
+  --orbit-editor-popover: color-mix(
+    in srgb,
+    var(--card-background-color, var(--secondary-background-color)) 94%,
+    var(--primary-text-color, #fff) 6%
+  );
+  --orbit-editor-active: color-mix(
+    in srgb,
+    var(--primary-color) 20%,
+    transparent
+  );
 }
 
 .wrapper {
@@ -3441,7 +3468,8 @@ var Rc, zc = e((() => {
 
   border-radius: 14px;
 
-  background: var(--secondary-background-color);
+  background: var(--orbit-editor-surface);
+  border: 1px solid var(--orbit-editor-border);
 }
 
 .sub-section {
@@ -3452,7 +3480,7 @@ var Rc, zc = e((() => {
   padding-bottom: 12px;
   margin-bottom: 12px;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--orbit-editor-border);
 }
 
 .sub-section:last-child {
@@ -3466,7 +3494,7 @@ var Rc, zc = e((() => {
 
   margin: 4px 0 6px 0;
 
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--orbit-editor-border);
 }
 `;
 })), Wc, Gc = e((() => {
@@ -3535,16 +3563,30 @@ label {
   opacity: 0.7;
 }
 
+.editor-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.editor-toggle-row span {
+  opacity: 0.78;
+}
+
 input,
 select {
   width: 100%;
 
   padding: 10px 12px;
 
-  border: none;
+  border: 1px solid var(--orbit-editor-border);
   border-radius: 10px;
 
-  background: var(--card-background-color);
+  background: var(--orbit-editor-control);
   color: inherit;
 
   outline: none;
@@ -3554,7 +3596,8 @@ select {
 .editor-note {
   padding: 10px 12px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--orbit-editor-control);
+  border: 1px solid var(--orbit-editor-border);
   color: inherit;
   font-size: 12px;
   line-height: 1.4;
@@ -3606,10 +3649,10 @@ select {
   min-width: 42px;
   height: auto;
 
-  border: none;
+  border: 1px solid var(--orbit-editor-border);
   border-radius: 10px;
 
-  background: var(--card-background-color);
+  background: var(--orbit-editor-control);
   color: inherit;
 
   cursor: pointer;
@@ -3625,7 +3668,7 @@ select {
 }
 
 .clear-button:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--orbit-editor-control-hover);
 }
 `;
 })), Xc, Zc = e((() => {
@@ -3644,10 +3687,10 @@ select {
 .color-preview {
   position: relative;
   flex: none;
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--orbit-editor-border);
   cursor: pointer;
   overflow: hidden;
 }
@@ -3660,9 +3703,9 @@ select {
   width: min(280px, 100%);
   padding: 10px;
   border-radius: 12px;
-  background: var(--card-background-color);
+  background: var(--orbit-editor-popover);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--orbit-editor-border);
 }
 
 .color-tabs {
@@ -3676,7 +3719,7 @@ select {
 .theme-color-option {
   border: 0;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--orbit-editor-control);
   color: inherit;
   cursor: pointer;
 }
@@ -3689,8 +3732,8 @@ select {
 }
 
 .color-tabs button.active {
-  background: rgba(130, 177, 255, 0.22);
-  color: #82b1ff;
+  background: var(--orbit-editor-active);
+  color: var(--primary-color);
 }
 
 .native-color-picker {
@@ -3742,7 +3785,7 @@ select {
   width: 18px;
   height: 18px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--orbit-editor-border);
 }
 
 .icon-input-row {
@@ -3757,11 +3800,12 @@ select {
 }
 
 .icon-preview {
-  width: 42px;
-  height: 42px;
-  min-width: 42px;
-  border-radius: 10px;
-  background: #000;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 8px;
+  background: var(--orbit-editor-control);
+  border: 1px solid var(--orbit-editor-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3790,9 +3834,9 @@ select {
 }
 
 .icon-preview .preview-svg {
-  color: white;
+  color: currentColor;
   display: flex;
-  background: #000;
+  background: transparent;
 }
 
 .icon-preview .preview-svg svg {
@@ -3812,9 +3856,9 @@ select {
   width: min(360px, 100%);
   padding: 10px;
   border-radius: 12px;
-  background: var(--card-background-color);
+  background: var(--orbit-editor-popover);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--orbit-editor-border);
 }
 
 .icon-tabs {
@@ -3828,15 +3872,15 @@ select {
   border: 0;
   border-radius: 9px;
   padding: 7px 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--orbit-editor-control);
   color: inherit;
   cursor: pointer;
   font-size: 12px;
 }
 
 .icon-tabs button.active {
-  background: rgba(130, 177, 255, 0.22);
-  color: #82b1ff;
+  background: var(--orbit-editor-active);
+  color: var(--primary-color);
 }
 
 .file-icon-grid {
@@ -3870,14 +3914,14 @@ select {
   padding: 7px;
   border: 0;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--orbit-editor-control);
   color: inherit;
   cursor: pointer;
   text-align: left;
 }
 
 .file-icon-option.active {
-  background: rgba(130, 177, 255, 0.22);
+  background: var(--orbit-editor-active);
 }
 
 .file-icon-preview {
@@ -3907,7 +3951,7 @@ select {
 .icon-picker-note {
   padding: 10px;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--orbit-editor-control);
   font-size: 12px;
   line-height: 1.4;
   opacity: 0.76;
@@ -3956,7 +4000,7 @@ select {
   display: flex;
   align-items: end;
   gap: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  border-bottom: 1px solid var(--orbit-editor-border);
   overflow-x: auto;
 }
 
@@ -3986,18 +4030,19 @@ select {
     var(--editor-segment-columns, 3),
     minmax(0, 1fr)
   );
-  gap: 8px;
-  padding: 8px;
-  border-radius: 14px;
-  background: var(--card-background-color);
+  gap: 6px;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--orbit-editor-surface);
+  border: 1px solid var(--orbit-editor-border);
 }
 
 .editor-segment-item {
   min-width: 0;
-  height: 44px;
+  height: 34px;
   padding: 0 10px;
   border: none;
-  border-radius: 10px;
+  border-radius: 9px;
   background: transparent;
   color: inherit;
   font: inherit;
@@ -4010,7 +4055,7 @@ select {
 }
 
 .editor-segment-item.active {
-  background: rgba(0, 0, 0, 0.22);
+  background: var(--orbit-editor-active);
   color: var(--primary-color);
   opacity: 1;
 }
@@ -4047,10 +4092,56 @@ select {
 .action-tabs {
   display: flex;
   align-items: end;
-  gap: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  gap: 6px;
+  border-bottom: 1px solid var(--orbit-editor-border);
+  padding-bottom: 2px;
   margin-bottom: 12px;
+  overflow: visible;
+}
+
+.action-tabs.scroll-hint .action-tab-items {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 12px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 12px), transparent);
+}
+
+.action-tabs.wrapped {
+  display: flex;
+  align-items: start;
+}
+
+.action-tab-items {
+  display: flex;
+  align-items: end;
+  gap: 6px;
+  min-width: 0;
   overflow-x: auto;
+}
+
+.action-tabs.wrapped .action-tab-items {
+  display: grid;
+  grid-template-columns: repeat(
+    var(--action-tabs-per-row, 3),
+    32px
+  );
+  justify-content: start;
+  flex: 1 1 auto;
+  overflow-x: auto;
+}
+
+.action-tabs-scroll-indicator {
+  width: 16px;
+  min-width: 16px;
+  height: 36px;
+  color: var(--primary-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  opacity: 0.78;
+  pointer-events: none;
+}
+
+.action-tabs-scroll-indicator ha-icon {
+  --mdc-icon-size: 18px;
 }
 
 .action-group-options {
@@ -4058,7 +4149,7 @@ select {
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
+  margin-bottom: 2px;
 }
 
 .action-wrap-toggle {
@@ -4068,9 +4159,24 @@ select {
   opacity: 1;
 }
 
-.action-wrap-toggle input {
-  width: auto;
-  margin: 0;
+.action-per-row-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.action-per-row-field span {
+  opacity: 0.78;
+}
+
+.action-per-row-field input {
+  width: 64px;
+  min-width: 64px;
+  padding: 7px 8px;
+  text-align: center;
 }
 
 .action-tab,
@@ -4078,9 +4184,10 @@ select {
   border: none;
   background: transparent;
   color: inherit;
-  min-width: 44px;
-  height: 42px;
-  padding: 0 12px;
+  width: 32px;
+  min-width: 32px;
+  height: 36px;
+  padding: 0;
   font: inherit;
   font-weight: 700;
   opacity: 0.6;
@@ -4093,17 +4200,48 @@ select {
   border-bottom: 3px solid var(--primary-color);
 }
 
+.action-tabs.wrapped .action-tab,
+.action-tabs.wrapped .action-tab-add {
+  width: 32px;
+  min-width: 32px;
+}
+
+.action-editor-tools .action-tab-add {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  border: 1px solid var(--orbit-editor-border);
+  border-radius: 10px;
+  background: var(--orbit-editor-control);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+}
+
 .action-tab-add {
-  margin-left: auto;
   font-size: 24px;
   opacity: 0.9;
 }
 
 .action-editor-tools {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   margin-left: auto;
   justify-content: flex-end;
+}
+
+.action-tabs.scroll-hint .action-editor-tools {
+  margin-left: 0;
+}
+
+.action-tabs.wrapped .action-editor-tools {
+  display: grid;
+  grid-template-columns: repeat(2, 34px);
+  grid-template-rows: repeat(2, 34px);
+  gap: 4px;
+  min-width: max-content;
+  align-self: start;
 }
 
 .action-domain-filters {
@@ -4117,10 +4255,10 @@ select {
   flex: 1 1 auto;
   min-width: fit-content;
   min-height: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--orbit-editor-border);
   border-radius: 7px;
   padding: 0 8px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--orbit-editor-control);
   color: inherit;
   font: inherit;
   font-size: 13px;
@@ -4131,22 +4269,18 @@ select {
 
 .action-domain-filters button.active {
   border-color: var(--primary-color);
-  background: color-mix(
-    in srgb,
-    var(--primary-color) 28%,
-    transparent
-  );
+  background: var(--orbit-editor-active);
   color: var(--primary-color) !important;
   box-shadow: inset 0 0 0 1px var(--primary-color);
   font-weight: 700;
 }
 
 .action-tool-button {
-  width: 44px;
-  height: 44px;
-  border: none;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--orbit-editor-border);
   border-radius: 10px;
-  background: var(--card-background-color);
+  background: var(--orbit-editor-control);
   color: inherit;
   display: inline-flex;
   align-items: center;
@@ -4160,14 +4294,14 @@ select {
 }
 
 .action-tool-button ha-icon {
-  --mdc-icon-size: 22px;
+  --mdc-icon-size: 20px;
 }
 `;
 })), Z, Q = e((() => {
 	Z = {
-		room: "0.7.0",
-		status: "0.12.2",
-		action: "0.5.2"
+		room: "0.8.0",
+		status: "0.13.0",
+		action: "0.6.0"
 	};
 })), cl = /* @__PURE__ */ t((() => {
 	N(), wc(), Ec(), Ac(), zc(), al(), sl(), z(), V(), Q();
@@ -5154,6 +5288,7 @@ var Fl = e((() => {
     gap: clamp(4px, 2cqw, 10px);
     width: 100%;
     height: 100%;
+    box-sizing: border-box;
   }
 
   .status-container.mode-icon_only.grouped .status-icon-grid {
@@ -5162,7 +5297,8 @@ var Fl = e((() => {
   }
 
   ha-card.mode-icon_only.grouped.separate-cards .status-icon-grid {
-    gap: clamp(3px, 1cqw, 6px);
+    gap: clamp(5px, 1.4cqw, 8px);
+    padding: 0 2px 4px;
   }
 
   .status-icon-item {
@@ -5178,6 +5314,10 @@ var Fl = e((() => {
 
   .status-container.mode-icon_only.grouped .status-icon-item {
     aspect-ratio: 0.93 / 1;
+  }
+
+  ha-card.mode-icon_only.grouped.separate-cards .status-icon-item {
+    box-shadow: var(--ha-card-box-shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.14));
   }
 
   .status-icon-item .status-circle {
@@ -5372,33 +5512,88 @@ function Bl() {
   `;
 }
 function Vl({ cardActionDefault: e, mainEntityActionDefault: t }) {
-	let n = this._getStatusItems(), r = Math.min(this._selectedStatusIndex || 0, n.length - 1), i = n[r] || {};
+	let n = this._getStatusItems(), r = Math.min(this._selectedStatusIndex || 0, n.length - 1), i = n[r] || {}, a = Math.max(1, Number(this._config?.items_per_row) || 3), o = !!this._config?.wrap && n.length > a, s = !o && n.length > 6 || o && a > 6;
 	return T`
     <div class="section">
       <div class="status-group-options">
         <label class="status-wrap-toggle">
-          <input
-            type="checkbox"
+          <span>${this._t("Wrap")}</span>
+          <ha-switch
             .checked=${!!this._config?.wrap}
             @change=${(e) => this._updateConfig({
 		wrap: e.target.checked,
 		items_per_row: e.target.checked ? this._config?.items_per_row || 3 : this._config?.items_per_row
 	})}
-          />
-          <span>${this._t("Wrap")}</span>
+          ></ha-switch>
         </label>
 
         ${n.length > 1 ? T`
               <label class="status-wrap-toggle">
-                <input
-                  type="checkbox"
+                <span>${this._t("Separate Cards")}</span>
+                <ha-switch
                   .checked=${!!this._config?.separate_cards}
                   @change=${(e) => this._updateConfig({ separate_cards: e.target.checked })}
-                />
-                <span>${this._t("Separate Cards")}</span>
+                ></ha-switch>
               </label>
+            ` : ""}
 
-              <div class="status-editor-tools">
+      ${this._config?.wrap ? T`
+            <label class="status-per-row-field">
+              <span>${this._t("Items Per Row")}</span>
+
+              <input
+                type="number"
+                min="1"
+                step="1"
+                .value=${String(this._config?.items_per_row || 3)}
+                @input=${(e) => this._updateConfig({ items_per_row: Math.max(1, Number(e.target.value) || 1) })}
+              />
+            </label>
+          ` : ""}
+      </div>
+
+      <div
+        class="status-tabs ${o ? "wrapped" : ""} ${s ? "scroll-hint" : ""} ${n.length > 1 ? "has-tools" : ""}"
+        style=${o ? `--status-tabs-per-row: ${a};` : ""}
+      >
+        <div class="status-tab-items">
+          ${n.map((e, t) => T`
+            <button
+              type="button"
+              class="status-tab ${t === r ? "active" : ""}"
+              @click=${() => this._selectStatusItem(t)}
+            >
+              ${t + 1}
+            </button>
+          `)}
+        </div>
+
+        ${s ? T`
+              <div class="status-tabs-scroll-indicator" aria-hidden="true">
+                <ha-icon icon="mdi:chevron-right"></ha-icon>
+              </div>
+            ` : ""}
+
+        <div class="status-editor-tools">
+          <button
+            type="button"
+            class="status-tab-add"
+            title=${this._t("Add")}
+            @click=${() => this._addStatusItem()}
+          >
+            +
+          </button>
+
+          ${n.length > 1 ? T`
+                <button
+                  type="button"
+                  class="status-tool-button status-tool-remove"
+                  title=${this._t("Remove")}
+                  @click=${() => this._removeStatusItem(r)}
+                >
+                  <ha-icon icon="mdi:trash-can"></ha-icon>
+                </button>
+
                 <button
                   type="button"
                   class="status-tool-button"
@@ -5418,51 +5613,8 @@ function Vl({ cardActionDefault: e, mainEntityActionDefault: t }) {
                 >
                   <ha-icon icon="mdi:arrow-right"></ha-icon>
                 </button>
-
-                <button
-                  type="button"
-                  class="status-tool-button"
-                  title=${this._t("Remove")}
-                  @click=${() => this._removeStatusItem(r)}
-                >
-                  <ha-icon icon="mdi:trash-can"></ha-icon>
-                </button>
-              </div>
-            ` : ""}
-      </div>
-
-      ${this._config?.wrap ? T`
-            <div class="field">
-              <label>${this._t("Items Per Row")}</label>
-
-              <input
-                type="number"
-                min="1"
-                step="1"
-                .value=${String(this._config?.items_per_row || 3)}
-                @input=${(e) => this._updateConfig({ items_per_row: Math.max(1, Number(e.target.value) || 1) })}
-              />
-            </div>
-          ` : ""}
-
-      <div class="status-tabs">
-        ${n.map((e, t) => T`
-          <button
-            type="button"
-            class="status-tab ${t === r ? "active" : ""}"
-            @click=${() => this._selectStatusItem(t)}
-          >
-            ${t + 1}
-          </button>
-        `)}
-
-        <button
-          type="button"
-          class="status-tab-add"
-          @click=${() => this._addStatusItem()}
-        >
-          +
-        </button>
+              ` : ""}
+        </div>
       </div>
 
       <div class="field">
@@ -5532,9 +5684,24 @@ var Wl = e((() => {
   opacity: 1;
 }
 
-.status-wrap-toggle input {
-  width: auto;
-  margin: 0;
+.status-per-row-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.status-per-row-field span {
+  opacity: 0.78;
+}
+
+.status-per-row-field input {
+  width: 64px;
+  min-width: 64px;
+  padding: 7px 8px;
+  text-align: center;
 }
 
 .status-group-options {
@@ -5542,16 +5709,62 @@ var Wl = e((() => {
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
+  margin-bottom: 2px;
 }
 
 .status-tabs {
   display: flex;
   align-items: end;
-  gap: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  gap: 6px;
+  border-bottom: 1px solid var(--orbit-editor-border);
+  padding-bottom: 2px;
   margin-bottom: 12px;
+  overflow: visible;
+}
+
+.status-tabs.scroll-hint .status-tab-items {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 12px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 12px), transparent);
+}
+
+.status-tabs.wrapped {
+  display: flex;
+  align-items: start;
+}
+
+.status-tab-items {
+  display: flex;
+  align-items: end;
+  gap: 6px;
+  min-width: 0;
   overflow-x: auto;
+}
+
+.status-tabs.wrapped .status-tab-items {
+  display: grid;
+  grid-template-columns: repeat(
+    var(--status-tabs-per-row, 3),
+    32px
+  );
+  justify-content: start;
+  flex: 1 1 auto;
+  overflow-x: auto;
+}
+
+.status-tabs-scroll-indicator {
+  width: 16px;
+  min-width: 16px;
+  height: 36px;
+  color: var(--primary-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  opacity: 0.78;
+  pointer-events: none;
+}
+
+.status-tabs-scroll-indicator ha-icon {
+  --mdc-icon-size: 18px;
 }
 
 .status-tab,
@@ -5559,9 +5772,10 @@ var Wl = e((() => {
   border: none;
   background: transparent;
   color: inherit;
-  min-width: 44px;
-  height: 42px;
-  padding: 0 12px;
+  width: 32px;
+  min-width: 32px;
+  height: 36px;
+  padding: 0;
   font: inherit;
   font-weight: 700;
   opacity: 0.6;
@@ -5574,25 +5788,56 @@ var Wl = e((() => {
   border-bottom: 3px solid var(--primary-color);
 }
 
+.status-tabs.wrapped .status-tab,
+.status-tabs.wrapped .status-tab-add {
+  width: 32px;
+  min-width: 32px;
+}
+
+.status-editor-tools .status-tab-add {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  border: 1px solid var(--orbit-editor-border);
+  border-radius: 10px;
+  background: var(--orbit-editor-control);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+}
+
 .status-tab-add {
-  margin-left: auto;
   font-size: 24px;
   opacity: 0.9;
 }
 
 .status-editor-tools {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   margin-left: auto;
   justify-content: flex-end;
 }
 
+.status-tabs.scroll-hint .status-editor-tools {
+  margin-left: 0;
+}
+
+.status-tabs.wrapped .status-editor-tools {
+  display: grid;
+  grid-template-columns: repeat(2, 34px);
+  grid-template-rows: repeat(2, 34px);
+  gap: 4px;
+  min-width: max-content;
+  align-self: start;
+}
+
 .status-tool-button {
-  width: 44px;
-  height: 44px;
-  border: none;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--orbit-editor-border);
   border-radius: 10px;
-  background: var(--card-background-color);
+  background: var(--orbit-editor-control);
   color: inherit;
   display: inline-flex;
   align-items: center;
@@ -5606,7 +5851,7 @@ var Wl = e((() => {
 }
 
 .status-tool-button ha-icon {
-  --mdc-icon-size: 22px;
+  --mdc-icon-size: 20px;
 }
 `;
 })), ql = /* @__PURE__ */ t((() => {
@@ -6404,10 +6649,12 @@ var nu = e((() => {
       align-items: center;
       gap: clamp(4px, 2cqw, 10px);
       padding: 0;
+      box-sizing: border-box;
     }
 
     ha-card.grouped.separate-cards .action-container {
-      gap: clamp(3px, 1cqw, 6px);
+      gap: clamp(5px, 1.4cqw, 8px);
+      padding: 0 2px 4px;
     }
 
     ha-card.grouped .action-container {
@@ -6432,6 +6679,10 @@ var nu = e((() => {
     ha-card.grouped .action-button {
       aspect-ratio: 0.93 / 1;
       height: auto;
+    }
+
+    ha-card.grouped.separate-cards .action-button {
+      box-shadow: var(--ha-card-box-shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.14));
     }
 
     .action-circle {
@@ -6473,33 +6724,88 @@ var nu = e((() => {
 //#endregion
 //#region src/editors/action/sections/action.js
 function au() {
-	let e = this._getActionItems(), t = Math.min(this._selectedActionIndex || 0, e.length - 1), n = e[t] || {}, r = this._actionEntityDomainFilter || "all", i = ou(r);
+	let e = this._getActionItems(), t = Math.min(this._selectedActionIndex || 0, e.length - 1), n = e[t] || {}, r = this._actionEntityDomainFilter || "all", i = ou(r), a = Math.max(1, Number(this._config?.actions_per_row) || 3), o = !!this._config?.wrap && e.length > a, s = !o && e.length > 6 || o && a > 6;
 	return T`
     <div class="section">
       <div class="action-group-options">
         <label class="action-wrap-toggle">
-          <input
-            type="checkbox"
+          <span>${this._t("Wrap")}</span>
+          <ha-switch
             .checked=${!!this._config?.wrap}
             @change=${(e) => this._updateConfig({
 		wrap: e.target.checked,
 		actions_per_row: e.target.checked ? this._config?.actions_per_row || 3 : this._config?.actions_per_row
 	})}
-          />
-          <span>${this._t("Wrap")}</span>
+          ></ha-switch>
         </label>
 
         ${e.length > 1 ? T`
               <label class="action-wrap-toggle">
-                <input
-                  type="checkbox"
+                <span>${this._t("Separate Cards")}</span>
+                <ha-switch
                   .checked=${!!this._config?.separate_cards}
                   @change=${(e) => this._updateConfig({ separate_cards: e.target.checked })}
-                />
-                <span>${this._t("Separate Cards")}</span>
+                ></ha-switch>
               </label>
+            ` : ""}
 
-              <div class="action-editor-tools">
+      ${this._config?.wrap ? T`
+            <label class="action-per-row-field">
+              <span>${this._t("Actions Per Row")}</span>
+
+              <input
+                type="number"
+                min="1"
+                step="1"
+                .value=${String(this._config?.actions_per_row || 3)}
+                @input=${(e) => this._updateConfig({ actions_per_row: Math.max(1, Number(e.target.value) || 1) })}
+              />
+            </label>
+          ` : ""}
+      </div>
+
+      <div
+        class="action-tabs ${o ? "wrapped" : ""} ${s ? "scroll-hint" : ""} ${e.length > 1 ? "has-tools" : ""}"
+        style=${o ? `--action-tabs-per-row: ${a};` : ""}
+      >
+        <div class="action-tab-items">
+          ${e.map((e, n) => T`
+            <button
+              type="button"
+              class="action-tab ${n === t ? "active" : ""}"
+              @click=${() => this._selectActionItem(n)}
+            >
+              ${n + 1}
+            </button>
+          `)}
+        </div>
+
+        ${s ? T`
+              <div class="action-tabs-scroll-indicator" aria-hidden="true">
+                <ha-icon icon="mdi:chevron-right"></ha-icon>
+              </div>
+            ` : ""}
+
+        <div class="action-editor-tools">
+          <button
+            type="button"
+            class="action-tab-add"
+            title=${this._t("Add")}
+            @click=${() => this._addActionItem()}
+          >
+            +
+          </button>
+
+          ${e.length > 1 ? T`
+                <button
+                  type="button"
+                  class="action-tool-button action-tool-remove"
+                  title=${this._t("Remove")}
+                  @click=${() => this._removeActionItem(t)}
+                >
+                  <ha-icon icon="mdi:trash-can"></ha-icon>
+                </button>
+
                 <button
                   type="button"
                   class="action-tool-button"
@@ -6519,51 +6825,8 @@ function au() {
                 >
                   <ha-icon icon="mdi:arrow-right"></ha-icon>
                 </button>
-
-                <button
-                  type="button"
-                  class="action-tool-button"
-                  title=${this._t("Remove")}
-                  @click=${() => this._removeActionItem(t)}
-                >
-                  <ha-icon icon="mdi:trash-can"></ha-icon>
-                </button>
-              </div>
-            ` : ""}
-      </div>
-
-      ${this._config?.wrap ? T`
-            <div class="field">
-              <label>${this._t("Actions Per Row")}</label>
-
-              <input
-                type="number"
-                min="1"
-                step="1"
-                .value=${String(this._config?.actions_per_row || 3)}
-                @input=${(e) => this._updateConfig({ actions_per_row: Math.max(1, Number(e.target.value) || 1) })}
-              />
-            </div>
-          ` : ""}
-
-      <div class="action-tabs">
-        ${e.map((e, n) => T`
-          <button
-            type="button"
-            class="action-tab ${n === t ? "active" : ""}"
-            @click=${() => this._selectActionItem(n)}
-          >
-            ${n + 1}
-          </button>
-        `)}
-
-        <button
-          type="button"
-          class="action-tab-add"
-          @click=${() => this._addActionItem()}
-        >
-          +
-        </button>
+              ` : ""}
+        </div>
       </div>
 
       <div class="field">

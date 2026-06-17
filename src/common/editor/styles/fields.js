@@ -12,16 +12,30 @@ label {
   opacity: 0.7;
 }
 
+.editor-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.editor-toggle-row span {
+  opacity: 0.78;
+}
+
 input,
 select {
   width: 100%;
 
   padding: 10px 12px;
 
-  border: none;
+  border: 1px solid var(--orbit-editor-border);
   border-radius: 10px;
 
-  background: var(--card-background-color);
+  background: var(--orbit-editor-control);
   color: inherit;
 
   outline: none;
@@ -31,7 +45,8 @@ select {
 .editor-note {
   padding: 10px 12px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--orbit-editor-control);
+  border: 1px solid var(--orbit-editor-border);
   color: inherit;
   font-size: 12px;
   line-height: 1.4;

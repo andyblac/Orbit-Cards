@@ -8,9 +8,24 @@ export const statusEditorStyles = css`
   opacity: 1;
 }
 
-.status-wrap-toggle input {
-  width: auto;
-  margin: 0;
+.status-per-row-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.status-per-row-field span {
+  opacity: 0.78;
+}
+
+.status-per-row-field input {
+  width: 64px;
+  min-width: 64px;
+  padding: 7px 8px;
+  text-align: center;
 }
 
 .status-group-options {
@@ -18,16 +33,62 @@ export const statusEditorStyles = css`
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
+  margin-bottom: 2px;
 }
 
 .status-tabs {
   display: flex;
   align-items: end;
-  gap: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  gap: 6px;
+  border-bottom: 1px solid var(--orbit-editor-border);
+  padding-bottom: 2px;
   margin-bottom: 12px;
+  overflow: visible;
+}
+
+.status-tabs.scroll-hint .status-tab-items {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 12px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 12px), transparent);
+}
+
+.status-tabs.wrapped {
+  display: flex;
+  align-items: start;
+}
+
+.status-tab-items {
+  display: flex;
+  align-items: end;
+  gap: 6px;
+  min-width: 0;
   overflow-x: auto;
+}
+
+.status-tabs.wrapped .status-tab-items {
+  display: grid;
+  grid-template-columns: repeat(
+    var(--status-tabs-per-row, 3),
+    32px
+  );
+  justify-content: start;
+  flex: 1 1 auto;
+  overflow-x: auto;
+}
+
+.status-tabs-scroll-indicator {
+  width: 16px;
+  min-width: 16px;
+  height: 36px;
+  color: var(--primary-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  opacity: 0.78;
+  pointer-events: none;
+}
+
+.status-tabs-scroll-indicator ha-icon {
+  --mdc-icon-size: 18px;
 }
 
 .status-tab,
@@ -35,9 +96,10 @@ export const statusEditorStyles = css`
   border: none;
   background: transparent;
   color: inherit;
-  min-width: 44px;
-  height: 42px;
-  padding: 0 12px;
+  width: 32px;
+  min-width: 32px;
+  height: 36px;
+  padding: 0;
   font: inherit;
   font-weight: 700;
   opacity: 0.6;
@@ -50,25 +112,56 @@ export const statusEditorStyles = css`
   border-bottom: 3px solid var(--primary-color);
 }
 
+.status-tabs.wrapped .status-tab,
+.status-tabs.wrapped .status-tab-add {
+  width: 32px;
+  min-width: 32px;
+}
+
+.status-editor-tools .status-tab-add {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  border: 1px solid var(--orbit-editor-border);
+  border-radius: 10px;
+  background: var(--orbit-editor-control);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+}
+
 .status-tab-add {
-  margin-left: auto;
   font-size: 24px;
   opacity: 0.9;
 }
 
 .status-editor-tools {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   margin-left: auto;
   justify-content: flex-end;
 }
 
+.status-tabs.scroll-hint .status-editor-tools {
+  margin-left: 0;
+}
+
+.status-tabs.wrapped .status-editor-tools {
+  display: grid;
+  grid-template-columns: repeat(2, 34px);
+  grid-template-rows: repeat(2, 34px);
+  gap: 4px;
+  min-width: max-content;
+  align-self: start;
+}
+
 .status-tool-button {
-  width: 44px;
-  height: 44px;
-  border: none;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--orbit-editor-border);
   border-radius: 10px;
-  background: var(--card-background-color);
+  background: var(--orbit-editor-control);
   color: inherit;
   display: inline-flex;
   align-items: center;
@@ -82,6 +175,6 @@ export const statusEditorStyles = css`
 }
 
 .status-tool-button ha-icon {
-  --mdc-icon-size: 22px;
+  --mdc-icon-size: 20px;
 }
 `;

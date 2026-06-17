@@ -10,7 +10,8 @@ export const sectionStyles = css`
 
   border-radius: 14px;
 
-  background: var(--secondary-background-color);
+  background: var(--orbit-editor-surface);
+  border: 1px solid var(--orbit-editor-border);
 }
 
 .sub-section {
@@ -21,7 +22,7 @@ export const sectionStyles = css`
   padding-bottom: 12px;
   margin-bottom: 12px;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--orbit-editor-border);
 }
 
 .sub-section:last-child {
@@ -35,6 +36,6 @@ export const sectionStyles = css`
 
   margin: 4px 0 6px 0;
 
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--orbit-editor-border);
 }
 `;

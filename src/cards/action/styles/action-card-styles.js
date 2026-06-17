@@ -29,10 +29,12 @@ export const actionCardStyles = [
       align-items: center;
       gap: clamp(4px, 2cqw, 10px);
       padding: 0;
+      box-sizing: border-box;
     }
 
     ha-card.grouped.separate-cards .action-container {
-      gap: clamp(3px, 1cqw, 6px);
+      gap: clamp(5px, 1.4cqw, 8px);
+      padding: 0 2px 4px;
     }
 
     ha-card.grouped .action-container {
@@ -57,6 +59,10 @@ export const actionCardStyles = [
     ha-card.grouped .action-button {
       aspect-ratio: 0.93 / 1;
       height: auto;
+    }
+
+    ha-card.grouped.separate-cards .action-button {
+      box-shadow: var(--ha-card-box-shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.14));
     }
 
     .action-circle {

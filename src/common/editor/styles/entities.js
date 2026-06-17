@@ -35,10 +35,10 @@ export const entityStyles = css`
   min-width: 42px;
   height: auto;
 
-  border: none;
+  border: 1px solid var(--orbit-editor-border);
   border-radius: 10px;
 
-  background: var(--card-background-color);
+  background: var(--orbit-editor-control);
   color: inherit;
 
   cursor: pointer;
@@ -54,6 +54,6 @@ export const entityStyles = css`
 }
 
 .clear-button:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--orbit-editor-control-hover);
 }
 `;

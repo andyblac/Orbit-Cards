@@ -9,13 +9,23 @@ export function renderActionSection() {
   const selectedItem = items[selectedIndex] || {};
   const domainFilter = this._actionEntityDomainFilter || "all";
   const selectorDomains = getActionEntityDomains(domainFilter);
+  const actionsPerRow = Math.max(
+    1,
+    Number(this._config?.actions_per_row) || 3
+  );
+  const shouldWrapTabs =
+    Boolean(this._config?.wrap) &&
+    items.length > actionsPerRow;
+  const showTabScrollHint =
+    (!shouldWrapTabs && items.length > 6) ||
+    (shouldWrapTabs && actionsPerRow > 6);
 
   return html`
     <div class="section">
       <div class="action-group-options">
         <label class="action-wrap-toggle">
-          <input
-            type="checkbox"
+          <span>${this._t("Wrap")}</span>
+          <ha-switch
             .checked=${!!this._config?.wrap}
             @change=${(e) =>
               this._updateConfig({
@@ -24,25 +34,94 @@ export function renderActionSection() {
                   ? this._config?.actions_per_row || 3
                   : this._config?.actions_per_row,
               })}
-          />
-          <span>${this._t("Wrap")}</span>
+          ></ha-switch>
         </label>
 
         ${items.length > 1
           ? html`
               <label class="action-wrap-toggle">
-                <input
-                  type="checkbox"
+                <span>${this._t("Separate Cards")}</span>
+                <ha-switch
                   .checked=${!!this._config?.separate_cards}
                   @change=${(e) =>
                     this._updateConfig({
                       separate_cards: e.target.checked,
                     })}
-                />
-                <span>${this._t("Separate Cards")}</span>
+                ></ha-switch>
               </label>
+            `
+          : ""}
 
-              <div class="action-editor-tools">
+      ${this._config?.wrap
+        ? html`
+            <label class="action-per-row-field">
+              <span>${this._t("Actions Per Row")}</span>
+
+              <input
+                type="number"
+                min="1"
+                step="1"
+                .value=${String(this._config?.actions_per_row || 3)}
+                @input=${(e) =>
+                  this._updateConfig({
+                    actions_per_row: Math.max(
+                      1,
+                      Number(e.target.value) || 1
+                    ),
+                  })}
+              />
+            </label>
+          `
+        : ""}
+      </div>
+
+      <div
+        class="action-tabs ${shouldWrapTabs ? "wrapped" : ""} ${showTabScrollHint ? "scroll-hint" : ""} ${items.length > 1 ? "has-tools" : ""}"
+        style=${shouldWrapTabs
+          ? `--action-tabs-per-row: ${actionsPerRow};`
+          : ""}
+      >
+        <div class="action-tab-items">
+          ${items.map((_, index) => html`
+            <button
+              type="button"
+              class="action-tab ${index === selectedIndex ? "active" : ""}"
+              @click=${() => this._selectActionItem(index)}
+            >
+              ${index + 1}
+            </button>
+          `)}
+        </div>
+
+        ${showTabScrollHint
+          ? html`
+              <div class="action-tabs-scroll-indicator" aria-hidden="true">
+                <ha-icon icon="mdi:chevron-right"></ha-icon>
+              </div>
+            `
+          : ""}
+
+        <div class="action-editor-tools">
+          <button
+            type="button"
+            class="action-tab-add"
+            title=${this._t("Add")}
+            @click=${() => this._addActionItem()}
+          >
+            +
+          </button>
+
+          ${items.length > 1
+            ? html`
+                <button
+                  type="button"
+                  class="action-tool-button action-tool-remove"
+                  title=${this._t("Remove")}
+                  @click=${() => this._removeActionItem(selectedIndex)}
+                >
+                  <ha-icon icon="mdi:trash-can"></ha-icon>
+                </button>
+
                 <button
                   type="button"
                   class="action-tool-button"
@@ -62,60 +141,9 @@ export function renderActionSection() {
                 >
                   <ha-icon icon="mdi:arrow-right"></ha-icon>
                 </button>
-
-                <button
-                  type="button"
-                  class="action-tool-button"
-                  title=${this._t("Remove")}
-                  @click=${() => this._removeActionItem(selectedIndex)}
-                >
-                  <ha-icon icon="mdi:trash-can"></ha-icon>
-                </button>
-              </div>
-            `
-          : ""}
-      </div>
-
-      ${this._config?.wrap
-        ? html`
-            <div class="field">
-              <label>${this._t("Actions Per Row")}</label>
-
-              <input
-                type="number"
-                min="1"
-                step="1"
-                .value=${String(this._config?.actions_per_row || 3)}
-                @input=${(e) =>
-                  this._updateConfig({
-                    actions_per_row: Math.max(
-                      1,
-                      Number(e.target.value) || 1
-                    ),
-                  })}
-              />
-            </div>
-          `
-        : ""}
-
-      <div class="action-tabs">
-        ${items.map((_, index) => html`
-          <button
-            type="button"
-            class="action-tab ${index === selectedIndex ? "active" : ""}"
-            @click=${() => this._selectActionItem(index)}
-          >
-            ${index + 1}
-          </button>
-        `)}
-
-        <button
-          type="button"
-          class="action-tab-add"
-          @click=${() => this._addActionItem()}
-        >
-          +
-        </button>
+              `
+            : ""}
+        </div>
       </div>
 
       <div class="field">

@@ -98,13 +98,23 @@ function renderIconOnlyStatusConfig({
     items.length - 1
   );
   const selectedItem = items[selectedIndex] || {};
+  const itemsPerRow = Math.max(
+    1,
+    Number(this._config?.items_per_row) || 3
+  );
+  const shouldWrapTabs =
+    Boolean(this._config?.wrap) &&
+    items.length > itemsPerRow;
+  const showTabScrollHint =
+    (!shouldWrapTabs && items.length > 6) ||
+    (shouldWrapTabs && itemsPerRow > 6);
 
   return html`
     <div class="section">
       <div class="status-group-options">
         <label class="status-wrap-toggle">
-          <input
-            type="checkbox"
+          <span>${this._t("Wrap")}</span>
+          <ha-switch
             .checked=${!!this._config?.wrap}
             @change=${(e) =>
               this._updateConfig({
@@ -113,25 +123,94 @@ function renderIconOnlyStatusConfig({
                   ? this._config?.items_per_row || 3
                   : this._config?.items_per_row,
               })}
-          />
-          <span>${this._t("Wrap")}</span>
+          ></ha-switch>
         </label>
 
         ${items.length > 1
           ? html`
               <label class="status-wrap-toggle">
-                <input
-                  type="checkbox"
+                <span>${this._t("Separate Cards")}</span>
+                <ha-switch
                   .checked=${!!this._config?.separate_cards}
                   @change=${(e) =>
                     this._updateConfig({
                       separate_cards: e.target.checked,
                     })}
-                />
-                <span>${this._t("Separate Cards")}</span>
+                ></ha-switch>
               </label>
+            `
+          : ""}
 
-              <div class="status-editor-tools">
+      ${this._config?.wrap
+        ? html`
+            <label class="status-per-row-field">
+              <span>${this._t("Items Per Row")}</span>
+
+              <input
+                type="number"
+                min="1"
+                step="1"
+                .value=${String(this._config?.items_per_row || 3)}
+                @input=${(e) =>
+                  this._updateConfig({
+                    items_per_row: Math.max(
+                      1,
+                      Number(e.target.value) || 1
+                    ),
+                  })}
+              />
+            </label>
+          `
+        : ""}
+      </div>
+
+      <div
+        class="status-tabs ${shouldWrapTabs ? "wrapped" : ""} ${showTabScrollHint ? "scroll-hint" : ""} ${items.length > 1 ? "has-tools" : ""}"
+        style=${shouldWrapTabs
+          ? `--status-tabs-per-row: ${itemsPerRow};`
+          : ""}
+      >
+        <div class="status-tab-items">
+          ${items.map((_, index) => html`
+            <button
+              type="button"
+              class="status-tab ${index === selectedIndex ? "active" : ""}"
+              @click=${() => this._selectStatusItem(index)}
+            >
+              ${index + 1}
+            </button>
+          `)}
+        </div>
+
+        ${showTabScrollHint
+          ? html`
+              <div class="status-tabs-scroll-indicator" aria-hidden="true">
+                <ha-icon icon="mdi:chevron-right"></ha-icon>
+              </div>
+            `
+          : ""}
+
+        <div class="status-editor-tools">
+          <button
+            type="button"
+            class="status-tab-add"
+            title=${this._t("Add")}
+            @click=${() => this._addStatusItem()}
+          >
+            +
+          </button>
+
+          ${items.length > 1
+            ? html`
+                <button
+                  type="button"
+                  class="status-tool-button status-tool-remove"
+                  title=${this._t("Remove")}
+                  @click=${() => this._removeStatusItem(selectedIndex)}
+                >
+                  <ha-icon icon="mdi:trash-can"></ha-icon>
+                </button>
+
                 <button
                   type="button"
                   class="status-tool-button"
@@ -151,60 +230,9 @@ function renderIconOnlyStatusConfig({
                 >
                   <ha-icon icon="mdi:arrow-right"></ha-icon>
                 </button>
-
-                <button
-                  type="button"
-                  class="status-tool-button"
-                  title=${this._t("Remove")}
-                  @click=${() => this._removeStatusItem(selectedIndex)}
-                >
-                  <ha-icon icon="mdi:trash-can"></ha-icon>
-                </button>
-              </div>
-            `
-          : ""}
-      </div>
-
-      ${this._config?.wrap
-        ? html`
-            <div class="field">
-              <label>${this._t("Items Per Row")}</label>
-
-              <input
-                type="number"
-                min="1"
-                step="1"
-                .value=${String(this._config?.items_per_row || 3)}
-                @input=${(e) =>
-                  this._updateConfig({
-                    items_per_row: Math.max(
-                      1,
-                      Number(e.target.value) || 1
-                    ),
-                  })}
-              />
-            </div>
-          `
-        : ""}
-
-      <div class="status-tabs">
-        ${items.map((_, index) => html`
-          <button
-            type="button"
-            class="status-tab ${index === selectedIndex ? "active" : ""}"
-            @click=${() => this._selectStatusItem(index)}
-          >
-            ${index + 1}
-          </button>
-        `)}
-
-        <button
-          type="button"
-          class="status-tab-add"
-          @click=${() => this._addStatusItem()}
-        >
-          +
-        </button>
+              `
+            : ""}
+        </div>
       </div>
 
       <div class="field">

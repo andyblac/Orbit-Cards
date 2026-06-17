@@ -96,6 +96,7 @@ export const StatusCardLayoutStyles = css`
     gap: clamp(4px, 2cqw, 10px);
     width: 100%;
     height: 100%;
+    box-sizing: border-box;
   }
 
   .status-container.mode-icon_only.grouped .status-icon-grid {
@@ -104,7 +105,8 @@ export const StatusCardLayoutStyles = css`
   }
 
   ha-card.mode-icon_only.grouped.separate-cards .status-icon-grid {
-    gap: clamp(3px, 1cqw, 6px);
+    gap: clamp(5px, 1.4cqw, 8px);
+    padding: 0 2px 4px;
   }
 
   .status-icon-item {
@@ -120,6 +122,10 @@ export const StatusCardLayoutStyles = css`
 
   .status-container.mode-icon_only.grouped .status-icon-item {
     aspect-ratio: 0.93 / 1;
+  }
+
+  ha-card.mode-icon_only.grouped.separate-cards .status-icon-item {
+    box-shadow: var(--ha-card-box-shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.14));
   }
 
   .status-icon-item .status-circle {

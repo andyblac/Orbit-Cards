@@ -5,7 +5,7 @@ export const editorTabStyles = css`
   display: flex;
   align-items: end;
   gap: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  border-bottom: 1px solid var(--orbit-editor-border);
   overflow-x: auto;
 }
 
@@ -35,18 +35,19 @@ export const editorTabStyles = css`
     var(--editor-segment-columns, 3),
     minmax(0, 1fr)
   );
-  gap: 8px;
-  padding: 8px;
-  border-radius: 14px;
-  background: var(--card-background-color);
+  gap: 6px;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--orbit-editor-surface);
+  border: 1px solid var(--orbit-editor-border);
 }
 
 .editor-segment-item {
   min-width: 0;
-  height: 44px;
+  height: 34px;
   padding: 0 10px;
   border: none;
-  border-radius: 10px;
+  border-radius: 9px;
   background: transparent;
   color: inherit;
   font: inherit;
@@ -59,7 +60,7 @@ export const editorTabStyles = css`
 }
 
 .editor-segment-item.active {
-  background: rgba(0, 0, 0, 0.22);
+  background: var(--orbit-editor-active);
   color: var(--primary-color);
   opacity: 1;
 }
