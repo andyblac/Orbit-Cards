@@ -8,7 +8,7 @@ export const actionCardStyles = [
   MainIconStyles,
   css`
     ha-card {
-      aspect-ratio: 0.93 / 1;
+      aspect-ratio: 0.94 / 1;
       border-radius: 15px;
     }
 
@@ -57,7 +57,7 @@ export const actionCardStyles = [
     }
 
     ha-card.grouped .action-button {
-      aspect-ratio: 0.93 / 1;
+      aspect-ratio: 0.94 / 1;
       height: auto;
     }
 
