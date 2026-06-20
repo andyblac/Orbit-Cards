@@ -9,6 +9,10 @@ export const editorTabStyles = css`
   overflow-x: auto;
 }
 
+.editor-tabs + .editor-tabs {
+  margin-top: -12px;
+}
+
 .editor-tab {
   min-width: 72px;
   height: 42px;
@@ -18,7 +22,9 @@ export const editorTabStyles = css`
   background: transparent;
   color: inherit;
   font: inherit;
-  font-weight: 700;
+  font-size: var(--ha-font-size-m, 14px);
+  font-weight: var(--ha-font-weight-medium, 500);
+  line-height: var(--ha-line-height-normal, 20px);
   opacity: 0.62;
   cursor: pointer;
 }
@@ -37,7 +43,7 @@ export const editorTabStyles = css`
   );
   gap: 6px;
   padding: 6px;
-  border-radius: 12px;
+  border-radius: var(--ha-border-radius-xl, 16px);
   background: var(--orbit-editor-surface);
   border: 1px solid var(--orbit-editor-border);
 }
@@ -47,14 +53,13 @@ export const editorTabStyles = css`
   height: 34px;
   padding: 0 10px;
   border: none;
-  border-radius: 9px;
+  border-radius: var(--ha-border-radius-lg, 12px);
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-size: var(--ha-font-size-m, 14px);
+  font-weight: var(--ha-font-weight-medium, 500);
+  line-height: var(--ha-line-height-normal, 20px);
   opacity: 0.58;
   cursor: pointer;
 }
@@ -73,10 +78,9 @@ export const editorTabStyles = css`
 
 .sub-section-title {
   margin-bottom: 12px;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0;
-  text-transform: uppercase;
+  font-size: var(--ha-font-size-m, 14px);
+  font-weight: var(--ha-font-weight-medium, 500);
+  line-height: var(--ha-line-height-normal, 20px);
   opacity: 0.62;
 }
 `;

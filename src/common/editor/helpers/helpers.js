@@ -11,6 +11,9 @@ import {
 } from "../../helpers/icons.js";
 import {
   getCssColor,
+  getThemeColorVariableName,
+  hasThemeColorName,
+  isHaStandardColorName,
 } from "../../helpers/colors.js";
 
 import {
@@ -46,6 +49,86 @@ export function toggleSection(section) {
   };
 
   this.requestUpdate("_collapsed");
+}
+
+/* ==========================================
+ * POPOVER HELPER
+ * ========================================== */
+
+export function connectEditorPopoverClose(editor) {
+  if (editor._editorPopoverCloseHandler) return;
+
+  editor._editorPopoverCloseHandler = (event) => {
+    if (!editor._iconPickerKey && !editor._colorPickerKey) {
+      return;
+    }
+
+    const path = event.composedPath?.() || [];
+
+    if (isPickerInteraction(path)) {
+      return;
+    }
+
+    editor._iconPickerKey = "";
+    editor._colorPickerKey = "";
+    editor._iconFilePickerOpen = false;
+    editor._iconFileSearch = "";
+    editor._themeColorPickerOpen = false;
+    editor._themeColorSearch = "";
+    editor.requestUpdate?.();
+  };
+
+  document.addEventListener(
+    "pointerdown",
+    editor._editorPopoverCloseHandler,
+    true
+  );
+
+  editor.addEventListener(
+    "pointerdown",
+    editor._editorPopoverCloseHandler,
+    true
+  );
+}
+
+export function disconnectEditorPopoverClose(editor) {
+  if (!editor._editorPopoverCloseHandler) return;
+
+  document.removeEventListener(
+    "pointerdown",
+    editor._editorPopoverCloseHandler,
+    true
+  );
+
+  editor.removeEventListener(
+    "pointerdown",
+    editor._editorPopoverCloseHandler,
+    true
+  );
+
+  editor._editorPopoverCloseHandler = null;
+}
+
+function isPickerInteraction(path) {
+  return path.some((node) => {
+    const classList = node?.classList;
+    const tagName = node?.tagName?.toLowerCase?.();
+
+    return (
+      classList?.contains("icon-popover") ||
+      classList?.contains("color-popover") ||
+      classList?.contains("icon-preview") ||
+      classList?.contains("color-preview") ||
+      classList?.contains("color-control-button") ||
+      classList?.contains("mdc-menu-surface") ||
+      tagName === "ha-generic-picker" ||
+      tagName === "ha-icon-picker" ||
+      tagName === "ha-combo-box" ||
+      tagName === "ha-combo-box-item" ||
+      tagName === "mwc-list" ||
+      tagName === "mwc-list-item"
+    );
+  });
 }
 
 /* ==========================================
@@ -109,13 +192,22 @@ function resolveThemeColorValue(value, seen = new Set()) {
 
   seen.add(color);
 
+  const themeVariable = getThemeColorVariableName(color);
+  const theme = hasThemeColorName(color)
+    ? getCssVariableValue(themeVariable)
+    : "";
+  const standard = isHaStandardColorName(color)
+    ? getCssVariableValue(`${color}-color`)
+    : "";
   const direct = getCssVariableValue(color);
   const fallback =
     color.startsWith("color-")
       ? ""
       : getCssVariableValue(`color-${color}`);
 
-  return getResolvedCssColorValue(direct, seen) ||
+  return getResolvedCssColorValue(theme, seen) ||
+    getResolvedCssColorValue(standard, seen) ||
+    getResolvedCssColorValue(direct, seen) ||
     getResolvedCssColorValue(fallback, seen) ||
     "";
 }

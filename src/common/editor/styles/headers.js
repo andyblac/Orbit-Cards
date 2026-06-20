@@ -10,9 +10,9 @@ export const headerStyles = css`
 
   user-select: none;
 
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-size: var(--ha-font-size-m, 14px);
+  font-weight: var(--ha-font-weight-medium, 500);
+  line-height: var(--ha-line-height-normal, 20px);
 
   opacity: 0.75;
 
@@ -32,9 +32,9 @@ export const headerStyles = css`
 
   user-select: none;
 
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-size: var(--ha-font-size-m, 14px);
+  font-weight: var(--ha-font-weight-medium, 500);
+  line-height: var(--ha-line-height-normal, 20px);
 
   opacity: 0.72;
 

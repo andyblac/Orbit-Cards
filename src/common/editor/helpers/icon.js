@@ -58,127 +58,66 @@ function getOrbitIconPath(file) {
 export function renderIconInput(label, key, placeholder) {
   const value = this._config?.[key] || "";
   const pickerKey = `${this._iconPickerPrefix || "icon"}-${key}`;
-  const isOpen = this._iconPickerKey === pickerKey;
-  const activeTab = this._iconPickerTab || "ha";
-  const iconPath =
-    value && this._isImageIcon(value)
-      ? this._resolveIconPath(value)
-      : "";
-  const inlineSvg =
-    iconPath && this._getInlineSvg
-      ? this._getInlineSvg(iconPath)
-      : "";
+  const defaultTab = value && this._isImageIcon(value)
+    ? "files"
+    : "ha";
+  const activeTab = this._iconPickerKey === pickerKey
+    ? this._iconPickerTab || defaultTab
+    : defaultTab;
+
+  if (
+    activeTab === "files" &&
+    !this._orbitIconFilesLoading &&
+    !this._localIconFilesLoading &&
+    !(this._orbitIconFiles || []).length &&
+    !(this._localIconFiles || []).length
+  ) {
+    queueMicrotask(() => this._loadLocalIconFiles?.(value));
+  }
 
   return html`
     <div class="field">
       <label>${t(this, label)}</label>
 
-      <div class="icon-input-row">
-
-        <input
-          .value=${value}
-          placeholder=${placeholder}
-          @input=${(e) =>
-            this._handleConfigUpdate(
-              key,
-              e.target.value
-            )}
-        />
-
-        <div
-          class="icon-preview"
-          title=${t(this, "Choose icon")}
-          @click=${(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            this._iconPickerKey = isOpen ? "" : pickerKey;
-            this._iconPickerTab = this._isImageIcon(value)
-              ? "files"
-              : "ha";
-
-            if (!isOpen) {
+      <div
+        class="icon-picker-panel"
+        @click=${(e) => e.stopPropagation()}
+      >
+        <div class="icon-tabs">
+          <button
+            type="button"
+            class=${activeTab === "ha" ? "active" : ""}
+            @click=${() => {
+              this._iconPickerKey = pickerKey;
+              this._iconPickerTab = "ha";
+            }}
+          >
+            ${t(this, "Icons")}
+          </button>
+          <button
+            type="button"
+            class=${activeTab === "files" ? "active" : ""}
+            @click=${() => {
+              this._iconPickerKey = pickerKey;
+              this._iconPickerTab = "files";
               this._loadLocalIconFiles?.(value);
-            }
-
-            this.requestUpdate?.();
-          }}
-        >
-
-          ${value
-            ? this._isImageIcon(value)
-              ? html`
-                  <span class="preview-image-stack">
-                    ${inlineSvg
-                      ? html`
-                          <span class="preview-svg">
-                            ${unsafeHTML(inlineSvg)}
-                          </span>
-                        `
-                      : html`
-                          <img
-                            src=${iconPath}
-                            class="preview-image"
-                            alt=""
-                          />
-                        `}
-                  </span>
-                `
-              : html`
-                  <ha-icon
-                    .icon=${value}
-                  ></ha-icon>
-                `
-            : html`
-                <ha-icon
-                  icon="mdi:image-outline"
-                ></ha-icon>
-              `}
+            }}
+          >
+            ${t(this, "Files")}
+          </button>
         </div>
 
-        ${isOpen
-          ? html`
-              <div
-                class="icon-popover"
-                @click=${(e) => e.stopPropagation()}
-              >
-                <div class="icon-tabs">
-                  <button
-                    type="button"
-                    class=${activeTab === "ha" ? "active" : ""}
-                    @click=${() => {
-                      this._iconPickerTab = "ha";
-                    }}
-                  >
-                    ${t(this, "Icons")}
-                  </button>
-                  <button
-                    type="button"
-                    class=${activeTab === "files" ? "active" : ""}
-                    @click=${() => {
-                      this._iconPickerTab = "files";
-                      this._loadLocalIconFiles?.(value);
-                    }}
-                  >
-                    ${t(this, "Files")}
-                  </button>
-                </div>
-
-                ${activeTab === "files"
-                  ? renderFileIconPicker.call(
-                      this,
-                      key,
-                      value
-                    )
-                  : renderHaIconPicker.call(
-                      this,
-                      key,
-                      value
-                    )}
-              </div>
-            `
-          : ""}
-
+        ${activeTab === "files"
+          ? renderFileIconPicker.call(
+              this,
+              key,
+              value
+            )
+          : renderHaIconPicker.call(
+              this,
+              key,
+              value
+            )}
       </div>
     </div>
   `;
@@ -226,6 +165,10 @@ function renderHaIconPicker(key, value) {
 function renderFileIconPicker(key, value) {
   const orbitFiles = this._orbitIconFiles || [];
   const localFiles = this._localIconFiles || [];
+  const allItems = createFilePickerItems([
+    ...orbitFiles,
+    ...localFiles,
+  ]);
   const isLoading =
     this._orbitIconFilesLoading ||
     this._localIconFilesLoading;
@@ -248,26 +191,238 @@ function renderFileIconPicker(key, value) {
   }
 
   return html`
-    ${orbitFiles.length
-      ? renderFileIconSection.call(
+    <ha-generic-picker
+      .value=${value && this._isImageIcon(value) ? value : ""}
+      .getItems=${(searchString) =>
+        filterFilePickerItems(allItems, searchString)}
+      .rowRenderer=${(item) =>
+        renderFilePickerRow.call(this, item)}
+      .valueRenderer=${(itemValue) =>
+        renderFilePickerValue.call(
           this,
-          t(this, "Orbit Icons"),
-          key,
-          orbitFiles,
-          value
-        )
-      : ""}
-
-    ${localFiles.length
-      ? renderFileIconSection.call(
-          this,
-          t(this, "Local Icons"),
-          key,
-          localFiles,
-          value
-        )
-      : ""}
+          allItems.find((item) => item.id === itemValue)
+        )}
+      .notFoundLabel=${t(this, "No matching files")}
+      .emptyLabel=${""}
+      .noSort=${true}
+      @value-changed=${(e) => {
+        e.stopPropagation();
+        this._handleConfigUpdate(key, e.detail.value || "");
+      }}
+    ></ha-generic-picker>
   `;
+}
+
+function createFilePickerItems(files) {
+  return uniqueIconRecords(files).map((file) => {
+    const value = getIconRecordValue(file);
+    const label = getFilePickerDisplayLabel(file);
+
+    return {
+      id: value,
+      primary: label,
+      sorting_label: label,
+      iconFile: file,
+      search_labels: {
+        label,
+        file: file.file || "",
+        name: file.name || "",
+        value,
+      },
+    };
+  });
+}
+
+function getFilePickerDisplayLabel(file) {
+  const prefix = file.source
+    ? `${file.source}:`
+    : "";
+  const rawLabel = file.name || file.file || "";
+  const displayLabel = rawLabel
+    .trim()
+    .replace(/\s+/g, "-");
+
+  return `${prefix}${displayLabel}`;
+}
+
+function filterFilePickerItems(items, searchString = "") {
+  const search = searchString.trim().toLowerCase();
+
+  if (!search) return items;
+
+  return items.filter((item) =>
+    Object.values(item.search_labels || {}).some((label) =>
+      String(label).toLowerCase().includes(search)
+    )
+  );
+}
+
+function renderFilePickerRow(item) {
+  return html`
+    <ha-combo-box-item type="button" compact>
+      ${renderFilePickerStart.call(this, item)}
+      <span slot="headline">${item.primary}</span>
+    </ha-combo-box-item>
+  `;
+}
+
+function renderFilePickerValue(item) {
+  if (!item) return "";
+
+  return html`
+    ${renderFilePickerStart.call(this, item)}
+    <span slot="headline">${item.primary}</span>
+  `;
+}
+
+function renderFilePickerStart(item) {
+  if (!item?.iconFile) return "";
+
+  const previewStyle = getFilePickerPreviewStyle();
+
+  return html`
+    <span
+      slot="start"
+      class="file-picker-preview"
+      style=${previewStyle}
+    >
+      ${renderFilePreviewContent.call(this, item.iconFile)}
+    </span>
+  `;
+}
+
+function renderFilePreviewContent(icon) {
+  const iconValue = getIconRecordValue(icon);
+  const iconPath = this._resolveIconPath(iconValue);
+
+  if (!iconPath) return html``;
+
+  const inlineSvg =
+    this._getInlineSvg
+      ? this._getInlineSvg(iconPath)
+      : "";
+  const darkMode =
+    this.hass?.themes?.darkMode ?? this.hass?.selectedTheme?.dark ?? false;
+  const previewStyle = getFilePickerPreviewStyle();
+  const imageStyle = getFilePickerImageStyle(darkMode);
+
+  return html`
+    <span
+      class="file-picker-preview-inner"
+      style=${previewStyle}
+    >
+      ${inlineSvg
+        ? html`${unsafeHTML(normalizeFilePickerSvg(inlineSvg))}`
+        : html`
+            <img
+              class=${darkMode ? "dark" : ""}
+              src=${iconPath}
+              alt=""
+              width="24"
+              height="24"
+              style=${imageStyle}
+              loading="eager"
+              decoding="sync"
+              fetchpriority="high"
+            />
+          `}
+    </span>
+  `;
+}
+
+function getFilePickerPreviewStyle() {
+  return [
+    "display:inline-flex",
+    "flex:0 0 24px",
+    "width:24px !important",
+    "height:24px !important",
+    "min-width:24px !important",
+    "min-height:24px !important",
+    "max-width:24px !important",
+    "max-height:24px !important",
+    "align-items:center",
+    "justify-content:center",
+    "overflow:hidden",
+    "line-height:0",
+    "box-sizing:border-box",
+    "contain:layout paint",
+    "color:var(--secondary-text-color)",
+  ].join(";");
+}
+
+function getFilePickerImageStyle(darkMode) {
+  return [
+    "display:block",
+    "flex:none",
+    "width:24px !important",
+    "height:24px !important",
+    "min-width:24px !important",
+    "min-height:24px !important",
+    "max-width:24px !important",
+    "max-height:24px !important",
+    "object-fit:contain",
+    "box-sizing:border-box",
+    "overflow:hidden",
+    darkMode
+      ? "filter:brightness(0) invert(72%)"
+      : "filter:brightness(0) opacity(72%)",
+  ].join(";");
+}
+
+function normalizeFilePickerSvg(svg) {
+  if (!svg) return "";
+
+  const preparedSvg = normalizeFilePickerSvgColors(
+    svg
+      .replace(/<\?xml[^>]*>/gi, "")
+      .trim()
+  );
+  const openingTag = preparedSvg.match(/<svg\b[^>]*>/i)?.[0];
+
+  if (!openingTag) return preparedSvg;
+
+  const previewSvgStyle = [
+    "display:block",
+    "flex:none",
+    "width:24px !important",
+    "height:24px !important",
+    "min-width:24px !important",
+    "min-height:24px !important",
+    "max-width:24px !important",
+    "max-height:24px !important",
+    "overflow:hidden",
+    "box-sizing:border-box",
+    "color:var(--secondary-text-color)",
+    "fill:currentColor",
+    "stroke:currentColor",
+    "vertical-align:middle",
+    "pointer-events:none",
+  ].join(";");
+
+  let normalizedTag = openingTag
+    .replace(/\swidth=(["'])[^"']*\1/gi, "")
+    .replace(/\sheight=(["'])[^"']*\1/gi, "")
+    .replace(/\sstyle=(["'])[^"']*\1/gi, "")
+    .replace(/\spreserveAspectRatio=(["'])[^"']*\1/gi, "");
+
+  normalizedTag = normalizedTag.replace(
+    /^<svg\b/i,
+    `<svg width="24" height="24" preserveAspectRatio="xMidYMid meet" focusable="false" aria-hidden="true" style="${previewSvgStyle}"`
+  );
+
+  return preparedSvg.replace(openingTag, normalizedTag);
+}
+
+function normalizeFilePickerSvgColors(svg) {
+  return svg
+    .replace(
+      /\s(fill|stroke)=(["'])(#000(?:000)?|black|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*(?:1|1\.0|100%)\s*\))\2/gi,
+      (_match, attr) => ` ${attr}="currentColor"`
+    )
+    .replace(
+      /(fill|stroke)\s*:\s*(#000(?:000)?|black|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*(?:1|1\.0|100%)\s*\))/gi,
+      (_match, prop) => `${prop}:currentColor`
+    );
 }
 
 function renderFileIconSection(title, key, files, value) {
@@ -312,15 +467,19 @@ function renderFileIconOption(key, icon, value) {
         this._iconPickerKey = "";
       }}
     >
-      <span class="file-icon-preview">
-        ${inlineSvg
-          ? html`${unsafeHTML(inlineSvg)}`
-          : html`
-              <img src=${iconPath} alt="" />
-            `}
-      </span>
-      <span>${icon.name || icon.file}</span>
+      ${renderFileIconLabel.call(this, icon, value)}
     </button>
+  `;
+}
+
+function renderFileIconLabel(icon) {
+  const previewStyle = getFilePickerPreviewStyle();
+
+  return html`
+    <span class="file-icon-preview" style=${previewStyle}>
+      ${renderFilePreviewContent.call(this, icon)}
+    </span>
+    <span>${icon.name || icon.file}</span>
   `;
 }
 
@@ -436,6 +595,8 @@ function normalizeIconRecord(icon, source = "") {
 }
 
 function getIconRecordFromValue(value) {
+  if (!value || !isIconFile(value)) return null;
+
   const file = getIconFilename(value);
 
   if (!file) return null;

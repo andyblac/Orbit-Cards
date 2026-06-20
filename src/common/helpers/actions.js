@@ -35,16 +35,36 @@ export function handleAction(actionConfig, entityId = null) {
       break;
     }
 
+    case "url": {
+      if (!actionConfig.url_path) return;
+
+      window.open(
+        actionConfig.url_path,
+        "_blank",
+        "noopener,noreferrer"
+      );
+
+      break;
+    }
+
+    case "perform-action":
     case "call-service": {
       const [domain, service] =
-        (actionConfig.service || "").split(".");
+        (
+          actionConfig.perform_action ||
+          actionConfig.service ||
+          ""
+        ).split(".");
 
       if (!domain || !service) return;
 
       this.hass.callService(
         domain,
         service,
-        actionConfig.service_data || {}
+        actionConfig.data ||
+          actionConfig.service_data ||
+          {},
+        actionConfig.target
       );
 
       break;

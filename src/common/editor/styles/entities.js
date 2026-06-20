@@ -36,7 +36,7 @@ export const entityStyles = css`
   height: auto;
 
   border: 1px solid var(--orbit-editor-border);
-  border-radius: 10px;
+  border-radius: var(--ha-border-radius-lg, 12px);
 
   background: var(--orbit-editor-control);
   color: inherit;

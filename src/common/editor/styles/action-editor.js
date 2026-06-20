@@ -76,7 +76,9 @@ export const actionEditorStyles = css`
   align-items: center;
   gap: 8px;
   margin-left: auto;
-  font-size: 12px;
+  font-size: var(--ha-font-size-m, 14px);
+  font-weight: var(--ha-font-weight-normal, 400);
+  line-height: var(--ha-line-height-normal, 20px);
   opacity: 0.9;
 }
 
@@ -101,7 +103,9 @@ export const actionEditorStyles = css`
   height: 36px;
   padding: 0;
   font: inherit;
-  font-weight: 700;
+  font-size: var(--ha-font-size-m, 14px);
+  font-weight: var(--ha-font-weight-medium, 500);
+  line-height: var(--ha-line-height-normal, 20px);
   opacity: 0.6;
   cursor: pointer;
 }
@@ -123,7 +127,7 @@ export const actionEditorStyles = css`
   min-width: 34px;
   height: 34px;
   border: 1px solid var(--orbit-editor-border);
-  border-radius: 10px;
+  border-radius: var(--ha-border-radius-lg, 12px);
   background: var(--orbit-editor-control);
   display: inline-flex;
   align-items: center;
@@ -168,13 +172,14 @@ export const actionEditorStyles = css`
   min-width: fit-content;
   min-height: 32px;
   border: 1px solid var(--orbit-editor-border);
-  border-radius: 7px;
+  border-radius: var(--ha-border-radius-lg, 12px);
   padding: 0 8px;
   background: var(--orbit-editor-control);
   color: inherit;
   font: inherit;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: var(--ha-font-size-m, 14px);
+  font-weight: var(--ha-font-weight-medium, 500);
+  line-height: var(--ha-line-height-normal, 20px);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -184,14 +189,14 @@ export const actionEditorStyles = css`
   background: var(--orbit-editor-active);
   color: var(--primary-color) !important;
   box-shadow: inset 0 0 0 1px var(--primary-color);
-  font-weight: 700;
+  font-weight: var(--ha-font-weight-medium, 500);
 }
 
 .action-tool-button {
   width: 34px;
   height: 34px;
   border: 1px solid var(--orbit-editor-border);
-  border-radius: 10px;
+  border-radius: var(--ha-border-radius-lg, 12px);
   background: var(--orbit-editor-control);
   color: inherit;
   display: inline-flex;

@@ -3,10 +3,10 @@ import { html } from "lit";
 export function renderRoomSection() {
   return html`
     <div class="section">
-      ${this._renderInput("Room Name", "room_name")}
+      ${this._renderInput("Name", "room_name")}
 
       <div class="field">
-        <label>${this._t("Room Navigation Path")}</label>
+        <label>${this._t("Navigation Path")}</label>
 
         <input
           .value=${this._config?.navigate?.navigation_path || ""}
@@ -22,8 +22,16 @@ export function renderRoomSection() {
       </div>
 
       ${this._renderArea("Area", "area")}
-      ${this._renderColor("Accent Color", "accent_color")}
-      ${this._renderColor("Status Color", "status_color")}
+      <div class="color-pair">
+        ${this._renderColor("Accent Color", "accent_color")}
+        ${this._renderColorControl(
+          "Status Color",
+          "status_color",
+          this._config?.status_color || this._config?.accent_color || "",
+          (value) => this._handleConfigUpdate("status_color", value),
+          this._config?.status_color || this._config?.accent_color || ""
+        )}
+      </div>
 
       ${this._renderEntity("Main Entity", "main_entity")}
       ${this._renderIconInput(
@@ -31,15 +39,16 @@ export function renderRoomSection() {
         "main_entity_icon"
       )}
 
-      ${this._renderIconInput(
-        "Main Entity ON Icon",
-        "main_entity_icon_on"
-      )}
-
-      ${this._renderIconInput(
-        "Main Entity OFF Icon",
-        "main_entity_icon_off"
-      )}
+      <div class="icon-pair">
+        ${this._renderIconInput(
+          "Main Entity ON Icon",
+          "main_entity_icon_on"
+        )}
+        ${this._renderIconInput(
+          "Main Entity OFF Icon",
+          "main_entity_icon_off"
+        )}
+      </div>
 
       ${this._config?.main_entity
         ? html`

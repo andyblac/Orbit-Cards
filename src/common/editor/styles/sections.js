@@ -6,12 +6,12 @@ export const sectionStyles = css`
   flex-direction: column;
   gap: 12px;
 
-  padding: 14px;
+  padding: 0;
 
-  border-radius: 14px;
+  border: none;
+  border-radius: 0;
 
-  background: var(--orbit-editor-surface);
-  border: 1px solid var(--orbit-editor-border);
+  background: transparent;
 }
 
 .sub-section {

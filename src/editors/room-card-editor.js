@@ -17,6 +17,8 @@ import {
   renderTemplateInput,
   clearEntityConfig,
   clearPrefixedEntityConfig,
+  connectEditorPopoverClose,
+  disconnectEditorPopoverClose,
   getInlineSvg,
   mergeConfig,
   resolveIconPath,
@@ -52,6 +54,8 @@ class OrbitRoomCardEditor extends LitElement {
     _colorPickerTab: { state: true },
     _iconPickerKey: { state: true },
     _iconPickerTab: { state: true },
+    _iconFileSearch: { state: true },
+    _iconFilePickerOpen: { state: true },
     _orbitIconFiles: { state: true },
     _orbitIconFilesLoading: { state: true },
     _localIconFiles: { state: true },
@@ -69,10 +73,22 @@ class OrbitRoomCardEditor extends LitElement {
     this._colorPickerTab = "picker";
     this._iconPickerKey = "";
     this._iconPickerTab = "ha";
+    this._iconFileSearch = "";
+    this._iconFilePickerOpen = false;
     this._orbitIconFiles = [];
     this._orbitIconFilesLoading = false;
     this._localIconFiles = [];
     this._localIconFilesLoading = false;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    connectEditorPopoverClose(this);
+  }
+
+  disconnectedCallback() {
+    disconnectEditorPopoverClose(this);
+    super.disconnectedCallback();
   }
   
   _getColorStyle(value) {

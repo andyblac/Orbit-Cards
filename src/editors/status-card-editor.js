@@ -17,6 +17,8 @@ import {
   renderTemplateInput,
   clearEntityConfig,
   clearKeys,
+  connectEditorPopoverClose,
+  disconnectEditorPopoverClose,
   getInlineSvg,
   mergeConfig,
   resolveIconPath,
@@ -44,6 +46,8 @@ class OrbitStatusCardEditor extends LitElement {
     _colorPickerTab: { state: true },
     _iconPickerKey: { state: true },
     _iconPickerTab: { state: true },
+    _iconFileSearch: { state: true },
+    _iconFilePickerOpen: { state: true },
     _orbitIconFiles: { state: true },
     _orbitIconFilesLoading: { state: true },
     _localIconFiles: { state: true },
@@ -58,10 +62,22 @@ class OrbitStatusCardEditor extends LitElement {
     this._colorPickerTab = "picker";
     this._iconPickerKey = "";
     this._iconPickerTab = "ha";
+    this._iconFileSearch = "";
+    this._iconFilePickerOpen = false;
     this._orbitIconFiles = [];
     this._orbitIconFilesLoading = false;
     this._localIconFiles = [];
     this._localIconFilesLoading = false;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    connectEditorPopoverClose(this);
+  }
+
+  disconnectedCallback() {
+    disconnectEditorPopoverClose(this);
+    super.disconnectedCallback();
   }
 
   _getColorStyle(value) {
@@ -323,9 +339,11 @@ class OrbitStatusCardEditor extends LitElement {
     const items = this._getStatusItems();
     const item = items[index] || {};
     const scopedEditor = {
+      hass: this.hass,
       _config: item,
       _t: (key, replacements) =>
         this._t(key, replacements),
+      requestUpdate: () => this.requestUpdate(),
       _updateConfig: (changes) =>
         this._updateStatusItem(index, changes),
     };
@@ -354,6 +372,7 @@ class OrbitStatusCardEditor extends LitElement {
     const items = this._getStatusItems();
     const item = items[index] || {};
     const scopedEditor = {
+      hass: this.hass,
       _config: item,
       _iconPickerPrefix: `status-${index}-icon`,
       _t: (translationKey, replacements) =>

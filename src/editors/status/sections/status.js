@@ -49,17 +49,23 @@ export function renderStatusSection() {
                   ${this._renderEntity("ETA Entity", "eta_entity")}
                   ${this._renderEntity("Battery Entity 1", "battery_entity_1")}
                   ${this._renderEntity("Battery Entity 2", "battery_entity_2")}
-                  ${this._renderColor("Accent ON Color", "accent_on_color")}
-                  ${this._renderColor("Accent OFF Color", "accent_off_color")}
+                  <div class="color-pair">
+                    ${this._renderColor("Accent ON Color", "accent_on_color")}
+                    ${this._renderColor("Accent OFF Color", "accent_off_color")}
+                  </div>
                 `
               : html`
                   ${this._renderInput("Status Name", "status_name")}
                   ${this._renderEntity("Main Entity", "main_entity")}
-                  ${this._renderColor("Accent ON Color", "accent_on_color")}
-                  ${this._renderColor("Accent OFF Color", "accent_off_color")}
+                  <div class="color-pair">
+                    ${this._renderColor("Accent ON Color", "accent_on_color")}
+                    ${this._renderColor("Accent OFF Color", "accent_off_color")}
+                  </div>
                   ${this._renderIconInput("Main Entity Icon", "main_entity_icon")}
-                  ${this._renderIconInput("Main Entity ON Icon", "main_entity_icon_on")}
-                  ${this._renderIconInput("Main Entity OFF Icon", "main_entity_icon_off")}
+                  <div class="icon-pair">
+                    ${this._renderIconInput("Main Entity ON Icon", "main_entity_icon_on")}
+                    ${this._renderIconInput("Main Entity OFF Icon", "main_entity_icon_off")}
+                  </div>
                   ${this._renderInput("State Template", "state_template")}
                   ${this._renderInput("Label Template", "label_template")}
                 `}
@@ -267,36 +273,40 @@ function renderIconOnlyStatusConfig({
         </div>
       </div>
 
-      ${renderStatusItemColor.call(
-        this,
-        "Accent ON Color",
-        "accent_on_color",
-        selectedIndex,
-        selectedItem
-      )}
-      ${renderStatusItemColor.call(
-        this,
-        "Accent OFF Color",
-        "accent_off_color",
-        selectedIndex,
-        selectedItem
-      )}
+      <div class="color-pair">
+        ${renderStatusItemColor.call(
+          this,
+          "Accent ON Color",
+          "accent_on_color",
+          selectedIndex,
+          selectedItem
+        )}
+        ${renderStatusItemColor.call(
+          this,
+          "Accent OFF Color",
+          "accent_off_color",
+          selectedIndex,
+          selectedItem
+        )}
+      </div>
 
       ${this._renderStatusItemIconInput(
         "Main Entity Icon",
         "main_entity_icon",
         selectedIndex
       )}
-      ${this._renderStatusItemIconInput(
-        "Main Entity ON Icon",
-        "main_entity_icon_on",
-        selectedIndex
-      )}
-      ${this._renderStatusItemIconInput(
-        "Main Entity OFF Icon",
-        "main_entity_icon_off",
-        selectedIndex
-      )}
+      <div class="icon-pair">
+        ${this._renderStatusItemIconInput(
+          "Main Entity ON Icon",
+          "main_entity_icon_on",
+          selectedIndex
+        )}
+        ${this._renderStatusItemIconInput(
+          "Main Entity OFF Icon",
+          "main_entity_icon_off",
+          selectedIndex
+        )}
+      </div>
 
       ${renderStatusItemInput.call(
         this,

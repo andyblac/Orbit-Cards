@@ -1,4 +1,5 @@
 import { html } from "lit";
+import { getDefaultEntityAction } from "../../../common/helpers/default-actions.js";
 
 export function renderActionSection() {
   const items = this._getActionItems();
@@ -218,7 +219,7 @@ export function renderActionSection() {
               "Tap Action",
               "tap_action",
               selectedIndex,
-              getDefaultTapAction(selectedItem.entity)
+              getDefaultEntityAction(selectedItem.entity, "toggle")
             )}
             ${this._renderActionItemActionSelector(
               "Hold Action",
@@ -271,52 +272,4 @@ function getActionEntityDomains(value) {
     ACTION_DOMAIN_FILTERS.find((filter) => filter.value === value) ||
     ACTION_DOMAIN_FILTERS[0]
   ).domains;
-}
-
-function getDefaultTapAction(entityId) {
-  const domain = entityId?.split(".")[0];
-
-  if (domain === "scene") {
-    return {
-      action: "call-service",
-      service: "scene.turn_on",
-      service_data: {
-        entity_id: entityId,
-      },
-    };
-  }
-
-  if (domain === "script") {
-    return {
-      action: "call-service",
-      service: "script.turn_on",
-      service_data: {
-        entity_id: entityId,
-      },
-    };
-  }
-
-  if (domain === "automation") {
-    return {
-      action: "call-service",
-      service: "automation.trigger",
-      service_data: {
-        entity_id: entityId,
-      },
-    };
-  }
-
-  if (domain === "button" || domain === "input_button") {
-    return {
-      action: "call-service",
-      service: "button.press",
-      service_data: {
-        entity_id: entityId,
-      },
-    };
-  }
-
-  return {
-    action: "toggle",
-  };
 }

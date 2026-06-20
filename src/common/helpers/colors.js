@@ -59,11 +59,103 @@ export function getCssColor(colorInput) {
 
   if (!color) return "rgb(var(--color-theme))";
 
+  if (color === "light") {
+    return "var(--state-light-active-color, var(--state-active-color, rgb(var(--color-theme))))";
+  }
+
+  const themeColorVariable = getThemeColorVariableName(color);
+
+  if (isHaStandardColorName(color)) {
+    return themeColorVariable
+      ? `rgb(var(--${themeColorVariable}))`
+      : `var(--${color}-color, var(--${color}, rgb(var(--color-theme))))`;
+  }
+
   if (color.startsWith("color-")) {
     return `rgb(var(--${color}))`;
   }
 
   return `var(--${color}, rgb(var(--color-${color}, var(--color-theme))))`;
+}
+
+export function isHaStandardColorName(colorInput) {
+  return HA_STANDARD_COLOR_NAMES.has(cleanColorName(colorInput));
+}
+
+export const HA_STANDARD_COLOR_NAMES = new Set([
+  "red",
+  "pink",
+  "purple",
+  "deep-purple",
+  "indigo",
+  "blue",
+  "light-blue",
+  "cyan",
+  "teal",
+  "green",
+  "light-green",
+  "lime",
+  "yellow",
+  "amber",
+  "orange",
+  "deep-orange",
+  "brown",
+  "light-grey",
+  "grey",
+  "dark-grey",
+  "blue-grey",
+  "black",
+  "white",
+  "disabled",
+]);
+
+export function hasThemeColorName(colorInput) {
+  return Boolean(getThemeColorVariableName(colorInput));
+}
+
+export function getThemeColorVariableName(colorInput) {
+  const color = cleanColorName(colorInput);
+
+  if (!color) return "";
+
+  return getThemeColorVariableNames(color).find(hasCssVariable) || "";
+}
+
+function getThemeColorVariableNames(color) {
+  const base = color.startsWith("color-")
+    ? color.slice(6)
+    : color;
+  const aliases = COLOR_THEME_ALIASES[base] || [];
+
+  return [
+    `color-${base}`,
+    ...aliases.map((alias) => `color-${alias}`),
+  ];
+}
+
+const COLOR_THEME_ALIASES = {
+  "blue-grey": ["bluegrey"],
+  "dark-grey": ["darkgrey"],
+  "deep-orange": ["deeporange"],
+  "deep-purple": ["deeppurple"],
+  "light-blue": ["lightblue"],
+  "light-green": ["lightgreen"],
+  "light-grey": ["lightgrey"],
+};
+
+function hasCssVariable(name) {
+  if (typeof document === "undefined") return false;
+
+  const roots = [
+    document.documentElement,
+    document.body,
+  ].filter(Boolean);
+
+  return roots.some((root) =>
+    getComputedStyle(root)
+      .getPropertyValue(`--${name}`)
+      .trim()
+  );
 }
 
 export function getColorMix(colorInput, percent) {

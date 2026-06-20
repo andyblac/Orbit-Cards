@@ -7,6 +7,7 @@ import { LitElement } from "lit";
 import {
   handleAction,
 } from "../common/helpers/actions.js";
+import { getDefaultEntityAction } from "../common/helpers/default-actions.js";
 import {
   computeCircleColor,
   computeFullColor,
@@ -171,7 +172,7 @@ class OrbitActionCard extends LitElement {
       return this._config.tap_action;
     }
 
-    return getDefaultTapAction(this._getActionEntityId(index));
+    return getDefaultEntityAction(this._getActionEntityId(index), "toggle");
   }
 
   _getHoldAction(index = 0) {
@@ -274,54 +275,6 @@ function getActionColumnCount(config = {}, count = 1) {
     : 3;
 
   return Math.max(1, Math.min(count, columns || 1));
-}
-
-function getDefaultTapAction(entityId) {
-  const domain = entityId?.split(".")[0];
-
-  if (domain === "scene") {
-    return {
-      action: "call-service",
-      service: "scene.turn_on",
-      service_data: {
-        entity_id: entityId,
-      },
-    };
-  }
-
-  if (domain === "script") {
-    return {
-      action: "call-service",
-      service: "script.turn_on",
-      service_data: {
-        entity_id: entityId,
-      },
-    };
-  }
-
-  if (domain === "automation") {
-    return {
-      action: "call-service",
-      service: "automation.trigger",
-      service_data: {
-        entity_id: entityId,
-      },
-    };
-  }
-
-  if (domain === "button" || domain === "input_button") {
-    return {
-      action: "call-service",
-      service: "button.press",
-      service_data: {
-        entity_id: entityId,
-      },
-    };
-  }
-
-  return {
-    action: "toggle",
-  };
 }
 
 customElements.define("orbit-action-card", OrbitActionCard);

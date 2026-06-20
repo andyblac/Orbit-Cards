@@ -4,12 +4,28 @@ export const fieldStyles = css`
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
-label {
-  font-size: 12px;
-  opacity: 0.7;
+.field > label {
+  color: var(--primary-text-color);
+  font-size: var(--ha-font-size-m, 14px);
+  font-weight: var(--ha-font-weight-medium, 500);
+  line-height: var(--ha-line-height-condensed, 20px);
+}
+
+.color-pair,
+.icon-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .color-pair,
+  .icon-pair {
+    grid-template-columns: 1fr;
+  }
 }
 
 .editor-toggle-row {
@@ -18,7 +34,9 @@ label {
   justify-content: space-between;
   gap: 12px;
   min-height: 36px;
-  font-size: 12px;
+  font-size: var(--ha-font-size-m, 14px);
+  font-weight: var(--ha-font-weight-normal, 400);
+  line-height: var(--ha-line-height-normal, 20px);
   opacity: 0.9;
 }
 
@@ -29,17 +47,36 @@ label {
 input,
 select {
   width: 100%;
+  height: 56px;
+  padding: 0 16px;
 
-  padding: 10px 12px;
-
-  border: 1px solid var(--orbit-editor-border);
-  border-radius: 10px;
+  border: none;
+  border-bottom: 1px solid var(--input-ink-color, var(--secondary-text-color));
+  border-radius: 4px 4px 0 0;
 
   background: var(--orbit-editor-control);
   color: inherit;
+  font: inherit;
+  font-size: var(--ha-font-size-l, 16px);
+  line-height: var(--ha-line-height-expanded, 24px);
 
   outline: none;
   box-sizing: border-box;
+}
+
+input:focus,
+select:focus {
+  border-bottom-color: var(--primary-color);
+  box-shadow: inset 0 -1px 0 var(--primary-color);
+}
+
+input::placeholder {
+  color: var(--secondary-text-color);
+  opacity: 1;
+}
+
+select {
+  appearance: auto;
 }
 
 .editor-note {
@@ -48,8 +85,8 @@ select {
   background: var(--orbit-editor-control);
   border: 1px solid var(--orbit-editor-border);
   color: inherit;
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: var(--ha-font-size-s, 12px);
+  line-height: var(--ha-line-height-condensed, 18px);
   opacity: 0.72;
 }
 

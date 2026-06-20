@@ -100,22 +100,26 @@ function renderButtonFields(
 
       ${options.showColors
         ? html`
-            ${renderAccentOverrideColor.call(
-              this,
-              "ON Color",
-              `${key}_on_color`
-            )}
-            ${renderAccentOverrideColor.call(
-              this,
-              "OFF Color",
-              `${key}_off_color`
-            )}
+            <div class="color-pair">
+              ${renderAccentOverrideColor.call(
+                this,
+                "ON Color",
+                `${key}_on_color`
+              )}
+              ${renderAccentOverrideColor.call(
+                this,
+                "OFF Color",
+                `${key}_off_color`
+              )}
+            </div>
           `
         : ""}
 
       ${this._renderIconInput("Icon", `${key}_icon`)}
-      ${this._renderIconInput("ON Icon", `${key}_icon_on`)}
-      ${this._renderIconInput("OFF Icon", `${key}_icon_off`)}
+      <div class="icon-pair">
+        ${this._renderIconInput("ON Icon", `${key}_icon_on`)}
+        ${this._renderIconInput("OFF Icon", `${key}_icon_off`)}
+      </div>
 
       ${this._renderTemplateInput("State Template", `${key}_state_template`)}
 

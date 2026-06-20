@@ -13,7 +13,9 @@ export const statusEditorStyles = css`
   align-items: center;
   gap: 8px;
   margin-left: auto;
-  font-size: 12px;
+  font-size: var(--ha-font-size-m, 14px);
+  font-weight: var(--ha-font-weight-normal, 400);
+  line-height: var(--ha-line-height-normal, 20px);
   opacity: 0.9;
 }
 
@@ -101,7 +103,9 @@ export const statusEditorStyles = css`
   height: 36px;
   padding: 0;
   font: inherit;
-  font-weight: 700;
+  font-size: var(--ha-font-size-m, 14px);
+  font-weight: var(--ha-font-weight-medium, 500);
+  line-height: var(--ha-line-height-normal, 20px);
   opacity: 0.6;
   cursor: pointer;
 }
@@ -123,7 +127,7 @@ export const statusEditorStyles = css`
   min-width: 34px;
   height: 34px;
   border: 1px solid var(--orbit-editor-border);
-  border-radius: 10px;
+  border-radius: var(--ha-border-radius-lg, 12px);
   background: var(--orbit-editor-control);
   display: inline-flex;
   align-items: center;
@@ -160,7 +164,7 @@ export const statusEditorStyles = css`
   width: 34px;
   height: 34px;
   border: 1px solid var(--orbit-editor-border);
-  border-radius: 10px;
+  border-radius: var(--ha-border-radius-lg, 12px);
   background: var(--orbit-editor-control);
   color: inherit;
   display: inline-flex;
