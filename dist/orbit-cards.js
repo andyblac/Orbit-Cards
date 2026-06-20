@@ -2772,15 +2772,14 @@ function fc(e) {
 		"overflow:hidden",
 		"box-sizing:border-box",
 		"color:var(--secondary-text-color)",
-		"fill:currentColor",
-		"stroke:currentColor",
 		"vertical-align:middle",
 		"pointer-events:none"
 	].join(";"), i = n.replace(/\swidth=(["'])[^"']*\1/gi, "").replace(/\sheight=(["'])[^"']*\1/gi, "").replace(/\sstyle=(["'])[^"']*\1/gi, "").replace(/\spreserveAspectRatio=(["'])[^"']*\1/gi, "");
 	return i = i.replace(/^<svg\b/i, `<svg width="24" height="24" preserveAspectRatio="xMidYMid meet" focusable="false" aria-hidden="true" style="${r}"`), t.replace(n, i);
 }
 function pc(e) {
-	return e.replace(/\s(fill|stroke)=(["'])(#000(?:000)?|black|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*(?:1|1\.0|100%)\s*\))\2/gi, (e, t) => ` ${t}="currentColor"`).replace(/(fill|stroke)\s*:\s*(#000(?:000)?|black|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*(?:1|1\.0|100%)\s*\))/gi, (e, t) => `${t}:currentColor`);
+	let t = "(?!none\\b|currentColor\\b|transparent\\b|inherit\\b|url\\()(?:rgb\\([^)]*\\)|rgba\\([^)]*\\)|hsl\\([^)]*\\)|hsla\\([^)]*\\)|[^\"';)]+)";
+	return e.replace(RegExp(`\\s(fill|stroke)=(["'])${t}\\2`, "gi"), (e, t) => ` ${t}="currentColor"`).replace(RegExp(`(fill|stroke)\\s*:\\s*${t}`, "gi"), (e, t) => `${t}:currentColor`);
 }
 async function mc() {
 	return (await gc([Qs("manifest.json"), Qs("orbit-icons.json")])).map((e) => ({

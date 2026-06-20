@@ -393,8 +393,6 @@ function normalizeFilePickerSvg(svg) {
     "overflow:hidden",
     "box-sizing:border-box",
     "color:var(--secondary-text-color)",
-    "fill:currentColor",
-    "stroke:currentColor",
     "vertical-align:middle",
     "pointer-events:none",
   ].join(";");
@@ -414,13 +412,16 @@ function normalizeFilePickerSvg(svg) {
 }
 
 function normalizeFilePickerSvgColors(svg) {
+  const paintValuePattern =
+    "(?!none\\b|currentColor\\b|transparent\\b|inherit\\b|url\\()(?:rgb\\([^)]*\\)|rgba\\([^)]*\\)|hsl\\([^)]*\\)|hsla\\([^)]*\\)|[^\"';)]+)";
+
   return svg
     .replace(
-      /\s(fill|stroke)=(["'])(#000(?:000)?|black|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*(?:1|1\.0|100%)\s*\))\2/gi,
+      new RegExp(`\\s(fill|stroke)=(["'])${paintValuePattern}\\2`, "gi"),
       (_match, attr) => ` ${attr}="currentColor"`
     )
     .replace(
-      /(fill|stroke)\s*:\s*(#000(?:000)?|black|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*(?:1|1\.0|100%)\s*\))/gi,
+      new RegExp(`(fill|stroke)\\s*:\\s*${paintValuePattern}`, "gi"),
       (_match, prop) => `${prop}:currentColor`
     );
 }
