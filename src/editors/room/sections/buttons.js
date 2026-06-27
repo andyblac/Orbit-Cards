@@ -1,4 +1,6 @@
 import { html } from "lit";
+import { renderEntitySelector } from "../../../common/editor/helpers/renders.js";
+import { renderIconSourceControl } from "../../../common/editor/helpers/icon.js";
 
 export function renderButtonsSection() {
   const selected = this._selectedButtonIndex || 1;
@@ -40,21 +42,48 @@ function renderButtonMenu(items, selected, onSelect) {
 
 function renderButtonFields(index) {
   const key = `button${index}`;
+  const activeFilter = this._roomButtonDomainFilter || "all";
 
   return html`
     <div class="sub-section selected-button-section">
-      ${this._renderEntity("Entity", key)}
+      <div class="field">
+        <label>${this._t("Entity")}</label>
+
+        ${renderEntitySelector.call(this, {
+          value: this._config?.[key] || "",
+          filterOptions: ROOM_BUTTON_DOMAIN_FILTERS,
+          activeFilter,
+          onValueChanged: (value) =>
+            this._handleEntityUpdate
+              ? this._handleEntityUpdate(key, value)
+              : this._handleConfigUpdate(key, value),
+        })}
+      </div>
 
       <div class="color-pair">
         ${this._renderColor("ON Color", `${key}_on_color`)}
         ${this._renderColor("OFF Color", `${key}_off_color`)}
       </div>
 
-      ${this._renderIconInput("Icon", `${key}_icon`)}
-      <div class="icon-pair">
-        ${this._renderIconInput("ON Icon", `${key}_icon_on`)}
-        ${this._renderIconInput("OFF Icon", `${key}_icon_off`)}
-      </div>
+      ${renderIconSourceControl.call(this, {
+        label: "Icon",
+        sourceKey: `${key}_icon_source`,
+        entityKey: key,
+        customIconKeys: [
+          `${key}_icon`,
+          `${key}_icon_on`,
+          `${key}_icon_off`,
+        ],
+        renderCustom() {
+          return html`
+            ${this._renderIconInput("", `${key}_icon`)}
+            <div class="icon-pair">
+              ${this._renderIconInput("ON Icon", `${key}_icon_on`)}
+              ${this._renderIconInput("OFF Icon", `${key}_icon_off`)}
+            </div>
+          `;
+        },
+      })}
 
       ${this._renderTemplateInput("State Template", `${key}_state_template`)}
 
@@ -72,3 +101,23 @@ function renderButtonFields(index) {
     </div>
   `;
 }
+
+const ROOM_BUTTON_DOMAIN_FILTERS = [
+  {
+    label: "All",
+    value: "all",
+    domains: null,
+  },
+  {
+    label: "Lights",
+    haDomains: ["light"],
+    value: "light",
+    domains: ["light"],
+  },
+  {
+    label: "Switches",
+    haDomains: ["switch"],
+    value: "switch",
+    domains: ["switch"],
+  },
+];

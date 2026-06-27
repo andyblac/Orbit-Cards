@@ -1,16 +1,9 @@
 
 import { css } from "lit";
 export const entityStyles = css`
-.entity-row {
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
-  width: 100%;
-}
-
 .entity-picker {
-  flex: 1;
-  min-width: 0;
+  width: 100%;
+  display: block;
 }
 
 .entity-picker::part(root),
@@ -18,42 +11,4 @@ export const entityStyles = css`
   box-sizing: border-box;
 }
 
-.entity-selector {
-  flex: 1;
-  min-width: 0;
-}
-
-.entity-selector ha-selector {
-  width: 100%;
-  display: block;
-}
-
-.clear-button {
-  flex: 0 0 42px;
-
-  width: 42px;
-  min-width: 42px;
-  height: auto;
-
-  border: 1px solid var(--orbit-editor-border);
-  border-radius: var(--ha-border-radius-lg, 12px);
-
-  background: var(--orbit-editor-control);
-  color: inherit;
-
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 18px;
-  line-height: 1;
-
-  transition: background 0.2s ease;
-}
-
-.clear-button:hover {
-  background: var(--orbit-editor-control-hover);
-}
 `;

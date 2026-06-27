@@ -1,4 +1,6 @@
 import { html } from "lit";
+import { renderEntitySelector } from "../../../common/editor/helpers/renders.js";
+import { renderIconSourceControl } from "../../../common/editor/helpers/icon.js";
 
 export function renderStatusSection() {
   const mode = this._config?.mode || "standard";
@@ -21,17 +23,20 @@ export function renderStatusSection() {
       <div class="field">
         <label>${this._t("Mode")}</label>
 
-        <select
-          .value=${this._config?.mode || "standard"}
-          @change=${(e) =>
+        <ha-selector
+          class="status-mode-selector"
+          .hass=${this.hass}
+          .selector=${{
+            button_toggle: {
+              options: getStatusModeOptions.call(this),
+            },
+          }}
+          .value=${mode}
+          @value-changed=${(e) =>
             this._updateConfig({
-              mode: e.target.value,
+              mode: e.detail.value || "standard",
             })}
-        >
-          <option value="standard">${this._t("Standard")}</option>
-          <option value="icon_only">${this._t("Icon Only")}</option>
-          <option value="person">${this._t("Person")}</option>
-        </select>
+        ></ha-selector>
       </div>
     </div>
 
@@ -56,16 +61,23 @@ export function renderStatusSection() {
                 `
               : html`
                   ${this._renderInput("Status Name", "status_name")}
-                  ${this._renderEntity("Main Entity", "main_entity")}
+                  <div class="field">
+                    <label>${this._t("Main Entity")}</label>
+
+                    ${renderEntitySelector.call(this, {
+                      value: this._config?.main_entity || "",
+                      filterOptions: STATUS_MAIN_ENTITY_DOMAIN_FILTERS,
+                      onValueChanged: (value) =>
+                        this._handleEntityUpdate
+                          ? this._handleEntityUpdate("main_entity", value)
+                          : this._handleConfigUpdate("main_entity", value),
+                    })}
+                  </div>
                   <div class="color-pair">
                     ${this._renderColor("Accent ON Color", "accent_on_color")}
                     ${this._renderColor("Accent OFF Color", "accent_off_color")}
                   </div>
-                  ${this._renderIconInput("Main Entity Icon", "main_entity_icon")}
-                  <div class="icon-pair">
-                    ${this._renderIconInput("Main Entity ON Icon", "main_entity_icon_on")}
-                    ${this._renderIconInput("Main Entity OFF Icon", "main_entity_icon_off")}
-                  </div>
+                  ${renderStatusIconSource.call(this)}
                   ${this._renderInput("State Template", "state_template")}
                   ${this._renderInput("Label Template", "label_template")}
                 `}
@@ -244,33 +256,14 @@ function renderIconOnlyStatusConfig({
       <div class="field">
         <label>${this._t("Main Entity")}</label>
 
-        <div class="entity-row">
-          <ha-selector
-            class="entity-picker"
-            .hass=${this.hass}
-            .selector=${{ entity: {} }}
-            .value=${selectedItem.entity || ""}
-            @value-changed=${(e) =>
-              this._updateStatusItem(selectedIndex, {
-                entity: e.detail.value || "",
-              })}
-          ></ha-selector>
-
-          ${selectedItem.entity
-            ? html`
-                <button
-                  type="button"
-                  class="clear-button"
-                  @click=${() =>
-                    this._updateStatusItem(selectedIndex, {
-                      entity: "",
-                    })}
-                >
-                  ✕
-                </button>
-              `
-            : ""}
-        </div>
+        ${renderEntitySelector.call(this, {
+          value: selectedItem.entity || "",
+          filterOptions: STATUS_MAIN_ENTITY_DOMAIN_FILTERS,
+          onValueChanged: (value) =>
+            this._updateStatusItem(selectedIndex, {
+              entity: value,
+            }),
+        })}
       </div>
 
       <div class="color-pair">
@@ -290,23 +283,11 @@ function renderIconOnlyStatusConfig({
         )}
       </div>
 
-      ${this._renderStatusItemIconInput(
-        "Main Entity Icon",
-        "main_entity_icon",
-        selectedIndex
+      ${renderStatusItemIconSource.call(
+        this,
+        selectedIndex,
+        selectedItem
       )}
-      <div class="icon-pair">
-        ${this._renderStatusItemIconInput(
-          "Main Entity ON Icon",
-          "main_entity_icon_on",
-          selectedIndex
-        )}
-        ${this._renderStatusItemIconInput(
-          "Main Entity OFF Icon",
-          "main_entity_icon_off",
-          selectedIndex
-        )}
-      </div>
 
       ${renderStatusItemInput.call(
         this,
@@ -375,3 +356,110 @@ function renderStatusItemColor(label, key, index, item) {
       })
   );
 }
+
+function renderStatusIconSource() {
+  return renderIconSourceControl.call(this, {
+    label: "Icon",
+    sourceKey: "main_entity_icon_source",
+    entityKey: "main_entity",
+    customIconKeys: [
+      "main_entity_icon",
+      "main_entity_icon_on",
+      "main_entity_icon_off",
+    ],
+    renderCustom() {
+      return html`
+        ${this._renderIconInput("", "main_entity_icon")}
+        <div class="icon-pair">
+          ${this._renderIconInput(
+            "ON Icon",
+            "main_entity_icon_on"
+          )}
+          ${this._renderIconInput(
+            "OFF Icon",
+            "main_entity_icon_off"
+          )}
+        </div>
+      `;
+    },
+  });
+}
+
+function renderStatusItemIconSource(index, item) {
+  const editor = this;
+  const scopedEditor = {
+    hass: this.hass,
+    _config: item,
+    _t: (key, replacements) =>
+      this._t(key, replacements),
+    _handleConfigUpdate: (fieldKey, value) =>
+      editor._updateStatusItem(index, {
+        [fieldKey]: value,
+      }),
+    _renderIconInput: (label, key) =>
+      editor._renderStatusItemIconInput(label, key, index),
+  };
+
+  return renderIconSourceControl.call(scopedEditor, {
+    label: "Icon",
+    sourceKey: "main_entity_icon_source",
+    entityKey: "entity",
+    customIconKeys: [
+      "main_entity_icon",
+      "main_entity_icon_on",
+      "main_entity_icon_off",
+    ],
+    renderCustom() {
+      return html`
+        ${this._renderIconInput("", "main_entity_icon")}
+        <div class="icon-pair">
+          ${this._renderIconInput(
+            "ON Icon",
+            "main_entity_icon_on"
+          )}
+          ${this._renderIconInput(
+            "OFF Icon",
+            "main_entity_icon_off"
+          )}
+        </div>
+      `;
+    },
+  });
+}
+
+function getStatusModeOptions() {
+  return [
+    {
+      label: this._t("Standard"),
+      value: "standard",
+    },
+    {
+      label: this._t("Icon Only"),
+      value: "icon_only",
+    },
+    {
+      label: this._t("Person"),
+      value: "person",
+    },
+  ];
+}
+
+const STATUS_MAIN_ENTITY_DOMAIN_FILTERS = [
+  {
+    label: "All",
+    value: "all",
+    domains: null,
+  },
+  {
+    label: "Binary Sensors",
+    haDomains: ["binary_sensor"],
+    value: "binary_sensor",
+    domains: ["binary_sensor"],
+  },
+  {
+    label: "Sensors",
+    haDomains: ["sensor"],
+    value: "sensor",
+    domains: ["sensor"],
+  },
+];

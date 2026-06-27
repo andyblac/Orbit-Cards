@@ -1,4 +1,6 @@
 import { html } from "lit";
+import { renderEntitySelector } from "../../../common/editor/helpers/renders.js";
+import { renderIconSourceControl } from "../../../common/editor/helpers/icon.js";
 import { getDefaultEntityAction } from "../../../common/helpers/default-actions.js";
 
 export function renderCurvedButtonsSection() {
@@ -33,7 +35,13 @@ export function renderCurvedButtonsSection() {
         `curve_button${selected}`,
         "",
         "more-info",
-        { index: selected }
+        { index: selected },
+        {
+          showColors: true,
+          filteredEntity: true,
+          filterKey: "_roomCurveButtonDomainFilter",
+          filters: CURVE_BUTTON_DOMAIN_FILTERS,
+        }
       )}
     </div>
   `;
@@ -44,8 +52,6 @@ export function renderActionButtonSection() {
 
   return html`
     <div class="section">
-      ${renderActionEntityFilterMenu.call(this)}
-
       ${renderButtonFields.call(
         this,
         "action_button",
@@ -95,7 +101,7 @@ function renderButtonFields(
         : ""}
 
       ${options.filteredEntity
-        ? renderFilteredActionEntity.call(this, "Entity", key)
+        ? renderFilteredActionEntity.call(this, "Entity", key, options)
         : this._renderEntity("Entity", key)}
 
       ${options.showColors
@@ -115,11 +121,25 @@ function renderButtonFields(
           `
         : ""}
 
-      ${this._renderIconInput("Icon", `${key}_icon`)}
-      <div class="icon-pair">
-        ${this._renderIconInput("ON Icon", `${key}_icon_on`)}
-        ${this._renderIconInput("OFF Icon", `${key}_icon_off`)}
-      </div>
+      ${renderIconSourceControl.call(this, {
+        label: "Icon",
+        sourceKey: `${key}_icon_source`,
+        entityKey: key,
+        customIconKeys: [
+          `${key}_icon`,
+          `${key}_icon_on`,
+          `${key}_icon_off`,
+        ],
+        renderCustom() {
+          return html`
+            ${this._renderIconInput("", `${key}_icon`)}
+            <div class="icon-pair">
+              ${this._renderIconInput("ON Icon", `${key}_icon_on`)}
+              ${this._renderIconInput("OFF Icon", `${key}_icon_off`)}
+            </div>
+          `;
+        },
+      })}
 
       ${this._renderTemplateInput("State Template", `${key}_state_template`)}
 
@@ -146,103 +166,86 @@ const ACTION_BUTTON_DOMAIN_FILTERS = [
   },
   {
     label: "Automations",
+    haDomains: ["automation"],
     value: "automation",
     domains: ["automation"],
   },
   {
     label: "Buttons",
+    haDomains: ["button"],
     value: "button",
     domains: ["button", "input_button", "input_boolean"],
   },
   {
     label: "Cameras",
+    haDomains: ["camera"],
     value: "camera",
     domains: ["camera"],
   },
   {
     label: "Scenes",
+    haDomains: ["scene"],
     value: "scene",
     domains: ["scene"],
   },
   {
     label: "Scripts",
+    haDomains: ["script"],
     value: "script",
     domains: ["script"],
   },
 ];
 
-function renderActionEntityFilterMenu() {
+const CURVE_BUTTON_DOMAIN_FILTERS = [
+  {
+    label: "All",
+    value: "all",
+    domains: null,
+  },
+  {
+    label: "Covers",
+    haDomains: ["cover"],
+    value: "cover",
+    domains: ["cover"],
+  },
+  {
+    label: "Lights",
+    haDomains: ["light"],
+    value: "light",
+    domains: ["light"],
+  },
+  {
+    label: "Sensors",
+    haDomains: ["sensor"],
+    value: "sensor",
+    domains: ["sensor", "binary_sensor"],
+  },
+  {
+    label: "Switches",
+    haDomains: ["switch"],
+    value: "switch",
+    domains: ["switch"],
+  },
+];
+
+function renderFilteredActionEntity(label, key, options = {}) {
   const activeFilter =
-    this._roomActionButtonDomainFilter || "all";
-
-  return html`
-    <div class="action-domain-filters">
-      ${ACTION_BUTTON_DOMAIN_FILTERS.map((filter) => html`
-        <button
-          type="button"
-          class=${filter.value === activeFilter ? "active" : ""}
-          @click=${() => {
-            this._roomActionButtonDomainFilter = filter.value;
-          }}
-        >
-          ${this._t(filter.label)}
-        </button>
-      `)}
-    </div>
-  `;
-}
-
-function renderFilteredActionEntity(label, key) {
-  const activeFilter =
-    this._roomActionButtonDomainFilter || "all";
-  const filter =
-    ACTION_BUTTON_DOMAIN_FILTERS.find(
-      (item) => item.value === activeFilter
-    ) || ACTION_BUTTON_DOMAIN_FILTERS[0];
-
-  const entitySelector = filter.domains
-    ? {
-        entity: {
-          domain: filter.domains,
-        },
-      }
-    : {
-        entity: {},
-      };
+    this[options.filterKey || "_roomActionButtonDomainFilter"] || "all";
+  const filters = options.filters || ACTION_BUTTON_DOMAIN_FILTERS;
 
   return html`
     <div class="field">
       <label>${this._t(label)}</label>
 
-      <div class="entity-row">
-        <ha-selector
-          class="entity-picker"
-          .hass=${this.hass}
-          .selector=${entitySelector}
-          .value=${this._config?.[key] || ""}
-          @value-changed=${(e) =>
-            this._handleEntityUpdate
-              ? this._handleEntityUpdate(key, e.detail.value || "")
-              : this._handleConfigUpdate(key, e.detail.value || "")}
-        ></ha-selector>
-
-        ${this._config?.[key]
-          ? html`
-              <button
-                type="button"
-                class="clear-button"
-                @click=${() =>
-                  this._handleEntityUpdate
-                    ? this._handleEntityUpdate(key, "")
-                    : this._updateConfig({
-                        [key]: "",
-                      })}
-              >
-                ✕
-              </button>
-            `
-          : ""}
-      </div>
+      ${renderEntitySelector.call(this, {
+        value: this._config?.[key] || "",
+        filterOptions: filters,
+        activeFilter,
+        onValueChanged: (value) =>
+          this._handleEntityUpdate
+            ? this._handleEntityUpdate(key, value)
+            : this._handleConfigUpdate(key, value),
+      })}
     </div>
   `;
 }

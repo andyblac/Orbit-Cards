@@ -314,6 +314,7 @@ accent_color: theme
 status_color: green
 
 main_entity: light.living_room
+main_entity_icon_source: custom
 main_entity_icon: mdi:sofa
 main_entity_icon_on: mdi:lightbulb-on
 main_entity_icon_off: mdi:lightbulb
@@ -351,6 +352,8 @@ curve_buttons_lock_position: true
 
 curve_button1: scene.movie_time
 curve_button1_icon: mdi:movie-open
+curve_button1_on_color: amber
+curve_button1_off_color: theme
 curve_button1_tap_action:
   action: call-service
   service: scene.turn_on
@@ -378,6 +381,7 @@ action_button_icon: mdi:dots-horizontal-circle
 | `accent_color`                                                                                                                   | Main room accent colour. Supports shared colour formats and `light`.                                                                                                    |
 | `status_color`                                                                                                                   | Colour used for the status text row. Falls back to `accent_color`.                                                                                                      |
 | `main_entity`                                                                                                                    | Main entity for the large room icon, main icon colour, and main entity actions.                                                                                         |
+| `main_entity_icon_source`                                                                                                        | Main icon source. `area` uses the selected Home Assistant area icon, `entity` uses the main entity icon, and `custom` uses the icon fields below. When unset or when the saved source is no longer available, the card defaults to `area` if an area is configured, otherwise `entity` if a main entity is configured, otherwise `custom`. |
 | `main_entity_icon`                                                                                                               | Main entity icon override. Falls back to entity icon, area icon, or default room icon.                                                                                  |
 | `main_entity_icon_on`                                                                                                            | Main entity icon used when `main_entity` is ON or active.                                                                                                               |
 | `main_entity_icon_off`                                                                                                           | Main entity icon used when `main_entity` is OFF or inactive.                                                                                                            |
@@ -387,9 +391,11 @@ action_button_icon: mdi:dots-horizontal-circle
 | `navigate.navigation_path`                                                                                                       | Card body navigation path. Room Card body tap is navigation-only.                                                                                                       |
 | `status1`, `status2`, `status3`                                                                                                  | Optional status entities shown under the room/card name.                                                                                                                |
 | `status_separator`                                                                                                                | Separator shown between status values. Defaults to `\|`; spaces are added automatically in the rendered card.                                                           |
+| `statusX_icon_source`                                                                                                             | Prefix icon source for status `X`. `entity` uses the status entity icon; `custom` uses `statusX_icon`. When unset, existing custom icons keep `custom`; otherwise entity-backed status slots default to `entity`. |
 | `statusX_icon`                                                                                                                    | Optional prefix icon for status `X`. Supports MDI/custom icon packs, local SVG/image files, bundled `orbit:` icons, or pasted text/emoji such as `🌡️`.                   |
 | `statusX_decimal_places`                                                                                                         | Optional decimal place override for numeric status `X`. Leave unset to use the entity's Home Assistant display precision.                                               |
 | `button1` to `button4`                                                                                                           | Optional side button entities.                                                                                                                                          |
+| `buttonX_icon_source`                                                                                                             | Icon source for side button `X`. `entity` uses the entity/domain icon; `custom` uses the icon override fields below. Existing custom icon configs default to `custom`; otherwise entity-backed buttons default to `entity`. |
 | `buttonX_icon`                                                                                                                   | Icon override for side button `X`.                                                                                                                                      |
 | `buttonX_icon_on`                                                                                                                | Icon override when side button `X` is ON or active.                                                                                                                     |
 | `buttonX_icon_off`                                                                                                               | Icon override when side button `X` is OFF or inactive.                                                                                                                  |
@@ -400,15 +406,19 @@ action_button_icon: mdi:dots-horizontal-circle
 | `buttonX_hold_action`                                                                                                            | Hold action for side button `X`. Defaults to `more-info`.                                                                                                               |
 | `buttonX_state_template`                                                                                                         | Template used to decide whether side button `X` is active.                                                                                                              |
 | `curve_button1` to `curve_button6`                                                                                               | Optional curved button entities shown around the main icon.                                                                                                             |
+| `curve_buttonX_icon_source`                                                                                                      | Icon source for curve button `X`. `entity` uses the entity/domain icon; `custom` uses the icon override fields below. Existing custom icon configs default to `custom`; otherwise entity-backed curve buttons default to `entity`. |
 | `curve_buttonX_icon`                                                                                                             | Icon override for curve button `X`.                                                                                                                                     |
 | `curve_buttonX_icon_on`                                                                                                          | Icon override when curve button `X` is ON or active.                                                                                                                    |
 | `curve_buttonX_icon_off`                                                                                                         | Icon override when curve button `X` is OFF or inactive.                                                                                                                 |
 | `curve_buttonX_icon_svg_color_override`, `curve_buttonX_icon_on_svg_color_override`, `curve_buttonX_icon_off_svg_color_override` | Advanced YAML-only SVG colour controls for curve button icons. Defaults to `true`. Set the matching key to `false` to preserve the SVG's own colours.                   |
+| `curve_buttonX_on_color`                                                                                                         | Optional ON icon colour override for curve button `X`. If unset, the card `accent_color` is used.                                                                       |
+| `curve_buttonX_off_color`                                                                                                        | Optional OFF icon colour override for curve button `X`. If unset, the card `accent_color` is used.                                                                      |
 | `curve_buttonX_tap_action`                                                                                                       | Tap action for curve button `X`. Defaults to `more-info`.                                                                                                               |
 | `curve_buttonX_hold_action`                                                                                                      | Hold action for curve button `X`. Defaults to `none`.                                                                                                                   |
 | `curve_buttonX_state_template`                                                                                                   | Template used to decide whether curve button `X` is active.                                                                                                             |
 | `curve_buttons_lock_position`                                                                                                    | Locks curved button positions so they do not compress or reflow.                                                                                                        |
 | `action_button`                                                                                                                   | Optional standalone action button shown near the upper-right edge of the main circle. It uses curved-button style icon/state controls, but has no button background.      |
+| `action_button_icon_source`                                                                                                       | Icon source for the standalone action button. `entity` uses the entity/domain icon; `custom` uses the icon override fields below. Existing custom icon configs default to `custom`; otherwise entity-backed action buttons default to `entity`. |
 | `action_button_icon`, `action_button_icon_on`, `action_button_icon_off`                                                          | Icon overrides for the standalone action button.                                                                                                                        |
 | `action_button_icon_svg_color_override`, `action_button_icon_on_svg_color_override`, `action_button_icon_off_svg_color_override` | Advanced YAML-only SVG colour controls for the standalone action button. Defaults to `true`.                                                                            |
 | `action_button_on_color`                                                                                                          | Optional ON icon colour override for the standalone action button. If unset, the card `accent_color` is used.                                                           |
@@ -417,7 +427,7 @@ action_button_icon: mdi:dots-horizontal-circle
 | `action_button_hold_action`                                                                                                       | Hold action for the standalone action button. Defaults to `none`.                                                                                                       |
 | `action_button_state_template`                                                                                                    | Template used to decide whether the standalone action button is active.                                                                                                 |
 
-The Room Card editor includes quick entity filters for the Action Button picker: `All`, `Automations`, `Buttons`, `Cameras`, `Scenes`, and `Scripts`. `All` keeps the picker unrestricted.
+The Room Card editor includes quick entity filters inside supported pickers. Side buttons use `All`, `Lights`, and `Switches`; curve buttons use `All`, `Covers`, `Lights`, `Sensors`, and `Switches`; the Action Button uses `All`, `Automations`, `Buttons`, `Cameras`, `Scenes`, and `Scripts`. `All` keeps the picker unrestricted.
 
 ## Status Card
 
@@ -578,6 +588,7 @@ For Icon Only mode, numeric `0` is OFF and values greater than `0` are ON unless
 | `label_template`                                                                                                           | Standard/Icon Only only. Template used for displayed status text or badge value.                                                                                        |
 | `accent_on_color`                                                                                                          | ON colour override. If unset, the entity `color` attribute is used when available, then `theme`.                                                                        |
 | `accent_off_color`                                                                                                         | OFF colour override. If unset, the entity `color` attribute is used when available, then `theme`.                                                                       |
+| `main_entity_icon_source`                                                                                                  | Standard/Icon Only only. Icon source. `entity` uses the entity/domain icon; `custom` uses the icon override fields below. Existing custom icon configs default to `custom`; otherwise entity-backed status items default to `entity`. |
 | `main_entity_icon`                                                                                                         | Standard/Icon Only only. Main entity icon override. Falls back to entity icon.                                                                                          |
 | `main_entity_icon_on`                                                                                                      | Standard/Icon Only only. Icon used when the status is ON.                                                                                                               |
 | `main_entity_icon_off`                                                                                                     | Standard/Icon Only only. Icon used when the status is OFF.                                                                                                              |
@@ -637,11 +648,12 @@ Set `separate_cards: true` to add a small gap and make each grouped action read 
 | Option                                | Description                                                                                                                                                                     |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `main_entity`                         | Required for a single Action Card. Entity to activate.                                                                                                                          |
-| `entities`                            | Optional list of grouped action items. Each item supports `entity`, `accent_color`, `main_entity_icon`, `main_entity_icon_svg_color_override`, `tap_action`, and `hold_action`. |
+| `entities`                            | Optional list of grouped action items. Each item supports `entity`, `accent_color`, `main_entity_icon_source`, `main_entity_icon`, `main_entity_icon_svg_color_override`, `tap_action`, and `hold_action`. |
 | `wrap`                                | Grouped mode only. Allows actions to wrap onto additional rows.                                                                                                                 |
 | `actions_per_row`                     | Grouped mode only. Number of actions per row when `wrap` is enabled. Defaults to `3`.                                                                                           |
 | `separate_cards`                      | Grouped mode only. Adds a small gap between grouped items and gives each item its own rounded card background.                                                                  |
 | `accent_color`                        | Base card/icon colour. Defaults to `theme`.                                                                                                                                     |
+| `main_entity_icon_source`             | Icon source. `entity` uses the entity/domain icon; `custom` uses `main_entity_icon`. Existing custom icon configs default to `custom`; otherwise entity-backed action items default to `entity`. |
 | `main_entity_icon`                    | Optional icon override. Falls back to entity icon, then a domain icon.                                                                                                          |
 | `main_entity_icon_svg_color_override` | Advanced YAML-only SVG colour control. Defaults to `true`, which forces the configured icon colour. Set to `false` to preserve the SVG's own colours.                           |
 | `tap_action`                          | Optional tap action override. Defaults by entity domain.                                                                                                                        |
@@ -653,13 +665,14 @@ Each card includes a visual editor. The editor supports:
 
 - Entity pickers.
 - Area picker for Room Card.
-- Mode selection for Status Card.
+- Native mode selector for Status Card.
+- Filtered entity pickers for Room Card buttons, curve buttons, action buttons, and Status Card main entities.
 - Tabbed Room Card sections: `Card`, `Status`, `Buttons`, and `Curve Buttons`.
 - Segmented selectors for Room Card status slots, side buttons, and curved buttons.
 - Grouped item add, remove, and reorder controls.
 - Wrap and separate-card layout controls for grouped cards.
 - Action selectors.
-- Icon fields.
+- Native icon source toggles for entity-backed icons, with custom icon pickers when `Custom` is selected.
 - Colour fields with preview swatches and a colour picker.
 - Card version display.
 

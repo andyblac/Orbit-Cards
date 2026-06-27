@@ -14,6 +14,24 @@ export const fieldStyles = css`
   line-height: var(--ha-line-height-condensed, 20px);
 }
 
+.field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.field-header > label {
+  color: var(--primary-text-color);
+  font-size: var(--ha-font-size-m, 14px);
+  font-weight: var(--ha-font-weight-medium, 500);
+  line-height: var(--ha-line-height-condensed, 20px);
+}
+
+.main-entity-icon-source-selector {
+  flex: 0 0 auto;
+}
+
 .color-pair,
 .icon-pair {
   display: grid;

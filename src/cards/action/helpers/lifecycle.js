@@ -19,6 +19,7 @@ export function getActionItems(config = {}) {
     {
       entity: config.main_entity,
       accent_color: config.accent_color,
+      main_entity_icon_source: config.main_entity_icon_source,
       main_entity_icon: config.main_entity_icon,
       main_entity_icon_svg_color_override:
         config.main_entity_icon_svg_color_override,
@@ -43,18 +44,10 @@ function getActionState(item) {
   const iconColor = isRunning
     ? this._computeFullColor(accentColor)
     : this._computeIconColor(accentColor);
-
-  const selectedIconKey =
-    item.main_entity_icon
-      ? "main_entity_icon"
-      : item.icon
-        ? "icon"
-        : "";
-
-  const icon =
-    item.main_entity_icon ||
-    item.icon ||
+  const iconSource = getItemIconSource(item, entityId);
+  const entityIcon =
     stateObj?.attributes?.icon ||
+    this.hass?.entities?.[entityId]?.icon ||
     (
       stateObj
         ? this._getDefaultDomainIcon(
@@ -63,6 +56,20 @@ function getActionState(item) {
           )
         : "mdi:play-circle"
     );
+
+  const selectedIconKey =
+    iconSource === "custom" && item.main_entity_icon
+      ? "main_entity_icon"
+      : iconSource === "custom" && item.icon
+        ? "icon"
+        : "";
+
+  const icon =
+    iconSource === "custom"
+      ? item.main_entity_icon ||
+        item.icon ||
+        entityIcon
+      : entityIcon;
 
   return {
     ...item,
@@ -75,6 +82,19 @@ function getActionState(item) {
       ? this._getSvgColorOverride(item, selectedIconKey)
       : true,
   };
+}
+
+function getItemIconSource(item, entityId) {
+  const savedSource = item.main_entity_icon_source;
+  const hasEntity = Boolean(entityId);
+  const hasCustomIcon = Boolean(item.main_entity_icon || item.icon);
+
+  if (savedSource === "custom") return "custom";
+  if (savedSource === "entity" && hasEntity) return "entity";
+  if (hasCustomIcon) return "custom";
+  if (hasEntity) return "entity";
+
+  return "entity";
 }
 
 function isActionEntityRunning(stateObj) {

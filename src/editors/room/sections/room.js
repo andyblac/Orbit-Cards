@@ -1,27 +1,28 @@
 import { html } from "lit";
+import { renderNavigationSelector } from "../../../common/editor/helpers/renders.js";
+import { renderIconSourceControl } from "../../../common/editor/helpers/icon.js";
 
 export function renderRoomSection() {
   return html`
     <div class="section">
       ${this._renderInput("Name", "room_name")}
+      ${this._renderArea("Area", "area")}
 
       <div class="field">
         <label>${this._t("Navigation Path")}</label>
 
-        <input
-          .value=${this._config?.navigate?.navigation_path || ""}
-          placeholder="/lovelace/home"
-          @input=${(e) => {
+        ${renderNavigationSelector.call(this, {
+          value: this._config?.navigate?.navigation_path || "",
+          onValueChanged: (value) =>
             this._updateConfig({
               navigate: {
-                navigation_path: e.target.value,
+                ...this._config?.navigate,
+                navigation_path: value,
               },
-            });
-          }}
-        />
+            }),
+        })}
       </div>
 
-      ${this._renderArea("Area", "area")}
       <div class="color-pair">
         ${this._renderColor("Accent Color", "accent_color")}
         ${this._renderColorControl(
@@ -34,21 +35,7 @@ export function renderRoomSection() {
       </div>
 
       ${this._renderEntity("Main Entity", "main_entity")}
-      ${this._renderIconInput(
-        "Main Entity Icon",
-        "main_entity_icon"
-      )}
-
-      <div class="icon-pair">
-        ${this._renderIconInput(
-          "Main Entity ON Icon",
-          "main_entity_icon_on"
-        )}
-        ${this._renderIconInput(
-          "Main Entity OFF Icon",
-          "main_entity_icon_off"
-        )}
-      </div>
+      ${renderMainEntityIconControls.call(this)}
 
       ${this._config?.main_entity
         ? html`
@@ -66,4 +53,35 @@ export function renderRoomSection() {
         : ""}
     </div>
   `;
+}
+
+function renderMainEntityIconControls() {
+  return renderIconSourceControl.call(this, {
+    label: "Main Entity Icon",
+    sourceKey: "main_entity_icon_source",
+    entityKey: "main_entity",
+    areaKey: "area",
+    allowArea: true,
+    customIconKeys: [
+      "main_entity_icon",
+      "main_entity_icon_on",
+      "main_entity_icon_off",
+    ],
+    renderCustom() {
+      return html`
+        ${this._renderIconInput("", "main_entity_icon")}
+
+        <div class="icon-pair">
+          ${this._renderIconInput(
+            "ON Icon",
+            "main_entity_icon_on"
+          )}
+          ${this._renderIconInput(
+            "OFF Icon",
+            "main_entity_icon_off"
+          )}
+        </div>
+      `;
+    },
+  });
 }

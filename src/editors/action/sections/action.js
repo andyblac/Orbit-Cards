@@ -1,4 +1,6 @@
 import { html } from "lit";
+import { renderEntitySelector } from "../../../common/editor/helpers/renders.js";
+import { renderIconSourceControl } from "../../../common/editor/helpers/icon.js";
 import { getDefaultEntityAction } from "../../../common/helpers/default-actions.js";
 
 export function renderActionSection() {
@@ -9,7 +11,6 @@ export function renderActionSection() {
   );
   const selectedItem = items[selectedIndex] || {};
   const domainFilter = this._actionEntityDomainFilter || "all";
-  const selectorDomains = getActionEntityDomains(domainFilter);
   const actionsPerRow = Math.max(
     1,
     Number(this._config?.actions_per_row) || 3
@@ -150,51 +151,15 @@ export function renderActionSection() {
       <div class="field">
         <label>${this._t("Main Entity")}</label>
 
-        <div class="action-domain-filters">
-          ${ACTION_DOMAIN_FILTERS.map((filter) => html`
-            <button
-              type="button"
-              class=${filter.value === domainFilter ? "active" : ""}
-              @click=${() => {
-                this._actionEntityDomainFilter = filter.value;
-              }}
-            >
-              ${this._t(filter.label)}
-            </button>
-          `)}
-        </div>
-
-        <div class="entity-row">
-          <ha-selector
-            class="entity-picker"
-            .hass=${this.hass}
-            .selector=${{
-              entity: {
-                domain: selectorDomains,
-              },
-            }}
-            .value=${selectedItem.entity || ""}
-            @value-changed=${(e) =>
-              this._updateActionItem(selectedIndex, {
-                entity: e.detail.value || "",
-              })}
-          ></ha-selector>
-
-          ${selectedItem.entity
-            ? html`
-                <button
-                  type="button"
-                  class="clear-button"
-                  @click=${() =>
-                    this._updateActionItem(selectedIndex, {
-                      entity: "",
-                    })}
-                >
-                  ✕
-                </button>
-              `
-            : ""}
-        </div>
+        ${renderEntitySelector.call(this, {
+          value: selectedItem.entity || "",
+          filterOptions: ACTION_DOMAIN_FILTERS,
+          activeFilter: domainFilter,
+          onValueChanged: (value) =>
+            this._updateActionItem(selectedIndex, {
+              entity: value,
+            }),
+        })}
       </div>
 
       ${this._renderColorControl(
@@ -207,10 +172,10 @@ export function renderActionSection() {
           })
       )}
 
-      ${this._renderActionItemIconInput(
-        "Main Entity Icon",
-        "main_entity_icon",
-        selectedIndex
+      ${renderActionItemIconSource.call(
+        this,
+        selectedIndex,
+        selectedItem
       )}
 
       ${selectedItem.entity
@@ -237,39 +202,64 @@ const ACTION_DOMAIN_FILTERS = [
   {
     label: "All",
     value: "all",
-    domains: [
-      "scene",
-      "script",
-      "automation",
-      "button",
-      "input_button",
-    ],
-  },
-  {
-    label: "Scenes",
-    value: "scene",
-    domains: ["scene"],
-  },
-  {
-    label: "Scripts",
-    value: "script",
-    domains: ["script"],
+    domains: null,
   },
   {
     label: "Automations",
+    haDomains: ["automation"],
     value: "automation",
     domains: ["automation"],
   },
   {
     label: "Buttons",
+    haDomains: ["button"],
     value: "button",
     domains: ["button", "input_button", "input_boolean"],
   },
+  {
+    label: "Cameras",
+    haDomains: ["camera"],
+    value: "camera",
+    domains: ["camera"],
+  },
+  {
+    label: "Scenes",
+    haDomains: ["scene"],
+    value: "scene",
+    domains: ["scene"],
+  },
+  {
+    label: "Scripts",
+    haDomains: ["script"],
+    value: "script",
+    domains: ["script"],
+  },
 ];
 
-function getActionEntityDomains(value) {
-  return (
-    ACTION_DOMAIN_FILTERS.find((filter) => filter.value === value) ||
-    ACTION_DOMAIN_FILTERS[0]
-  ).domains;
+function renderActionItemIconSource(index, item) {
+  const editor = this;
+  const scopedEditor = {
+    hass: this.hass,
+    _config: item,
+    _t: (key, replacements) =>
+      this._t(key, replacements),
+    _handleConfigUpdate: (fieldKey, value) =>
+      editor._updateActionItem(index, {
+        [fieldKey]: value,
+      }),
+    _renderIconInput: (label, key) =>
+      editor._renderActionItemIconInput(label, key, index),
+  };
+
+  return renderIconSourceControl.call(scopedEditor, {
+    label: "Icon",
+    sourceKey: "main_entity_icon_source",
+    entityKey: "entity",
+    customIconKeys: [
+      "main_entity_icon",
+    ],
+    renderCustom() {
+      return this._renderIconInput("", "main_entity_icon");
+    },
+  });
 }

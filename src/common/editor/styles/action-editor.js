@@ -160,38 +160,6 @@ export const actionEditorStyles = css`
   align-self: start;
 }
 
-.action-domain-filters {
-  display: flex;
-  gap: 8px;
-  flex-wrap: nowrap;
-  margin: 0 0 10px;
-}
-
-.action-domain-filters button {
-  flex: 1 1 auto;
-  min-width: fit-content;
-  min-height: 32px;
-  border: 1px solid var(--orbit-editor-border);
-  border-radius: var(--ha-border-radius-lg, 12px);
-  padding: 0 8px;
-  background: var(--orbit-editor-control);
-  color: inherit;
-  font: inherit;
-  font-size: var(--ha-font-size-m, 14px);
-  font-weight: var(--ha-font-weight-medium, 500);
-  line-height: var(--ha-line-height-normal, 20px);
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.action-domain-filters button.active {
-  border-color: var(--primary-color);
-  background: var(--orbit-editor-active);
-  color: var(--primary-color) !important;
-  box-shadow: inset 0 0 0 1px var(--primary-color);
-  font-weight: var(--ha-font-weight-medium, 500);
-}
-
 .action-tool-button {
   width: 34px;
   height: 34px;

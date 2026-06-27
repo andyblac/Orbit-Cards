@@ -61,6 +61,7 @@ export function getIconOnlyStatusItems(config = {}) {
       entity: config.main_entity,
       accent_on_color: config.accent_on_color,
       accent_off_color: config.accent_off_color,
+      main_entity_icon_source: config.main_entity_icon_source,
       main_entity_icon: config.main_entity_icon,
       main_entity_icon_on: config.main_entity_icon_on,
       main_entity_icon_off: config.main_entity_icon_off,
@@ -142,11 +143,10 @@ function getStatusState(item, rootConfig = {}) {
     (entity) => this._getEntityActiveState(entity),
     templatedState
   );
-
-  const icon =
-    (isOn ? customIconOn : customIconOff) ||
-    customIcon ||
+  const iconSource = getStatusIconSource(config, entityId);
+  const entityIcon =
     getStatusAttribute(stateObj, "icon") ||
+    this.hass?.entities?.[entityId]?.icon ||
     (stateObj
       ? this._getDefaultDomainIcon(
           stateObj.entity_id.split(".")[0],
@@ -154,12 +154,19 @@ function getStatusState(item, rootConfig = {}) {
         )
       : "mdi:information-outline");
 
+  const icon =
+    iconSource === "custom"
+      ? (isOn ? customIconOn : customIconOff) ||
+        customIcon ||
+        entityIcon
+      : entityIcon;
+
   const selectedIconKey =
-    isOn && customIconOn
+    iconSource === "custom" && isOn && customIconOn
       ? "main_entity_icon_on"
-      : !isOn && customIconOff
+      : iconSource === "custom" && !isOn && customIconOff
         ? "main_entity_icon_off"
-        : customIcon
+        : iconSource === "custom" && customIcon
           ? "main_entity_icon"
           : "";
 
@@ -196,6 +203,23 @@ function getStatusState(item, rootConfig = {}) {
       ? this._getSvgColorOverride(config, selectedIconKey)
       : true,
   };
+}
+
+function getStatusIconSource(config, entityId) {
+  const savedSource = config.main_entity_icon_source;
+  const hasEntity = Boolean(entityId);
+  const hasCustomIcon = Boolean(
+    config.main_entity_icon ||
+    config.main_entity_icon_on ||
+    config.main_entity_icon_off
+  );
+
+  if (savedSource === "custom") return "custom";
+  if (savedSource === "entity" && hasEntity) return "entity";
+  if (hasCustomIcon) return "custom";
+  if (hasEntity) return "entity";
+
+  return "entity";
 }
 
 function applyStatusState(state) {

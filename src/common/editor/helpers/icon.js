@@ -77,7 +77,7 @@ export function renderIconInput(label, key, placeholder) {
 
   return html`
     <div class="field">
-      <label>${t(this, label)}</label>
+      ${label ? html`<label>${t(this, label)}</label>` : ""}
 
       <div
         class="icon-picker-panel"
@@ -121,6 +121,97 @@ export function renderIconInput(label, key, placeholder) {
       </div>
     </div>
   `;
+}
+
+export function renderIconSourceControl({
+  label = "Icon",
+  sourceKey = "main_entity_icon_source",
+  entityKey = "main_entity",
+  areaKey = "area",
+  allowArea = false,
+  customIconKeys = [],
+  renderCustom,
+} = {}) {
+  const iconSource = getIconSource(this._config, {
+    sourceKey,
+    entityKey,
+    areaKey,
+    allowArea,
+    customIconKeys,
+  });
+  const customMode = iconSource === "custom";
+  const options = [
+    allowArea
+      ? {
+          label: t(this, "Area"),
+          value: "area",
+        }
+      : null,
+    {
+      label: t(this, "Entity"),
+      value: "entity",
+    },
+    {
+      label: t(this, "Custom"),
+      value: "custom",
+    },
+  ].filter(Boolean);
+
+  return html`
+    <div class="field main-entity-icon-source-field">
+      <div class="field-header">
+        <label>${t(this, label)}</label>
+
+        <ha-selector
+          class="main-entity-icon-source-selector"
+          .hass=${this.hass}
+          .selector=${{
+            button_toggle: {
+              options,
+            },
+          }}
+          .value=${iconSource}
+          @value-changed=${(e) => {
+            this._handleConfigUpdate(
+              sourceKey,
+              e.detail.value || "custom"
+            );
+          }}
+        ></ha-selector>
+      </div>
+
+      ${customMode && renderCustom
+        ? renderCustom.call(this)
+        : ""}
+    </div>
+  `;
+}
+
+export function getIconSource(config = {}, {
+  sourceKey = "main_entity_icon_source",
+  entityKey = "main_entity",
+  areaKey = "area",
+  allowArea = false,
+  customIconKeys = [],
+} = {}) {
+  const savedSource = config[sourceKey];
+  const hasArea = allowArea && Boolean(config[areaKey]);
+  const hasEntity = Boolean(config[entityKey] || config.entity);
+  const hasCustomIcon = customIconKeys.some((key) => Boolean(config[key]));
+
+  if (savedSource === "custom") return "custom";
+  if (savedSource === "area" && hasArea) return "area";
+  if (savedSource === "entity" && hasEntity) return "entity";
+
+  if (allowArea) {
+    if (hasArea) return "area";
+    if (hasEntity) return "entity";
+  }
+
+  if (hasCustomIcon) return "custom";
+  if (hasEntity) return "entity";
+
+  return allowArea ? "area" : "entity";
 }
 
 export async function loadLocalIconFiles(currentIcon = "") {

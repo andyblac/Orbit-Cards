@@ -23,6 +23,7 @@ import {
   mergeConfig,
   resolveIconPath,
   renderIconInput,
+  renderIconSourceControl,
   loadLocalIconFiles,
 } from "../common/editor/helpers/helpers.js";
 
@@ -50,6 +51,9 @@ class OrbitRoomCardEditor extends LitElement {
     _selectedStatusIndex: { state: true },
     _selectedButtonIndex: { state: true },
     _selectedCurveButtonIndex: { state: true },
+    _roomButtonDomainFilter: { state: true },
+    _roomCurveButtonDomainFilter: { state: true },
+    _roomActionButtonDomainFilter: { state: true },
     _colorPickerKey: { state: true },
     _colorPickerTab: { state: true },
     _iconPickerKey: { state: true },
@@ -69,6 +73,9 @@ class OrbitRoomCardEditor extends LitElement {
     this._selectedStatusIndex = 1;
     this._selectedButtonIndex = 1;
     this._selectedCurveButtonIndex = 1;
+    this._roomButtonDomainFilter = "all";
+    this._roomCurveButtonDomainFilter = "all";
+    this._roomActionButtonDomainFilter = "all";
     this._colorPickerKey = "";
     this._colorPickerTab = "picker";
     this._iconPickerKey = "";
@@ -291,11 +298,21 @@ class OrbitRoomCardEditor extends LitElement {
             `status${selected}`
           )}
 
-          ${this._renderIconInput(
-            "Prefix Icon",
-            `status${selected}_icon`,
-            "mdi:thermometer / icon.svg / 🌡️"
-          )}
+          ${renderIconSourceControl.call(this, {
+            label: "Prefix Icon",
+            sourceKey: `status${selected}_icon_source`,
+            entityKey: `status${selected}`,
+            customIconKeys: [
+              `status${selected}_icon`,
+            ],
+            renderCustom() {
+              return this._renderIconInput(
+                "",
+                `status${selected}_icon`,
+                "mdi:thermometer / icon.svg / 🌡️"
+              );
+            },
+          })}
 
           ${this._renderInput(
             "Decimal Places",
@@ -399,6 +416,7 @@ customElements.define(
 );
 
 const MAIN_ENTITY_DEPENDENT_KEYS = [
+  "main_entity_icon_source",
   "main_entity_icon",
   "main_entity_icon_on",
   "main_entity_icon_off",
@@ -407,6 +425,7 @@ const MAIN_ENTITY_DEPENDENT_KEYS = [
 ];
 
 const STATUS_ENTITY_DEPENDENT_SUFFIXES = [
+  "_icon_source",
   "_icon",
   "_decimal_places",
 ];
@@ -414,6 +433,7 @@ const STATUS_ENTITY_DEPENDENT_SUFFIXES = [
 const BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
   "_on_color",
   "_off_color",
+  "_icon_source",
   "_icon",
   "_icon_on",
   "_icon_off",
@@ -423,6 +443,7 @@ const BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
 ];
 
 const CURVE_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
+  "_icon_source",
   "_icon",
   "_icon_on",
   "_icon_off",
@@ -432,6 +453,7 @@ const CURVE_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
 ];
 
 const ACTION_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
+  "_icon_source",
   "_icon",
   "_icon_on",
   "_icon_off",
@@ -448,6 +470,7 @@ const ROOM_CONFIG_ORDER = [
   "area",
   "navigate",
   "main_entity",
+  "main_entity_icon_source",
   "main_entity_icon",
   "main_entity_icon_on",
   "main_entity_icon_off",
@@ -459,6 +482,7 @@ const ROOM_CONFIG_ORDER = [
   "status_separator",
   ...[1, 2, 3].flatMap((index) => [
     `status${index}`,
+    `status${index}_icon_source`,
     `status${index}_icon`,
     `status${index}_decimal_places`,
   ]),
@@ -466,6 +490,7 @@ const ROOM_CONFIG_ORDER = [
     `button${index}`,
     `button${index}_on_color`,
     `button${index}_off_color`,
+    `button${index}_icon_source`,
     `button${index}_icon`,
     `button${index}_icon_on`,
     `button${index}_icon_off`,
@@ -479,6 +504,9 @@ const ROOM_CONFIG_ORDER = [
   "curve_buttons_lock_position",
   ...[1, 2, 3, 4, 5, 6].flatMap((index) => [
     `curve_button${index}`,
+    `curve_button${index}_on_color`,
+    `curve_button${index}_off_color`,
+    `curve_button${index}_icon_source`,
     `curve_button${index}_icon`,
     `curve_button${index}_icon_on`,
     `curve_button${index}_icon_off`,
@@ -490,6 +518,7 @@ const ROOM_CONFIG_ORDER = [
     `curve_button${index}_hold_action`,
   ]),
   "action_button",
+  "action_button_icon_source",
   "action_button_icon",
   "action_button_icon_on",
   "action_button_icon_off",

@@ -122,6 +122,7 @@ class OrbitActionCardEditor extends LitElement {
       {
         entity: config?.main_entity || "",
         accent_color: config?.accent_color || "",
+        main_entity_icon_source: config?.main_entity_icon_source || "",
         main_entity_icon: config?.main_entity_icon || "",
         tap_action: config?.tap_action,
         hold_action: config?.hold_action,
@@ -235,6 +236,7 @@ class OrbitActionCardEditor extends LitElement {
     this._updateConfig({
       main_entity: nextItem.entity || "",
       accent_color: nextItem.accent_color || "",
+      main_entity_icon_source: nextItem.main_entity_icon_source || "",
       main_entity_icon: nextItem.main_entity_icon || "",
       tap_action: nextItem.tap_action,
       hold_action: nextItem.hold_action,
@@ -420,6 +422,7 @@ function cleanClearedActionItem(item) {
 
 const ACTION_ENTITY_DEPENDENT_KEYS = [
   "accent_color",
+  "main_entity_icon_source",
   "main_entity_icon",
   "tap_action",
   "hold_action",
@@ -433,6 +436,7 @@ const ACTION_GROUP_ROOT_KEYS = [
 const ACTION_ITEM_KEYS = [
   "entity",
   "accent_color",
+  "main_entity_icon_source",
   "main_entity_icon",
   "main_entity_icon_svg_color_override",
   "tap_action",
@@ -443,6 +447,7 @@ const ACTION_CONFIG_ORDER = [
   "type",
   "main_entity",
   "accent_color",
+  "main_entity_icon_source",
   "main_entity_icon",
   "main_entity_icon_svg_color_override",
   "tap_action",
