@@ -392,8 +392,12 @@ export const iconStyles = css`
   line-height: 1;
 }
 
-.theme-source-badge::before {
-  content: "S";
+.theme-source-badge-theme {
+  background: var(--accent-color, var(--primary-color));
+}
+
+.theme-source-badge-standard {
+  background: var(--primary-color);
 }
 
 .icon-input-row {

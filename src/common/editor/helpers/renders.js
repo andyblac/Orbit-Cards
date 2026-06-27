@@ -428,25 +428,22 @@ function renderThemeColorPickerStart(item) {
 }
 
 function renderThemeColorPickerBadge(item) {
+  if (item.isThemeColor) {
+    return html`
+      <span
+        slot="end"
+        class="theme-source-badge theme-source-badge-theme"
+        aria-label="Theme"
+      >T</span>
+    `;
+  }
+
   return item.isStandardFallback
     ? html`
         <span
           slot="end"
-          class="theme-source-badge"
+          class="theme-source-badge theme-source-badge-standard"
           aria-label="Standard"
-          style="
-            display: inline-flex;
-            width: 13px;
-            height: 13px;
-            border-radius: 50%;
-            align-items: center;
-            justify-content: center;
-            background: var(--primary-color);
-            color: var(--text-primary-color);
-            font-size: 8px;
-            font-weight: 800;
-            line-height: 1;
-          "
         >S</span>
       `
     : "";
@@ -457,6 +454,15 @@ function createThemeColorItems() {
   const usedIds = new Set();
 
   for (const option of THEME_COLOR_OPTIONS) {
+    const item = createThemeColorItem.call(this, option);
+
+    if (!item || usedIds.has(item.id)) continue;
+
+    usedIds.add(item.id);
+    items.push(item);
+  }
+
+  for (const option of getThemeCssColorOptions.call(this)) {
     const item = createThemeColorItem.call(this, option);
 
     if (!item || usedIds.has(item.id)) continue;
@@ -515,19 +521,20 @@ function scheduleThemeColorWarmup() {
 
 function getThemeColorCacheKey() {
   const language =
-    this.hass?.locale?.language ||
-    this.hass?.language ||
+    this?.hass?.locale?.language ||
+    this?.hass?.language ||
     "";
   const theme =
-    this.hass?.selectedTheme?.theme ||
-    this.hass?.themes?.theme ||
+    this?.hass?.selectedTheme?.theme ||
+    this?.hass?.themes?.theme ||
     "";
   const darkMode =
-    this.hass?.themes?.darkMode ??
-    this.hass?.selectedTheme?.dark ??
+    this?.hass?.themes?.darkMode ??
+    this?.hass?.selectedTheme?.dark ??
     "";
+  const themeColors = getThemeColorVariableSignature.call(this);
 
-  return `${language}|${theme}|${darkMode}`;
+  return `${language}|${theme}|${darkMode}|${themeColors}`;
 }
 
 function createThemeColorItem(option) {
@@ -538,6 +545,12 @@ function createThemeColorItem(option) {
   const config = normalizeThemeColorConfig(originalConfig);
   const standard = isStandardThemeColor(config.id);
   const standardFallback = standard && isStandardFallbackColor(config.id);
+  const themeColor =
+    !standardFallback &&
+    (
+      config.source === "theme" ||
+      hasConfiguredThemeColor.call(this, config.id)
+    );
   const label = config.label
     ? t(this, config.label)
     : getThemeColorLabel.call(this, config.id);
@@ -548,10 +561,15 @@ function createThemeColorItem(option) {
     secondary: standard ? t(this, "Color") : t(this, "Theme"),
     sorting_label: label,
     isStandardFallback: standardFallback,
+    isThemeColor: themeColor,
     search_labels: {
       color: config.id,
       label,
-      source: standardFallback ? "standard" : "theme",
+      source: standardFallback
+        ? "standard"
+        : themeColor
+          ? "theme"
+          : "color",
     },
   };
 }
@@ -577,6 +595,144 @@ function normalizeThemeColorValue(value) {
     : cleaned;
 
   return THEME_COLOR_ALIASES[base] || base;
+}
+
+function getThemeCssColorOptions() {
+  return getThemeColorVariableNames.call(this)
+    .map((name) => getThemeColorIdFromVariableName(name))
+    .filter(isUsefulThemeColorId)
+    .map((id) => ({
+      id,
+      source: "theme",
+    }))
+    .sort((a, b) =>
+      getThemeColorLabel.call(this, a.id)
+        .localeCompare(
+          getThemeColorLabel.call(this, b.id),
+          this?.hass?.locale?.language ||
+            this?.hass?.language ||
+            undefined,
+          { sensitivity: "base" }
+        )
+    );
+}
+
+function getThemeColorVariableSignature() {
+  return getThemeColorVariableEntries.call(this)
+    .map(([name, value]) => `${name}:${value}`)
+    .join(",");
+}
+
+function getThemeColorVariableNames() {
+  return getThemeColorVariableEntries.call(this)
+    .map(([name]) => name)
+    .sort();
+}
+
+function getThemeColorVariableEntries() {
+  const names = new Set();
+  const entries = [];
+  const themeRules = getSelectedThemeRules.call(this);
+
+  for (const [name, value] of Object.entries(themeRules)) {
+    const normalizedName = name.toLowerCase();
+
+    if (!isThemeColorRule(normalizedName, value)) continue;
+    if (names.has(normalizedName)) continue;
+
+    names.add(normalizedName);
+    entries.push([normalizedName, value]);
+  }
+
+  return entries.sort(([nameA], [nameB]) =>
+    nameA.localeCompare(nameB)
+  );
+}
+
+function getSelectedThemeRules() {
+  const themeName =
+    this?.hass?.selectedTheme?.theme ||
+    this?.hass?.themes?.theme ||
+    "";
+  const theme = themeName
+    ? this?.hass?.themes?.themes?.[themeName]
+    : null;
+
+  if (!theme) return {};
+
+  const { modes, ...baseThemeRules } = theme;
+  const darkMode =
+    this?.hass?.themes?.darkMode ??
+    this?.hass?.selectedTheme?.dark ??
+    false;
+  const modeRules = darkMode
+    ? modes?.dark
+    : modes?.light;
+
+  return {
+    ...baseThemeRules,
+    ...(modeRules || {}),
+  };
+}
+
+function getThemeColorIdFromVariableName(name) {
+  return name.startsWith("color-")
+    ? name.slice("color-".length)
+    : name;
+}
+
+function isUsefulThemeColorId(id) {
+  return Boolean(id) && !/^\d+$/.test(id);
+}
+
+function isThemeColorRule(name, value) {
+  if (!name) return false;
+
+  const isColorName =
+    name.startsWith("color-") ||
+    name.startsWith("google-") ||
+    name.endsWith("-color") ||
+    name.includes("-color-");
+
+  if (!isColorName) return false;
+
+  return isThemeColorValue(value);
+}
+
+function isThemeColorValue(value) {
+  const color = value === undefined || value === null
+    ? ""
+    : value.toString().trim();
+
+  if (!color) return false;
+
+  return (
+    /^#[0-9a-f]{3,8}$/i.test(color) ||
+    /^(rgb|rgba|hsl|hsla)\(/i.test(color) ||
+    /^var\(\s*--[a-z0-9-_]*color[a-z0-9-_]*/i.test(color) ||
+    /^\d+\s*,\s*\d+\s*,\s*\d+/.test(color)
+  );
+}
+
+function hasConfiguredThemeColor(color) {
+  const names = new Set(getThemeColorVariableNames.call(this));
+  const variableNames = getThemeCssVariableNames(color);
+
+  return variableNames.some((name) => names.has(name));
+}
+
+function getThemeCssVariableNames(color) {
+  const clean = normalizeThemeColorValue(color);
+
+  if (!clean) return [];
+
+  const direct = clean.startsWith("color-")
+    ? clean
+    : `color-${clean}`;
+
+  return clean.endsWith("-color")
+    ? [clean, direct]
+    : [direct, clean];
 }
 
 function isStandardThemeColor(color) {

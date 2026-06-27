@@ -118,7 +118,7 @@ accent_color: color-red
 accent_color: google-yellow
 ```
 
-In the visual editor, tap a colour preview swatch to open the colour selector. The selector opens on the `Theme` tab for named/theme colours and on the `Color` tab for hex, `rgb()`, and `hsl()` colours. The `Color` tab writes a hex colour and pre-populates from the current value when it can resolve it. The `Theme` tab shows selectable theme colour previews and writes the selected theme variable name.
+In the visual editor, tap a colour preview swatch to open the colour selector. The selector opens on the `Theme` tab for named/theme colours and on the `Color` tab for hex, `rgb()`, and `hsl()` colours. The `Color` tab writes a hex colour and pre-populates from the current value when it can resolve it. The `Theme` tab shows selectable theme colour previews, includes colour variables discovered from the active Home Assistant theme, and writes the selected theme variable name. Theme-provided colours are marked with `T`; built-in fallback colours are marked with `S`.
 
 Room Card also supports:
 
