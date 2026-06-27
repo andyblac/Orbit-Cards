@@ -3,7 +3,15 @@ export function getEntityDomain(entityId = "") {
 }
 
 export function getEntityAreaId(hass, entityId) {
-  return hass?.entities?.[entityId]?.area_id || "";
+  const entity = hass?.entities?.[entityId];
+
+  if (entity?.area_id) {
+    return entity.area_id;
+  }
+
+  const deviceId = entity?.device_id;
+
+  return deviceId ? hass?.devices?.[deviceId]?.area_id || "" : "";
 }
 
 export function isNumericEntity(hass, entityId) {

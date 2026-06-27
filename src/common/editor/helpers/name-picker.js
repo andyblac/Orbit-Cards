@@ -1,88 +1,85 @@
 import { html } from "lit";
-import { renderNamePicker } from "../../../common/editor/helpers/name-picker.js";
-import { renderNavigationSelector } from "../../../common/editor/helpers/renders.js";
-import { renderIconSourceControl } from "../../../common/editor/helpers/icon.js";
 
-export function renderRoomSection() {
+export function renderNamePicker({
+  label = "Name",
+  valueKey,
+  entityKey = "main_entity",
+  areaKey = "area",
+  defaultType = "",
+  modeKey = valueKey,
+} = {}) {
+  queueNativeNamePickerRender.call(this);
+
+  if (!customElements.get("ha-entity-name-picker")) {
+    return renderNamePickerFallback.call(this, {
+      label,
+      valueKey,
+      entityKey,
+      areaKey,
+      defaultType,
+      modeKey,
+    });
+  }
+
   return html`
-    <div class="section">
-      ${renderRoomNamePicker.call(this)}
-
-      <div class="selector-pair">
-        ${this._renderArea("Area", "area")}
-
-        <div class="field">
-          ${renderNavigationSelector.call(this, {
-            label: "Navigation path",
-            value: this._config?.navigate?.navigation_path || "",
-            onValueChanged: (value) =>
-              this._updateConfig({
-                navigate: {
-                  ...this._config?.navigate,
-                  navigation_path: value,
-                },
-            }),
-          })}
-        </div>
-      </div>
-
-      ${this._renderColor(["Accent", "Color"], "accent_color")}
-
-      ${this._renderEntity("Main entity", "main_entity")}
-      ${renderMainEntityIconControls.call(this)}
-
-      ${this._config?.main_entity
-        ? html`
-            ${this._renderActionSelector(
-              "Icon tap behavior",
-              "main_entity_tap_action",
-              "more-info"
-            )}
-            ${this._renderActionSelector(
-              "Icon hold behavior",
-              "main_entity_hold_action",
-              "none"
-            )}
-          `
-        : ""}
+    <div class="field room-name-field">
+      <ha-entity-name-picker
+        .hass=${this.hass}
+        .label=${this._t(label)}
+        .entityId=${getNamePickerEntityId.call(this, {
+          entityKey,
+          areaKey,
+        })}
+        .value=${getNamePickerValue(this._config, {
+          valueKey,
+          entityKey,
+          areaKey,
+          defaultType,
+        })}
+        @value-changed=${(e) => {
+          e.stopPropagation();
+          this._handleConfigUpdate(
+            valueKey,
+            normalizeNameValue(e.detail.value, this._config, {
+              entityKey,
+              areaKey,
+              defaultType,
+            })
+          );
+        }}
+      ></ha-entity-name-picker>
     </div>
   `;
-}
-
-function renderRoomNamePicker() {
-  return renderNamePicker.call(this, {
-    label: "Name",
-    valueKey: "room_name",
-    entityKey: "main_entity",
-    areaKey: "area",
-    defaultType: "area",
-  });
 }
 
 function queueNativeNamePickerRender() {
   if (
     customElements.get("ha-entity-name-picker") ||
-    this._roomNamePickerRenderQueued
+    this._namePickerRenderQueued
   ) {
     return;
   }
 
-  this._roomNamePickerRenderQueued = true;
+  this._namePickerRenderQueued = true;
   customElements
     .whenDefined("ha-entity-name-picker")
     .then(() => {
-      this._roomNamePickerRenderQueued = false;
+      this._namePickerRenderQueued = false;
       this.requestUpdate?.();
     });
 }
 
-function renderRoomNamePickerFallback() {
-  const mode = getRoomNamePickerMode(this._config, this._roomNameMode);
+function renderNamePickerFallback(options) {
+  const mode = getNamePickerMode(
+    this._config,
+    getNamePickerModeOverride(this, options.modeKey),
+    options.valueKey
+  );
 
   return html`
     <div class="field room-name-field room-name-fallback">
       <div class="field-header">
-        <label>${this._t("Name")}</label>
+        <label>${this._t(options.label)}</label>
 
         <ha-selector
           class="editor-header-button-toggle room-name-mode-selector"
@@ -91,17 +88,11 @@ function renderRoomNamePickerFallback() {
             button_toggle: {
               options: [
                 {
-                  label: localizeEntityNamePickerMode(
-                    this,
-                    "composed"
-                  ),
+                  label: localizeEntityNamePickerMode(this, "composed"),
                   value: "composed",
                 },
                 {
-                  label: localizeEntityNamePickerMode(
-                    this,
-                    "custom"
-                  ),
+                  label: localizeEntityNamePickerMode(this, "custom"),
                   value: "custom",
                 },
               ],
@@ -111,15 +102,15 @@ function renderRoomNamePickerFallback() {
           @value-changed=${(e) => {
             e.stopPropagation();
             const nextMode = e.detail.value || "composed";
-            this._roomNameMode = nextMode;
+            setNamePickerModeOverride(this, options.modeKey, nextMode);
 
             if (nextMode === "composed") {
-              this._handleConfigUpdate("room_name", undefined);
+              this._handleConfigUpdate(options.valueKey, undefined);
               return;
             }
 
-            if (typeof this._config?.room_name !== "string") {
-              this._handleConfigUpdate("room_name", undefined);
+            if (typeof this._config?.[options.valueKey] !== "string") {
+              this._handleConfigUpdate(options.valueKey, undefined);
               return;
             }
 
@@ -129,13 +120,13 @@ function renderRoomNamePickerFallback() {
       </div>
 
       ${mode === "custom"
-        ? renderRoomNameCustomInput.call(this)
-        : renderRoomNameComposedPicker.call(this)}
+        ? renderNameCustomInput.call(this, options)
+        : renderNameComposedPicker.call(this, options)}
     </div>
   `;
 }
 
-function renderRoomNameCustomInput() {
+function renderNameCustomInput(options) {
   return html`
     <ha-selector
       class="room-name-custom-input"
@@ -143,13 +134,13 @@ function renderRoomNameCustomInput() {
       .selector=${{
         text: {},
       }}
-      .value=${typeof this._config?.room_name === "string"
-        ? this._config.room_name
+      .value=${typeof this._config?.[options.valueKey] === "string"
+        ? this._config[options.valueKey]
         : ""}
       @value-changed=${(e) => {
         e.stopPropagation();
         this._handleConfigUpdate(
-          "room_name",
+          options.valueKey,
           e.detail.value || undefined
         );
       }}
@@ -157,16 +148,16 @@ function renderRoomNameCustomInput() {
   `;
 }
 
-function renderRoomNameComposedPicker() {
-  const selectedItems = getRoomNameComposedSelectedItems(this._config);
-  const pickerItems = getRoomNameComposedItems.call(this, selectedItems);
+function renderNameComposedPicker(options) {
+  const selectedItems = getNameComposedSelectedItems(this._config, options);
+  const pickerItems = getNameComposedItems.call(this, selectedItems, options);
 
   return html`
     <ha-generic-picker
       class="room-name-composed-picker"
       .hass=${this.hass}
       .value=${""}
-      .placeholder=${this._t("Name")}
+      .placeholder=${this._t(options.label)}
       .getItems=${() => pickerItems}
       allow-custom-value
       .customValueLabel=${localizeEntityNamePickerCustomName(this)}
@@ -182,30 +173,30 @@ function renderRoomNameComposedPicker() {
       .searchLabel=${localizeEntityNamePickerSearch(this)}
       @value-changed=${(e) => {
         e.stopPropagation();
-        const nextItem = parseRoomNameComposedValue(e.detail.value);
+        const nextItem = parseNameComposedValue(e.detail.value);
 
         if (!nextItem) return;
 
-        this._roomNameMode = "composed";
+        setNamePickerModeOverride(this, options.modeKey, "composed");
         this._handleConfigUpdate(
-          "room_name",
-          normalizeRoomNameValue(
+          options.valueKey,
+          normalizeNameValue(
             [...selectedItems, nextItem],
-            this._config?.area
+            this._config,
+            options
           )
         );
       }}
     >
       <div slot="field" class="room-name-composed-field">
         ${selectedItems.map((item, index) =>
-          renderRoomNameChip.call(this, item, index, selectedItems)
+          renderNameChip.call(this, item, index, selectedItems, options)
         )}
 
         <button
           type="button"
           class="room-name-add-chip"
-          @click=${(e) =>
-            openRoomNamePicker(e)}
+          @click=${(e) => openNamePicker(e)}
         >
           <ha-icon icon="mdi:plus"></ha-icon>
           <span>${localizeEntityNamePickerAdd(this)}</span>
@@ -215,16 +206,15 @@ function renderRoomNameComposedPicker() {
   `;
 }
 
-function renderRoomNameChip(item, index, selectedItems) {
+function renderNameChip(item, index, selectedItems, options) {
   return html`
     <button
       type="button"
       class="room-name-chip"
-      @click=${(e) =>
-        openRoomNamePicker(e)}
+      @click=${(e) => openNamePicker(e)}
     >
       <ha-icon icon="mdi:drag-horizontal-variant"></ha-icon>
-      <span>${formatRoomNameChipLabel.call(this, item)}</span>
+      <span>${formatNameChipLabel.call(this, item)}</span>
       <ha-icon
         class="room-name-chip-remove"
         icon="mdi:close"
@@ -237,11 +227,8 @@ function renderRoomNameChip(item, index, selectedItems) {
           );
 
           this._handleConfigUpdate(
-            "room_name",
-            normalizeRoomNameValue(
-              nextItems,
-              this._config?.area
-            )
+            options.valueKey,
+            normalizeNameValue(nextItems, this._config, options)
           );
         }}
       ></ha-icon>
@@ -249,25 +236,35 @@ function renderRoomNameChip(item, index, selectedItems) {
   `;
 }
 
-function openRoomNamePicker(event) {
+function openNamePicker(event) {
   event.preventDefault();
   event.stopPropagation();
 
-  const picker = event.currentTarget
-    ?.closest("ha-generic-picker");
-
-  picker?.open?.();
+  event.currentTarget
+    ?.closest("ha-generic-picker")
+    ?.open?.();
 }
 
-function getRoomNamePickerMode(config = {}, overrideMode) {
-  if (typeof config.room_name === "string") return "custom";
-  if (config.room_name) return "composed";
+function getNamePickerMode(config = {}, overrideMode, valueKey) {
+  if (typeof config[valueKey] === "string") return "custom";
+  if (config[valueKey]) return "composed";
 
   return overrideMode || "composed";
 }
 
-function getRoomNameComposedSelectedItems(config = {}) {
-  const value = getRoomNamePickerValue(config);
+function getNamePickerModeOverride(editor, modeKey) {
+  return editor._namePickerModes?.[modeKey];
+}
+
+function setNamePickerModeOverride(editor, modeKey, mode) {
+  editor._namePickerModes = {
+    ...editor._namePickerModes,
+    [modeKey]: mode,
+  };
+}
+
+function getNameComposedSelectedItems(config = {}, options) {
+  const value = getNamePickerValue(config, options);
 
   if (!value || typeof value === "string") return [];
 
@@ -276,7 +273,7 @@ function getRoomNameComposedSelectedItems(config = {}) {
     : [value];
 }
 
-function formatRoomNameChipLabel(item) {
+function formatNameChipLabel(item) {
   if (!item) return "";
   if (item.type === "text") return `"${item.text || ""}"`;
   if (item.type === "area") return this._t("Area");
@@ -285,17 +282,17 @@ function formatRoomNameChipLabel(item) {
   return localizeEntityNamePickerType(this, item.type);
 }
 
-function getRoomNameComposedItems(selectedItems = []) {
+function getNameComposedItems(selectedItems = [], options) {
   const items = [];
   const selectedTypes = new Set(
     selectedItems
       .filter((item) => item?.type && item.type !== "text")
       .map((item) => item.type)
   );
-  const area = this._config?.area
-    ? this.hass?.areas?.[this._config.area]
+  const area = options.areaKey && this._config?.[options.areaKey]
+    ? this.hass?.areas?.[this._config[options.areaKey]]
     : null;
-  const entityId = getRoomNamePickerEntityId.call(this);
+  const entityId = getNamePickerEntityId.call(this, options);
   const stateObj = entityId
     ? this.hass?.states?.[entityId]
     : null;
@@ -306,6 +303,16 @@ function getRoomNameComposedItems(selectedItems = []) {
       primary: this._t("Area"),
       secondary: area.name || "",
     });
+  } else if (stateObj && !selectedTypes.has("area")) {
+    const areaName = getFormattedEntityName(this.hass, stateObj, "area");
+
+    if (areaName) {
+      items.push({
+        id: "area",
+        primary: this._t("Area"),
+        secondary: areaName,
+      });
+    }
   }
 
   if (stateObj) {
@@ -317,11 +324,7 @@ function getRoomNameComposedItems(selectedItems = []) {
       });
     }
 
-    const deviceName = getFormattedEntityName(
-      this.hass,
-      stateObj,
-      "device"
-    );
+    const deviceName = getFormattedEntityName(this.hass, stateObj, "device");
 
     if (deviceName && !selectedTypes.has("device")) {
       items.push({
@@ -332,7 +335,7 @@ function getRoomNameComposedItems(selectedItems = []) {
     }
 
     const floorName =
-      getConfiguredFloorName(this.hass, this._config?.area) ||
+      getConfiguredFloorName(this.hass, this._config?.[options.areaKey]) ||
       getFormattedEntityName(this.hass, stateObj, "floor");
 
     if (floorName && !selectedTypes.has("floor")) {
@@ -347,7 +350,7 @@ function getRoomNameComposedItems(selectedItems = []) {
   return items;
 }
 
-function parseRoomNameComposedValue(value) {
+function parseNameComposedValue(value) {
   if (!value) return undefined;
 
   return ["area", "device", "entity", "floor"].includes(value)
@@ -356,6 +359,110 @@ function parseRoomNameComposedValue(value) {
         type: "text",
         text: value,
       };
+}
+
+function getNamePickerValue(config = {}, options) {
+  if (hasConfiguredName(config, options.valueKey)) {
+    return config[options.valueKey];
+  }
+
+  if (
+    options.defaultType === "area" &&
+    config[options.areaKey]
+  ) {
+    return { type: "area" };
+  }
+
+  if (
+    options.defaultType === "entity" &&
+    (config[options.entityKey] || config.entity)
+  ) {
+    return { type: "entity" };
+  }
+
+  return undefined;
+}
+
+function hasConfiguredName(config = {}, valueKey) {
+  return (
+    Object.prototype.hasOwnProperty.call(config, valueKey) &&
+    config[valueKey] !== undefined &&
+    config[valueKey] !== ""
+  );
+}
+
+function normalizeNameValue(value, config = {}, options) {
+  if (!value || (Array.isArray(value) && value.length === 0)) {
+    return undefined;
+  }
+
+  if (
+    options.defaultType &&
+    hasDefaultContext(config, options) &&
+    isSingleTypeValue(value, options.defaultType)
+  ) {
+    return undefined;
+  }
+
+  return value;
+}
+
+function hasDefaultContext(config = {}, options) {
+  if (options.defaultType === "area") {
+    return Boolean(config[options.areaKey]);
+  }
+
+  if (options.defaultType === "entity") {
+    return Boolean(config[options.entityKey] || config.entity);
+  }
+
+  return false;
+}
+
+function isSingleTypeValue(value, type) {
+  const items = Array.isArray(value)
+    ? value
+    : [value];
+
+  return (
+    items.length === 1 &&
+    items[0] &&
+    typeof items[0] === "object" &&
+    items[0].type === type
+  );
+}
+
+function getNamePickerEntityId(options) {
+  const entityId =
+    this._config?.[options.entityKey] ||
+    this._config?.entity ||
+    "";
+
+  if (entityId) return entityId;
+
+  return findEntityInArea(this.hass, this._config?.[options.areaKey]);
+}
+
+function findEntityInArea(hass, areaId) {
+  if (!hass || !areaId) return "";
+
+  const entityEntries = hass.entities || {};
+  const devices = hass.devices || {};
+
+  for (const entityId of Object.keys(hass.states || {})) {
+    const entity = entityEntries[entityId];
+
+    if (entity?.area_id === areaId) return entityId;
+
+    if (
+      entity?.device_id &&
+      devices[entity.device_id]?.area_id === areaId
+    ) {
+      return entityId;
+    }
+  }
+
+  return "";
 }
 
 function getFormattedEntityName(hass, stateObj, type) {
@@ -428,108 +535,4 @@ function localizeEntityNamePickerType(editor, type) {
   if (value && value !== key) return value;
 
   return type;
-}
-
-function getRoomNamePickerValue(config = {}) {
-  if (hasConfiguredRoomName(config)) {
-    return config.room_name;
-  }
-
-  return config.area
-    ? { type: "area" }
-    : undefined;
-}
-
-function hasConfiguredRoomName(config = {}) {
-  return (
-    Object.prototype.hasOwnProperty.call(config, "room_name") &&
-    config.room_name !== undefined &&
-    config.room_name !== ""
-  );
-}
-
-function normalizeRoomNameValue(value, areaId) {
-  if (!value || (Array.isArray(value) && value.length === 0)) {
-    return undefined;
-  }
-
-  if (areaId && isAreaNameValue(value)) {
-    return undefined;
-  }
-
-  return value;
-}
-
-function isAreaNameValue(value) {
-  const items = Array.isArray(value)
-    ? value
-    : [value];
-
-  return (
-    items.length === 1 &&
-    items[0] &&
-    typeof items[0] === "object" &&
-    items[0].type === "area"
-  );
-}
-
-function getRoomNamePickerEntityId() {
-  const mainEntity = this._config?.main_entity || this._config?.entity || "";
-
-  if (mainEntity) return mainEntity;
-
-  return findEntityInArea(this.hass, this._config?.area);
-}
-
-function findEntityInArea(hass, areaId) {
-  if (!hass || !areaId) return "";
-
-  const entityEntries = hass.entities || {};
-  const devices = hass.devices || {};
-
-  for (const entityId of Object.keys(hass.states || {})) {
-    const entity = entityEntries[entityId];
-
-    if (entity?.area_id === areaId) return entityId;
-
-    if (
-      entity?.device_id &&
-      devices[entity.device_id]?.area_id === areaId
-    ) {
-      return entityId;
-    }
-  }
-
-  return "";
-}
-
-function renderMainEntityIconControls() {
-  return renderIconSourceControl.call(this, {
-    label: "Icon",
-    sourceKey: "main_entity_icon_source",
-    entityKey: "main_entity",
-    areaKey: "area",
-    allowArea: true,
-    customIconKeys: [
-      "main_entity_icon",
-      "main_entity_icon_on",
-      "main_entity_icon_off",
-    ],
-    renderCustom() {
-      return html`
-        ${this._renderIconInput("", "main_entity_icon")}
-
-        <div class="icon-pair">
-          ${this._renderIconInput(
-            ["Active", "Icon"],
-            "main_entity_icon_on"
-          )}
-          ${this._renderIconInput(
-            ["Inactive", "Icon"],
-            "main_entity_icon_off"
-          )}
-        </div>
-      `;
-    },
-  });
 }

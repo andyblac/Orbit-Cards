@@ -1,4 +1,5 @@
 import { html } from "lit";
+import { renderNamePicker } from "../../../common/editor/helpers/name-picker.js";
 import { renderEntitySelector } from "../../../common/editor/helpers/renders.js";
 import { renderIconSourceControl } from "../../../common/editor/helpers/icon.js";
 
@@ -20,23 +21,25 @@ export function renderStatusSection() {
 
   return html`
     <div class="section">
-      <div class="field">
-        <label>${this._t("Mode")}</label>
+      <div class="field editor-button-toggle-field">
+        <div class="field-header">
+          <label>${this._t("Mode")}</label>
 
-        <ha-selector
-          class="status-mode-selector"
-          .hass=${this.hass}
-          .selector=${{
-            button_toggle: {
-              options: getStatusModeOptions.call(this),
-            },
-          }}
-          .value=${mode}
-          @value-changed=${(e) =>
-            this._updateConfig({
-              mode: e.detail.value || "standard",
-            })}
-        ></ha-selector>
+          <ha-selector
+            class="editor-header-button-toggle status-mode-selector"
+            .hass=${this.hass}
+            .selector=${{
+              button_toggle: {
+                options: getStatusModeOptions.call(this),
+              },
+            }}
+            .value=${mode}
+            @value-changed=${(e) =>
+              this._updateConfig({
+                mode: e.detail.value || "standard",
+              })}
+          ></ha-selector>
+        </div>
       </div>
     </div>
 
@@ -47,22 +50,23 @@ export function renderStatusSection() {
         })
       : html`
           <div class="section">
+            ${renderStatusNamePicker.call(this)}
+
             ${isPerson
               ? html`
-                  ${this._renderEntity("Person Entity", "main_entity")}
-                  ${this._renderEntity("Tracker Entity", "tracker_entity")}
-                  ${this._renderEntity("ETA Entity", "eta_entity")}
-                  ${this._renderEntity("Battery Entity 1", "battery_entity_1")}
-                  ${this._renderEntity("Battery Entity 2", "battery_entity_2")}
+                  ${this._renderEntity("Person entity", "main_entity")}
+                  ${this._renderEntity("Tracker entity", "tracker_entity")}
+                  ${this._renderEntity("ETA entity", "eta_entity")}
+                  ${this._renderEntity("Battery entity {index}", "battery_entity_1", { index: 1 })}
+                  ${this._renderEntity("Battery entity {index}", "battery_entity_2", { index: 2 })}
                   <div class="color-pair">
-                    ${this._renderColor("Accent ON Color", "accent_on_color")}
-                    ${this._renderColor("Accent OFF Color", "accent_off_color")}
+                    ${this._renderColor(["Accent", "Active", "Color"], "accent_on_color")}
+                    ${this._renderColor(["Accent", "Inactive", "Color"], "accent_off_color")}
                   </div>
                 `
               : html`
-                  ${this._renderInput("Status Name", "status_name")}
                   <div class="field">
-                    <label>${this._t("Main Entity")}</label>
+                    <label>${this._t("Main entity")}</label>
 
                     ${renderEntitySelector.call(this, {
                       value: this._config?.main_entity || "",
@@ -74,28 +78,28 @@ export function renderStatusSection() {
                     })}
                   </div>
                   <div class="color-pair">
-                    ${this._renderColor("Accent ON Color", "accent_on_color")}
-                    ${this._renderColor("Accent OFF Color", "accent_off_color")}
+                    ${this._renderColor(["Accent", "Active", "Color"], "accent_on_color")}
+                    ${this._renderColor(["Accent", "Inactive", "Color"], "accent_off_color")}
                   </div>
                   ${renderStatusIconSource.call(this)}
-                  ${this._renderInput("State Template", "state_template")}
-                  ${this._renderInput("Label Template", "label_template")}
+                  ${this._renderTemplateInput("State template", "state_template")}
+                  ${this._renderTemplateInput("Label template", "label_template")}
                 `}
 
             ${this._config?.main_entity
               ? html`
                   ${this._renderActionSelector(
-                    "Card Action",
+                    "Tap behavior",
                     "tap_action",
                     cardActionDefault
                   )}
                   ${this._renderActionSelector(
-                    "Main Entity Action",
+                    "Icon tap behavior",
                     "main_entity_tap_action",
                     mainEntityActionDefault
                   )}
                   ${this._renderActionSelector(
-                    "Hold Action",
+                    "Icon hold behavior",
                     "main_entity_hold_action",
                     "none"
                   )}
@@ -104,6 +108,15 @@ export function renderStatusSection() {
           </div>
         `}
   `;
+}
+
+function renderStatusNamePicker() {
+  return renderNamePicker.call(this, {
+    label: "Status name",
+    valueKey: "status_name",
+    entityKey: "main_entity",
+    defaultType: "entity",
+  });
 }
 
 function renderIconOnlyStatusConfig({
@@ -147,7 +160,7 @@ function renderIconOnlyStatusConfig({
         ${items.length > 1
           ? html`
               <label class="status-wrap-toggle">
-                <span>${this._t("Separate Cards")}</span>
+                <span>${this._t("Separate cards")}</span>
                 <ha-switch
                   .checked=${!!this._config?.separate_cards}
                   @change=${(e) =>
@@ -161,23 +174,20 @@ function renderIconOnlyStatusConfig({
 
       ${this._config?.wrap
         ? html`
-            <label class="status-per-row-field">
-              <span>${this._t("Items Per Row")}</span>
-
-              <input
-                type="number"
-                min="1"
-                step="1"
-                .value=${String(this._config?.items_per_row || 3)}
-                @input=${(e) =>
+            <div class="status-per-row-field">
+              ${this._renderNumberInput("Items per row", "items_per_row", {
+                value: this._config?.items_per_row || 3,
+                min: 1,
+                step: 1,
+                onValueChanged: (value) =>
                   this._updateConfig({
                     items_per_row: Math.max(
                       1,
-                      Number(e.target.value) || 1
+                      Number(value) || 1
                     ),
-                  })}
-              />
-            </label>
+                  }),
+              })}
+            </div>
           `
         : ""}
       </div>
@@ -254,7 +264,7 @@ function renderIconOnlyStatusConfig({
       </div>
 
       <div class="field">
-        <label>${this._t("Main Entity")}</label>
+        <label>${this._t("Main entity")}</label>
 
         ${renderEntitySelector.call(this, {
           value: selectedItem.entity || "",
@@ -269,14 +279,14 @@ function renderIconOnlyStatusConfig({
       <div class="color-pair">
         ${renderStatusItemColor.call(
           this,
-          "Accent ON Color",
+          ["Accent", "Active", "Color"],
           "accent_on_color",
           selectedIndex,
           selectedItem
         )}
         ${renderStatusItemColor.call(
           this,
-          "Accent OFF Color",
+          ["Accent", "Inactive", "Color"],
           "accent_off_color",
           selectedIndex,
           selectedItem
@@ -291,14 +301,14 @@ function renderIconOnlyStatusConfig({
 
       ${renderStatusItemInput.call(
         this,
-        "State Template",
+        "State template",
         "state_template",
         selectedIndex,
         selectedItem
       )}
       ${renderStatusItemInput.call(
         this,
-        "Label Template",
+        "Label template",
         "label_template",
         selectedIndex,
         selectedItem
@@ -307,19 +317,19 @@ function renderIconOnlyStatusConfig({
       ${selectedItem.entity
         ? html`
             ${this._renderStatusItemActionSelector(
-              "Card Action",
+              "Tap behavior",
               "tap_action",
               selectedIndex,
               cardActionDefault
             )}
             ${this._renderStatusItemActionSelector(
-              "Main Entity Action",
+              "Icon tap behavior",
               "main_entity_tap_action",
               selectedIndex,
               mainEntityActionDefault
             )}
             ${this._renderStatusItemActionSelector(
-              "Hold Action",
+              "Icon hold behavior",
               "main_entity_hold_action",
               selectedIndex,
               "none"
@@ -331,18 +341,13 @@ function renderIconOnlyStatusConfig({
 }
 
 function renderStatusItemInput(label, key, index, item) {
-  return html`
-    <div class="field">
-      <label>${this._t(label)}</label>
-      <input
-        .value=${item[key] || ""}
-        @input=${(e) =>
-          this._updateStatusItem(index, {
-            [key]: e.target.value,
-          })}
-      />
-    </div>
-  `;
+  return this._renderTemplateInput(label, key, {
+    value: item[key] || "",
+    onValueChanged: (value) =>
+      this._updateStatusItem(index, {
+        [key]: value,
+      }),
+  });
 }
 
 function renderStatusItemColor(label, key, index, item) {
@@ -372,11 +377,11 @@ function renderStatusIconSource() {
         ${this._renderIconInput("", "main_entity_icon")}
         <div class="icon-pair">
           ${this._renderIconInput(
-            "ON Icon",
+            ["Active", "Icon"],
             "main_entity_icon_on"
           )}
           ${this._renderIconInput(
-            "OFF Icon",
+            ["Inactive", "Icon"],
             "main_entity_icon_off"
           )}
         </div>
@@ -414,11 +419,11 @@ function renderStatusItemIconSource(index, item) {
         ${this._renderIconInput("", "main_entity_icon")}
         <div class="icon-pair">
           ${this._renderIconInput(
-            "ON Icon",
+            ["Active", "Icon"],
             "main_entity_icon_on"
           )}
           ${this._renderIconInput(
-            "OFF Icon",
+            ["Inactive", "Icon"],
             "main_entity_icon_off"
           )}
         </div>
@@ -434,7 +439,7 @@ function getStatusModeOptions() {
       value: "standard",
     },
     {
-      label: this._t("Icon Only"),
+      label: this._t("Icon only"),
       value: "icon_only",
     },
     {

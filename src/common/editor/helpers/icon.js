@@ -2,9 +2,38 @@ import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 function t(editor, key) {
+  if (Array.isArray(key)) {
+    return formatComposedLabel(
+      editor,
+      key.map((part) => t(editor, part))
+    );
+  }
+
   return editor._t
     ? editor._t(key)
     : key;
+}
+
+function formatComposedLabel(editor, parts) {
+  const language =
+    editor?.hass?.locale?.language ||
+    editor?.hass?.language ||
+    "en";
+
+  if (!language.toLowerCase().startsWith("en")) {
+    return parts.join(" ");
+  }
+
+  return parts
+    .map((part, index) =>
+      index === 0 ? part : lowercaseFirstLetter(part))
+    .join(" ");
+}
+
+function lowercaseFirstLetter(value = "") {
+  return value.replace(/^(\p{L})/u, (letter) =>
+    letter.toLocaleLowerCase()
+  );
 }
 
 /* ==========================================
@@ -129,6 +158,7 @@ export function renderIconSourceControl({
   entityKey = "main_entity",
   areaKey = "area",
   allowArea = false,
+  allowNone = false,
   customIconKeys = [],
   renderCustom,
 } = {}) {
@@ -137,10 +167,17 @@ export function renderIconSourceControl({
     entityKey,
     areaKey,
     allowArea,
+    allowNone,
     customIconKeys,
   });
   const customMode = iconSource === "custom";
   const options = [
+    allowNone
+      ? {
+          label: t(this, "None"),
+          value: "none",
+        }
+      : null,
     allowArea
       ? {
           label: t(this, "Area"),
@@ -174,7 +211,7 @@ export function renderIconSourceControl({
           @value-changed=${(e) => {
             this._handleConfigUpdate(
               sourceKey,
-              e.detail.value || "custom"
+              e.detail.value || (allowNone ? "none" : "custom")
             );
           }}
         ></ha-selector>
@@ -192,6 +229,7 @@ export function getIconSource(config = {}, {
   entityKey = "main_entity",
   areaKey = "area",
   allowArea = false,
+  allowNone = false,
   customIconKeys = [],
 } = {}) {
   const savedSource = config[sourceKey];
@@ -200,6 +238,7 @@ export function getIconSource(config = {}, {
   const hasCustomIcon = customIconKeys.some((key) => Boolean(config[key]));
 
   if (savedSource === "custom") return "custom";
+  if (savedSource === "none" && allowNone) return "none";
   if (savedSource === "area" && hasArea) return "area";
   if (savedSource === "entity" && hasEntity) return "entity";
 
@@ -209,6 +248,7 @@ export function getIconSource(config = {}, {
   }
 
   if (hasCustomIcon) return "custom";
+  if (allowNone) return "none";
   if (hasEntity) return "entity";
 
   return allowArea ? "area" : "entity";

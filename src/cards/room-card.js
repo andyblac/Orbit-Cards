@@ -95,12 +95,19 @@ class OrbitRoomCard extends LitElement {
     );
   }
 
-  static getStubConfig() {
-    return {
+  static getStubConfig(hass) {
+    const area = getFirstAreaId(hass);
+    const config = {
       type: "custom:orbit-room-card",
       accent_color: "blue",
       navigation_path: "/lovelace/home",
     };
+
+    if (area) {
+      config.area = area;
+    }
+
+    return config;
   }
 
   getLayoutOptions() {
@@ -325,6 +332,20 @@ const ROOM_SUGGESTION_DOMAINS = new Set([
   "cover",
   "lock",
 ]);
+
+function getFirstAreaId(hass) {
+  return Object.keys(hass?.areas || {})
+    .sort((areaIdA, areaIdB) => {
+      const areaA = hass.areas[areaIdA]?.name || areaIdA;
+      const areaB = hass.areas[areaIdB]?.name || areaIdB;
+
+      return areaA.localeCompare(
+        areaB,
+        undefined,
+        { sensitivity: "base" }
+      );
+    })[0] || "";
+}
 
 function getRoomEntitySuggestion(hass, entityId) {
   const domain = getEntityDomain(entityId);

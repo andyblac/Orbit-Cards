@@ -9,25 +9,9 @@ export const statusEditorStyles = css`
 }
 
 .status-per-row-field {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   margin-left: auto;
-  font-size: var(--ha-font-size-m, 14px);
-  font-weight: var(--ha-font-weight-normal, 400);
-  line-height: var(--ha-line-height-normal, 20px);
-  opacity: 0.9;
-}
-
-.status-per-row-field span {
-  opacity: 0.78;
-}
-
-.status-per-row-field input {
-  width: 64px;
-  min-width: 64px;
-  padding: 7px 8px;
-  text-align: center;
+  width: 128px;
+  min-width: 128px;
 }
 
 .status-group-options {

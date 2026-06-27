@@ -7,6 +7,9 @@ import {
 import {
   getActiveZoneIndex,
 } from "../../../common/helpers/zones.js";
+import {
+  formatCardNameValue,
+} from "../../../common/helpers/card-name.js";
 import { localize } from "../../../common/localize.js";
 
 export function updateStatusCard(changedProps) {
@@ -96,13 +99,16 @@ function getStatusState(item, rootConfig = {}) {
   const isIconOnly =
     config.mode === "icon_only";
 
-  const cardName =
-    (!isIconOnly
-      ? config.status_name
-      : null) ||
-    getStatusAttribute(stateObj, "friendly_name") ||
-    entityId ||
-    localize(this.hass, "Status");
+  const hasConfiguredName =
+    !isIconOnly &&
+    Object.prototype.hasOwnProperty.call(config, "status_name") &&
+    config.status_name !== undefined &&
+    config.status_name !== "";
+  const cardName = hasConfiguredName
+    ? formatCardNameValue(config.status_name, config, this.hass)
+    : getStatusAttribute(stateObj, "friendly_name") ||
+      entityId ||
+      localize(this.hass, "Status");
 
   const templatedState =
     config.state_template
@@ -224,7 +230,7 @@ function getStatusIconSource(config, entityId) {
 
 function applyStatusState(state) {
   this._cardName =
-    state.cardName ||
+    state.cardName ??
     localize(this.hass, "Status");
   this._statusText = state.statusText || "";
   this._icon = state.icon || "mdi:information-outline";
@@ -256,13 +262,22 @@ function updatePersonStatusCard() {
       ? this.hass.states[etaId]
       : null;
 
-  this._cardName =
-    this._config.status_name ||
-    getStatusAttribute(personObj, "friendly_name") ||
-    getStatusAttribute(trackerObj, "friendly_name") ||
-    personId ||
-    trackerId ||
-    localize(this.hass, "Person");
+  const hasConfiguredName =
+    Object.prototype.hasOwnProperty.call(this._config, "status_name") &&
+    this._config.status_name !== undefined &&
+    this._config.status_name !== "";
+
+  this._cardName = hasConfiguredName
+    ? formatCardNameValue(
+        this._config.status_name,
+        this._config,
+        this.hass
+      )
+    : getStatusAttribute(personObj, "friendly_name") ||
+      getStatusAttribute(trackerObj, "friendly_name") ||
+      personId ||
+      trackerId ||
+      localize(this.hass, "Person");
 
   const templatedLabel =
     this._config.label_template

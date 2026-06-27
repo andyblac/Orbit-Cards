@@ -20,7 +20,7 @@ Orbit Cards currently includes:
 | Card        | Type                       | Purpose                                                                                                            |
 | ----------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | Room Card   | `custom:orbit-room-card`   | A room overview card with a main entity, room navigation, status entities, side buttons, and curved quick actions. |
-| Status Card | `custom:orbit-status-card` | A status summary card with Standard, Icon Only, grouped Icon Only, and Person modes.                               |
+| Status Card | `custom:orbit-status-card` | A status summary card with Standard, Icon only, grouped Icon only, and Person modes.                               |
 | Action Card | `custom:orbit-action-card` | A compact action card for scenes, scripts, automations, and grouped action shortcuts.                              |
 
 <img title="" src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/Dev/images/Room-Card.png" alt="" width="252"><img title="" src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/Dev/images/Status-Action-Cards.png" alt="" width="361">
@@ -35,7 +35,7 @@ Orbit Cards currently includes:
 - Material Design Icons and local SVG/image icons.
 - Tap, hold, navigation, service, popup, and Browser Mod actions.
 - Dynamic entity state updates scoped to only the entities used by each card.
-- Grouped compact layouts for Status Icon Only and Action Card.
+- Grouped compact layouts for Status Icon only and Action Card.
 
 ## Installation
 
@@ -118,7 +118,7 @@ accent_color: color-red
 accent_color: google-yellow
 ```
 
-In the visual editor, tap a colour preview swatch to open the colour selector. The selector opens on the `Theme` tab for named/theme colours and on the `Picker` tab for hex, `rgb()`, and `hsl()` colours. The `Picker` tab writes a hex colour and pre-populates from the current value when it can resolve it. The `Theme` tab shows selectable theme colour previews and writes the selected theme variable name.
+In the visual editor, tap a colour preview swatch to open the colour selector. The selector opens on the `Theme` tab for named/theme colours and on the `Color` tab for hex, `rgb()`, and `hsl()` colours. The `Color` tab writes a hex colour and pre-populates from the current value when it can resolve it. The `Theme` tab shows selectable theme colour previews and writes the selected theme variable name.
 
 Room Card also supports:
 
@@ -127,6 +127,31 @@ accent_color: light
 ```
 
 When `light` is used with a light entity, the card uses the light's current colour when available.
+
+### Names
+
+Room and Status name fields can be plain text or a composed name made from Home Assistant context. The visual editor uses Home Assistant's name picker when available, with `Composed` and `Custom` modes.
+
+Plain text:
+
+```yaml
+room_name: Living Room
+status_name: Heating
+```
+
+Composed names can include `area`, `device`, `entity`, `floor`, and custom text parts:
+
+```yaml
+room_name:
+  - type: area
+  - type: text
+    text: Lights
+
+status_name:
+  - type: entity
+```
+
+Room Card defaults the editor name picker to `Area` when an area is configured. Status Card defaults it to `Entity` when a main entity is configured. These defaults are not written to YAML unless changed.
 
 ### Icons
 
@@ -376,7 +401,7 @@ action_button_icon: mdi:dots-horizontal-circle
 
 | Option                                                                                                                           | Description                                                                                                                                                             |
 | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `room_name`                                                                                                                      | Overrides the displayed room/card name. Falls back to the selected area name, then entity name.                                                                         |
+| `room_name`                                                                                                                      | Optional plain text or composed room/card name. When unset, the card resolves the name from the selected area, then the main entity, otherwise it stays empty. The editor defaults the name picker to `Area` only when an area is configured. |
 | `area`                                                                                                                           | Home Assistant area used for automatic room name and icon fallback.                                                                                                     |
 | `accent_color`                                                                                                                   | Main room accent colour. Supports shared colour formats and `light`.                                                                                                    |
 | `status_color`                                                                                                                   | Colour used for the status text row. Falls back to `accent_color`.                                                                                                      |
@@ -427,7 +452,7 @@ action_button_icon: mdi:dots-horizontal-circle
 | `action_button_hold_action`                                                                                                       | Hold action for the standalone action button. Defaults to `none`.                                                                                                       |
 | `action_button_state_template`                                                                                                    | Template used to decide whether the standalone action button is active.                                                                                                 |
 
-The Room Card editor includes quick entity filters inside supported pickers. Side buttons use `All`, `Lights`, and `Switches`; curve buttons use `All`, `Covers`, `Lights`, `Sensors`, and `Switches`; the Action Button uses `All`, `Automations`, `Buttons`, `Cameras`, `Scenes`, and `Scripts`. `All` keeps the picker unrestricted.
+The Room Card editor includes quick entity filters inside supported pickers. Side buttons use `All`, `Lights`, and `Switches`; curve buttons use `All`, `Covers`, `Lights`, `Sensors`, and `Switches`; the action button uses `All`, `Automations`, `Buttons`, `Cameras`, `Scenes`, and `Scripts`. `All` keeps the picker unrestricted.
 
 ## Status Card
 
@@ -463,7 +488,7 @@ Standard mode uses:
 - The entity `navigation` attribute when no explicit navigation path is set.
 - Colour priority is `accent_on_color`/`accent_off_color`, then the entity `color` attribute, then the theme fallback.
 
-### Icon Only Mode
+### Icon only mode
 
 ```yaml
 type: custom:orbit-status-card
@@ -475,11 +500,11 @@ tap_action:
   action: more-info
 ```
 
-Icon Only mode shows a square icon card. The badge is hidden when the displayed label is numeric `0`.
+Icon only mode shows a square icon card. The badge is hidden when the displayed label is numeric `0`.
 
-### Icon Only Group
+### Icon only group
 
-Use `entities` to place multiple Icon Only items inside one Orbit Status Card.
+Use `entities` to place multiple Icon only items inside one Orbit Status Card.
 
 ```yaml
 type: custom:orbit-status-card
@@ -567,39 +592,41 @@ accent_on_color: green
 accent_off_color: theme
 ```
 
-For Icon Only mode, numeric `0` is OFF and values greater than `0` are ON unless a `state_template` overrides the detection. Common normal/safe text states such as `off`, `disarmed`, `closed`, `locked`, `clear`, `normal`, `home`, `online`, and `connected` are treated as OFF.
+For Icon only mode, numeric `0` is OFF and values greater than `0` are ON unless a `state_template` overrides the detection. Common normal/safe text states such as `off`, `disarmed`, `closed`, `locked`, `clear`, `normal`, `home`, `online`, and `connected` are treated as OFF.
 
 ### Status Card Options
 
 | Option                                                                                                                     | Description                                                                                                                                                             |
 | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `mode`                                                                                                                     | `standard`, `icon_only`, or `person`. Defaults to `standard`.                                                                                                           |
-| `main_entity`                                                                                                              | Required. Standard/Icon Only use it as the status entity. Person mode uses it as the person entity.                                                                     |
-| `entities`                                                                                                                 | Icon Only only. Optional list of grouped status items. Each item supports `entity`, colours, icons, templates, and actions.                                             |
-| `wrap`                                                                                                                     | Icon Only group only. Allows grouped items to wrap onto additional rows.                                                                                                |
-| `items_per_row`                                                                                                            | Icon Only group only. Number of items per row when `wrap` is enabled. Defaults to `3`.                                                                                  |
-| `separate_cards`                                                                                                           | Icon Only group only. Adds a small gap between grouped items and gives each item its own rounded card background.                                                       |
-| `status_name`                                                                                                              | Standard mode only. Overrides the entity `friendly_name`.                                                                                                               |
+| `main_entity`                                                                                                              | Required. Standard and Icon only modes use it as the status entity. Person mode uses it as the person entity.                                                           |
+| `entities`                                                                                                                 | Icon only mode only. Optional list of grouped status items. Each item supports `entity`, colours, icons, templates, and actions.                                        |
+| `wrap`                                                                                                                     | Icon only group only. Allows grouped items to wrap onto additional rows.                                                                                                |
+| `items_per_row`                                                                                                            | Icon only group only. Number of items per row when `wrap` is enabled. Defaults to `3`.                                                                                  |
+| `separate_cards`                                                                                                           | Icon only group only. Adds a small gap between grouped items and gives each item its own rounded card background.                                                       |
+| `status_name`                                                                                                              | Optional plain text or composed status/card name. When unset, the card uses the main entity name. The editor defaults the name picker to `Entity` when a main entity is configured. |
 | `tracker_entity`                                                                                                           | Person mode only. Tracker entity used for displayed location/status.                                                                                                    |
 | `eta_entity`                                                                                                               | Person mode only. Optional ETA entity appended when the tracker is not `home`.                                                                                          |
 | `battery_entity_1`                                                                                                         | Person mode only. First battery badge entity.                                                                                                                           |
 | `battery_entity_2`                                                                                                         | Person mode only. Second battery badge entity.                                                                                                                          |
-| `state_template`                                                                                                           | Standard/Icon Only only. Template used for ON/OFF detection.                                                                                                            |
-| `label_template`                                                                                                           | Standard/Icon Only only. Template used for displayed status text or badge value.                                                                                        |
+| `state_template`                                                                                                           | Standard and Icon only modes only. Template used for ON/OFF detection.                                                                                                  |
+| `label_template`                                                                                                           | Standard and Icon only modes only. Template used for displayed status text or badge value.                                                                              |
 | `accent_on_color`                                                                                                          | ON colour override. If unset, the entity `color` attribute is used when available, then `theme`.                                                                        |
 | `accent_off_color`                                                                                                         | OFF colour override. If unset, the entity `color` attribute is used when available, then `theme`.                                                                       |
-| `main_entity_icon_source`                                                                                                  | Standard/Icon Only only. Icon source. `entity` uses the entity/domain icon; `custom` uses the icon override fields below. Existing custom icon configs default to `custom`; otherwise entity-backed status items default to `entity`. |
-| `main_entity_icon`                                                                                                         | Standard/Icon Only only. Main entity icon override. Falls back to entity icon.                                                                                          |
-| `main_entity_icon_on`                                                                                                      | Standard/Icon Only only. Icon used when the status is ON.                                                                                                               |
-| `main_entity_icon_off`                                                                                                     | Standard/Icon Only only. Icon used when the status is OFF.                                                                                                              |
+| `main_entity_icon_source`                                                                                                  | Standard and Icon only modes only. Icon source. `entity` uses the entity/domain icon; `custom` uses the icon override fields below. Existing custom icon configs default to `custom`; otherwise entity-backed status items default to `entity`. |
+| `main_entity_icon`                                                                                                         | Standard and Icon only modes only. Main entity icon override. Falls back to entity icon.                                                                                |
+| `main_entity_icon_on`                                                                                                      | Standard and Icon only modes only. Icon used when the status is ON.                                                                                                     |
+| `main_entity_icon_off`                                                                                                     | Standard and Icon only modes only. Icon used when the status is OFF.                                                                                                    |
 | `main_entity_icon_svg_color_override`, `main_entity_icon_on_svg_color_override`, `main_entity_icon_off_svg_color_override` | Advanced YAML-only SVG colour controls. Defaults to `true`, which forces the configured icon colour. Set the matching key to `false` to preserve the SVG's own colours. |
-| `tap_action`                                                                                                               | Card tap action. Defaults to `navigate` in Standard mode and `more-info` in Icon Only/Person modes.                                                                     |
-| `main_entity_tap_action`                                                                                                   | Main entity/icon tap action. Defaults to `more-info` in Standard mode. In Icon Only/Person modes it falls back to `tap_action` when unset or `none`.                    |
+| `tap_action`                                                                                                               | Card tap action. Defaults to `navigate` in Standard mode and `more-info` in Icon only/Person modes.                                                                     |
+| `main_entity_tap_action`                                                                                                   | Main entity/icon tap action. Defaults to `more-info` in Standard mode. In Icon only/Person modes it falls back to `tap_action` when unset or `none`.                    |
 | `main_entity_hold_action`                                                                                                  | Main entity/icon hold action. Defaults to `none`.                                                                                                                       |
+
+The Status Card editor includes quick entity filters for main entity pickers: `All`, `Binary Sensors`, and `Sensors`. `All` keeps the picker unrestricted.
 
 ## Action Card
 
-Action Card is a compact square card for activating scenes, scripts, automations, buttons, input buttons, input booleans, and other action-like entities.
+Action Card is a compact square card for activating scenes, scripts, automations, buttons, input buttons, input booleans, cameras, and other action-like entities.
 
 ### Basic Example
 
@@ -659,28 +686,31 @@ Set `separate_cards: true` to add a small gap and make each grouped action read 
 | `tap_action`                          | Optional tap action override. Defaults by entity domain.                                                                                                                        |
 | `hold_action`                         | Optional hold action override. Defaults to `more-info`.                                                                                                                         |
 
+The Action Card editor includes quick entity filters inside the main entity picker: `All`, `Automations`, `Buttons`, `Cameras`, `Scenes`, and `Scripts`. `All` keeps the picker unrestricted.
+
 ## Visual Editor
 
 Each card includes a visual editor. The editor supports:
 
 - Entity pickers.
 - Area picker for Room Card.
+- Name picker for Room and Status names, including composed area, entity, device, floor, and custom text parts.
 - Native mode selector for Status Card.
-- Filtered entity pickers for Room Card buttons, curve buttons, action buttons, and Status Card main entities.
-- Tabbed Room Card sections: `Card`, `Status`, `Buttons`, and `Curve Buttons`.
+- Filtered entity pickers for Room Card buttons, curve buttons, action buttons, Status Card main entities, and Action Card entities.
+- Tabbed Room Card sections: `Card`, `Status`, `Buttons`, `Curve buttons`, and `Action button`.
 - Segmented selectors for Room Card status slots, side buttons, and curved buttons.
 - Grouped item add, remove, and reorder controls.
 - Wrap and separate-card layout controls for grouped cards.
 - Action selectors.
 - Native icon source toggles for entity-backed icons, with custom icon pickers when `Custom` is selected.
-- Colour fields with preview swatches and a colour picker.
+- Colour fields with `Color` and `Theme` tabs, preview swatches, and clear controls.
 - Card version display.
 
 Most card configuration can be completed without writing YAML. YAML remains useful for larger grouped cards, complex popup content, and templates.
 
 ### Localisation
 
-Orbit Cards includes built-in translation support for editor labels, picker text, and default fallback card names. The active Home Assistant language is detected from `hass.locale.language`; missing strings fall back to English.
+Orbit Cards includes built-in translation support for editor labels and picker text. Where possible, labels are resolved from Home Assistant's own translations first, then Orbit Cards translations. The active Home Assistant language is detected from `hass.locale.language`; missing strings fall back to English.
 
 Translations live in:
 
@@ -711,7 +741,7 @@ accent_color: light
 area: living_room
 ```
 
-The `area` value is included when Home Assistant exposes an area for the selected entity. Light entities use `accent_color: light`; other domains use `theme`.
+The `area` value is included when Home Assistant exposes an entity or device area for the selected entity. Light entities use `accent_color: light`; other domains use `theme`.
 
 ### Status Card Suggestions
 
@@ -723,7 +753,7 @@ mode: person
 main_entity: person.andrew
 ```
 
-Numeric entities get both Standard and Icon Only suggestions:
+Numeric entities get both Standard and Icon only suggestions:
 
 ```yaml
 type: custom:orbit-status-card
@@ -771,10 +801,10 @@ The cards provide layout hints to Home Assistant. In the dashboard editor these 
 | Room Card             | 9 columns, minimum 6 columns |
 | Status Card Standard  | 9 columns, minimum 6 columns |
 | Status Card Person    | 9 columns, minimum 6 columns |
-| Status Card Icon Only | Compact square layout        |
+| Status Card Icon only | Compact square layout        |
 | Action Card           | Compact square layout        |
 
-Grouped Icon Only and grouped Action cards expand their column count based on the number of configured items and the wrap settings.
+Grouped Icon only and grouped Action cards expand their column count based on the number of configured items and the wrap settings.
 
 ## Compatibility
 

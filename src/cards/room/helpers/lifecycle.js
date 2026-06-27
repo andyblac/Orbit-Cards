@@ -3,14 +3,11 @@ import {
   isCssColor,
 } from "../../../common/helpers/colors.js";
 import { getDefaultEntityAction } from "../../../common/helpers/default-actions.js";
-import { localize } from "../../../common/localize.js";
 
 export function updateRoomCard(changedProps) {
   if (!changedProps.has("_config") && !changedProps.has("hass")) return;
 
-  this._cardName = this._getCardName(
-    localize(this.hass, "Room")
-  );
+  this._cardName = this._getCardName("");
 
   const mainEntity = this._config.main_entity || this._config.entity;
   const areaId = this._config.area;
@@ -111,16 +108,17 @@ function getStatusItems() {
         iconKey,
         entityId
       );
-      const icon =
-        iconSource === "custom"
-          ? customIcon
-          : stateObj?.attributes?.icon ||
+      const icon = iconSource === "custom"
+        ? customIcon
+        : iconSource === "entity"
+          ? stateObj?.attributes?.icon ||
             this.hass?.entities?.[entityId]?.icon ||
             this._getDefaultDomainIcon(
               entityId.split(".")[0],
               stateObj
             ) ||
-            "";
+            ""
+          : "";
 
       return {
         entityId,
@@ -150,11 +148,11 @@ function getStatusIconSource(key, entityId = "") {
   const hasCustomIcon = Boolean(this._config?.[`${key}_icon`]);
 
   if (savedSource === "custom") return "custom";
+  if (savedSource === "none") return "none";
   if (savedSource === "entity" && hasEntity) return "entity";
   if (hasCustomIcon) return "custom";
-  if (hasEntity) return "entity";
 
-  return "entity";
+  return "none";
 }
 
 function formatStatusText(stateObj, decimalPlaces) {

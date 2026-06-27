@@ -19,6 +19,7 @@ import {
 
 import {
   renderInput,
+  renderNumberInput,
   renderTemplateInput,
 } from "./inputs.js";
 export {
@@ -313,6 +314,7 @@ export {
   renderColor,
   renderColorControl,
   renderInput,
+  renderNumberInput,
   renderTemplateInput,
   isImageIcon,
   resolveIconPath,

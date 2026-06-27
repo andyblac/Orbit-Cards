@@ -36,16 +36,11 @@ export default defineConfig({
   ],
 
   build: {
+    codeSplitting: false,
     lib: {
       entry: "src/orbit-cards.js",
       formats: ["es"],
       fileName: () => "orbit-cards.js",
-    },
-
-    rollupOptions: {
-      output: {
-        inlineDynamicImports: true,
-      },
     },
   },
 });

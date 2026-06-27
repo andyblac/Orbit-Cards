@@ -42,7 +42,7 @@ export function renderActionSection() {
         ${items.length > 1
           ? html`
               <label class="action-wrap-toggle">
-                <span>${this._t("Separate Cards")}</span>
+                <span>${this._t("Separate cards")}</span>
                 <ha-switch
                   .checked=${!!this._config?.separate_cards}
                   @change=${(e) =>
@@ -56,23 +56,20 @@ export function renderActionSection() {
 
       ${this._config?.wrap
         ? html`
-            <label class="action-per-row-field">
-              <span>${this._t("Actions Per Row")}</span>
-
-              <input
-                type="number"
-                min="1"
-                step="1"
-                .value=${String(this._config?.actions_per_row || 3)}
-                @input=${(e) =>
+            <div class="action-per-row-field">
+              ${this._renderNumberInput("Actions per row", "actions_per_row", {
+                value: this._config?.actions_per_row || 3,
+                min: 1,
+                step: 1,
+                onValueChanged: (value) =>
                   this._updateConfig({
                     actions_per_row: Math.max(
                       1,
-                      Number(e.target.value) || 1
+                      Number(value) || 1
                     ),
-                  })}
-              />
-            </label>
+                  }),
+              })}
+            </div>
           `
         : ""}
       </div>
@@ -149,7 +146,7 @@ export function renderActionSection() {
       </div>
 
       <div class="field">
-        <label>${this._t("Main Entity")}</label>
+        <label>${this._t("Main entity")}</label>
 
         ${renderEntitySelector.call(this, {
           value: selectedItem.entity || "",
@@ -163,7 +160,7 @@ export function renderActionSection() {
       </div>
 
       ${this._renderColorControl(
-        "Accent Color",
+        ["Accent", "Color"],
         `action-${selectedIndex}-accent_color`,
         selectedItem.accent_color || "",
         (value) =>
@@ -181,13 +178,13 @@ export function renderActionSection() {
       ${selectedItem.entity
         ? html`
             ${this._renderActionItemActionSelector(
-              "Tap Action",
+              "Tap behavior",
               "tap_action",
               selectedIndex,
               getDefaultEntityAction(selectedItem.entity, "toggle")
             )}
             ${this._renderActionItemActionSelector(
-              "Hold Action",
+              "Hold behavior",
               "hold_action",
               selectedIndex,
               "more-info"

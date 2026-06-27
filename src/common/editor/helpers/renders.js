@@ -5,9 +5,38 @@ import {
 } from "../../helpers/colors.js";
 
 function t(editor, key, replacements) {
+  if (Array.isArray(key)) {
+    return formatComposedLabel(
+      editor,
+      key.map((part) => t(editor, part, replacements))
+    );
+  }
+
   return editor._t
     ? editor._t(key, replacements)
     : key;
+}
+
+function formatComposedLabel(editor, parts) {
+  const language =
+    editor?.hass?.locale?.language ||
+    editor?.hass?.language ||
+    "en";
+
+  if (!language.toLowerCase().startsWith("en")) {
+    return parts.join(" ");
+  }
+
+  return parts
+    .map((part, index) =>
+      index === 0 ? part : lowercaseFirstLetter(part))
+    .join(" ");
+}
+
+function lowercaseFirstLetter(value = "") {
+  return value.replace(/^(\p{L})/u, (letter) =>
+    letter.toLocaleLowerCase()
+  );
 }
 
 function actionLabel(editor, action) {
@@ -23,6 +52,10 @@ function configFieldLabel(editor, key) {
     localizeHomeAssistantField(editor?.hass, key) ||
     key
   );
+}
+
+function stopPickerEventPropagation(event) {
+  event.stopPropagation();
 }
 
 function localizeHomeAssistantAction(hass, action) {
@@ -174,8 +207,6 @@ export function renderColorControl(
 
   return html`
     <div class="field">
-      <label>${t(this, label)}</label>
-
       <div class="color-row">
         <div
           class="color-popover"
@@ -191,14 +222,7 @@ export function renderColorControl(
                 this._themeColorPickerOpen = false;
               }}
             >
-              ${t(this, "Picker")}
-              <input
-                class="tab-color-picker"
-                type="color"
-                .value=${this._getColorPickerValue(previewValue)}
-                @input=${(e) => onUpdate(e.target.value)}
-                @change=${(e) => onUpdate(e.target.value)}
-              />
+              ${t(this, "Color")}
             </button>
             <button
               type="button"
@@ -218,19 +242,20 @@ export function renderColorControl(
             ? html`
                 ${renderThemeColorPicker.call(
                   this,
+                  label,
                   value,
                   onUpdate,
                   previewValue
                 )}
               `
             : html`
-                <input
-                  class="native-color-picker"
-                  type="color"
-                  .value=${this._getColorPickerValue(previewValue)}
-                  @input=${(e) => onUpdate(e.target.value)}
-                  @change=${(e) => onUpdate(e.target.value)}
-                />
+                ${renderNativeColorPicker.call(
+                  this,
+                  label,
+                  value,
+                  onUpdate,
+                  previewValue
+                )}
               `}
         </div>
       </div>
@@ -238,7 +263,87 @@ export function renderColorControl(
   `;
 }
 
-function renderThemeColorPicker(value, onUpdate, previewValue = value) {
+function renderNativeColorPicker(label, value, onUpdate, previewValue = value) {
+  const hasConfiguredValue = Boolean(value);
+  const displayValue = hasConfiguredValue
+    ? this._getColorPickerValue(value)
+    : "";
+  const inputValue =
+    displayValue ||
+    this._getColorPickerValue(previewValue);
+
+  return html`
+    <div
+      class="native-color-picker-field ${displayValue ? "has-value" : ""}"
+      @click=${(e) => e.stopPropagation()}
+    >
+      <input
+        class="native-color-picker-input"
+        type="color"
+        .value=${inputValue}
+        @input=${(e) => onUpdate(e.target.value)}
+        @change=${(e) => onUpdate(e.target.value)}
+      />
+
+      ${displayValue
+        ? html`
+            <span
+              class="native-color-picker-swatch"
+              style=${`background-color:${displayValue};`}
+            ></span>
+            <span class="native-color-picker-text">
+              ${label
+                ? html`
+                    <span class="native-color-picker-label">
+                      ${t(this, label)}
+                    </span>
+                  `
+                : ""}
+              <span class="native-color-picker-value">
+                ${displayValue.toUpperCase()}
+              </span>
+            </span>
+          `
+        : html`
+            <span class="native-color-picker-empty-swatch"></span>
+            <span class="native-color-picker-text">
+              ${label
+                ? html`
+                    <span class="native-color-picker-label">
+                      ${t(this, label)}
+                    </span>
+                  `
+                : ""}
+              <span class="native-color-picker-value empty"></span>
+            </span>
+          `}
+
+      ${displayValue
+        ? html`
+            <button
+              type="button"
+              class="native-color-picker-clear"
+              aria-label=${t(this, "Clear")}
+              @click=${(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onUpdate("");
+              }}
+            >
+              <ha-icon icon="mdi:close"></ha-icon>
+            </button>
+          `
+        : ""}
+
+      <ha-icon
+        class="native-color-picker-arrow"
+        icon="mdi:menu-down"
+      ></ha-icon>
+    </div>
+  `;
+}
+
+function renderThemeColorPicker(label, value, onUpdate, previewValue = value) {
   const displayValue = value || previewValue;
   const selectedValue =
     getDefaultColorTab(displayValue) === "theme"
@@ -252,6 +357,7 @@ function renderThemeColorPicker(value, onUpdate, previewValue = value) {
       @click=${(e) => e.stopPropagation()}
     >
       <ha-generic-picker
+        .label=${label ? t(this, label) : ""}
         .value=${selectedValue}
         .getItems=${() => items}
         .rowRenderer=${(item) =>
@@ -579,7 +685,7 @@ function getDefaultColorTab(value) {
 export function renderStatusSection() {
   return html`
     <div class="section">
-      ${this._renderSectionHeader("Status Sensors", "status")}
+      ${this._renderSectionHeader("Status sensors", "status")}
       ${!this._collapsed.status
         ? html`
             ${this._renderEntity("Status 1", "status1")}
@@ -608,10 +714,9 @@ export function renderActionSelector(label, key, defaultAction) {
 
   return html`
     <div class="field action-field">
-      <label>${t(this, label)}</label>
-
       <div class="action-picker">
         <ha-generic-picker
+          .label=${t(this, label)}
           .value=${action}
           .getItems=${() => actionItems}
           .rowRenderer=${(item) => renderActionPickerRow(item)}
@@ -740,9 +845,18 @@ function renderActionPickerStart(item) {
 }
 
 function renderNavigationActionFields(key, value) {
+  installEntityFilterScrollGuard();
+
   return html`
     <div class="inline-field action-subfield">
       <ha-navigation-picker
+        @click=${stopPickerEventPropagation}
+        @pointerdown=${stopPickerEventPropagation}
+        @wheel=${stopPickerEventPropagation}
+        @touchmove=${stopPickerEventPropagation}
+        @picker-opened=${(e) => {
+          e.currentTarget.__orbitSuppressSectionScroll = true;
+        }}
         .hass=${this.hass}
         .value=${value.navigation_path || ""}
         @value-changed=${(e) => {
@@ -818,39 +932,42 @@ function renderUrlActionFields(key, value) {
 function renderPopupActionFields(key, value) {
   return html`
     <div class="inline-field action-subfield">
-      <span class="inline-label">${configFieldLabel(this, "title")}</span>
-
-      <input
+      <ha-input
+        .label=${configFieldLabel(this, "title")}
         .value=${value.popup_title || ""}
-        placeholder="Security"
-        @input=${(e) =>
+        .placeholder=${"Security"}
+        @input=${(e) => {
+          e.stopPropagation();
+
           this._updateConfig({
             [key]: cleanActionConfig({
               ...value,
               popup_title: e.target.value,
             }),
-          })}
-      />
+          });
+        }}
+      ></ha-input>
     </div>
 
     <div class="inline-field action-subfield">
-      <span class="inline-label">${configFieldLabel(this, "content")}</span>
-
-      <input
+      <ha-input
+        .label=${configFieldLabel(this, "content")}
         .value=${typeof value.popup_content === "string"
           ? value.popup_content
           : value.popup_content
             ? JSON.stringify(value.popup_content)
             : ""}
-        placeholder=""
-        @input=${(e) =>
+        @input=${(e) => {
+          e.stopPropagation();
+
           this._updateConfig({
             [key]: cleanActionConfig({
               ...value,
               popup_content: e.target.value,
             }),
-          })}
-      />
+          });
+        }}
+      ></ha-input>
     </div>
   `;
 }
@@ -1405,13 +1522,24 @@ function sortAreaPickerItems(itemA, itemB) {
 
 export function renderNavigationSelector({
   value = "",
+  label = "",
   onValueChanged,
   className = "entity-picker",
 } = {}) {
+  installEntityFilterScrollGuard();
+
   return html`
     <ha-navigation-picker
       class=${className}
+      @click=${stopPickerEventPropagation}
+      @pointerdown=${stopPickerEventPropagation}
+      @wheel=${stopPickerEventPropagation}
+      @touchmove=${stopPickerEventPropagation}
+      @picker-opened=${(e) => {
+        e.currentTarget.__orbitSuppressSectionScroll = true;
+      }}
       .hass=${this.hass}
+      .label=${label ? t(this, label) : ""}
       .value=${value || ""}
       @value-changed=${(e) =>
         onValueChanged?.(e.detail.value || "")}
@@ -1419,10 +1547,10 @@ export function renderNavigationSelector({
   `;
 }
 
-export function renderEntity(label, key) {
+export function renderEntity(label, key, replacements) {
   return html`
     <div class="field">
-      <label>${t(this, label)}</label>
+      <label>${t(this, label, replacements)}</label>
 
       ${renderEntitySelector.call(this, {
         value: this._config?.[key] || "",
@@ -1438,8 +1566,6 @@ export function renderEntity(label, key) {
 export function renderArea(label, key) {
   return html`
     <div class="field">
-      <label>${t(this, label)}</label>
-
       ${renderAreaSelector.call(this, {
         value: this._config?.[key] || "",
         onValueChanged: (value) =>

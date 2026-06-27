@@ -799,7 +799,7 @@ function getStatusEntitySuggestion(hass, entityId) {
   return [
     standard,
     {
-      label: localize(hass, "Icon Only"),
+      label: localize(hass, "Icon only"),
       config: {
         type: "custom:orbit-status-card",
         mode: "icon_only",

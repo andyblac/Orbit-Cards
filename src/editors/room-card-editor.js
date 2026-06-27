@@ -199,8 +199,8 @@ class OrbitRoomCardEditor extends LitElement {
     ));
   }
 
-  _renderInput(label, key, placeholder = "") {
-    return renderInput.call(this, label, key, placeholder);
+  _renderInput(label, key, placeholder = "", options = {}) {
+    return renderInput.call(this, label, key, placeholder, options);
   }
 
   _renderTemplateInput(label, key) {
@@ -252,8 +252,8 @@ class OrbitRoomCardEditor extends LitElement {
     return renderActionSelector.call(this, label, key, defaultAction);
   }
 
-  _renderEntity(label, key) {
-    return renderEntity.call(this, label, key);
+  _renderEntity(label, key, replacements) {
+    return renderEntity.call(this, label, key, replacements);
   }
 
   _renderArea(label, key) {
@@ -269,11 +269,23 @@ class OrbitRoomCardEditor extends LitElement {
 
     return html`
       <div class="section">
-        ${this._renderInput(
-          "Separator",
-          "status_separator",
-          "|"
-        )}
+        <div class="selector-pair status-settings-row">
+          <div class="status-separator-field">
+            ${this._renderInput(
+              "Separator",
+              "status_separator",
+              "|"
+            )}
+          </div>
+
+          ${this._renderColorControl(
+            "Color",
+            "status_color",
+            this._config?.status_color || this._config?.accent_color || "",
+            (value) => this._handleConfigUpdate("status_color", value),
+            this._config?.status_color || this._config?.accent_color || ""
+          )}
+        </div>
 
         <div
           class="editor-segment-menu"
@@ -299,9 +311,10 @@ class OrbitRoomCardEditor extends LitElement {
           )}
 
           ${renderIconSourceControl.call(this, {
-            label: "Prefix Icon",
+            label: ["Prefix", "Icon"],
             sourceKey: `status${selected}_icon_source`,
             entityKey: `status${selected}`,
+            allowNone: true,
             customIconKeys: [
               `status${selected}_icon`,
             ],
@@ -315,7 +328,7 @@ class OrbitRoomCardEditor extends LitElement {
           })}
 
           ${this._renderInput(
-            "Decimal Places",
+            "Display precision",
             `status${selected}_decimal_places`,
             "entity default"
           )}
@@ -400,12 +413,12 @@ const ROOM_EDITOR_TABS = [
   },
   {
     key: "curve",
-    label: "Curve Buttons",
+    label: "Curve buttons",
     render: "_renderCurvedButtonsSection",
   },
   {
     key: "action",
-    label: "Action Button",
+    label: "Action button",
     render: "_renderActionButtonSection",
   },
 ];

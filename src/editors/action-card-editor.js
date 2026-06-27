@@ -12,6 +12,7 @@ import {
   renderColor,
   renderColorControl,
   renderEntity,
+  renderNumberInput,
   clearEntityConfig,
   clearKeys,
   connectEditorPopoverClose,
@@ -290,8 +291,12 @@ class OrbitActionCardEditor extends LitElement {
     );
   }
 
-  _renderEntity(label, key) {
-    return renderEntity.call(this, label, key);
+  _renderEntity(label, key, replacements) {
+    return renderEntity.call(this, label, key, replacements);
+  }
+
+  _renderNumberInput(label, key, options = {}) {
+    return renderNumberInput.call(this, label, key, options);
   }
 
   _renderIconInput(label, key, placeholder = "mdi:palette or icon.svg") {

@@ -9,7 +9,7 @@ export function renderCurvedButtonsSection() {
   return html`
     <div class="section">
       <label class="editor-toggle-row">
-        <span>${this._t("Lock Curve Button Positions")}</span>
+        <span>${this._t("Lock curve button positions")}</span>
         <ha-switch
           .checked=${Boolean(this._config?.curve_buttons_lock_position)}
           @change=${(e) =>
@@ -109,12 +109,12 @@ function renderButtonFields(
             <div class="color-pair">
               ${renderAccentOverrideColor.call(
                 this,
-                "ON Color",
+                ["Active", "Color"],
                 `${key}_on_color`
               )}
               ${renderAccentOverrideColor.call(
                 this,
-                "OFF Color",
+                ["Inactive", "Color"],
                 `${key}_off_color`
               )}
             </div>
@@ -134,23 +134,23 @@ function renderButtonFields(
           return html`
             ${this._renderIconInput("", `${key}_icon`)}
             <div class="icon-pair">
-              ${this._renderIconInput("ON Icon", `${key}_icon_on`)}
-              ${this._renderIconInput("OFF Icon", `${key}_icon_off`)}
+              ${this._renderIconInput(["Active", "Icon"], `${key}_icon_on`)}
+              ${this._renderIconInput(["Inactive", "Icon"], `${key}_icon_off`)}
             </div>
           `;
         },
       })}
 
-      ${this._renderTemplateInput("State Template", `${key}_state_template`)}
+      ${this._renderTemplateInput("State template", `${key}_state_template`)}
 
       ${this._renderActionSelector(
-        "Tap Action",
+        "Tap behavior",
         `${key}_tap_action`,
         defaultAction
       )}
 
       ${this._renderActionSelector(
-        "Hold Action",
+        "Hold behavior",
         `${key}_hold_action`,
         "none"
       )}

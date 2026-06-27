@@ -105,24 +105,130 @@ export const iconStyles = css`
   opacity: 1;
 }
 
-.native-color-picker {
-  display: block;
+.native-color-picker-field {
+  position: relative;
   width: 100%;
   height: 56px;
-  padding: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
   border: 0;
-  border-radius: 10px;
-  background: transparent;
+  border-bottom: 1px solid var(--input-ink-color, var(--secondary-text-color));
+  border-radius: 4px 4px 0 0;
+  background: var(--orbit-editor-control);
+  color: inherit;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
-.tab-color-picker {
+.native-color-picker-field:focus-within {
+  border-bottom-color: var(--primary-color);
+  box-shadow: inset 0 -1px 0 var(--primary-color);
+}
+
+.native-color-picker-input {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   opacity: 0;
+  border: 0;
   cursor: pointer;
+  z-index: 1;
+}
+
+.native-color-picker-swatch {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--ha-border-radius-pill, 999px);
+  border: 1px solid var(--outline-color, var(--divider-color));
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.native-color-picker-empty-swatch {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.native-color-picker-text {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.native-color-picker-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--ha-font-size-m, 14px);
+  line-height: var(--ha-line-height-normal, 20px);
+  color: var(--secondary-text-color);
+}
+
+.native-color-picker-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--ha-font-size-m, 14px);
+  line-height: var(--ha-line-height-normal, 20px);
+  letter-spacing: 0;
+}
+
+.native-color-picker-value.empty {
+  min-height: 20px;
+}
+
+.native-color-picker-clear {
+  position: relative;
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 -8px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ha-border-radius-pill, 999px);
+  background: transparent;
+  color: var(--secondary-text-color);
+  cursor: pointer;
+}
+
+.native-color-picker-clear:hover,
+.native-color-picker-clear:focus {
+  background: color-mix(in srgb, var(--primary-text-color) 10%, transparent);
+  color: var(--primary-text-color);
+  outline: none;
+}
+
+.native-color-picker-clear ha-icon {
+  --mdc-icon-size: 22px;
+}
+
+.native-color-picker-arrow {
+  position: relative;
+  z-index: 2;
+  --mdc-icon-size: 20px;
+  color: var(--secondary-text-color);
+  pointer-events: none;
 }
 
 .theme-color-picker {

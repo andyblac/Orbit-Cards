@@ -61,8 +61,8 @@ function renderButtonFields(index) {
       </div>
 
       <div class="color-pair">
-        ${this._renderColor("ON Color", `${key}_on_color`)}
-        ${this._renderColor("OFF Color", `${key}_off_color`)}
+        ${this._renderColor(["Active", "Color"], `${key}_on_color`)}
+        ${this._renderColor(["Inactive", "Color"], `${key}_off_color`)}
       </div>
 
       ${renderIconSourceControl.call(this, {
@@ -78,23 +78,23 @@ function renderButtonFields(index) {
           return html`
             ${this._renderIconInput("", `${key}_icon`)}
             <div class="icon-pair">
-              ${this._renderIconInput("ON Icon", `${key}_icon_on`)}
-              ${this._renderIconInput("OFF Icon", `${key}_icon_off`)}
+              ${this._renderIconInput(["Active", "Icon"], `${key}_icon_on`)}
+              ${this._renderIconInput(["Inactive", "Icon"], `${key}_icon_off`)}
             </div>
           `;
         },
       })}
 
-      ${this._renderTemplateInput("State Template", `${key}_state_template`)}
+      ${this._renderTemplateInput("State template", `${key}_state_template`)}
 
       ${this._renderActionSelector(
-        "Tap Action",
+        "Tap behavior",
         `${key}_tap_action`,
         "toggle"
       )}
 
       ${this._renderActionSelector(
-        "Hold Action",
+        "Hold behavior",
         `${key}_hold_action`,
         "more-info"
       )}

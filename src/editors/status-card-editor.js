@@ -14,6 +14,7 @@ import {
   renderColor,
   renderColorControl,
   renderInput,
+  renderNumberInput,
   renderTemplateInput,
   clearEntityConfig,
   clearKeys,
@@ -307,12 +308,16 @@ class OrbitStatusCardEditor extends LitElement {
     });
   }
 
-  _renderInput(label, key, placeholder = "") {
-    return renderInput.call(this, label, key, placeholder);
+  _renderInput(label, key, placeholder = "", options = {}) {
+    return renderInput.call(this, label, key, placeholder, options);
   }
 
-  _renderTemplateInput(label, key) {
-    return renderTemplateInput.call(this, label, key);
+  _renderTemplateInput(label, key, options = {}) {
+    return renderTemplateInput.call(this, label, key, options);
+  }
+
+  _renderNumberInput(label, key, options = {}) {
+    return renderNumberInput.call(this, label, key, options);
   }
 
   _renderColor(label, key) {
@@ -329,8 +334,8 @@ class OrbitStatusCardEditor extends LitElement {
     );
   }
 
-  _renderEntity(label, key) {
-    return renderEntity.call(this, label, key);
+  _renderEntity(label, key, replacements) {
+    return renderEntity.call(this, label, key, replacements);
   }
 
   _renderActionSelector(label, key, defaultAction) {

@@ -62,6 +62,11 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.components.selectors.automation_behavior.trigger.options.all.label",
     "ui.panel.config.backup.data.apps_all",
   ],
+  Active: [
+    "ui.panel.config.users.editor.active",
+    "ui.panel.config.users.picker.headers.is_active",
+    "ui.panel.config.zwave_js.provisioned.active",
+  ],
   Area: [
     "ui.components.selectors.selector.types.area",
     "ui.components.entity.entity-name-picker.types.area",
@@ -70,6 +75,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Color: [
     "ui.panel.lovelace.editor.card.tile.color",
     "ui.dialogs.label-detail.color",
+  ],
+  Clear: [
+    "ui.common.clear",
   ],
   Custom: [
     "ui.components.entity.entity-name-picker.mode_custom",
@@ -95,6 +103,12 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.components.selectors.selector.types.icon",
     "ui.panel.lovelace.editor.card.generic.icon",
   ],
+  Inactive: [
+    "ui.components.color-picker.colors.inactive",
+  ],
+  None: [
+    "ui.common.none",
+  ],
   Accent: [
     "ui.components.color-picker.colors.accent",
   ],
@@ -111,14 +125,32 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Card: [
     "ui.panel.lovelace.editor.card.conditional.card",
   ],
+  "Display precision": [
+    "ui.dialogs.entity_registry.editor.precision",
+  ],
   Home: [
     "state_badge.person.home",
   ],
   Icons: [
     "ui.panel.lovelace.editor.features.types.climate-preset-modes.style_list.icons",
   ],
+  "Icon tap behavior": [
+    "ui.panel.lovelace.editor.card.tile.icon_tap_action",
+  ],
+  "Hold behavior": [
+    "ui.panel.lovelace.editor.card.generic.hold_action",
+  ],
+  "Icon hold behavior": [
+    "ui.panel.lovelace.editor.card.tile.icon_hold_action",
+  ],
   Mode: [
     "ui.card.climate.mode",
+  ],
+  Person: [
+    "component.person.entity_component._.name",
+  ],
+  Prefix: [
+    "ui.panel.lovelace.editor.elements.prefix",
   ],
   Primary: [
     "ui.components.color-picker.colors.primary",
@@ -147,6 +179,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   ],
   Status: [
     "ui.panel.config.entities.picker.headers.status",
+  ],
+  "Tap behavior": [
+    "ui.panel.lovelace.editor.card.generic.tap_action",
   ],
   Theme: [
     "ui.components.selectors.selector.types.theme",
