@@ -643,6 +643,10 @@ function et(e) {
 	P.call(this, e, e.currentTarget.dataEntity, e.currentTarget.dataDoubleAction);
 }
 function tt(e) {
+	if (this._longPressTriggered) {
+		this._longPressTriggered = !1;
+		return;
+	}
 	e.composedPath().some((e) => e?.classList && e.classList.contains("circle")) || N.call(this, e, this._config.main_entity || this._config.entity, at(this._config), this._config.double_tap_action);
 }
 function nt(e) {
@@ -654,10 +658,19 @@ function rt(e) {
 		return;
 	}
 	let t = this._config.main_entity || this._config.entity;
-	t && N.call(this, e, t, ot(this._config), this._config.main_entity_double_tap_action);
+	if (!t) {
+		N.call(this, e, null, at(this._config), this._config.double_tap_action);
+		return;
+	}
+	N.call(this, e, t, ot(this._config), this._config.main_entity_double_tap_action);
 }
 function it(e) {
-	P.call(this, e, this._config.main_entity || this._config.entity, this._config.main_entity_double_tap_action);
+	let t = this._config.main_entity || this._config.entity;
+	if (!t) {
+		P.call(this, e, null, this._config.double_tap_action);
+		return;
+	}
+	P.call(this, e, t, this._config.main_entity_double_tap_action);
 }
 function at(e = {}) {
 	return e.tap_action?.action ? e.tap_action : {
@@ -1334,6 +1347,10 @@ function Hn() {
       tabindex="0"
       @click=${this._handleTap}
       @dblclick=${this._handleCardDoubleTap}
+      @pointerdown=${this._handleCardPointerDown}
+      @pointerup=${this._finishLongPress}
+      @pointerleave=${this._cancelLongPress}
+      @pointercancel=${this._cancelLongPress}
     >
       <div class="container">
         <div class="content">
@@ -5718,9 +5735,9 @@ var $s, ec, tc = e((() => {
 	};
 })), Q, nc = e((() => {
 	Q = {
-		area: "0.9.0",
-		status: "0.14.0",
-		action: "0.7.0"
+		area: "0.8.1",
+		status: "0.13.0",
+		action: "0.6.0"
 	};
 })), rc = /* @__PURE__ */ t((() => {
 	A(), to(), Lo(), Ho(), Zo(), K(), _s(), V(), jt(), tc(), nc();
@@ -6168,7 +6185,7 @@ var $s, ec, tc = e((() => {
 			return document.createElement("orbit-area-card-editor");
 		}
 		static getStubConfig(e) {
-			let t = r(e), n = {
+			let t = i(e), n = {
 				type: "custom:orbit-area-card",
 				accent_color: "blue",
 				tap_action: {
@@ -6216,6 +6233,11 @@ var $s, ec, tc = e((() => {
 		}
 		_handleTap(e) {
 			return tt.call(this, e);
+		}
+		_handleCardPointerDown(e) {
+			if (M(this) || t(e)) return;
+			let n = this._config?.hold_action;
+			if (!(!n?.action || n.action === "none")) return this._startLongPress(e, this._config.main_entity || this._config.entity, n);
 		}
 		_handleCardDoubleTap(e) {
 			return nt.call(this, e);
@@ -6327,20 +6349,24 @@ var $s, ec, tc = e((() => {
 			return Hn.call(this);
 		}
 		static styles = Mr;
-	}, t = class extends e {};
+	};
+	function t(e) {
+		return e.composedPath().some((e) => e?.classList ? e.classList.contains("entity-button") || e.classList.contains("curve-button") || e.classList.contains("action-button") : !1);
+	}
+	var n = class extends e {};
 	Ot({
 		tag: "orbit-area-card",
 		cardClass: e,
 		name: "Orbit Area Card",
 		description: "Responsive area card",
 		version: Q.area,
-		getEntitySuggestion: i,
+		getEntitySuggestion: a,
 		aliases: [{
 			tag: "orbit-room-card",
-			cardClass: t
+			cardClass: n
 		}]
 	});
-	var n = new Set([
+	var r = new Set([
 		"light",
 		"fan",
 		"climate",
@@ -6349,19 +6375,19 @@ var $s, ec, tc = e((() => {
 		"cover",
 		"lock"
 	]);
-	function r(e) {
+	function i(e) {
 		return Object.keys(e?.areas || {}).sort((t, n) => {
 			let r = e.areas[t]?.name || t, i = e.areas[n]?.name || n;
 			return r.localeCompare(i, void 0, { sensitivity: "base" });
 		})[0] || "";
 	}
-	function i(e, t) {
-		let r = an(t);
-		if (!n.has(r)) return null;
+	function a(e, t) {
+		let n = an(t);
+		if (!r.has(n)) return null;
 		let i = on(e, t), a = {
 			type: "custom:orbit-area-card",
 			main_entity: t,
-			accent_color: r === "light" ? "light" : "theme"
+			accent_color: n === "light" ? "light" : "theme"
 		};
 		return i && (a.area = i), { config: a };
 	}

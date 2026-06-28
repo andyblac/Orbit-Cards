@@ -188,6 +188,22 @@ class OrbitAreaCard extends LitElement {
     return handleTap.call(this, ev);
   }
 
+  _handleCardPointerDown(ev) {
+    if (isAddCardPickerPreview(this)) return;
+
+    if (isAreaButtonEvent(ev)) return;
+
+    const holdAction = this._config?.hold_action;
+
+    if (!holdAction?.action || holdAction.action === "none") return;
+
+    return this._startLongPress(
+      ev,
+      this._config.main_entity || this._config.entity,
+      holdAction
+    );
+  }
+
   _handleCardDoubleTap(ev) {
     return handleCardDoubleTap.call(this, ev);
   }
@@ -342,6 +358,18 @@ class OrbitAreaCard extends LitElement {
   }
 
   static styles = areaCardStyles;
+}
+
+function isAreaButtonEvent(ev) {
+  return ev.composedPath().some((el) => {
+    if (!el?.classList) return false;
+
+    return (
+      el.classList.contains("entity-button") ||
+      el.classList.contains("curve-button") ||
+      el.classList.contains("action-button")
+    );
+  });
 }
 
 class OrbitRoomCard extends OrbitAreaCard {}

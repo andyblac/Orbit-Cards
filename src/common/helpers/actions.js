@@ -304,6 +304,11 @@ export function handleCurveButtonDoubleClick(ev) {
 }
 
 export function handleTap(ev) {
+  if (this._longPressTriggered) {
+    this._longPressTriggered = false;
+    return;
+  }
+
   const path = ev.composedPath();
 
   const clickedInsideCircle = path.some(
@@ -343,7 +348,16 @@ export function handleMainEntityTap(ev) {
   const mainEntity =
     this._config.main_entity || this._config.entity;
 
-  if (!mainEntity) return;
+  if (!mainEntity) {
+    handleTapAction.call(
+      this,
+      ev,
+      null,
+      getAreaCardTapAction(this._config),
+      this._config.double_tap_action
+    );
+    return;
+  }
 
   handleTapAction.call(
     this,
@@ -355,10 +369,23 @@ export function handleMainEntityTap(ev) {
 }
 
 export function handleMainEntityDoubleTap(ev) {
+  const mainEntity =
+    this._config.main_entity || this._config.entity;
+
+  if (!mainEntity) {
+    handleDoubleTapAction.call(
+      this,
+      ev,
+      null,
+      this._config.double_tap_action
+    );
+    return;
+  }
+
   handleDoubleTapAction.call(
     this,
     ev,
-    this._config.main_entity || this._config.entity,
+    mainEntity,
     this._config.main_entity_double_tap_action
   );
 }

@@ -15,6 +15,10 @@ export function renderAreaCard() {
       tabindex="0"
       @click=${this._handleTap}
       @dblclick=${this._handleCardDoubleTap}
+      @pointerdown=${this._handleCardPointerDown}
+      @pointerup=${this._finishLongPress}
+      @pointerleave=${this._cancelLongPress}
+      @pointercancel=${this._cancelLongPress}
     >
       <div class="container">
         <div class="content">
