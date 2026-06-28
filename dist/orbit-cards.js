@@ -643,14 +643,20 @@ function et(e) {
 	P.call(this, e, e.currentTarget.dataEntity, e.currentTarget.dataDoubleAction);
 }
 function tt(e) {
-	if (this._longPressTriggered) {
-		this._longPressTriggered = !1;
-		return;
+	if (!M(this)) {
+		if (this._longPressTriggered) {
+			this._longPressTriggered = !1;
+			return;
+		}
+		if (e.composedPath().some((e) => e?.classList && e.classList.contains("circle"))) return rt.call(this, e);
+		N.call(this, e, this._config.main_entity || this._config.entity, at(this._config), this._config.double_tap_action);
 	}
-	e.composedPath().some((e) => e?.classList && e.classList.contains("circle")) || N.call(this, e, this._config.main_entity || this._config.entity, at(this._config), this._config.double_tap_action);
 }
 function nt(e) {
-	P.call(this, e, this._config.main_entity || this._config.entity, this._config.double_tap_action);
+	if (!M(this)) {
+		if (e.composedPath().some((e) => e?.classList && e.classList.contains("circle"))) return it.call(this, e);
+		P.call(this, e, this._config.main_entity || this._config.entity, this._config.double_tap_action);
+	}
 }
 function rt(e) {
 	if (this._longPressTriggered) {
@@ -1377,9 +1383,6 @@ function Hn() {
           class="circle"
           style="background:${this._circleColor}"
 
-          @click=${this._handleMainEntityTap}
-          @dblclick=${this._handleMainEntityDoubleTap}
-
           @pointerdown=${this._handleMainEntityPointerDown}
 
           @pointerup=${this._finishLongPress}
@@ -1635,6 +1638,9 @@ var sr = e((() => {
   }
 
   ha-card {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
     background: var(--card-background-color, #1a1a1a);
     border-radius: 18px;
     overflow: hidden;
@@ -1956,7 +1962,6 @@ var sr = e((() => {
     align-items: center;
     justify-content: center;
     overflow: visible;
-    pointer-events: auto;
     z-index: 3;
   }
 `;
@@ -5735,9 +5740,9 @@ var $s, ec, tc = e((() => {
 	};
 })), Q, nc = e((() => {
 	Q = {
-		area: "0.8.1",
-		status: "0.13.0",
-		action: "0.6.0"
+		area: "0.8.2",
+		status: "0.13.1",
+		action: "0.6.1"
 	};
 })), rc = /* @__PURE__ */ t((() => {
 	A(), to(), Lo(), Ho(), Zo(), K(), _s(), V(), jt(), tc(), nc();
@@ -6198,7 +6203,8 @@ var $s, ec, tc = e((() => {
 		getLayoutOptions() {
 			return {
 				grid_columns: 3,
-				grid_min_columns: 2
+				grid_min_columns: 2,
+				grid_rows: "auto"
 			};
 		}
 		setConfig(e) {
@@ -6837,7 +6843,6 @@ var Ic = e((() => {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    pointer-events: auto;
     touch-action: manipulation;
     z-index: 3;
   }
@@ -8043,15 +8048,17 @@ var qc, Jc = e((() => {
 			return Ge.call(this, e, t);
 		}
 		_handleTap(e) {
-			if (this._shouldSuppressMainIconTap(e)) {
-				this._stopEvent(e);
-				return;
+			if (!M(this)) {
+				if (this._shouldSuppressMainIconTap(e)) {
+					this._stopEvent(e);
+					return;
+				}
+				if (this._isMainIconEvent(e)) {
+					this._handleMainEntityTap(e);
+					return;
+				}
+				N.call(this, e, this._config.main_entity, this._getCardTapAction(), this._getCardDoubleTapAction());
 			}
-			if (this._isMainIconEvent(e)) {
-				this._handleMainEntityTap(e);
-				return;
-			}
-			N.call(this, e, this._config.main_entity, this._getCardTapAction(), this._getCardDoubleTapAction());
 		}
 		_handleDoubleTap(e) {
 			if (this._isMainIconEvent(e)) {
@@ -8066,6 +8073,7 @@ var qc, Jc = e((() => {
 			return t ? e.clientX >= t.left && e.clientX <= t.right && e.clientY >= t.top && e.clientY <= t.bottom : !1;
 		}
 		_handleMainEntityTap(e) {
+			if (M(this)) return;
 			if (this._shouldSuppressMainIconTap(e)) {
 				this._stopEvent(e);
 				return;

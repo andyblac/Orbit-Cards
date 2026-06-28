@@ -129,6 +129,7 @@ class OrbitAreaCard extends LitElement {
     return {
       grid_columns: 3,
       grid_min_columns: 2,
+      grid_rows: "auto",
     };
   }
 

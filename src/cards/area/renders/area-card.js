@@ -47,9 +47,6 @@ export function renderAreaCard() {
           class="circle"
           style="background:${this._circleColor}"
 
-          @click=${this._handleMainEntityTap}
-          @dblclick=${this._handleMainEntityDoubleTap}
-
           @pointerdown=${this._handleMainEntityPointerDown}
 
           @pointerup=${this._finishLongPress}

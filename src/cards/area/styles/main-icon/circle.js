@@ -12,7 +12,6 @@ export const MainIconCircleStyles = css`
     align-items: center;
     justify-content: center;
     overflow: visible;
-    pointer-events: auto;
     z-index: 3;
   }
 `;

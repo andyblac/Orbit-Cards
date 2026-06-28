@@ -155,6 +155,8 @@ class OrbitStatusCard extends LitElement {
   }
 
   _handleTap(ev) {
+    if (isAddCardPickerPreview(this)) return;
+
     if (this._shouldSuppressMainIconTap(ev)) {
       this._stopEvent(ev);
       return;
@@ -218,6 +220,8 @@ class OrbitStatusCard extends LitElement {
   }
 
   _handleMainEntityTap(ev) {
+    if (isAddCardPickerPreview(this)) return;
+
     if (this._shouldSuppressMainIconTap(ev)) {
       this._stopEvent(ev);
       return;

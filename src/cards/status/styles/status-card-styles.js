@@ -54,7 +54,6 @@ export const statusCardStyles = [
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    pointer-events: auto;
     touch-action: manipulation;
     z-index: 3;
   }

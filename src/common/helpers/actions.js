@@ -304,6 +304,8 @@ export function handleCurveButtonDoubleClick(ev) {
 }
 
 export function handleTap(ev) {
+  if (isAddCardPickerPreview(this)) return;
+
   if (this._longPressTriggered) {
     this._longPressTriggered = false;
     return;
@@ -318,7 +320,7 @@ export function handleTap(ev) {
   );
 
   if (clickedInsideCircle) {
-    return;
+    return handleMainEntityTap.call(this, ev);
   }
 
   handleTapAction.call(
@@ -331,6 +333,19 @@ export function handleTap(ev) {
 }
 
 export function handleCardDoubleTap(ev) {
+  if (isAddCardPickerPreview(this)) return;
+
+  const path = ev.composedPath();
+  const clickedInsideCircle = path.some(
+    (el) =>
+      el?.classList &&
+      el.classList.contains("circle")
+  );
+
+  if (clickedInsideCircle) {
+    return handleMainEntityDoubleTap.call(this, ev);
+  }
+
   handleDoubleTapAction.call(
     this,
     ev,

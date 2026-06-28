@@ -6,6 +6,9 @@ export const CardShellStyles = css`
   }
 
   ha-card {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
     background: var(--card-background-color, #1a1a1a);
     border-radius: 18px;
     overflow: hidden;
