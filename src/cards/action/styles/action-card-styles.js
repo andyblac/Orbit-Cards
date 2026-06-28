@@ -19,41 +19,57 @@ export const actionCardStyles = [
 
     ha-card.grouped.separate-cards {
       background: transparent;
+      border: none;
       box-shadow: none;
+      overflow: visible;
     }
 
     .action-container {
-      display: grid;
-      grid-template-columns: repeat(var(--action-columns, var(--action-count, 1)), minmax(0, 1fr));
-      grid-auto-rows: minmax(0, 1fr);
-      align-items: center;
+      display: flex;
+      flex-direction: column;
       gap: clamp(4px, 2cqw, 10px);
+      height: auto;
       padding: 0;
       box-sizing: border-box;
     }
 
-    ha-card.grouped.separate-cards .action-container {
-      gap: clamp(5px, 1.4cqw, 8px);
-      padding: 0 2px 4px;
+    .action-row {
+      display: flex;
+      flex: 1 1 auto;
+      gap: clamp(4px, 2cqw, 10px);
+      min-height: 0;
+      width: 100%;
     }
 
-    ha-card.grouped .action-container {
-      align-content: start;
-      grid-auto-rows: auto;
-      height: auto;
+    ha-card.grouped .action-row {
+      flex: 0 0 auto;
+    }
+
+    ha-card.grouped.separate-cards .action-container {
+      gap: clamp(5px, 1.4cqw, 8px);
+    }
+
+    ha-card.grouped.separate-cards .action-row {
+      gap: clamp(5px, 1.4cqw, 8px);
     }
 
     .action-button {
-      background: var(--ha-card-background, var(--card-background-color));
-      border-radius: 15px;
-      overflow: hidden;
       width: 100%;
       height: 100%;
       display: flex;
+      flex: 1 1 0;
       align-items: center;
       justify-content: center;
+      min-width: 0;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
+    }
+
+    .action-spacer {
+      flex: 1 1 0;
+      min-width: 0;
+      visibility: hidden;
+      pointer-events: none;
     }
 
     ha-card.grouped .action-button {
@@ -61,8 +77,13 @@ export const actionCardStyles = [
       height: auto;
     }
 
+    ha-card.grouped .action-spacer {
+      aspect-ratio: 0.94 / 1;
+    }
+
     ha-card.grouped.separate-cards .action-button {
-      box-shadow: var(--ha-card-box-shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.14));
+      border-radius: 15px;
+      overflow: hidden;
     }
 
     .action-circle {

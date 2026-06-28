@@ -6,6 +6,7 @@ export function renderActionCard() {
   const actionCount = Math.max(actions.length, 1);
   const columnCount = this._getActionColumnCount(actionCount);
   const rowCount = this._getActionRowCount(actionCount);
+  const actionRows = chunkItems(actions, columnCount);
 
   return html`
     <ha-card
@@ -18,9 +19,18 @@ export function renderActionCard() {
       "
     >
       <div class="container action-container">
-        ${actions.map((action, index) =>
-          renderActionButton.call(this, action, index)
-        )}
+        ${actionRows.map((row, rowIndex) => html`
+          <div class="action-row">
+            ${row.map((action, itemIndex) =>
+              renderActionButton.call(
+                this,
+                action,
+                rowIndex * columnCount + itemIndex
+              )
+            )}
+            ${renderRowSpacers(row.length, columnCount, "action-spacer")}
+          </div>
+        `)}
       </div>
     </ha-card>
   `;
@@ -35,7 +45,7 @@ function renderActionButton(action, index) {
     : "";
 
   return html`
-    <div
+    <ha-card
       class="action-button ${action.isRunning ? "running" : ""}"
       role="button"
       tabindex="0"
@@ -66,6 +76,25 @@ function renderActionButton(action, index) {
               ></ha-icon>
             `}
       </div>
-    </div>
+    </ha-card>
   `;
+}
+
+function chunkItems(items, size = 1) {
+  const chunkSize = Math.max(1, size);
+  const rows = [];
+
+  for (let index = 0; index < items.length; index += chunkSize) {
+    rows.push(items.slice(index, index + chunkSize));
+  }
+
+  return rows;
+}
+
+function renderRowSpacers(itemCount, columnCount, className) {
+  const spacerCount = Math.max(0, columnCount - itemCount);
+
+  return Array.from({ length: spacerCount }, () => html`
+    <div class=${className}></div>
+  `);
 }

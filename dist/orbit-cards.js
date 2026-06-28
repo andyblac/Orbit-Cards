@@ -5858,9 +5858,9 @@ var Ws, Gs, Ks = e((() => {
 	};
 })), Q, qs = e((() => {
 	Q = {
-		room: "0.7.4",
-		status: "0.12.7",
-		action: "0.5.7"
+		room: "0.7.8",
+		status: "0.12.8",
+		action: "0.5.8"
 	};
 })), Js = /* @__PURE__ */ t((() => {
 	A(), Ka(), Eo(), jo(), Bo(), os(), cs(), L(), Ks(), qs();
@@ -6655,7 +6655,7 @@ function gc() {
           --status-text-color:${this._statusColor};
         "
       >
-        ${n ? _c.call(this, t) : w`
+        ${n ? _c.call(this, t, i) : w`
         <div
           class="circle status-circle"
           @pointerdown=${this._handleMainIconPointerDown}
@@ -6707,17 +6707,22 @@ function gc() {
     </ha-card>
   `;
 }
-function _c(e) {
+function _c(e, t) {
 	return w`
     <div class="status-icon-grid">
-      ${e.map((e, t) => vc.call(this, e, t))}
+      ${Sc(e, t).map((e, n) => w`
+        <div class="status-icon-row">
+          ${e.map((e, r) => vc.call(this, e, n * t + r))}
+          ${Cc(e.length, t, "status-icon-spacer")}
+        </div>
+      `)}
     </div>
   `;
 }
 function vc(e, t) {
 	let n = xc(e.statusText), r = this._isImageIcon(e.icon) ? this._resolveIconPath(e.icon) : "", i = r ? this._getInlineSvg(r, e.svgForceColor) : "";
 	return w`
-    <div
+    <ha-card
       class="status-icon-item"
       style="
         --status-circle-color:${e.circleColor};
@@ -6749,7 +6754,7 @@ function vc(e, t) {
       >
         ${n}
       </div>
-    </div>
+    </ha-card>
   `;
 }
 function yc() {
@@ -6801,10 +6806,21 @@ function xc(e) {
 	let t = String(e || "").match(/-?\d+(?:\.\d+)?/);
 	return (t ? Number(t[0]) : null) === 0 ? "" : t?.[0] || "";
 }
-var Sc = e((() => {
+function Sc(e, t = 1) {
+	let n = Math.max(1, t), r = [];
+	for (let t = 0; t < e.length; t += n) r.push(e.slice(t, t + n));
+	return r;
+}
+function Cc(e, t, n) {
+	let r = Math.max(0, t - e);
+	return Array.from({ length: r }, () => w`
+    <div class=${n}></div>
+  `);
+}
+var wc = e((() => {
 	A(), z();
-})), Cc, wc = e((() => {
-	A(), Yn(), Zn(), $n(), Cc = [
+})), Tc, Ec = e((() => {
+	A(), Yn(), Zn(), $n(), Tc = [
 		Jn,
 		Xn,
 		Qn,
@@ -6825,7 +6841,9 @@ var Sc = e((() => {
 
   ha-card.mode-icon_only.grouped.separate-cards {
     background: transparent;
+    border: none;
     box-shadow: none;
+    overflow: visible;
   }
 
   ha-card.mode-person {
@@ -6892,15 +6910,15 @@ var Sc = e((() => {
   }
 
   .status-container.mode-icon_only.grouped {
-    display: grid;
+    display: block;
+    height: auto;
+    overflow: visible;
     padding: 0;
   }
 
   .status-icon-grid {
-    display: grid;
-    grid-template-columns: repeat(var(--status-columns, 1), minmax(0, 1fr));
-    grid-auto-rows: minmax(0, 1fr);
-    align-content: start;
+    display: flex;
+    flex-direction: column;
     gap: clamp(4px, 2cqw, 10px);
     width: 100%;
     height: 100%;
@@ -6908,32 +6926,51 @@ var Sc = e((() => {
   }
 
   .status-container.mode-icon_only.grouped .status-icon-grid {
-    grid-auto-rows: auto;
     height: auto;
+  }
+
+  .status-icon-row {
+    display: flex;
+    gap: clamp(4px, 2cqw, 10px);
+    width: 100%;
   }
 
   ha-card.mode-icon_only.grouped.separate-cards .status-icon-grid {
     gap: clamp(5px, 1.4cqw, 8px);
-    padding: 0 2px 4px;
+  }
+
+  ha-card.mode-icon_only.grouped.separate-cards .status-icon-row {
+    gap: clamp(5px, 1.4cqw, 8px);
   }
 
   .status-icon-item {
-    background: var(--ha-card-background, var(--card-background-color));
-    border-radius: 15px;
     container-type: size;
     cursor: pointer;
-    overflow: hidden;
     position: relative;
+    flex: 1 1 0;
+    min-width: 0;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  .status-icon-spacer {
+    flex: 1 1 0;
+    min-width: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   .status-container.mode-icon_only.grouped .status-icon-item {
     aspect-ratio: 0.94 / 1;
   }
 
+  .status-container.mode-icon_only.grouped .status-icon-spacer {
+    aspect-ratio: 0.94 / 1;
+  }
+
   ha-card.mode-icon_only.grouped.separate-cards .status-icon-item {
-    box-shadow: var(--ha-card-box-shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.14));
+    border-radius: 15px;
+    overflow: hidden;
   }
 
   .status-icon-item .status-circle {
@@ -7069,7 +7106,7 @@ var Sc = e((() => {
 }));
 //#endregion
 //#region src/editors/status/sections/status.js
-function Tc() {
+function Dc() {
 	let e = this._config?.mode || "standard", t = e === "icon_only", n = e === "person", r = t || n ? "more-info" : "navigate", i = this._config?.tap_action?.action || r, a = t || n ? i : "more-info";
 	return w`
     <div class="section">
@@ -7080,7 +7117,7 @@ function Tc() {
           <ha-selector
             class="editor-header-button-toggle status-mode-selector"
             .hass=${this.hass}
-            .selector=${{ button_toggle: { options: Mc.call(this) } }}
+            .selector=${{ button_toggle: { options: Pc.call(this) } }}
             .value=${e}
             @value-changed=${(e) => this._updateConfig({ mode: e.detail.value || "standard" })}
           ></ha-selector>
@@ -7088,12 +7125,12 @@ function Tc() {
       </div>
     </div>
 
-    ${t ? Dc.call(this, {
+    ${t ? kc.call(this, {
 		cardActionDefault: r,
 		mainEntityActionDefault: a
 	}) : w`
           <div class="section">
-            ${Ec.call(this)}
+            ${Oc.call(this)}
 
             ${n ? w`
                   ${this._renderEntity("Person entity", "main_entity")}
@@ -7119,7 +7156,7 @@ function Tc() {
 
                     ${X.call(this, {
 		value: this._config?.main_entity || "",
-		filterOptions: Nc,
+		filterOptions: Fc,
 		onValueChanged: (e) => this._handleEntityUpdate ? this._handleEntityUpdate("main_entity", e) : this._handleConfigUpdate("main_entity", e)
 	})}
                   </div>
@@ -7135,7 +7172,7 @@ function Tc() {
 		"Color"
 	], "accent_off_color")}
                   </div>
-                  ${Ac.call(this)}
+                  ${Mc.call(this)}
                   ${this._renderTemplateInput("State template", "state_template")}
                   ${this._renderTemplateInput("Label template", "label_template")}
                 `}
@@ -7149,7 +7186,7 @@ function Tc() {
         `}
   `;
 }
-function Ec() {
+function Oc() {
 	return qa.call(this, {
 		label: "Status name",
 		valueKey: "status_name",
@@ -7157,7 +7194,7 @@ function Ec() {
 		defaultType: "entity"
 	});
 }
-function Dc({ cardActionDefault: e, mainEntityActionDefault: t }) {
+function kc({ cardActionDefault: e, mainEntityActionDefault: t }) {
 	let n = this._getStatusItems(), r = Math.min(this._selectedStatusIndex || 0, n.length - 1), i = n[r] || {}, a = Math.max(1, Number(this._config?.items_per_row) || 3), o = !!this._config?.wrap && n.length > a, s = !o && n.length > 6 || o && a > 6;
 	return w`
     <div class="section">
@@ -7265,28 +7302,28 @@ function Dc({ cardActionDefault: e, mainEntityActionDefault: t }) {
 
         ${X.call(this, {
 		value: i.entity || "",
-		filterOptions: Nc,
+		filterOptions: Fc,
 		onValueChanged: (e) => this._updateStatusItem(r, { entity: e })
 	})}
       </div>
 
       <div class="color-pair">
-        ${kc.call(this, [
+        ${jc.call(this, [
 		"Accent",
 		"Active",
 		"Color"
 	], "accent_on_color", r, i)}
-        ${kc.call(this, [
+        ${jc.call(this, [
 		"Accent",
 		"Inactive",
 		"Color"
 	], "accent_off_color", r, i)}
       </div>
 
-      ${jc.call(this, r, i)}
+      ${Nc.call(this, r, i)}
 
-      ${Oc.call(this, "State template", "state_template", r, i)}
-      ${Oc.call(this, "Label template", "label_template", r, i)}
+      ${Ac.call(this, "State template", "state_template", r, i)}
+      ${Ac.call(this, "Label template", "label_template", r, i)}
 
       ${i.entity ? w`
             ${this._renderStatusItemActionSelector("Tap behavior", "tap_action", r, e)}
@@ -7296,16 +7333,16 @@ function Dc({ cardActionDefault: e, mainEntityActionDefault: t }) {
     </div>
   `;
 }
-function Oc(e, t, n, r) {
+function Ac(e, t, n, r) {
 	return this._renderTemplateInput(e, t, {
 		value: r[t] || "",
 		onValueChanged: (e) => this._updateStatusItem(n, { [t]: e })
 	});
 }
-function kc(e, t, n, r) {
+function jc(e, t, n, r) {
 	return this._renderColorControl(e, `status-${n}-${t}`, r[t] || "", (e) => this._updateStatusItem(n, { [t]: e }));
 }
-function Ac() {
+function Mc() {
 	return U.call(this, {
 		label: "Icon",
 		sourceKey: "main_entity_icon_source",
@@ -7326,7 +7363,7 @@ function Ac() {
 		}
 	});
 }
-function jc(e, t) {
+function Nc(e, t) {
 	let n = this, r = {
 		hass: this.hass,
 		_config: t,
@@ -7354,7 +7391,7 @@ function jc(e, t) {
 		}
 	});
 }
-function Mc() {
+function Pc() {
 	return [
 		{
 			label: this._t("Standard"),
@@ -7370,8 +7407,8 @@ function Mc() {
 		}
 	];
 }
-var Nc, Pc = e((() => {
-	A(), So(), Na(), Zr(), Nc = [
+var Fc, Ic = e((() => {
+	A(), So(), Na(), Zr(), Fc = [
 		{
 			label: "All",
 			value: "all",
@@ -7390,8 +7427,8 @@ var Nc, Pc = e((() => {
 			domains: ["sensor"]
 		}
 	];
-})), Fc, Ic = e((() => {
-	A(), Fc = c`
+})), Lc, Rc = e((() => {
+	A(), Lc = c`
 .status-wrap-toggle {
   display: flex;
   align-items: center;
@@ -7557,8 +7594,8 @@ var Nc, Pc = e((() => {
   --mdc-icon-size: 20px;
 }
 `;
-})), Lc = /* @__PURE__ */ t((() => {
-	A(), Ka(), Pc(), os(), Ic(), L(), Ks(), qs();
+})), zc = /* @__PURE__ */ t((() => {
+	A(), Ka(), Ic(), os(), Rc(), L(), Ks(), qs();
 	var e = class extends k {
 		static svgCache = I;
 		static properties = {
@@ -7804,7 +7841,7 @@ var Nc, Pc = e((() => {
 			return P.call(this, e, { forceColor: !0 });
 		}
 		_renderStatusSection() {
-			return Tc.call(this);
+			return Dc.call(this);
 		}
 		render() {
 			return w`
@@ -7816,7 +7853,7 @@ var Nc, Pc = e((() => {
       </div>
     `;
 		}
-		static styles = [as, Fc];
+		static styles = [as, Lc];
 	};
 	customElements.define("orbit-status-card-editor", e);
 	function t(e) {
@@ -7880,8 +7917,8 @@ var Nc, Pc = e((() => {
 			r.has(t) || (n[t] = e[t]);
 		}), n;
 	}
-})), Rc = /* @__PURE__ */ t((() => {
-	A(), $e(), N(), St(), Ft(), zt(), Vt(), Gt(), Yt(), L(), Ks(), hc(), Sc(), wc(), Lc(), qs();
+})), Bc = /* @__PURE__ */ t((() => {
+	A(), $e(), N(), St(), Ft(), zt(), Vt(), Gt(), Yt(), L(), Ks(), hc(), wc(), Ec(), zc(), qs();
 	var e = class extends k {
 		static svgCache = I;
 		static get properties() {
@@ -8200,7 +8237,7 @@ var Nc, Pc = e((() => {
 		render() {
 			return gc.call(this);
 		}
-		static styles = Cc;
+		static styles = Tc;
 	};
 	function t(e) {
 		return !!(e && e.action && e.action !== "none");
@@ -8257,10 +8294,10 @@ var Nc, Pc = e((() => {
 }));
 //#endregion
 //#region src/cards/action/helpers/lifecycle.js
-function zc(e) {
-	!e.has("_config") && !e.has("hass") || (this._actions = Bc(this._config).map((e) => Vc.call(this, e)));
+function Vc(e) {
+	!e.has("_config") && !e.has("hass") || (this._actions = Hc(this._config).map((e) => Uc.call(this, e)));
 }
-function Bc(e = {}) {
+function Hc(e = {}) {
 	return Array.isArray(e.entities) && e.entities.length ? e.entities.map((e) => typeof e == "string" ? { entity: e } : e || {}) : [{
 		entity: e.main_entity,
 		accent_color: e.accent_color,
@@ -8271,8 +8308,8 @@ function Bc(e = {}) {
 		hold_action: e.hold_action
 	}];
 }
-function Vc(e) {
-	let t = e.entity || e.main_entity, n = t && this.hass ? this.hass.states[t] : null, r = e.accent_color || this._config.accent_color || "theme", i = Uc(n), a = this._computeCircleColor(r), o = i ? this._computeFullColor(r) : this._computeIconColor(r), s = Hc(e, t), c = n?.attributes?.icon || this.hass?.entities?.[t]?.icon || (n ? this._getDefaultDomainIcon(n.entity_id.split(".")[0], n) : "mdi:play-circle"), l = s === "custom" && e.main_entity_icon ? "main_entity_icon" : s === "custom" && e.icon ? "icon" : "", u = s === "custom" && (e.main_entity_icon || e.icon) || c;
+function Uc(e) {
+	let t = e.entity || e.main_entity, n = t && this.hass ? this.hass.states[t] : null, r = e.accent_color || this._config.accent_color || "theme", i = Gc(n), a = this._computeCircleColor(r), o = i ? this._computeFullColor(r) : this._computeIconColor(r), s = Wc(e, t), c = n?.attributes?.icon || this.hass?.entities?.[t]?.icon || (n ? this._getDefaultDomainIcon(n.entity_id.split(".")[0], n) : "mdi:play-circle"), l = s === "custom" && e.main_entity_icon ? "main_entity_icon" : s === "custom" && e.icon ? "icon" : "", u = s === "custom" && (e.main_entity_icon || e.icon) || c;
 	return {
 		...e,
 		entityId: t,
@@ -8283,20 +8320,20 @@ function Vc(e) {
 		svgForceColor: l ? this._getSvgColorOverride(e, l) : !0
 	};
 }
-function Hc(e, t) {
+function Wc(e, t) {
 	let n = e.main_entity_icon_source, r = !!t, i = !!(e.main_entity_icon || e.icon);
 	return n === "custom" ? "custom" : n === "entity" && r ? "entity" : i ? "custom" : "entity";
 }
-function Uc(e) {
+function Gc(e) {
 	if (!e) return !1;
 	let t = e.entity_id?.split(".")[0], n = Number(e.attributes?.current);
 	return Number.isFinite(n) && n > 0 ? !0 : t === "script" && e.state === "on";
 }
-var Wc = e((() => {}));
+var Kc = e((() => {}));
 //#endregion
 //#region src/cards/action/renders/action-card.js
-function Gc() {
-	let e = this._actions || [], t = Math.max(e.length, 1), n = this._getActionColumnCount(t), r = this._getActionRowCount(t);
+function qc() {
+	let e = this._actions || [], t = Math.max(e.length, 1), n = this._getActionColumnCount(t), r = this._getActionRowCount(t), i = Yc(e, n);
 	return w`
     <ha-card
       class="${t > 1 ? "grouped" : ""} ${t > 1 && this._config?.separate_cards ? "separate-cards" : ""}"
@@ -8308,15 +8345,20 @@ function Gc() {
       "
     >
       <div class="container action-container">
-        ${e.map((e, t) => Kc.call(this, e, t))}
+        ${i.map((e, t) => w`
+          <div class="action-row">
+            ${e.map((e, r) => Jc.call(this, e, t * n + r))}
+            ${Xc(e.length, n, "action-spacer")}
+          </div>
+        `)}
       </div>
     </ha-card>
   `;
 }
-function Kc(e, t) {
+function Jc(e, t) {
 	let n = this._isImageIcon(e.icon) ? this._resolveIconPath(e.icon) : "", r = n ? this._getInlineSvg(n, e.svgForceColor) : "";
 	return w`
-    <div
+    <ha-card
       class="action-button ${e.isRunning ? "running" : ""}"
       role="button"
       tabindex="0"
@@ -8343,13 +8385,24 @@ function Kc(e, t) {
               ></ha-icon>
             `}
       </div>
-    </div>
+    </ha-card>
   `;
 }
-var qc = e((() => {
+function Yc(e, t = 1) {
+	let n = Math.max(1, t), r = [];
+	for (let t = 0; t < e.length; t += n) r.push(e.slice(t, t + n));
+	return r;
+}
+function Xc(e, t, n) {
+	let r = Math.max(0, t - e);
+	return Array.from({ length: r }, () => w`
+    <div class=${n}></div>
+  `);
+}
+var Zc = e((() => {
 	A(), z();
-})), Jc, Yc = e((() => {
-	A(), Zn(), $n(), Jc = [
+})), Qc, $c = e((() => {
+	A(), Zn(), $n(), Qc = [
 		Xn,
 		Qn,
 		c`
@@ -8365,41 +8418,57 @@ var qc = e((() => {
 
     ha-card.grouped.separate-cards {
       background: transparent;
+      border: none;
       box-shadow: none;
+      overflow: visible;
     }
 
     .action-container {
-      display: grid;
-      grid-template-columns: repeat(var(--action-columns, var(--action-count, 1)), minmax(0, 1fr));
-      grid-auto-rows: minmax(0, 1fr);
-      align-items: center;
+      display: flex;
+      flex-direction: column;
       gap: clamp(4px, 2cqw, 10px);
+      height: auto;
       padding: 0;
       box-sizing: border-box;
     }
 
-    ha-card.grouped.separate-cards .action-container {
-      gap: clamp(5px, 1.4cqw, 8px);
-      padding: 0 2px 4px;
+    .action-row {
+      display: flex;
+      flex: 1 1 auto;
+      gap: clamp(4px, 2cqw, 10px);
+      min-height: 0;
+      width: 100%;
     }
 
-    ha-card.grouped .action-container {
-      align-content: start;
-      grid-auto-rows: auto;
-      height: auto;
+    ha-card.grouped .action-row {
+      flex: 0 0 auto;
+    }
+
+    ha-card.grouped.separate-cards .action-container {
+      gap: clamp(5px, 1.4cqw, 8px);
+    }
+
+    ha-card.grouped.separate-cards .action-row {
+      gap: clamp(5px, 1.4cqw, 8px);
     }
 
     .action-button {
-      background: var(--ha-card-background, var(--card-background-color));
-      border-radius: 15px;
-      overflow: hidden;
       width: 100%;
       height: 100%;
       display: flex;
+      flex: 1 1 0;
       align-items: center;
       justify-content: center;
+      min-width: 0;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
+    }
+
+    .action-spacer {
+      flex: 1 1 0;
+      min-width: 0;
+      visibility: hidden;
+      pointer-events: none;
     }
 
     ha-card.grouped .action-button {
@@ -8407,8 +8476,13 @@ var qc = e((() => {
       height: auto;
     }
 
+    ha-card.grouped .action-spacer {
+      aspect-ratio: 0.94 / 1;
+    }
+
     ha-card.grouped.separate-cards .action-button {
-      box-shadow: var(--ha-card-box-shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.14));
+      border-radius: 15px;
+      overflow: hidden;
     }
 
     .action-circle {
@@ -8449,7 +8523,7 @@ var qc = e((() => {
 }));
 //#endregion
 //#region src/editors/action/sections/action.js
-function Xc() {
+function el() {
 	let e = this._getActionItems(), t = Math.min(this._selectedActionIndex || 0, e.length - 1), n = e[t] || {}, r = this._actionEntityDomainFilter || "all", i = Math.max(1, Number(this._config?.actions_per_row) || 3), a = !!this._config?.wrap && e.length > i, o = !a && e.length > 6 || a && i > 6;
 	return w`
     <div class="section">
@@ -8557,7 +8631,7 @@ function Xc() {
 
         ${X.call(this, {
 		value: n.entity || "",
-		filterOptions: Qc,
+		filterOptions: nl,
 		activeFilter: r,
 		onValueChanged: (e) => this._updateActionItem(t, { entity: e })
 	})}
@@ -8565,7 +8639,7 @@ function Xc() {
 
       ${this._renderColorControl(["Accent", "Color"], `action-${t}-accent_color`, n.accent_color || "", (e) => this._updateActionItem(t, { accent_color: e }))}
 
-      ${Zc.call(this, t, n)}
+      ${tl.call(this, t, n)}
 
       ${n.entity ? w`
             ${this._renderActionItemActionSelector("Tap behavior", "tap_action", t, Xt(n.entity, "toggle"))}
@@ -8574,7 +8648,7 @@ function Xc() {
     </div>
   `;
 }
-function Zc(e, t) {
+function tl(e, t) {
 	let n = this, r = {
 		hass: this.hass,
 		_config: t,
@@ -8592,8 +8666,8 @@ function Zc(e, t) {
 		}
 	});
 }
-var Qc, $c = e((() => {
-	A(), Na(), Zr(), $t(), Qc = [
+var nl, rl = e((() => {
+	A(), Na(), Zr(), $t(), nl = [
 		{
 			label: "All",
 			value: "all",
@@ -8634,8 +8708,8 @@ var Qc, $c = e((() => {
 			domains: ["script"]
 		}
 	];
-})), el = /* @__PURE__ */ t((() => {
-	A(), Ka(), $c(), os(), cs(), L(), Ks(), qs();
+})), il = /* @__PURE__ */ t((() => {
+	A(), Ka(), rl(), os(), cs(), L(), Ks(), qs();
 	var e = class extends k {
 		static svgCache = I;
 		static properties = {
@@ -8836,7 +8910,7 @@ var Qc, $c = e((() => {
 			return P.call(this, e, { forceColor: !0 });
 		}
 		_renderActionSection() {
-			return Xc.call(this);
+			return el.call(this);
 		}
 		render() {
 			return w`
@@ -8903,8 +8977,8 @@ var Qc, $c = e((() => {
 			r.has(t) || (n[t] = e[t]);
 		}), n;
 	}
-})), tl = /* @__PURE__ */ t((() => {
-	A(), $e(), $t(), N(), Ft(), Gt(), Yt(), L(), Wc(), qc(), Yc(), el(), qs();
+})), al = /* @__PURE__ */ t((() => {
+	A(), $e(), $t(), N(), Ft(), Gt(), Yt(), L(), Kc(), Zc(), $c(), il(), qs();
 	var e = class extends k {
 		static svgCache = I;
 		static get properties() {
@@ -8929,7 +9003,7 @@ var Qc, $c = e((() => {
 			};
 		}
 		getLayoutOptions() {
-			let e = Bc(this._config).length, n = t(this._config, e);
+			let e = Hc(this._config).length, n = t(this._config, e);
 			return {
 				grid_columns: Math.max(1, n * 1),
 				grid_min_columns: .5,
@@ -8942,10 +9016,10 @@ var Qc, $c = e((() => {
 			this._iconColor = this._computeIconColor(t), this._cardBackground = this._computeCircleColor(t), this._isRunning = !1, this._actions = [];
 		}
 		willUpdate(e) {
-			return zc.call(this, e);
+			return Vc.call(this, e);
 		}
 		shouldUpdate(e) {
-			return Ht.call(this, e, Bc(this._config).map((e) => e.entity || e.main_entity), { hasTemplates: Ut(this._config) });
+			return Ht.call(this, e, Hc(this._config).map((e) => e.entity || e.main_entity), { hasTemplates: Ut(this._config) });
 		}
 		_handleTap(e, t = 0) {
 			if (this._longPressTriggered) {
@@ -9021,9 +9095,9 @@ var Qc, $c = e((() => {
 			e.preventDefault(), e.stopPropagation(), e.stopImmediatePropagation && e.stopImmediatePropagation();
 		}
 		render() {
-			return Gc.call(this);
+			return qc.call(this);
 		}
-		static styles = Jc;
+		static styles = Qc;
 	};
 	function t(e = {}, t = 1) {
 		if (!e.wrap) return Math.max(1, t);
@@ -9051,8 +9125,8 @@ var Qc, $c = e((() => {
 			main_entity: t
 		} } : null;
 	}
-})), nl = /* @__PURE__ */ t((() => {
-	Ys(), Rc(), tl();
+})), ol = /* @__PURE__ */ t((() => {
+	Ys(), Bc(), al();
 }));
 //#endregion
-export default nl();
+export default ol();

@@ -38,7 +38,7 @@ export function renderStatusCard() {
         "
       >
         ${isGroupedIconOnly
-          ? renderIconOnlyStatusGrid.call(this, statusItems)
+          ? renderIconOnlyStatusStack.call(this, statusItems, columnCount)
           : html`
         <div
           class="circle status-circle"
@@ -100,12 +100,23 @@ export function renderStatusCard() {
   `;
 }
 
-function renderIconOnlyStatusGrid(items) {
+function renderIconOnlyStatusStack(items, columnCount) {
+  const rows = chunkItems(items, columnCount);
+
   return html`
     <div class="status-icon-grid">
-      ${items.map((item, index) =>
-        renderIconOnlyStatusItem.call(this, item, index)
-      )}
+      ${rows.map((row, rowIndex) => html`
+        <div class="status-icon-row">
+          ${row.map((item, itemIndex) =>
+            renderIconOnlyStatusItem.call(
+              this,
+              item,
+              rowIndex * columnCount + itemIndex
+            )
+          )}
+          ${renderRowSpacers(row.length, columnCount, "status-icon-spacer")}
+        </div>
+      `)}
     </div>
   `;
 }
@@ -120,7 +131,7 @@ function renderIconOnlyStatusItem(item, index) {
     : "";
 
   return html`
-    <div
+    <ha-card
       class="status-icon-item"
       style="
         --status-circle-color:${item.circleColor};
@@ -156,7 +167,7 @@ function renderIconOnlyStatusItem(item, index) {
       >
         ${badgeText}
       </div>
-    </div>
+    </ha-card>
   `;
 }
 
@@ -239,4 +250,23 @@ function getIconOnlyStatusText(statusText) {
   if (value === 0) return "";
 
   return match?.[0] || "";
+}
+
+function chunkItems(items, size = 1) {
+  const chunkSize = Math.max(1, size);
+  const rows = [];
+
+  for (let index = 0; index < items.length; index += chunkSize) {
+    rows.push(items.slice(index, index + chunkSize));
+  }
+
+  return rows;
+}
+
+function renderRowSpacers(itemCount, columnCount, className) {
+  const spacerCount = Math.max(0, columnCount - itemCount);
+
+  return Array.from({ length: spacerCount }, () => html`
+    <div class=${className}></div>
+  `);
 }

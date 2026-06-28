@@ -25,7 +25,9 @@ export const statusCardStyles = [
 
   ha-card.mode-icon_only.grouped.separate-cards {
     background: transparent;
+    border: none;
     box-shadow: none;
+    overflow: visible;
   }
 
   ha-card.mode-person {
@@ -92,15 +94,15 @@ export const statusCardStyles = [
   }
 
   .status-container.mode-icon_only.grouped {
-    display: grid;
+    display: block;
+    height: auto;
+    overflow: visible;
     padding: 0;
   }
 
   .status-icon-grid {
-    display: grid;
-    grid-template-columns: repeat(var(--status-columns, 1), minmax(0, 1fr));
-    grid-auto-rows: minmax(0, 1fr);
-    align-content: start;
+    display: flex;
+    flex-direction: column;
     gap: clamp(4px, 2cqw, 10px);
     width: 100%;
     height: 100%;
@@ -108,32 +110,51 @@ export const statusCardStyles = [
   }
 
   .status-container.mode-icon_only.grouped .status-icon-grid {
-    grid-auto-rows: auto;
     height: auto;
+  }
+
+  .status-icon-row {
+    display: flex;
+    gap: clamp(4px, 2cqw, 10px);
+    width: 100%;
   }
 
   ha-card.mode-icon_only.grouped.separate-cards .status-icon-grid {
     gap: clamp(5px, 1.4cqw, 8px);
-    padding: 0 2px 4px;
+  }
+
+  ha-card.mode-icon_only.grouped.separate-cards .status-icon-row {
+    gap: clamp(5px, 1.4cqw, 8px);
   }
 
   .status-icon-item {
-    background: var(--ha-card-background, var(--card-background-color));
-    border-radius: 15px;
     container-type: size;
     cursor: pointer;
-    overflow: hidden;
     position: relative;
+    flex: 1 1 0;
+    min-width: 0;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  .status-icon-spacer {
+    flex: 1 1 0;
+    min-width: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   .status-container.mode-icon_only.grouped .status-icon-item {
     aspect-ratio: 0.94 / 1;
   }
 
+  .status-container.mode-icon_only.grouped .status-icon-spacer {
+    aspect-ratio: 0.94 / 1;
+  }
+
   ha-card.mode-icon_only.grouped.separate-cards .status-icon-item {
-    box-shadow: var(--ha-card-box-shadow, 0 1px 3px 0 rgba(0, 0, 0, 0.14));
+    border-radius: 15px;
+    overflow: hidden;
   }
 
   .status-icon-item .status-circle {
