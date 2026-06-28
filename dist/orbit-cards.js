@@ -822,19 +822,20 @@ function Et(e, t) {
 var Dt = e((() => {}));
 //#endregion
 //#region src/common/helpers/card-registration.js
-function Ot({ tag: e, cardClass: t, name: n, description: r, version: i, getEntitySuggestion: a, aliases: o = [] }) {
-	customElements.get(e) || customElements.define(e, t), o.forEach((e) => {
+function Ot({ tag: e, cardClass: t, name: n, description: r, version: i, getEntitySuggestion: a, documentationURL: o = "https://github.com/andyblac/Orbit-Cards", aliases: s = [] }) {
+	customElements.get(e) || customElements.define(e, t), s.forEach((e) => {
 		customElements.get(e.tag) || customElements.define(e.tag, e.cardClass || t);
 	});
-	let s = new Set([e, ...o.map((e) => e.tag)]);
+	let c = new Set([e, ...s.map((e) => e.tag)]);
 	window.customCards = window.customCards || [];
-	for (let e = window.customCards.length - 1; e >= 0; --e) s.has(window.customCards[e].type) && window.customCards.splice(e, 1);
+	for (let e = window.customCards.length - 1; e >= 0; --e) c.has(window.customCards[e].type) && window.customCards.splice(e, 1);
 	window.customCards.push({
 		type: e,
 		name: n,
 		description: r,
 		preview: !0,
 		version: i,
+		documentationURL: o,
 		getEntitySuggestion: a
 	}), console.info(`%c ${n} %c v${i} `, "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;", "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;");
 }

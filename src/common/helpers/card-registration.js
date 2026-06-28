@@ -5,6 +5,7 @@ export function registerOrbitCard({
   description,
   version,
   getEntitySuggestion,
+  documentationURL = "https://github.com/andyblac/Orbit-Cards",
   aliases = [],
 }) {
   if (!customElements.get(tag)) {
@@ -36,6 +37,7 @@ export function registerOrbitCard({
     description,
     preview: true,
     version,
+    documentationURL,
     getEntitySuggestion,
   });
 
