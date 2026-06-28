@@ -2,8 +2,8 @@ import { CardHeaderStyles } from "../../../common/styles/header.js";
 import { CardShellStyles } from "../../../common/styles/card-shell.js";
 import { MainIconStyles } from "../../../common/styles/main-icon.js";
 
-import { RoomCardHeaderStyles } from "./header.js";
-import { RoomCardLayoutStyles } from "./layout.js";
+import { AreaCardHeaderStyles } from "./header.js";
+import { AreaCardLayoutStyles } from "./layout.js";
 
 import { CurveButtonStyles } from "./curve-buttons/button.js";
 import { CurveButtonContainerStyles } from "./curve-buttons/container.js";
@@ -15,12 +15,12 @@ import { EntityButtonLayoutStyles } from "./entity-buttons/layout.js";
 
 import { MainIconCircleStyles } from "./main-icon/circle.js";
 
-export const roomCardStyles = [
+export const areaCardStyles = [
   CardShellStyles,
   CardHeaderStyles,
   MainIconStyles,
-  RoomCardLayoutStyles,
-  RoomCardHeaderStyles,
+  AreaCardLayoutStyles,
+  AreaCardHeaderStyles,
   MainIconCircleStyles,
   EntityButtonStyles,
   EntityButtonLayoutStyles,

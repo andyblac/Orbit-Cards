@@ -23,8 +23,6 @@
   "No matching actions": "No hay acciones coincidentes",
   "No matching files": "No hay archivos coincidentes",
   "Person entity": "Entidad de persona",
-  "Room name": "Nombre de habitación",
-  "Room navigation path": "Ruta de navegación de habitación",
   "Separate cards": "Tarjetas separadas",
   "Separator": "Separador",
   "State light color": "Color de luz de estado",
@@ -38,6 +36,6 @@
   "No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "No se encontraron archivos. Añade un manifiesto de iconos local en /local/icons/manifest.json o escribe el nombre del archivo manualmente.",
   "Orbit Action Card v{version}": "Orbit Action Card v{version}",
   "Orbit Icons": "Iconos de Orbit",
-  "Orbit Room Card v{version}": "Orbit Room Card v{version}",
+  "Orbit Area Card v{version}": "Orbit Area Card v{version}",
   "Orbit Status Card v{version}": "Orbit Status Card v{version}"
 }

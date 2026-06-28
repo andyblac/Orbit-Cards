@@ -19,16 +19,16 @@ Orbit Cards currently includes:
 
 | Card        | Type                       | Purpose                                                                                                            |
 | ----------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Room Card   | `custom:orbit-room-card`   | A room overview card with a main entity, room navigation, status entities, side buttons, and curved quick actions. |
+| Area Card   | `custom:orbit-area-card`   | An area overview card with a main entity, area navigation, status entities, side buttons, and curved quick actions. |
 | Status Card | `custom:orbit-status-card` | A status summary card with Standard, Icon only, grouped Icon only, and Person modes.                               |
 | Action Card | `custom:orbit-action-card` | A compact action card for scenes, scripts, automations, and grouped action shortcuts.                              |
 
-<img title="" src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/Dev/images/Room-Card.png" alt="" width="252"><img title="" src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/Dev/images/Status-Action-Cards.png" alt="" width="361">
+<img title="" src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/Dev/images/Area-Card.png" alt="" width="252"><img title="" src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/Dev/images/Status-Action-Cards.png" alt="" width="361">
 
 ## Features
 
 - Built-in visual editors for all cards.
-- Tabbed editor sections with grouped controls for room/card settings, status fields, buttons, curved buttons, and action buttons.
+- Tabbed editor sections with grouped controls for area/card settings, status fields, buttons, curved buttons, and action buttons.
 - Shared colour handling across cards.
 - Named colours, theme colours, hex colours, `rgb()`, `hsl()`, and light colour support where supported.
 - Colour preview swatches with a native colour picker and selectable theme colour previews.
@@ -120,7 +120,7 @@ accent_color: google-yellow
 
 In the visual editor, tap a colour preview swatch to open the colour selector. The selector opens on the `Theme` tab for named/theme colours and on the `Color` tab for hex, `rgb()`, and `hsl()` colours. The `Color` tab writes a hex colour and pre-populates from the current value when it can resolve it. The `Theme` tab shows selectable theme colour previews, includes colour variables discovered from the active Home Assistant theme, and writes the selected theme variable name. Theme-provided colours are marked with `T`; built-in fallback colours are marked with `S`.
 
-Room Card also supports:
+Area Card also supports:
 
 ```yaml
 accent_color: light
@@ -130,19 +130,19 @@ When `light` is used with a light entity, the card uses the light's current colo
 
 ### Names
 
-Room and Status name fields can be plain text or a composed name made from Home Assistant context. The visual editor uses Home Assistant's name picker when available, with `Composed` and `Custom` modes.
+Area and Status name fields can be plain text or a composed name made from Home Assistant context. The visual editor uses Home Assistant's name picker when available, with `Composed` and `Custom` modes.
 
 Plain text:
 
 ```yaml
-room_name: Living Room
+area_name: Living Room
 status_name: Heating
 ```
 
 Composed names can include `area`, `device`, `entity`, `floor`, and custom text parts:
 
 ```yaml
-room_name:
+area_name:
   - type: area
   - type: text
     text: Lights
@@ -151,7 +151,7 @@ status_name:
   - type: entity
 ```
 
-Room Card defaults the editor name picker to `Area` when an area is configured. Status Card defaults it to `Entity` when a main entity is configured. These defaults are not written to YAML unless changed.
+Area Card defaults the editor name picker to `Area` when an area is configured. Status Card defaults it to `Entity` when a main entity is configured. These defaults are not written to YAML unless changed.
 
 ### Icons
 
@@ -308,15 +308,15 @@ cards:
     vertical: true
 ```
 
-## Room Card
+## Area Card
 
-Room Card is a room-focused dashboard card. It shows a large room icon, a room/card name, status text, optional side buttons, optional curved buttons, and a navigation action for the card body.
+Area Card is an area-focused dashboard card. It shows a large area icon, an area/card name, status text, optional side buttons, optional curved buttons, and a navigation action for the card body.
 
 ### Basic Example
 
 ```yaml
-type: custom:orbit-room-card
-room_name: Living Room
+type: custom:orbit-area-card
+area_name: Living Room
 area: living_room
 accent_color: blue
 main_entity: light.living_room
@@ -331,8 +331,8 @@ button1: light.floor_lamp
 ### Full Example
 
 ```yaml
-type: custom:orbit-room-card
-room_name: Living Room
+type: custom:orbit-area-card
+area_name: Living Room
 area: living_room
 
 accent_color: theme
@@ -397,24 +397,25 @@ action_button: script.room_shortcut
 action_button_icon: mdi:dots-horizontal-circle
 ```
 
-### Room Card Options
+### Area Card Options
 
 | Option                                                                                                                           | Description                                                                                                                                                             |
 | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `room_name`                                                                                                                      | Optional plain text or composed room/card name. When unset, the card resolves the name from the selected area, then the main entity, otherwise it stays empty. The editor defaults the name picker to `Area` only when an area is configured. |
-| `area`                                                                                                                           | Home Assistant area used for automatic room name and icon fallback.                                                                                                     |
-| `accent_color`                                                                                                                   | Main room accent colour. Supports shared colour formats and `light`.                                                                                                    |
+| `area_name`                                                                                                                      | Optional plain text or composed area/card name. When unset, the card resolves the name from the selected area, then the main entity, otherwise it stays empty. The editor defaults the name picker to `Area` only when an area is configured. |
+| `room_name`                                                                                                                      | Legacy alias for `area_name`. Existing configs continue to work, but new editor changes write `area_name`.                                                              |
+| `area`                                                                                                                           | Home Assistant area used for automatic area name and icon fallback.                                                                                                     |
+| `accent_color`                                                                                                                   | Main area accent colour. Supports shared colour formats and `light`.                                                                                                    |
 | `status_color`                                                                                                                   | Colour used for the status text row. Falls back to `accent_color`.                                                                                                      |
-| `main_entity`                                                                                                                    | Main entity for the large room icon, main icon colour, and main entity actions.                                                                                         |
+| `main_entity`                                                                                                                    | Main entity for the large area icon, main icon colour, and main entity actions.                                                                                         |
 | `main_entity_icon_source`                                                                                                        | Main icon source. `area` uses the selected Home Assistant area icon, `entity` uses the main entity icon, and `custom` uses the icon fields below. When unset or when the saved source is no longer available, the card defaults to `area` if an area is configured, otherwise `entity` if a main entity is configured, otherwise `custom`. |
-| `main_entity_icon`                                                                                                               | Main entity icon override. Falls back to entity icon, area icon, or default room icon.                                                                                  |
+| `main_entity_icon`                                                                                                               | Main entity icon override. Falls back to entity icon, area icon, or default area icon.                                                                                  |
 | `main_entity_icon_on`                                                                                                            | Main entity icon used when `main_entity` is ON or active.                                                                                                               |
 | `main_entity_icon_off`                                                                                                           | Main entity icon used when `main_entity` is OFF or inactive.                                                                                                            |
 | `main_entity_icon_svg_color_override`, `main_entity_icon_on_svg_color_override`, `main_entity_icon_off_svg_color_override`       | Advanced YAML-only SVG colour controls. Defaults to `true`, which forces the configured icon colour. Set the matching key to `false` to preserve the SVG's own colours. |
 | `main_entity_tap_action`                                                                                                         | Main entity/icon tap action. Defaults to `more-info`.                                                                                                                   |
 | `main_entity_hold_action`                                                                                                        | Main entity/icon hold action. Defaults to `none`.                                                                                                                       |
-| `navigate.navigation_path`                                                                                                       | Card body navigation path. Room Card body tap is navigation-only.                                                                                                       |
-| `status1`, `status2`, `status3`                                                                                                  | Optional status entities shown under the room/card name.                                                                                                                |
+| `navigate.navigation_path`                                                                                                       | Card body navigation path. Area Card body tap is navigation-only.                                                                                                       |
+| `status1`, `status2`, `status3`                                                                                                  | Optional status entities shown under the area/card name.                                                                                                                |
 | `status_separator`                                                                                                                | Separator shown between status values. Defaults to `\|`; spaces are added automatically in the rendered card.                                                           |
 | `statusX_icon_source`                                                                                                             | Prefix icon source for status `X`. `entity` uses the status entity icon; `custom` uses `statusX_icon`. When unset, existing custom icons keep `custom`; otherwise entity-backed status slots default to `entity`. |
 | `statusX_icon`                                                                                                                    | Optional prefix icon for status `X`. Supports MDI/custom icon packs, local SVG/image files, bundled `orbit:` icons, or pasted text/emoji such as `🌡️`.                   |
@@ -452,7 +453,7 @@ action_button_icon: mdi:dots-horizontal-circle
 | `action_button_hold_action`                                                                                                       | Hold action for the standalone action button. Defaults to `none`.                                                                                                       |
 | `action_button_state_template`                                                                                                    | Template used to decide whether the standalone action button is active.                                                                                                 |
 
-The Room Card editor includes quick entity filters inside supported pickers. Side buttons use `All`, `Lights`, and `Switches`; curve buttons use `All`, `Covers`, `Lights`, `Sensors`, and `Switches`; the action button uses `All`, `Automations`, `Buttons`, `Cameras`, `Scenes`, and `Scripts`. `All` keeps the picker unrestricted.
+The Area Card editor includes quick entity filters inside supported pickers. Side buttons use `All`, `Lights`, and `Switches`; curve buttons use `All`, `Covers`, `Lights`, `Sensors`, and `Switches`; the action button uses `All`, `Automations`, `Buttons`, `Cameras`, `Scenes`, and `Scripts`. `All` keeps the picker unrestricted.
 
 ## Status Card
 
@@ -693,12 +694,12 @@ The Action Card editor includes quick entity filters inside the main entity pick
 Each card includes a visual editor. The editor supports:
 
 - Entity pickers.
-- Area picker for Room Card.
-- Name picker for Room and Status names, including composed area, entity, device, floor, and custom text parts.
+- Area picker for Area Card.
+- Name picker for Area and Status names, including composed area, entity, device, floor, and custom text parts.
 - Native mode selector for Status Card.
-- Filtered entity pickers for Room Card buttons, curve buttons, action buttons, Status Card main entities, and Action Card entities.
-- Tabbed Room Card sections: `Card`, `Status`, `Buttons`, `Curve buttons`, and `Action button`.
-- Segmented selectors for Room Card status slots, side buttons, and curved buttons.
+- Filtered entity pickers for Area Card buttons, curve buttons, action buttons, Status Card main entities, and Action Card entities.
+- Tabbed Area Card sections: `Card`, `Status`, `Buttons`, `Curve buttons`, and `Action button`.
+- Segmented selectors for Area Card status slots, side buttons, and curved buttons.
 - Grouped item add, remove, and reorder controls.
 - Wrap and separate-card layout controls for grouped cards.
 - Action selectors.
@@ -724,9 +725,9 @@ Add a new language file such as `fr.json`, then register it in `src/common/local
 
 Home Assistant 2026.6 and newer can suggest custom cards when a user chooses an entity from the card picker. Orbit Cards supports entity suggestions for all included cards.
 
-### Room Card Suggestions
+### Area Card Suggestions
 
-Room Card is suggested for room-control style entities:
+Area Card is suggested for area-control style entities:
 
 ```text
 light, fan, climate, media_player, switch, cover, lock
@@ -735,7 +736,7 @@ light, fan, climate, media_player, switch, cover, lock
 Example generated config:
 
 ```yaml
-type: custom:orbit-room-card
+type: custom:orbit-area-card
 main_entity: light.living_room
 accent_color: light
 area: living_room
@@ -798,7 +799,7 @@ The cards provide layout hints to Home Assistant. In the dashboard editor these 
 
 | Card/mode             | Default layout               |
 | --------------------- | ---------------------------- |
-| Room Card             | 9 columns, minimum 6 columns |
+| Area Card             | 9 columns, minimum 6 columns |
 | Status Card Standard  | 9 columns, minimum 6 columns |
 | Status Card Person    | 9 columns, minimum 6 columns |
 | Status Card Icon only | Compact square layout        |
@@ -813,6 +814,9 @@ Grouped Icon only and grouped Action cards expand their column count based on th
 - HACS or manual resource installation.
 - Browser Mod is required only for Browser Mod popup actions.
 - Bubble Card is required only for Bubble Card hash popups.
+- `custom:orbit-room-card` remains registered as a legacy alias for `custom:orbit-area-card`.
+- `room_name` remains supported as a legacy alias for `area_name`.
+- Legacy Area Card configs are migrated when the editor opens: `custom:orbit-room-card` is rewritten to `custom:orbit-area-card`, and `room_name` is rewritten to `area_name`.
 
 ## Support
 

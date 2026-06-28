@@ -5,7 +5,7 @@
     "build": "vite build",
     "watch": "vite build --watch"
   },
-  "description": "A modern, highly configurable Home Assistant room card designed to provide a clean room overview with quick access to devices, scenes, sensors, and navigation.",
+  "description": "A modern, highly configurable Home Assistant area card designed to provide a clean area overview with quick access to devices, scenes, sensors, and navigation.",
   "main": "jest.config.js",
   "keywords": [],
   "author": "",

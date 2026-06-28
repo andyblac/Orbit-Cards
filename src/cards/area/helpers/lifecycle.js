@@ -4,7 +4,7 @@ import {
 } from "../../../common/helpers/colors.js";
 import { getDefaultEntityAction } from "../../../common/helpers/default-actions.js";
 
-export function updateRoomCard(changedProps) {
+export function updateAreaCard(changedProps) {
   if (!changedProps.has("_config") && !changedProps.has("hass")) return;
 
   this._cardName = this._getCardName("");
@@ -183,7 +183,7 @@ function getButtonModels() {
   ]
     .filter(Boolean)
     .map((entityId, index) =>
-      getRoomButtonModel.call(
+      getAreaButtonModel.call(
         this,
         "button",
         entityId,
@@ -225,7 +225,7 @@ function getCurveButtonModels() {
         };
       }
 
-      const model = getRoomButtonModel.call(
+      const model = getAreaButtonModel.call(
         this,
         "curve_button",
         entityId,
@@ -254,7 +254,7 @@ function getActionButtonModel() {
 
   if (!entityId) return null;
 
-  return getRoomButtonModel.call(
+  return getAreaButtonModel.call(
     this,
     "action_button",
     entityId,
@@ -269,7 +269,7 @@ function getActionButtonModel() {
   );
 }
 
-function getRoomButtonModel(prefix, entityId, index, options) {
+function getAreaButtonModel(prefix, entityId, index, options) {
   const stateObj = this.hass?.states[entityId];
 
   if (!stateObj) return null;
@@ -439,23 +439,23 @@ function getResolvedButtonOnColor(key, stateObj) {
 }
 
 function getCurveButtonIconColor(_key, _stateObj, isOn) {
-  const roomColor = this._config.accent_color || "theme";
+  const areaColor = this._config.accent_color || "theme";
 
-  if (roomColor === "theme") {
+  if (areaColor === "theme") {
     return isOn
       ? "rgba(var(--color-theme),0.7)"
       : "rgba(var(--color-theme),0.2)";
   }
 
-  if (isCssColor(roomColor)) {
+  if (isCssColor(areaColor)) {
     return isOn
-      ? roomColor
-      : `color-mix(in srgb, ${roomColor} 40%, transparent)`;
+      ? areaColor
+      : `color-mix(in srgb, ${areaColor} 40%, transparent)`;
   }
 
   return isOn
-    ? this._computeFullColor(roomColor)
-    : getColorMix(roomColor, 40);
+    ? this._computeFullColor(areaColor)
+    : getColorMix(areaColor, 40);
 }
 
 function getCurveButtonOverrideIconColor(key, stateObj, isOn) {

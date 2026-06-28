@@ -3,6 +3,7 @@ import { html } from "lit";
 export function renderNamePicker({
   label = "Name",
   valueKey,
+  legacyValueKey = "",
   entityKey = "main_entity",
   areaKey = "area",
   defaultType = "",
@@ -22,7 +23,7 @@ export function renderNamePicker({
   }
 
   return html`
-    <div class="field room-name-field">
+    <div class="field name-picker-field">
       <ha-entity-name-picker
         .hass=${this.hass}
         .label=${this._t(label)}
@@ -32,20 +33,22 @@ export function renderNamePicker({
         })}
         .value=${getNamePickerValue(this._config, {
           valueKey,
+          legacyValueKey,
           entityKey,
           areaKey,
           defaultType,
         })}
         @value-changed=${(e) => {
           e.stopPropagation();
-          this._handleConfigUpdate(
+          updateNameConfig.call(this, {
             valueKey,
-            normalizeNameValue(e.detail.value, this._config, {
+            legacyValueKey,
+            value: normalizeNameValue(e.detail.value, this._config, {
               entityKey,
               areaKey,
               defaultType,
-            })
-          );
+            }),
+          });
         }}
       ></ha-entity-name-picker>
     </div>
@@ -73,16 +76,16 @@ function renderNamePickerFallback(options) {
   const mode = getNamePickerMode(
     this._config,
     getNamePickerModeOverride(this, options.modeKey),
-    options.valueKey
+    options
   );
 
   return html`
-    <div class="field room-name-field room-name-fallback">
+    <div class="field name-picker-field name-picker-fallback">
       <div class="field-header">
         <label>${this._t(options.label)}</label>
 
         <ha-selector
-          class="editor-header-button-toggle room-name-mode-selector"
+          class="editor-header-button-toggle name-picker-mode-selector"
           .hass=${this.hass}
           .selector=${{
             button_toggle: {
@@ -105,12 +108,20 @@ function renderNamePickerFallback(options) {
             setNamePickerModeOverride(this, options.modeKey, nextMode);
 
             if (nextMode === "composed") {
-              this._handleConfigUpdate(options.valueKey, undefined);
+              updateNameConfig.call(this, {
+                valueKey: options.valueKey,
+                legacyValueKey: options.legacyValueKey,
+                value: undefined,
+              });
               return;
             }
 
-            if (typeof this._config?.[options.valueKey] !== "string") {
-              this._handleConfigUpdate(options.valueKey, undefined);
+            if (typeof getConfiguredName(this._config, options) !== "string") {
+              updateNameConfig.call(this, {
+                valueKey: options.valueKey,
+                legacyValueKey: options.legacyValueKey,
+                value: undefined,
+              });
               return;
             }
 
@@ -129,20 +140,21 @@ function renderNamePickerFallback(options) {
 function renderNameCustomInput(options) {
   return html`
     <ha-selector
-      class="room-name-custom-input"
+      class="name-picker-custom-input"
       .hass=${this.hass}
       .selector=${{
         text: {},
       }}
-      .value=${typeof this._config?.[options.valueKey] === "string"
-        ? this._config[options.valueKey]
+      .value=${typeof getConfiguredName(this._config, options) === "string"
+        ? getConfiguredName(this._config, options)
         : ""}
       @value-changed=${(e) => {
         e.stopPropagation();
-        this._handleConfigUpdate(
-          options.valueKey,
-          e.detail.value || undefined
-        );
+        updateNameConfig.call(this, {
+          valueKey: options.valueKey,
+          legacyValueKey: options.legacyValueKey,
+          value: e.detail.value || undefined,
+        });
       }}
     ></ha-selector>
   `;
@@ -154,7 +166,7 @@ function renderNameComposedPicker(options) {
 
   return html`
     <ha-generic-picker
-      class="room-name-composed-picker"
+      class="name-picker-composed-picker"
       .hass=${this.hass}
       .value=${""}
       .placeholder=${this._t(options.label)}
@@ -178,24 +190,25 @@ function renderNameComposedPicker(options) {
         if (!nextItem) return;
 
         setNamePickerModeOverride(this, options.modeKey, "composed");
-        this._handleConfigUpdate(
-          options.valueKey,
-          normalizeNameValue(
+        updateNameConfig.call(this, {
+          valueKey: options.valueKey,
+          legacyValueKey: options.legacyValueKey,
+          value: normalizeNameValue(
             [...selectedItems, nextItem],
             this._config,
             options
-          )
-        );
+          ),
+        });
       }}
     >
-      <div slot="field" class="room-name-composed-field">
+      <div slot="field" class="name-picker-composed-field">
         ${selectedItems.map((item, index) =>
           renderNameChip.call(this, item, index, selectedItems, options)
         )}
 
         <button
           type="button"
-          class="room-name-add-chip"
+          class="name-picker-add-chip"
           @click=${(e) => openNamePicker(e)}
         >
           <ha-icon icon="mdi:plus"></ha-icon>
@@ -210,13 +223,13 @@ function renderNameChip(item, index, selectedItems, options) {
   return html`
     <button
       type="button"
-      class="room-name-chip"
+      class="name-picker-chip"
       @click=${(e) => openNamePicker(e)}
     >
       <ha-icon icon="mdi:drag-horizontal-variant"></ha-icon>
       <span>${formatNameChipLabel.call(this, item)}</span>
       <ha-icon
-        class="room-name-chip-remove"
+        class="name-picker-chip-remove"
         icon="mdi:close"
         @click=${(e) => {
           e.preventDefault();
@@ -226,10 +239,11 @@ function renderNameChip(item, index, selectedItems, options) {
             itemIndex !== index
           );
 
-          this._handleConfigUpdate(
-            options.valueKey,
-            normalizeNameValue(nextItems, this._config, options)
-          );
+          updateNameConfig.call(this, {
+            valueKey: options.valueKey,
+            legacyValueKey: options.legacyValueKey,
+            value: normalizeNameValue(nextItems, this._config, options),
+          });
         }}
       ></ha-icon>
     </button>
@@ -245,9 +259,11 @@ function openNamePicker(event) {
     ?.open?.();
 }
 
-function getNamePickerMode(config = {}, overrideMode, valueKey) {
-  if (typeof config[valueKey] === "string") return "custom";
-  if (config[valueKey]) return "composed";
+function getNamePickerMode(config = {}, overrideMode, options) {
+  const configuredValue = getConfiguredName(config, options);
+
+  if (typeof configuredValue === "string") return "custom";
+  if (configuredValue) return "composed";
 
   return overrideMode || "composed";
 }
@@ -362,8 +378,10 @@ function parseNameComposedValue(value) {
 }
 
 function getNamePickerValue(config = {}, options) {
-  if (hasConfiguredName(config, options.valueKey)) {
-    return config[options.valueKey];
+  const configuredValue = getConfiguredName(config, options);
+
+  if (configuredValue !== undefined) {
+    return configuredValue;
   }
 
   if (
@@ -390,6 +408,34 @@ function hasConfiguredName(config = {}, valueKey) {
     config[valueKey] !== ""
   );
 }
+
+function getConfiguredName(config = {}, options) {
+  if (hasConfiguredName(config, options.valueKey)) {
+    return config[options.valueKey];
+  }
+
+  if (
+    options.legacyValueKey &&
+    hasConfiguredName(config, options.legacyValueKey)
+  ) {
+    return config[options.legacyValueKey];
+  }
+
+  return undefined;
+}
+
+function updateNameConfig({ valueKey, legacyValueKey, value }) {
+  if (legacyValueKey && typeof this._updateConfig === "function") {
+    this._updateConfig({
+      [valueKey]: value,
+      [legacyValueKey]: undefined,
+    });
+    return;
+  }
+
+  this._handleConfigUpdate(valueKey, value);
+}
+
 
 function normalizeNameValue(value, config = {}, options) {
   if (!value || (Array.isArray(value) && value.length === 0)) {

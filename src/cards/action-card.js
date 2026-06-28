@@ -14,6 +14,13 @@ import {
   computeIconColor,
 } from "../common/helpers/colors.js";
 import {
+  getGroupedCardColumnCount,
+  getGroupedCardRowCount,
+} from "../common/helpers/card-layout.js";
+import {
+  registerOrbitCard,
+} from "../common/helpers/card-registration.js";
+import {
   getDefaultDomainIcon,
   getInlineSvg,
   getSvgColorOverride,
@@ -198,9 +205,11 @@ class OrbitActionCard extends LitElement {
   }
 
   _getActionRowCount(count = this._actions?.length || 1) {
-    const columns = this._getActionColumnCount(count);
-
-    return Math.max(1, Math.ceil(count / columns));
+    return getGroupedCardRowCount({
+      config: this._config,
+      count,
+      perRowKey: "actions_per_row",
+    });
   }
 
   _handleAction(actionConfig, entityId = null) {
@@ -265,35 +274,21 @@ class OrbitActionCard extends LitElement {
 }
 
 function getActionColumnCount(config = {}, count = 1) {
-  if (!config.wrap) {
-    return Math.max(1, count);
-  }
-
-  const requestedColumns = Number(config.actions_per_row);
-  const columns = Number.isFinite(requestedColumns)
-    ? Math.floor(requestedColumns)
-    : 3;
-
-  return Math.max(1, Math.min(count, columns || 1));
+  return getGroupedCardColumnCount({
+    config,
+    count,
+    perRowKey: "actions_per_row",
+  });
 }
 
-customElements.define("orbit-action-card", OrbitActionCard);
-
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "orbit-action-card",
+registerOrbitCard({
+  tag: "orbit-action-card",
+  cardClass: OrbitActionCard,
   name: "Orbit Action Card",
   description: "Compact scene, script, and automation launcher",
-  preview: true,
   version: CARD_VERSIONS.action,
   getEntitySuggestion: getActionEntitySuggestion,
 });
-
-console.info(
-  `%c Orbit Action Card %c v${CARD_VERSIONS.action} `,
-  "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;",
-  "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;"
-);
 
 const ACTION_SUGGESTION_DOMAINS = new Set([
   "automation",

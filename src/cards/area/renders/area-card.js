@@ -1,7 +1,7 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
-export function renderRoomCard() {
+export function renderAreaCard() {
   const buttons = this._buttonModels || [];
   const iconPath = this._isImageIcon(this._icon)
     ? this._resolveIconPath(this._icon)
@@ -16,7 +16,7 @@ export function renderRoomCard() {
         <div class="content">
 
             <div class="header ${buttons.length >= 3 ? "compressed" : ""}">
-              <div class="card-name" style="color:${this._roomColor}">
+              <div class="card-name" style="color:${this._areaColor}">
                 ${this._cardName}
             </div>
 

@@ -39,7 +39,7 @@ export function renderCurvedButtonsSection() {
         {
           showColors: true,
           filteredEntity: true,
-          filterKey: "_roomCurveButtonDomainFilter",
+          filterKey: "_areaCurveButtonDomainFilter",
           filters: CURVE_BUTTON_DOMAIN_FILTERS,
         }
       )}
@@ -230,7 +230,7 @@ const CURVE_BUTTON_DOMAIN_FILTERS = [
 
 function renderFilteredActionEntity(label, key, options = {}) {
   const activeFilter =
-    this[options.filterKey || "_roomActionButtonDomainFilter"] || "all";
+    this[options.filterKey || "_areaActionButtonDomainFilter"] || "all";
   const filters = options.filters || ACTION_BUTTON_DOMAIN_FILTERS;
 
   return html`

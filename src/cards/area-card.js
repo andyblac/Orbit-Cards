@@ -1,5 +1,5 @@
 // ==============================
-// orbit-room-card.js
+// orbit-area-card.js
 // ==============================
 
 import { LitElement } from "lit";
@@ -22,6 +22,12 @@ import {
 import {
   getCardName,
 } from "../common/helpers/card-name.js";
+import {
+  registerOrbitCard,
+} from "../common/helpers/card-registration.js";
+import {
+  migrateAreaCardConfig,
+} from "../common/helpers/config-migration.js";
 import {
   formatEntityState,
   getEntityActiveState,
@@ -58,20 +64,20 @@ import {
 } from "../common/helpers/svg-cache.js";
 
 import {
-  updateRoomCard,
-} from "./room/helpers/lifecycle.js";
+  updateAreaCard,
+} from "./area/helpers/lifecycle.js";
 
-import { renderButtons } from "./room/renders/buttons.js";
-import { renderRoomCard } from "./room/renders/room-card.js";
-import { renderCurveButtons } from "./room/renders/curve-buttons.js";
+import { renderButtons } from "./area/renders/buttons.js";
+import { renderAreaCard } from "./area/renders/area-card.js";
+import { renderCurveButtons } from "./area/renders/curve-buttons.js";
 
-import { roomCardStyles } from "./room/styles/room-card-styles.js";
+import { areaCardStyles } from "./area/styles/area-card-styles.js";
 
-import "../editors/room-card-editor.js";
+import "../editors/area-card-editor.js";
 
 import { CARD_VERSIONS } from "../version.js";
 
-class OrbitRoomCard extends LitElement {
+class OrbitAreaCard extends LitElement {
   static svgCache = sharedSvgCache;
 
   static get properties() {
@@ -82,7 +88,7 @@ class OrbitRoomCard extends LitElement {
       _statusText: { type: String },
       _statusItems: { type: Array },
       _icon: { type: String },
-      _roomColor: { type: String },
+      _areaColor: { type: String },
       _statusColor: { type: String },
       _iconColor: { type: String },
       _circleColor: { type: String },
@@ -91,14 +97,14 @@ class OrbitRoomCard extends LitElement {
 
   static getConfigElement() {
     return document.createElement(
-      "orbit-room-card-editor"
+      "orbit-area-card-editor"
     );
   }
 
   static getStubConfig(hass) {
     const area = getFirstAreaId(hass);
     const config = {
-      type: "custom:orbit-room-card",
+      type: "custom:orbit-area-card",
       accent_color: "blue",
       navigation_path: "/lovelace/home",
     };
@@ -118,16 +124,16 @@ class OrbitRoomCard extends LitElement {
   }
 
   setConfig(config) {
-    this._config = config;
+    this._config = migrateAreaCardConfig(config).config;
 
-    this._roomColor = this._computeFullColor(config.accent_color);
-    this._statusColor = this._computeFullColor(config.status_color || config.accent_color);
-    this._iconColor = this._computeIconColor(config.accent_color);
-    this._circleColor = this._computeCircleColor(config.accent_color);
+    this._areaColor = this._computeFullColor(this._config.accent_color);
+    this._statusColor = this._computeFullColor(this._config.status_color || this._config.accent_color);
+    this._iconColor = this._computeIconColor(this._config.accent_color);
+    this._circleColor = this._computeCircleColor(this._config.accent_color);
   }
 
   willUpdate(changedProps) {
-    return updateRoomCard.call(this, changedProps);
+    return updateAreaCard.call(this, changedProps);
   }
 
   shouldUpdate(changedProps) {
@@ -299,31 +305,30 @@ class OrbitRoomCard extends LitElement {
   }
 
   render() {
-    return renderRoomCard.call(this);
+    return renderAreaCard.call(this);
   }
 
-  static styles = roomCardStyles;
+  static styles = areaCardStyles;
 }
 
-customElements.define("orbit-room-card", OrbitRoomCard);
+class OrbitRoomCard extends OrbitAreaCard {}
 
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "orbit-room-card",
-  name: "Orbit Room Card",
-  description: "Responsive room card",
-  preview: true,
-  version: CARD_VERSIONS.room,
-  getEntitySuggestion: getRoomEntitySuggestion,
+registerOrbitCard({
+  tag: "orbit-area-card",
+  cardClass: OrbitAreaCard,
+  name: "Orbit Area Card",
+  description: "Responsive area card",
+  version: CARD_VERSIONS.area,
+  getEntitySuggestion: getAreaEntitySuggestion,
+  aliases: [
+    {
+      tag: "orbit-room-card",
+      cardClass: OrbitRoomCard,
+    },
+  ],
 });
 
-console.info(
-  `%c Orbit Room Card %c v${CARD_VERSIONS.room} `,
-  "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;",
-  "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;"
-);
-
-const ROOM_SUGGESTION_DOMAINS = new Set([
+const AREA_SUGGESTION_DOMAINS = new Set([
   "light",
   "fan",
   "climate",
@@ -347,16 +352,16 @@ function getFirstAreaId(hass) {
     })[0] || "";
 }
 
-function getRoomEntitySuggestion(hass, entityId) {
+function getAreaEntitySuggestion(hass, entityId) {
   const domain = getEntityDomain(entityId);
 
-  if (!ROOM_SUGGESTION_DOMAINS.has(domain)) {
+  if (!AREA_SUGGESTION_DOMAINS.has(domain)) {
     return null;
   }
 
   const area = getEntityAreaId(hass, entityId);
   const config = {
-    type: "custom:orbit-room-card",
+    type: "custom:orbit-area-card",
     main_entity: entityId,
     accent_color: domain === "light" ? "light" : "theme",
   };

@@ -30,7 +30,7 @@ export const fieldStyles = css`
 
 .editor-header-button-toggle,
 .main-entity-icon-source-selector,
-.room-name-mode-selector {
+.name-picker-mode-selector {
   flex: 0 1 auto;
   width: auto;
   max-width: 100%;
@@ -38,23 +38,23 @@ export const fieldStyles = css`
 
 .editor-button-toggle-field .field-header,
 .main-entity-icon-source-field .field-header,
-.room-name-fallback .field-header {
+.name-picker-fallback .field-header {
   min-height: 40px;
 }
 
-.room-name-field ha-entity-name-picker,
-.room-name-custom-input,
-.room-name-composed-picker {
+.name-picker-field ha-entity-name-picker,
+.name-picker-custom-input,
+.name-picker-composed-picker {
   display: block;
   width: 100%;
 }
 
-.room-name-composed-picker {
+.name-picker-composed-picker {
   --ha-generic-picker-width: min(720px, calc(100vw - 48px));
   --ha-generic-picker-max-width: min(720px, calc(100vw - 48px));
 }
 
-.room-name-composed-field {
+.name-picker-composed-field {
   min-height: 56px;
   display: flex;
   align-items: center;
@@ -67,13 +67,13 @@ export const fieldStyles = css`
   box-sizing: border-box;
 }
 
-.room-name-composed-field:focus-within {
+.name-picker-composed-field:focus-within {
   border-bottom-color: var(--primary-color);
   box-shadow: inset 0 -1px 0 var(--primary-color);
 }
 
-.room-name-chip,
-.room-name-add-chip {
+.name-picker-chip,
+.name-picker-add-chip {
   min-height: 32px;
   border: 1px solid var(--orbit-editor-border);
   border-radius: var(--ha-border-radius-pill, 999px);
@@ -93,17 +93,17 @@ export const fieldStyles = css`
   cursor: pointer;
 }
 
-.room-name-add-chip {
+.name-picker-add-chip {
   background: transparent;
 }
 
-.room-name-chip ha-icon,
-.room-name-add-chip ha-icon {
+.name-picker-chip ha-icon,
+.name-picker-add-chip ha-icon {
   --mdc-icon-size: 18px;
   color: var(--secondary-text-color);
 }
 
-.room-name-chip-remove {
+.name-picker-chip-remove {
   margin-right: -4px;
 }
 

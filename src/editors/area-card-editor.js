@@ -1,5 +1,5 @@
 // ==========================================
-// Orbit Room Card Editor
+// Orbit Area Card Editor
 // ==========================================
 
 import { LitElement, html } from "lit";
@@ -27,21 +27,24 @@ import {
   loadLocalIconFiles,
 } from "../common/editor/helpers/helpers.js";
 
-import { renderRoomSection } from "./room/sections/room.js";
-import { renderButtonsSection } from "./room/sections/buttons.js";
+import { renderAreaSection } from "./area/sections/area.js";
+import { renderButtonsSection } from "./area/sections/buttons.js";
 import {
   renderActionButtonSection,
   renderCurvedButtonsSection,
-} from "./room/sections/curve-buttons.js";
+} from "./area/sections/curve-buttons.js";
 import { editorStyles } from "../common/editor/styles/editor-styles.js";
 import { actionEditorStyles } from "../common/editor/styles/action-editor.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import {
+  migrateAreaCardConfig,
+} from "../common/helpers/config-migration.js";
 import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
 
-class OrbitRoomCardEditor extends LitElement {
+class OrbitAreaCardEditor extends LitElement {
   static svgCache = sharedSvgCache;
 
   static properties = {
@@ -51,9 +54,9 @@ class OrbitRoomCardEditor extends LitElement {
     _selectedStatusIndex: { state: true },
     _selectedButtonIndex: { state: true },
     _selectedCurveButtonIndex: { state: true },
-    _roomButtonDomainFilter: { state: true },
-    _roomCurveButtonDomainFilter: { state: true },
-    _roomActionButtonDomainFilter: { state: true },
+    _areaButtonDomainFilter: { state: true },
+    _areaCurveButtonDomainFilter: { state: true },
+    _areaActionButtonDomainFilter: { state: true },
     _colorPickerKey: { state: true },
     _colorPickerTab: { state: true },
     _iconPickerKey: { state: true },
@@ -73,9 +76,9 @@ class OrbitRoomCardEditor extends LitElement {
     this._selectedStatusIndex = 1;
     this._selectedButtonIndex = 1;
     this._selectedCurveButtonIndex = 1;
-    this._roomButtonDomainFilter = "all";
-    this._roomCurveButtonDomainFilter = "all";
-    this._roomActionButtonDomainFilter = "all";
+    this._areaButtonDomainFilter = "all";
+    this._areaCurveButtonDomainFilter = "all";
+    this._areaActionButtonDomainFilter = "all";
     this._colorPickerKey = "";
     this._colorPickerTab = "picker";
     this._iconPickerKey = "";
@@ -111,11 +114,37 @@ class OrbitRoomCardEditor extends LitElement {
   }
 
   setConfig(config) {
-    this._config = config || {};
+    const {
+      config: migratedConfig,
+      migrated,
+    } = migrateAreaCardConfig(config || {});
+
+    this._config = migratedConfig || {};
+
+    if (migrated) {
+      this._queueConfigMigration();
+    }
+  }
+
+  _queueConfigMigration() {
+    if (this._configMigrationQueued) return;
+
+    this._configMigrationQueued = true;
+    Promise.resolve().then(() => {
+      this._configMigrationQueued = false;
+
+      this.dispatchEvent(new CustomEvent("config-changed", {
+        detail: {
+          config: orderAreaConfig(this._config),
+        },
+        bubbles: true,
+        composed: true,
+      }));
+    });
   }
 
   _updateConfig(changes) {
-    this._config = orderRoomConfig(
+    this._config = orderAreaConfig(
       mergeConfig(this._config, changes)
     );
 
@@ -260,8 +289,8 @@ class OrbitRoomCardEditor extends LitElement {
     return renderArea.call(this, label, key);
   }
 
-  _renderRoomSection() {
-    return renderRoomSection.call(this);
+  _renderAreaSection() {
+    return renderAreaSection.call(this);
   }
 
   _renderStatusSection() {
@@ -352,7 +381,7 @@ class OrbitRoomCardEditor extends LitElement {
   _renderEditorTabs() {
     return html`
       <div class="editor-tabs">
-        ${ROOM_EDITOR_TABS.map((tab) => html`
+        ${AREA_EDITOR_TABS.map((tab) => html`
           <button
             type="button"
             class="editor-tab ${this._activeSection === tab.key ? "active" : ""}"
@@ -369,8 +398,8 @@ class OrbitRoomCardEditor extends LitElement {
 
   _renderActiveSection() {
     const activeTab =
-      ROOM_EDITOR_TABS.find((tab) => tab.key === this._activeSection) ||
-      ROOM_EDITOR_TABS[0];
+      AREA_EDITOR_TABS.find((tab) => tab.key === this._activeSection) ||
+      AREA_EDITOR_TABS[0];
 
     return this[activeTab.render]();
   }
@@ -381,8 +410,8 @@ class OrbitRoomCardEditor extends LitElement {
         ${this._renderEditorTabs()}
         ${this._renderActiveSection()}
         <div class="editor-version">
-          ${this._t("Orbit Room Card v{version}", {
-            version: CARD_VERSIONS.room,
+          ${this._t("Orbit Area Card v{version}", {
+            version: CARD_VERSIONS.area,
           })}
         </div>
       </div>
@@ -395,11 +424,11 @@ class OrbitRoomCardEditor extends LitElement {
   ];
 }
 
-const ROOM_EDITOR_TABS = [
+const AREA_EDITOR_TABS = [
   {
     key: "card",
     label: "Card",
-    render: "_renderRoomSection",
+    render: "_renderAreaSection",
   },
   {
     key: "status",
@@ -422,6 +451,13 @@ const ROOM_EDITOR_TABS = [
     render: "_renderActionButtonSection",
   },
 ];
+
+class OrbitRoomCardEditor extends OrbitAreaCardEditor {}
+
+customElements.define(
+  "orbit-area-card-editor",
+  OrbitAreaCardEditor
+);
 
 customElements.define(
   "orbit-room-card-editor",
@@ -475,8 +511,9 @@ const ACTION_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
   "_hold_action",
 ];
 
-const ROOM_CONFIG_ORDER = [
+const AREA_CONFIG_ORDER = [
   "type",
+  "area_name",
   "room_name",
   "accent_color",
   "status_color",
@@ -545,11 +582,11 @@ const ROOM_CONFIG_ORDER = [
   "view_layout",
 ];
 
-function orderRoomConfig(config) {
+function orderAreaConfig(config) {
   const ordered = {};
   const usedKeys = new Set();
 
-  ROOM_CONFIG_ORDER.forEach((key) => {
+  AREA_CONFIG_ORDER.forEach((key) => {
     if (Object.prototype.hasOwnProperty.call(config, key)) {
       ordered[key] = config[key];
       usedKeys.add(key);

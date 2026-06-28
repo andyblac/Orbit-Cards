@@ -42,7 +42,7 @@ function renderButtonMenu(items, selected, onSelect) {
 
 function renderButtonFields(index) {
   const key = `button${index}`;
-  const activeFilter = this._roomButtonDomainFilter || "all";
+  const activeFilter = this._areaButtonDomainFilter || "all";
 
   return html`
     <div class="sub-section selected-button-section">
@@ -51,7 +51,7 @@ function renderButtonFields(index) {
 
         ${renderEntitySelector.call(this, {
           value: this._config?.[key] || "",
-          filterOptions: ROOM_BUTTON_DOMAIN_FILTERS,
+          filterOptions: AREA_BUTTON_DOMAIN_FILTERS,
           activeFilter,
           onValueChanged: (value) =>
             this._handleEntityUpdate
@@ -102,7 +102,7 @@ function renderButtonFields(index) {
   `;
 }
 
-const ROOM_BUTTON_DOMAIN_FILTERS = [
+const AREA_BUTTON_DOMAIN_FILTERS = [
   {
     label: "All",
     value: "all",

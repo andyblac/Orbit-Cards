@@ -14,6 +14,13 @@ import {
   computeCircleColor,
 } from "../common/helpers/colors.js";
 import {
+  getGroupedCardColumnCount,
+  getGroupedCardRowCount,
+} from "../common/helpers/card-layout.js";
+import {
+  registerOrbitCard,
+} from "../common/helpers/card-registration.js";
+import {
   formatEntityState,
   getEntityActiveState,
 } from "../common/helpers/entities.js";
@@ -720,41 +727,29 @@ function isActionEnabled(actionConfig) {
 }
 
 function getStatusColumnCount(config = {}, count = 1) {
-  if (!config.wrap) {
-    return Math.max(1, count);
-  }
-
-  const requestedColumns = Number(config.items_per_row);
-  const columns = Number.isFinite(requestedColumns)
-    ? Math.floor(requestedColumns)
-    : 3;
-
-  return Math.max(1, Math.min(count, columns || 1));
+  return getGroupedCardColumnCount({
+    config,
+    count,
+    perRowKey: "items_per_row",
+  });
 }
 
 function getStatusRowCount(config = {}, count = 1) {
-  const columns = getStatusColumnCount(config, count);
-
-  return Math.max(1, Math.ceil(count / columns));
+  return getGroupedCardRowCount({
+    config,
+    count,
+    perRowKey: "items_per_row",
+  });
 }
 
-customElements.define("orbit-status-card", OrbitStatusCard);
-
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "orbit-status-card",
+registerOrbitCard({
+  tag: "orbit-status-card",
+  cardClass: OrbitStatusCard,
   name: "Orbit Status Card",
   description: "Responsive status card",
-  preview: true,
   version: CARD_VERSIONS.status,
   getEntitySuggestion: getStatusEntitySuggestion,
 });
-
-console.info(
-  `%c Orbit Status Card %c v${CARD_VERSIONS.status} `,
-  "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;",
-  "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;"
-);
 
 const STATUS_EXCLUDED_DOMAINS = new Set([
   "automation",

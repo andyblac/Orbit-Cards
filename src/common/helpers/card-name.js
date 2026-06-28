@@ -1,6 +1,14 @@
 export function getCardName(config, hass, fallback = "Card") {
   if (config.name) return config.name;
   if (config.card_name) return config.card_name;
+  if (config.area_name) {
+    return formatCardNameValue(
+      config.area_name,
+      config,
+      hass,
+      fallback
+    );
+  }
   if (config.room_name) {
     return formatCardNameValue(
       config.room_name,

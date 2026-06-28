@@ -1,6 +1,6 @@
 import { css } from "lit";
 
-export const RoomCardHeaderStyles = css`
+export const AreaCardHeaderStyles = css`
   .status {
     display: flex;
     align-items: center;

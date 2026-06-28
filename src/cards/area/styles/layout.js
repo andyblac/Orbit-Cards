@@ -1,6 +1,6 @@
 import { css } from "lit";
 
-export const RoomCardLayoutStyles = css`
+export const AreaCardLayoutStyles = css`
   ha-card {
     aspect-ratio: 1 / 1;
   }
