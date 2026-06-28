@@ -8,7 +8,7 @@ import {
   getColorStyle,
   getColorPickerValue,
   isImageIcon,
-  renderActionSelector,
+  renderInteractionsSection,
   renderEntity,
   renderArea,
   renderColor,
@@ -183,8 +183,12 @@ class OrbitStatusCardEditor extends LitElement {
         state_template: config?.state_template || "",
         label_template: config?.label_template || "",
         tap_action: config?.tap_action,
+        hold_action: config?.hold_action,
+        double_tap_action: config?.double_tap_action,
         main_entity_tap_action: config?.main_entity_tap_action,
         main_entity_hold_action: config?.main_entity_hold_action,
+        main_entity_double_tap_action:
+          config?.main_entity_double_tap_action,
       },
     ];
   }
@@ -303,8 +307,12 @@ class OrbitStatusCardEditor extends LitElement {
       state_template: nextItem.state_template || "",
       label_template: nextItem.label_template || "",
       tap_action: nextItem.tap_action,
+      hold_action: nextItem.hold_action,
+      double_tap_action: nextItem.double_tap_action,
       main_entity_tap_action: nextItem.main_entity_tap_action,
       main_entity_hold_action: nextItem.main_entity_hold_action,
+      main_entity_double_tap_action:
+        nextItem.main_entity_double_tap_action,
     });
   }
 
@@ -338,13 +346,12 @@ class OrbitStatusCardEditor extends LitElement {
     return renderEntity.call(this, label, key, replacements);
   }
 
-  _renderActionSelector(label, key, defaultAction) {
-    return renderActionSelector.call(this, label, key, defaultAction);
-  }
-
-  _renderStatusItemActionSelector(label, key, index, defaultAction) {
-    const items = this._getStatusItems();
-    const item = items[index] || {};
+  _renderStatusItemInteractions(
+    index,
+    item,
+    cardActionDefault,
+    mainEntityActionDefault
+  ) {
     const scopedEditor = {
       hass: this.hass,
       _config: item,
@@ -355,12 +362,52 @@ class OrbitStatusCardEditor extends LitElement {
         this._updateStatusItem(index, changes),
     };
 
-    return renderActionSelector.call(
-      scopedEditor,
-      label,
-      key,
-      defaultAction
-    );
+    return renderInteractionsSection.call(scopedEditor, {
+      interactions: [
+        {
+          key: "tap_action",
+          formKey: "tap_action",
+          label: "Tap behavior",
+          defaultAction: cardActionDefault,
+          defaultVisible: true,
+        },
+        {
+          key: "hold_action",
+          formKey: "hold_action",
+          label: "Hold behavior",
+          defaultAction: "none",
+        },
+        {
+          key: "double_tap_action",
+          formKey: "double_tap_action",
+          label: "Double tap behavior",
+          defaultAction: "none",
+        },
+        {
+          key: "main_entity_tap_action",
+          formKey: "icon_tap_action",
+          label: "Icon tap behavior",
+          defaultAction: mainEntityActionDefault,
+          defaultVisible: true,
+        },
+        {
+          key: "main_entity_hold_action",
+          formKey: "icon_hold_action",
+          label: "Icon hold behavior",
+          defaultAction: "none",
+        },
+        {
+          key: "main_entity_double_tap_action",
+          formKey: "icon_double_tap_action",
+          label: "Icon double tap behavior",
+          defaultAction: "none",
+        },
+      ],
+      context: {
+        entity_id: item.entity,
+        area_id: this._config?.area,
+      },
+    });
   }
 
   _renderArea(label, key) {
@@ -503,8 +550,11 @@ const STATUS_ENTITY_DEPENDENT_KEYS = [
   "state_template",
   "label_template",
   "tap_action",
+  "hold_action",
+  "double_tap_action",
   "main_entity_tap_action",
   "main_entity_hold_action",
+  "main_entity_double_tap_action",
 ];
 
 const STATUS_GROUP_ROOT_KEYS = [
@@ -520,8 +570,11 @@ const PERSON_ENTITY_DEPENDENT_KEYS = [
   "accent_on_color",
   "accent_off_color",
   "tap_action",
+  "hold_action",
+  "double_tap_action",
   "main_entity_tap_action",
   "main_entity_hold_action",
+  "main_entity_double_tap_action",
 ];
 
 const TRACKER_ENTITY_DEPENDENT_KEYS = [
@@ -542,8 +595,11 @@ const STATUS_ITEM_KEYS = [
   "state_template",
   "label_template",
   "tap_action",
+  "hold_action",
+  "double_tap_action",
   "main_entity_tap_action",
   "main_entity_hold_action",
+  "main_entity_double_tap_action",
 ];
 
 const STATUS_CONFIG_ORDER = [
@@ -567,8 +623,11 @@ const STATUS_CONFIG_ORDER = [
   "state_template",
   "label_template",
   "tap_action",
+  "hold_action",
+  "double_tap_action",
   "main_entity_tap_action",
   "main_entity_hold_action",
+  "main_entity_double_tap_action",
   "wrap",
   "items_per_row",
   "separate_cards",

@@ -1,7 +1,6 @@
 import { html } from "lit";
 import { renderEntitySelector } from "../../../common/editor/helpers/renders.js";
 import { renderIconSourceControl } from "../../../common/editor/helpers/icon.js";
-import { getDefaultEntityAction } from "../../../common/helpers/default-actions.js";
 
 export function renderActionSection() {
   const items = this._getActionItems();
@@ -176,20 +175,10 @@ export function renderActionSection() {
       )}
 
       ${selectedItem.entity
-        ? html`
-            ${this._renderActionItemActionSelector(
-              "Tap behavior",
-              "tap_action",
-              selectedIndex,
-              getDefaultEntityAction(selectedItem.entity, "toggle")
-            )}
-            ${this._renderActionItemActionSelector(
-              "Hold behavior",
-              "hold_action",
-              selectedIndex,
-              "more-info"
-            )}
-          `
+        ? this._renderActionItemInteractions(
+            selectedIndex,
+            selectedItem
+          )
         : ""}
     </div>
   `;

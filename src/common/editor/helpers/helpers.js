@@ -30,28 +30,12 @@ export {
 } from "./config.js";
 
 import {
-  renderSectionHeader,
-  renderSubSectionHeader,
-  renderStatusSection,
-  renderActionSelector,
+  renderInteractionsSection,
   renderEntity,
   renderArea,
   renderColor,
   renderColorControl,
 } from "./renders.js";
-
-/* ==========================================
- * COLLAPSE HELPER
- * ========================================== */
-
-export function toggleSection(section) {
-  this._collapsed = {
-    ...this._collapsed,
-    [section]: !this._collapsed?.[section],
-  };
-
-  this.requestUpdate("_collapsed");
-}
 
 /* ==========================================
  * POPOVER HELPER
@@ -305,10 +289,7 @@ function clampColor(value) {
 }
 
 export {
-  renderSectionHeader,
-  renderSubSectionHeader,
-  renderStatusSection,
-  renderActionSelector,
+  renderInteractionsSection,
   renderEntity,
   renderArea,
   renderColor,

@@ -11,7 +11,11 @@ export function renderAreaCard() {
     : "";
 
   return html`
-    <ha-card tabindex="0" @click=${this._handleTap}>
+    <ha-card
+      tabindex="0"
+      @click=${this._handleTap}
+      @dblclick=${this._handleCardDoubleTap}
+    >
       <div class="container">
         <div class="content">
 
@@ -40,6 +44,7 @@ export function renderAreaCard() {
           style="background:${this._circleColor}"
 
           @click=${this._handleMainEntityTap}
+          @dblclick=${this._handleMainEntityDoubleTap}
 
           @pointerdown=${this._handleMainEntityPointerDown}
 

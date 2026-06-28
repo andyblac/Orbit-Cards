@@ -1,6 +1,9 @@
 import { html } from "lit";
 import { renderNamePicker } from "../../../common/editor/helpers/name-picker.js";
-import { renderEntitySelector } from "../../../common/editor/helpers/renders.js";
+import {
+  renderEntitySelector,
+  renderInteractionsSection,
+} from "../../../common/editor/helpers/renders.js";
 import { renderIconSourceControl } from "../../../common/editor/helpers/icon.js";
 
 export function renderStatusSection() {
@@ -87,23 +90,52 @@ export function renderStatusSection() {
                 `}
 
             ${this._config?.main_entity
-              ? html`
-                  ${this._renderActionSelector(
-                    "Tap behavior",
-                    "tap_action",
-                    cardActionDefault
-                  )}
-                  ${this._renderActionSelector(
-                    "Icon tap behavior",
-                    "main_entity_tap_action",
-                    mainEntityActionDefault
-                  )}
-                  ${this._renderActionSelector(
-                    "Icon hold behavior",
-                    "main_entity_hold_action",
-                    "none"
-                  )}
-                `
+              ? renderInteractionsSection.call(this, {
+                  interactions: [
+                    {
+                      key: "tap_action",
+                      formKey: "tap_action",
+                      label: "Tap behavior",
+                      defaultAction: cardActionDefault,
+                      defaultVisible: true,
+                    },
+                    {
+                      key: "hold_action",
+                      formKey: "hold_action",
+                      label: "Hold behavior",
+                      defaultAction: "none",
+                    },
+                    {
+                      key: "double_tap_action",
+                      formKey: "double_tap_action",
+                      label: "Double tap behavior",
+                      defaultAction: "none",
+                    },
+                    {
+                      key: "main_entity_tap_action",
+                      formKey: "icon_tap_action",
+                      label: "Icon tap behavior",
+                      defaultAction: mainEntityActionDefault,
+                      defaultVisible: true,
+                    },
+                    {
+                      key: "main_entity_hold_action",
+                      formKey: "icon_hold_action",
+                      label: "Icon hold behavior",
+                      defaultAction: "none",
+                    },
+                    {
+                      key: "main_entity_double_tap_action",
+                      formKey: "icon_double_tap_action",
+                      label: "Icon double tap behavior",
+                      defaultAction: "none",
+                    },
+                  ],
+                  context: {
+                    entity_id: this._config.main_entity,
+                    area_id: this._config.area,
+                  },
+                })
               : ""}
           </div>
         `}
@@ -315,26 +347,12 @@ function renderIconOnlyStatusConfig({
       )}
 
       ${selectedItem.entity
-        ? html`
-            ${this._renderStatusItemActionSelector(
-              "Tap behavior",
-              "tap_action",
-              selectedIndex,
-              cardActionDefault
-            )}
-            ${this._renderStatusItemActionSelector(
-              "Icon tap behavior",
-              "main_entity_tap_action",
-              selectedIndex,
-              mainEntityActionDefault
-            )}
-            ${this._renderStatusItemActionSelector(
-              "Icon hold behavior",
-              "main_entity_hold_action",
-              selectedIndex,
-              "none"
-            )}
-          `
+        ? this._renderStatusItemInteractions(
+            selectedIndex,
+            selectedItem,
+            cardActionDefault,
+            mainEntityActionDefault
+          )
         : ""}
     </div>
   `;

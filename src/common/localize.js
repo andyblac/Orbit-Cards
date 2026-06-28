@@ -106,6 +106,10 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Inactive: [
     "ui.components.color-picker.colors.inactive",
   ],
+  Interactions: [
+    "ui.panel.lovelace.editor.card.tile.interactions",
+    "ui.panel.lovelace.editor.card.generic.interactions",
+  ],
   None: [
     "ui.common.none",
   ],
@@ -128,6 +132,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   "Display precision": [
     "ui.dialogs.entity_registry.editor.precision",
   ],
+  "Double tap behavior": [
+    "ui.panel.lovelace.editor.card.generic.double_tap_action",
+  ],
   Home: [
     "state_badge.person.home",
   ],
@@ -142,6 +149,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   ],
   "Icon hold behavior": [
     "ui.panel.lovelace.editor.card.tile.icon_hold_action",
+  ],
+  "Icon double tap behavior": [
+    "ui.panel.lovelace.editor.card.tile.icon_double_tap_action",
   ],
   Mode: [
     "ui.card.climate.mode",

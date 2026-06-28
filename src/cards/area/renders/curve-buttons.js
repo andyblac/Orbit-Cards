@@ -28,6 +28,7 @@ export function renderCurveButtons() {
             <button
               class="curve-button pos-${button.position}"
                 @click=${this._handleCurveButtonClick}
+                @dblclick=${this._handleCurveButtonDoubleClick}
                 @pointerdown=${this._handleButtonPointerDown}
 
                 @pointerup=${this._finishLongPress}
@@ -37,6 +38,7 @@ export function renderCurveButtons() {
                 .dataEntity=${button.entityId}
                 .dataAction=${button.tapAction}
                 .dataHoldAction=${button.holdAction}
+                .dataDoubleAction=${button.doubleTapAction}
             >
               ${button.isImage
                 ? html`
@@ -74,6 +76,7 @@ function renderActionButton(button) {
     <button
       class="curve-button action-button"
         @click=${this._handleCurveButtonClick}
+        @dblclick=${this._handleCurveButtonDoubleClick}
         @pointerdown=${this._handleButtonPointerDown}
 
         @pointerup=${this._finishLongPress}
@@ -83,6 +86,7 @@ function renderActionButton(button) {
         .dataEntity=${button.entityId}
         .dataAction=${button.tapAction}
         .dataHoldAction=${button.holdAction}
+        .dataDoubleAction=${button.doubleTapAction}
     >
       ${button.isImage
         ? html`

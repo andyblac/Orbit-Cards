@@ -134,50 +134,6 @@ const HOME_ASSISTANT_FIELD_LABELS = {
   ],
 };
 
-/* ==========================================
- * COLLAPSE HELPERS
- * ========================================== */
-
-export function renderSectionHeader(title, key) {
-  return html`
-    <div
-      class="section-header"
-      @click=${(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        this._toggleSection(key);
-      }}
-    >
-      <span>${t(this, title)}</span>
-
-      <span class="collapse-icon">
-        ${this._collapsed[key] ? "+" : "−"}
-      </span>
-    </div>
-  `;
-}
-
-export function renderSubSectionHeader(title, key) {
-  return html`
-    <div
-      class="sub-section-header"
-      @click=${(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        this._toggleSection(key);
-      }}
-    >
-      <span>${t(this, title)}</span>
-
-      <span class="collapse-icon">
-        ${this._collapsed[key] ? "+" : "−"}
-      </span>
-    </div>
-  `;
-}
-
 export function renderColor(label, key) {
   const value = this._config?.[key] || "";
 
@@ -837,23 +793,6 @@ function getDefaultColorTab(value) {
     : "theme";
 }
 
-
-export function renderStatusSection() {
-  return html`
-    <div class="section">
-      ${this._renderSectionHeader("Status sensors", "status")}
-      ${!this._collapsed.status
-        ? html`
-            ${this._renderEntity("Status 1", "status1")}
-            ${this._renderEntity("Status 2", "status2")}
-            ${this._renderEntity("Status 3", "status3")}
-          `
-        : ""}
-    </div>
-  `;
-}
-
-
 export function renderActionSelector(label, key, defaultAction) {
   const raw = this._config?.[key];
   const defaultValue =
@@ -917,6 +856,259 @@ export function renderActionSelector(label, key, defaultAction) {
         : ""}
     </div>
   `;
+}
+
+export function renderInteractionsSection({
+  interactions = [],
+  title = "Interactions",
+  expanded = false,
+  context = {},
+} = {}) {
+  const visibleInteractions = interactions.filter(Boolean);
+
+  if (!visibleInteractions.length) return "";
+
+  const defaultInteractions = visibleInteractions.filter((interaction) =>
+    shouldDisplayDefaultInteraction(this._config, interaction)
+  );
+  const optionalInteractions = visibleInteractions.filter(
+    (interaction) => !defaultInteractions.includes(interaction)
+  );
+  const schema = [
+    {
+      name: "interactions",
+      type: "expandable",
+      flatten: true,
+      expanded,
+      icon: "mdi:gesture-tap-button",
+      schema: [
+        ...defaultInteractions.map((interaction) =>
+          getInteractionSchema(interaction, context)
+        ),
+        {
+          name: "",
+          type: "optional_actions",
+          flatten: true,
+          schema: optionalInteractions.map((interaction) =>
+            getInteractionSchema(interaction, context)
+          ),
+        },
+      ],
+    },
+  ];
+  const formData = getInteractionsFormData(
+    this._config,
+    visibleInteractions
+  );
+
+  return html`
+    <ha-form
+      class="interactions-form"
+      .hass=${this.hass}
+      .data=${formData}
+      .schema=${schema}
+      .computeLabel=${(item) =>
+        getInteractionLabel(this, item, visibleInteractions, title)}
+      @value-changed=${(event) => {
+        event.stopPropagation();
+        const changes = getInteractionConfigChanges(
+          event.detail.value || {},
+          visibleInteractions,
+          this._config
+        );
+
+        this._updateConfig(changes);
+        this.requestUpdate?.();
+      }}
+    ></ha-form>
+  `;
+}
+
+function shouldDisplayDefaultInteraction(config = {}, interaction) {
+  return (
+    interaction.defaultVisible &&
+    !isNoneAction(config?.[interaction.key])
+  );
+}
+
+function getInteractionSchema(interaction, context) {
+  const defaultAction = getActionName(interaction.defaultAction);
+
+  return {
+    name: interaction.formKey || interaction.key,
+    selector: {
+      ui_action: {
+        actions: getActionEditorActions(defaultAction),
+        default_action: defaultAction,
+      },
+    },
+    ...(context ? { context } : {}),
+  };
+}
+
+function getInteractionsFormData(config = {}, interactions) {
+  return interactions.reduce((data, interaction) => {
+    const formKey = interaction.formKey || interaction.key;
+    const value =
+      config?.[interaction.key] ||
+      (
+        interaction.displayDefaultValue
+          ? getDefaultActionConfig(interaction.defaultAction)
+          : undefined
+      );
+
+    if (
+      value &&
+      typeof value === "object" &&
+      value.action !== "popup" &&
+      (
+        !isNoneAction(value) ||
+        getActionName(interaction.defaultAction) !== "none"
+      )
+    ) {
+      data[formKey] = normalizeNativeActionValue(value);
+    }
+
+    return data;
+  }, {});
+}
+
+function getInteractionConfigChanges(
+  formData,
+  interactions,
+  config = {}
+) {
+  return interactions.reduce((changes, interaction) => {
+    const formKey = interaction.formKey || interaction.key;
+    const nextValue = normalizeEditedActionValue(
+      formData[formKey],
+      interaction.defaultAction
+    );
+
+    changes[interaction.key] =
+      config?.[interaction.key]?.action === "popup" &&
+      !(formKey in formData)
+        ? config[interaction.key]
+        : nextValue;
+    return changes;
+  }, {});
+}
+
+function getInteractionLabel(editor, item, interactions, sectionTitle) {
+  if (item.name === "interactions") {
+    return t(editor, sectionTitle);
+  }
+
+  const interaction = interactions.find(
+    (entry) => (entry.formKey || entry.key) === item.name
+  );
+
+  return t(editor, interaction?.label || item.name);
+}
+
+function getActionName(action) {
+  const actionName =
+    typeof action === "string"
+      ? action
+      : action?.action || "none";
+
+  return actionName === "call-service"
+    ? "perform-action"
+    : actionName;
+}
+
+function isNoneAction(value) {
+  return value?.action === "none";
+}
+
+function getActionEditorActions(defaultAction) {
+  const actions = [
+    "more-info",
+    "toggle",
+    "navigate",
+    "url",
+    "perform-action",
+    "assist",
+  ];
+
+  return defaultAction === "none"
+    ? actions
+    : [...actions, "none"];
+}
+
+function getDefaultActionConfig(defaultAction) {
+  return typeof defaultAction === "string"
+    ? { action: defaultAction }
+    : defaultAction || { action: "none" };
+}
+
+function normalizeNativeActionValue(value) {
+  if (!value || typeof value !== "object") return value;
+
+  const action =
+    value.action === "call-service"
+      ? "perform-action"
+      : value.action;
+
+  if (action !== "perform-action") {
+    return {
+      ...value,
+      action,
+    };
+  }
+
+  const nextValue = {
+    ...value,
+    action,
+    perform_action:
+      value.perform_action ||
+      value.service ||
+      "",
+  };
+
+  if (value.service_data && !value.data) {
+    nextValue.data = value.service_data;
+  }
+
+  delete nextValue.service;
+  delete nextValue.service_data;
+
+  return nextValue;
+}
+
+function normalizeEditedActionValue(value, defaultAction) {
+  if (!value || typeof value !== "object") {
+    return undefined;
+  }
+
+  if (
+    value.action === "none" &&
+    getActionName(defaultAction) === "none"
+  ) {
+    return undefined;
+  }
+
+  if (value.action === "perform-action") {
+    const nextValue = {
+      ...value,
+      action: "call-service",
+      service:
+        value.perform_action ||
+        value.service ||
+        "",
+    };
+
+    if (value.data && !value.service_data) {
+      nextValue.service_data = value.data;
+    }
+
+    delete nextValue.perform_action;
+    delete nextValue.data;
+
+    return cleanActionConfig(nextValue);
+  }
+
+  return cleanActionConfig(value);
 }
 
 function getActionPickerValue(event) {

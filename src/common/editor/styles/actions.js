@@ -7,6 +7,15 @@ export const actionStyles = css`
   gap: 12px;
 }
 
+.interactions-form {
+  display: block;
+  margin-top: 16px;
+}
+
+.interactions-form ha-form {
+  display: block;
+}
+
 .action-picker {
   width: 100%;
 }

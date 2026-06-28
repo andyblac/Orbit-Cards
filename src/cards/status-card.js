@@ -5,7 +5,12 @@
 import { LitElement } from "lit";
 
 import {
+  clearDoubleTapTimer,
   handleAction,
+  handleDoubleTapAction,
+  handleTapAction,
+  isActionEnabled,
+  isAddCardPickerPreview,
   navigate,
 } from "../common/helpers/actions.js";
 import {
@@ -160,9 +165,27 @@ class OrbitStatusCard extends LitElement {
       return;
     }
 
-    this._stopEvent(ev);
+    handleTapAction.call(
+      this,
+      ev,
+      this._config.main_entity,
+      this._getCardTapAction(),
+      this._getCardDoubleTapAction()
+    );
+  }
 
-    this._handleCardTapAction();
+  _handleDoubleTap(ev) {
+    if (this._isMainIconEvent(ev)) {
+      this._handleMainEntityDoubleTap(ev);
+      return;
+    }
+
+    handleDoubleTapAction.call(
+      this,
+      ev,
+      this._config.main_entity,
+      this._getCardDoubleTapAction()
+    );
   }
 
   _isMainIconEvent(ev) {
@@ -207,20 +230,26 @@ class OrbitStatusCard extends LitElement {
       return;
     }
 
-    this._stopEvent(ev);
-
     const mainEntity = this._config.main_entity;
 
     if (!mainEntity) return;
 
-    const mainEntityAction = this._getMainEntityTapAction();
+    handleTapAction.call(
+      this,
+      ev,
+      mainEntity,
+      this._getMainEntityTapAction() || this._getCardTapAction(),
+      this._getMainEntityDoubleTapAction()
+    );
+  }
 
-    if (mainEntityAction) {
-      this._handleAction(mainEntityAction, mainEntity);
-      return;
-    }
-
-    this._handleCardTapAction();
+  _handleMainEntityDoubleTap(ev) {
+    handleDoubleTapAction.call(
+      this,
+      ev,
+      this._config.main_entity,
+      this._getMainEntityDoubleTapAction()
+    );
   }
 
   _handleCardTapAction() {
@@ -239,14 +268,66 @@ class OrbitStatusCard extends LitElement {
     );
   }
 
+  _handleCardPointerDown(ev) {
+    if (isAddCardPickerPreview(this)) return;
+
+    if (this._isMainIconEvent(ev)) return;
+
+    this._stopEvent(ev);
+    this._clearStatusItemHoldTimer();
+
+    const holdAction = this._getCardHoldAction();
+
+    if (!holdAction) return;
+
+    this._statusItemHoldTimer = setTimeout(() => {
+      this._statusItemLongPressTriggered = true;
+
+      this._handleAction(
+        holdAction,
+        this._config.main_entity
+      );
+    }, this._LONG_PRESS_DELAY);
+  }
+
+  _handleCardPointerUp(ev) {
+    if (this._isMainIconEvent(ev)) return;
+
+    this._stopEvent(ev);
+    this._clearStatusItemHoldTimer();
+  }
+
+  _handleCardPointerCancel(ev) {
+    if (this._isMainIconEvent(ev)) return;
+
+    this._stopEvent(ev);
+    this._clearStatusItemHoldTimer();
+  }
+
+  _handleCardContextMenu(ev) {
+    if (this._isMainIconEvent(ev)) return;
+
+    this._stopEvent(ev);
+
+    const holdAction = this._getCardHoldAction();
+
+    if (!holdAction) return;
+
+    this._clearStatusItemHoldTimer();
+    this._statusItemLongPressTriggered = true;
+
+    this._handleAction(
+      holdAction,
+      this._config.main_entity
+    );
+  }
+
   _handleStatusItemClick(ev, index = 0) {
     if (this._statusItemLongPressTriggered) {
       this._statusItemLongPressTriggered = false;
       this._stopEvent(ev);
       return;
     }
-
-    this._stopEvent(ev);
 
     const entityId = this._getStatusItemEntityId(index);
 
@@ -255,22 +336,41 @@ class OrbitStatusCard extends LitElement {
     const actionConfig = this._isStatusItemMainIconEvent(ev)
       ? this._getStatusItemMainEntityTapAction(index)
       : this._getStatusItemCardTapAction(index);
+    const doubleTapAction = this._isStatusItemMainIconEvent(ev)
+      ? this._getStatusItemMainEntityDoubleTapAction(index)
+      : this._getStatusItemCardDoubleTapAction(index);
 
-    if (actionConfig?.action === "none") return;
-
-    this._handleAction(
+    handleTapAction.call(
+      this,
+      ev,
+      entityId,
       actionConfig?.action
         ? actionConfig
         : { action: "more-info" },
-      entityId
+      doubleTapAction
+    );
+  }
+
+  _handleStatusItemDoubleClick(ev, index = 0) {
+    handleDoubleTapAction.call(
+      this,
+      ev,
+      this._getStatusItemEntityId(index),
+      this._isStatusItemMainIconEvent(ev)
+        ? this._getStatusItemMainEntityDoubleTapAction(index)
+        : this._getStatusItemCardDoubleTapAction(index)
     );
   }
 
   _handleStatusItemPointerDown(ev, index = 0) {
+    if (isAddCardPickerPreview(this)) return;
+
     this._stopEvent(ev);
     this._clearStatusItemHoldTimer();
 
-    const holdAction = this._getStatusItemHoldAction(index);
+    const holdAction = this._isStatusItemMainIconEvent(ev)
+      ? this._getStatusItemMainEntityHoldAction(index)
+      : this._getStatusItemCardHoldAction(index);
 
     if (!holdAction) return;
 
@@ -297,7 +397,9 @@ class OrbitStatusCard extends LitElement {
   _handleStatusItemContextMenu(ev, index = 0) {
     this._stopEvent(ev);
 
-    const holdAction = this._getStatusItemHoldAction(index);
+    const holdAction = this._isStatusItemMainIconEvent(ev)
+      ? this._getStatusItemMainEntityHoldAction(index)
+      : this._getStatusItemCardHoldAction(index);
 
     if (!holdAction) return;
 
@@ -436,6 +538,8 @@ class OrbitStatusCard extends LitElement {
   }
 
   _handleMainIconPointerDown(ev) {
+    if (isAddCardPickerPreview(this)) return;
+
     if (this._isDuplicateTouchEvent(ev)) {
       this._stopEvent(ev);
       return;
@@ -554,6 +658,22 @@ class OrbitStatusCard extends LitElement {
     }
   }
 
+  _clearDoubleTapTimer() {
+    return clearDoubleTapTimer.call(this);
+  }
+
+  _getCardHoldAction() {
+    return isActionEnabled(this._config.hold_action)
+      ? this._config.hold_action
+      : null;
+  }
+
+  _getCardDoubleTapAction() {
+    return isActionEnabled(this._config.double_tap_action)
+      ? this._config.double_tap_action
+      : null;
+  }
+
   _getMainEntityHoldAction() {
     return isActionEnabled(this._config.main_entity_hold_action)
       ? this._config.main_entity_hold_action
@@ -573,11 +693,20 @@ class OrbitStatusCard extends LitElement {
         };
   }
 
+  _getMainEntityDoubleTapAction() {
+    return isActionEnabled(this._config.main_entity_double_tap_action)
+      ? this._config.main_entity_double_tap_action
+      : null;
+  }
+
   _getCardTapAction() {
     const defaultAction = {
       action: this._isIconOnlyMode() || this._isPersonMode()
         ? "more-info"
         : "navigate",
+      navigation_path:
+        this._navigationPath ||
+        "/lovelace/home",
     };
 
     const actionConfig = this._config.tap_action;
@@ -594,10 +723,6 @@ class OrbitStatusCard extends LitElement {
       return item.tap_action;
     }
 
-    if (this._config.main_entity_tap_action?.action) {
-      return this._config.main_entity_tap_action;
-    }
-
     if (this._config.tap_action?.action) {
       return this._config.tap_action;
     }
@@ -605,6 +730,34 @@ class OrbitStatusCard extends LitElement {
     return {
       action: "more-info",
     };
+  }
+
+  _getStatusItemCardHoldAction(index = 0) {
+    const item = this._statusItems?.[index];
+
+    if (isActionEnabled(item?.hold_action)) {
+      return item.hold_action;
+    }
+
+    if (isActionEnabled(this._config.hold_action)) {
+      return this._config.hold_action;
+    }
+
+    return null;
+  }
+
+  _getStatusItemCardDoubleTapAction(index = 0) {
+    const item = this._statusItems?.[index];
+
+    if (isActionEnabled(item?.double_tap_action)) {
+      return item.double_tap_action;
+    }
+
+    if (isActionEnabled(this._config.double_tap_action)) {
+      return this._config.double_tap_action;
+    }
+
+    return null;
   }
 
   _getStatusItemMainEntityTapAction(index = 0) {
@@ -627,7 +780,21 @@ class OrbitStatusCard extends LitElement {
     return this._getStatusItemCardTapAction(index);
   }
 
-  _getStatusItemHoldAction(index = 0) {
+  _getStatusItemMainEntityDoubleTapAction(index = 0) {
+    const item = this._statusItems?.[index];
+
+    if (isActionEnabled(item?.main_entity_double_tap_action)) {
+      return item.main_entity_double_tap_action;
+    }
+
+    if (isActionEnabled(this._config.main_entity_double_tap_action)) {
+      return this._config.main_entity_double_tap_action;
+    }
+
+    return null;
+  }
+
+  _getStatusItemMainEntityHoldAction(index = 0) {
     const item = this._statusItems?.[index];
 
     if (item?.main_entity_hold_action?.action) {
@@ -716,14 +883,6 @@ class OrbitStatusCard extends LitElement {
   }
 
   static styles = statusCardStyles;
-}
-
-function isActionEnabled(actionConfig) {
-  return Boolean(
-    actionConfig &&
-    actionConfig.action &&
-    actionConfig.action !== "none"
-  );
 }
 
 function getStatusColumnCount(config = {}, count = 1) {

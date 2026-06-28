@@ -302,6 +302,9 @@ function getAreaButtonModel(prefix, entityId, index, options) {
     holdAction:
       this._config?.[`${key}_hold_action`] ||
       options.defaultHoldAction,
+    doubleTapAction:
+      this._config?.[`${key}_double_tap_action`] ||
+      null,
     tapAction:
       this._config?.[`${key}_tap_action`] ||
       options.defaultAction,

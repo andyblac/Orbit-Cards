@@ -77,8 +77,12 @@ export function getIconOnlyStatusItems(config = {}) {
       state_template: config.state_template,
       label_template: config.label_template,
       tap_action: config.tap_action,
+      hold_action: config.hold_action,
+      double_tap_action: config.double_tap_action,
       main_entity_tap_action: config.main_entity_tap_action,
       main_entity_hold_action: config.main_entity_hold_action,
+      main_entity_double_tap_action:
+        config.main_entity_double_tap_action,
     },
   ];
 }

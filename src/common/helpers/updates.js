@@ -1,10 +1,7 @@
 export function shouldUpdateForEntities(changedProps, entityIds, options = {}) {
   if (!changedProps.has("hass")) return true;
 
-  if (
-    changedProps.has("_config") ||
-    changedProps.has("_collapsed")
-  ) {
+  if (changedProps.has("_config")) {
     return true;
   }
 

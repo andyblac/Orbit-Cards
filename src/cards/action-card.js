@@ -5,7 +5,11 @@
 import { LitElement } from "lit";
 
 import {
+  clearDoubleTapTimer,
   handleAction,
+  handleDoubleTapAction,
+  handleTapAction,
+  isAddCardPickerPreview,
 } from "../common/helpers/actions.js";
 import { getDefaultEntityAction } from "../common/helpers/default-actions.js";
 import {
@@ -124,15 +128,41 @@ class OrbitActionCard extends LitElement {
       return;
     }
 
-    this._stopEvent(ev);
-
-    this._handleAction(
+    handleTapAction.call(
+      this,
+      ev,
+      this._getActionEntityId(index),
       this._getTapAction(index),
-      this._getActionEntityId(index)
+      this._getDoubleTapAction(index)
     );
   }
 
+  _handleDoubleTap(ev, index = 0) {
+    handleDoubleTapAction.call(
+      this,
+      ev,
+      this._getActionEntityId(index),
+      this._getDoubleTapAction(index)
+    );
+  }
+
+  _clearDoubleTapTimer() {
+    return clearDoubleTapTimer.call(this);
+  }
+
+  _getDoubleTapAction(index = 0) {
+    const action = this._actions?.[index];
+
+    return action?.double_tap_action?.action
+      ? action.double_tap_action
+      : this._config.double_tap_action?.action
+        ? this._config.double_tap_action
+        : null;
+  }
+
   _handlePointerDown(ev, index = 0) {
+    if (isAddCardPickerPreview(this)) return;
+
     this._stopEvent(ev);
     this._clearHoldTimer();
 

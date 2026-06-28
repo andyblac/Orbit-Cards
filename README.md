@@ -320,7 +320,8 @@ area_name: Living Room
 area: living_room
 accent_color: blue
 main_entity: light.living_room
-navigate:
+tap_action:
+  action: navigate
   navigation_path: /lovelace/living-room
 status1: sensor.living_room_temperature
 status2: sensor.living_room_humidity
@@ -344,13 +345,12 @@ main_entity_icon: mdi:sofa
 main_entity_icon_on: mdi:lightbulb-on
 main_entity_icon_off: mdi:lightbulb
 
+tap_action:
+  navigation_path: /lovelace/living-room
+  action: navigate
+
 main_entity_tap_action:
   action: more-info
-main_entity_hold_action:
-  action: none
-
-navigate:
-  navigation_path: /lovelace/living-room
 
 status1: sensor.living_room_temperature
 status1_icon: mdi:thermometer
@@ -412,9 +412,13 @@ action_button_icon: mdi:dots-horizontal-circle
 | `main_entity_icon_on`                                                                                                            | Main entity icon used when `main_entity` is ON or active.                                                                                                               |
 | `main_entity_icon_off`                                                                                                           | Main entity icon used when `main_entity` is OFF or inactive.                                                                                                            |
 | `main_entity_icon_svg_color_override`, `main_entity_icon_on_svg_color_override`, `main_entity_icon_off_svg_color_override`       | Advanced YAML-only SVG colour controls. Defaults to `true`, which forces the configured icon colour. Set the matching key to `false` to preserve the SVG's own colours. |
+| `tap_action`                                                                                                                     | Card tap action. Defaults to navigating to the selected path. Existing `navigate.navigation_path` configs continue to work as a legacy fallback.                         |
+| `hold_action`                                                                                                                    | Card hold action. Defaults to `none`.                                                                                                                                   |
+| `double_tap_action`                                                                                                              | Card double tap action. Defaults to `none`.                                                                                                                             |
 | `main_entity_tap_action`                                                                                                         | Main entity/icon tap action. Defaults to `more-info`.                                                                                                                   |
 | `main_entity_hold_action`                                                                                                        | Main entity/icon hold action. Defaults to `none`.                                                                                                                       |
-| `navigate.navigation_path`                                                                                                       | Card body navigation path. Area Card body tap is navigation-only.                                                                                                       |
+| `main_entity_double_tap_action`                                                                                                  | Main entity/icon double tap action. Defaults to `none`.                                                                                                                 |
+| `navigate.navigation_path`                                                                                                       | Legacy card body navigation path. Prefer `tap_action` with `action: navigate` for new configs.                                                                          |
 | `status1`, `status2`, `status3`                                                                                                  | Optional status entities shown under the area/card name.                                                                                                                |
 | `status_separator`                                                                                                                | Separator shown between status values. Defaults to `\|`; spaces are added automatically in the rendered card.                                                           |
 | `statusX_icon_source`                                                                                                             | Prefix icon source for status `X`. `entity` uses the status entity icon; `custom` uses `statusX_icon`. When unset, existing custom icons keep `custom`; otherwise entity-backed status slots default to `entity`. |
@@ -430,6 +434,7 @@ action_button_icon: mdi:dots-horizontal-circle
 | `buttonX_off_color`                                                                                                              | OFF colour for side button `X`.                                                                                                                                         |
 | `buttonX_tap_action`                                                                                                             | Tap action for side button `X`. Defaults to `toggle`.                                                                                                                   |
 | `buttonX_hold_action`                                                                                                            | Hold action for side button `X`. Defaults to `more-info`.                                                                                                               |
+| `buttonX_double_tap_action`                                                                                                      | Double tap action for side button `X`. Defaults to `none`.                                                                                                              |
 | `buttonX_state_template`                                                                                                         | Template used to decide whether side button `X` is active.                                                                                                              |
 | `curve_button1` to `curve_button6`                                                                                               | Optional curved button entities shown around the main icon.                                                                                                             |
 | `curve_buttonX_icon_source`                                                                                                      | Icon source for curve button `X`. `entity` uses the entity/domain icon; `custom` uses the icon override fields below. Existing custom icon configs default to `custom`; otherwise entity-backed curve buttons default to `entity`. |
@@ -441,6 +446,7 @@ action_button_icon: mdi:dots-horizontal-circle
 | `curve_buttonX_off_color`                                                                                                        | Optional OFF icon colour override for curve button `X`. If unset, the card `accent_color` is used.                                                                      |
 | `curve_buttonX_tap_action`                                                                                                       | Tap action for curve button `X`. Defaults to `more-info`.                                                                                                               |
 | `curve_buttonX_hold_action`                                                                                                      | Hold action for curve button `X`. Defaults to `none`.                                                                                                                   |
+| `curve_buttonX_double_tap_action`                                                                                                | Double tap action for curve button `X`. Defaults to `none`.                                                                                                             |
 | `curve_buttonX_state_template`                                                                                                   | Template used to decide whether curve button `X` is active.                                                                                                             |
 | `curve_buttons_lock_position`                                                                                                    | Locks curved button positions so they do not compress or reflow.                                                                                                        |
 | `action_button`                                                                                                                   | Optional standalone action button shown near the upper-right edge of the main circle. It uses curved-button style icon/state controls, but has no button background.      |
@@ -451,6 +457,7 @@ action_button_icon: mdi:dots-horizontal-circle
 | `action_button_off_color`                                                                                                         | Optional OFF icon colour override for the standalone action button. If unset, the card `accent_color` is used.                                                          |
 | `action_button_tap_action`                                                                                                        | Tap action for the standalone action button. Defaults from the selected entity domain, for example `scene.turn_on`, `script.turn_on`, `automation.trigger`, `button.press`, `input_button.press`, `toggle`, or `more-info` for passive entities. |
 | `action_button_hold_action`                                                                                                       | Hold action for the standalone action button. Defaults to `none`.                                                                                                       |
+| `action_button_double_tap_action`                                                                                                 | Double tap action for the standalone action button. Defaults to `none`.                                                                                                |
 | `action_button_state_template`                                                                                                    | Template used to decide whether the standalone action button is active.                                                                                                 |
 
 The Area Card editor includes quick entity filters inside supported pickers. Side buttons use `All`, `Lights`, and `Switches`; curve buttons use `All`, `Covers`, `Lights`, `Sensors`, and `Switches`; the action button uses `All`, `Automations`, `Buttons`, `Cameras`, `Scenes`, and `Scripts`. `All` keeps the picker unrestricted.
@@ -620,8 +627,11 @@ For Icon only mode, numeric `0` is OFF and values greater than `0` are ON unless
 | `main_entity_icon_off`                                                                                                     | Standard and Icon only modes only. Icon used when the status is OFF.                                                                                                    |
 | `main_entity_icon_svg_color_override`, `main_entity_icon_on_svg_color_override`, `main_entity_icon_off_svg_color_override` | Advanced YAML-only SVG colour controls. Defaults to `true`, which forces the configured icon colour. Set the matching key to `false` to preserve the SVG's own colours. |
 | `tap_action`                                                                                                               | Card tap action. Defaults to `navigate` in Standard mode and `more-info` in Icon only/Person modes.                                                                     |
+| `hold_action`                                                                                                              | Card hold action. Defaults to `none`.                                                                                                                                   |
+| `double_tap_action`                                                                                                        | Card double tap action. Defaults to `none`.                                                                                                                             |
 | `main_entity_tap_action`                                                                                                   | Main entity/icon tap action. Defaults to `more-info` in Standard mode. In Icon only/Person modes it falls back to `tap_action` when unset or `none`.                    |
 | `main_entity_hold_action`                                                                                                  | Main entity/icon hold action. Defaults to `none`.                                                                                                                       |
+| `main_entity_double_tap_action`                                                                                            | Main entity/icon double tap action. Defaults to `none`.                                                                                                                 |
 
 The Status Card editor includes quick entity filters for main entity pickers: `All`, `Binary Sensors`, and `Sensors`. `All` keeps the picker unrestricted.
 
@@ -676,7 +686,7 @@ Set `separate_cards: true` to add a small gap and make each grouped action read 
 | Option                                | Description                                                                                                                                                                     |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `main_entity`                         | Required for a single Action Card. Entity to activate.                                                                                                                          |
-| `entities`                            | Optional list of grouped action items. Each item supports `entity`, `accent_color`, `main_entity_icon_source`, `main_entity_icon`, `main_entity_icon_svg_color_override`, `tap_action`, and `hold_action`. |
+| `entities`                            | Optional list of grouped action items. Each item supports `entity`, `accent_color`, `main_entity_icon_source`, `main_entity_icon`, `main_entity_icon_svg_color_override`, `tap_action`, `hold_action`, and `double_tap_action`. |
 | `wrap`                                | Grouped mode only. Allows actions to wrap onto additional rows.                                                                                                                 |
 | `actions_per_row`                     | Grouped mode only. Number of actions per row when `wrap` is enabled. Defaults to `3`.                                                                                           |
 | `separate_cards`                      | Grouped mode only. Adds a small gap between grouped items and gives each item its own rounded card background.                                                                  |
@@ -686,6 +696,7 @@ Set `separate_cards: true` to add a small gap and make each grouped action read 
 | `main_entity_icon_svg_color_override` | Advanced YAML-only SVG colour control. Defaults to `true`, which forces the configured icon colour. Set to `false` to preserve the SVG's own colours.                           |
 | `tap_action`                          | Optional tap action override. Defaults by entity domain.                                                                                                                        |
 | `hold_action`                         | Optional hold action override. Defaults to `more-info`.                                                                                                                         |
+| `double_tap_action`                   | Optional double tap action override. Defaults to `none`.                                                                                                                        |
 
 The Action Card editor includes quick entity filters inside the main entity picker: `All`, `Automations`, `Buttons`, `Cameras`, `Scenes`, and `Scripts`. `All` keeps the picker unrestricted.
 

@@ -1,5 +1,8 @@
 import { html } from "lit";
-import { renderEntitySelector } from "../../../common/editor/helpers/renders.js";
+import {
+  renderEntitySelector,
+  renderInteractionsSection,
+} from "../../../common/editor/helpers/renders.js";
 import { renderIconSourceControl } from "../../../common/editor/helpers/icon.js";
 
 export function renderButtonsSection() {
@@ -87,17 +90,33 @@ function renderButtonFields(index) {
 
       ${this._renderTemplateInput("State template", `${key}_state_template`)}
 
-      ${this._renderActionSelector(
-        "Tap behavior",
-        `${key}_tap_action`,
-        "toggle"
-      )}
-
-      ${this._renderActionSelector(
-        "Hold behavior",
-        `${key}_hold_action`,
-        "more-info"
-      )}
+      ${renderInteractionsSection.call(this, {
+        interactions: [
+          {
+            key: `${key}_tap_action`,
+            formKey: "tap_action",
+            label: "Tap behavior",
+            defaultAction: "toggle",
+            defaultVisible: true,
+          },
+          {
+            key: `${key}_hold_action`,
+            formKey: "hold_action",
+            label: "Hold behavior",
+            defaultAction: "more-info",
+          },
+          {
+            key: `${key}_double_tap_action`,
+            formKey: "double_tap_action",
+            label: "Double tap behavior",
+            defaultAction: "none",
+          },
+        ],
+        context: {
+          entity_id: this._config?.[key],
+          area_id: this._config?.area,
+        },
+      })}
     </div>
   `;
 }

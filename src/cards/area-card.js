@@ -7,9 +7,15 @@ import { LitElement } from "lit";
 import {
   handleAction,
   handleButtonClick,
+  handleButtonDoubleClick,
+  handleCardDoubleTap,
   handleCurveButtonClick,
+  handleCurveButtonDoubleClick,
+  handleMainEntityDoubleTap,
   handleMainEntityTap,
   handleTap,
+  isAddCardPickerPreview,
+  clearDoubleTapTimer,
   navigate,
   toggleEntity,
 } from "../common/helpers/actions.js";
@@ -106,7 +112,10 @@ class OrbitAreaCard extends LitElement {
     const config = {
       type: "custom:orbit-area-card",
       accent_color: "blue",
-      navigation_path: "/lovelace/home",
+      tap_action: {
+        action: "navigate",
+        navigation_path: "/lovelace/home",
+      },
     };
 
     if (area) {
@@ -163,19 +172,37 @@ class OrbitAreaCard extends LitElement {
     return handleButtonClick.call(this, ev);
   }
 
+  _handleButtonDoubleClick(ev) {
+    return handleButtonDoubleClick.call(this, ev);
+  }
+
   _handleCurveButtonClick(ev) {
     return handleCurveButtonClick.call(this, ev);
+  }
+
+  _handleCurveButtonDoubleClick(ev) {
+    return handleCurveButtonDoubleClick.call(this, ev);
   }
 
   _handleTap(ev) {
     return handleTap.call(this, ev);
   }
 
+  _handleCardDoubleTap(ev) {
+    return handleCardDoubleTap.call(this, ev);
+  }
+
   _handleMainEntityTap(ev) {
     return handleMainEntityTap.call(this, ev);
   }
 
+  _handleMainEntityDoubleTap(ev) {
+    return handleMainEntityDoubleTap.call(this, ev);
+  }
+
   _handleMainEntityPointerDown(ev) {
+    if (isAddCardPickerPreview(this)) return;
+
     return this._startLongPress(
       ev,
       this._config.main_entity || this._config.entity,
@@ -184,6 +211,8 @@ class OrbitAreaCard extends LitElement {
   }
 
   _handleButtonPointerDown(ev) {
+    if (isAddCardPickerPreview(this)) return;
+
     const target = ev.currentTarget;
 
     return this._startLongPress(
@@ -265,6 +294,10 @@ class OrbitAreaCard extends LitElement {
 
   _cancelLongPress() {
     return cancelLongPress.call(this);
+  }
+
+  _clearDoubleTapTimer() {
+    return clearDoubleTapTimer.call(this);
   }
 
   _finishLongPress(ev) {

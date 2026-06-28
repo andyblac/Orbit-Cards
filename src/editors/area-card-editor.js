@@ -8,7 +8,6 @@ import {
   getColorStyle,
   getColorPickerValue,
   isImageIcon,
-  renderActionSelector,
   renderEntity,
   renderArea,
   renderColor,
@@ -33,8 +32,10 @@ import {
   renderActionButtonSection,
   renderCurvedButtonsSection,
 } from "./area/sections/curve-buttons.js";
+import {
+  getIconSource,
+} from "../common/editor/helpers/icon.js";
 import { editorStyles } from "../common/editor/styles/editor-styles.js";
-import { actionEditorStyles } from "../common/editor/styles/action-editor.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
@@ -144,8 +145,48 @@ class OrbitAreaCardEditor extends LitElement {
   }
 
   _updateConfig(changes) {
+    const nextChanges = {
+      ...changes,
+    };
+
+    if (
+      Object.prototype.hasOwnProperty.call(nextChanges, "tap_action") &&
+      nextChanges.tap_action !== undefined
+    ) {
+      nextChanges.navigate = undefined;
+    }
+
+    const nextConfig = mergeConfig(this._config, nextChanges);
+    const mainIconSource = getIconSource(nextConfig, {
+      sourceKey: "main_entity_icon_source",
+      entityKey: "main_entity",
+      areaKey: "area",
+      allowArea: true,
+      customIconKeys: [
+        "main_entity_icon",
+        "main_entity_icon_on",
+        "main_entity_icon_off",
+      ],
+    });
+
+    const mainIconSourceChanged =
+      Object.prototype.hasOwnProperty.call(
+        nextChanges,
+        "main_entity_icon_source"
+      );
+    const clearsCustomMainIcon =
+      mainIconSourceChanged &&
+      nextChanges.main_entity_icon_source !== "custom";
+    const clearsEmptyDefaultMainIcon =
+      mainIconSource !== "custom" &&
+      nextConfig.main_entity_icon === "";
+
+    if (clearsCustomMainIcon || clearsEmptyDefaultMainIcon) {
+      nextConfig.main_entity_icon = undefined;
+    }
+
     this._config = orderAreaConfig(
-      mergeConfig(this._config, changes)
+      mergeConfig(nextConfig, {})
     );
 
     this.dispatchEvent(new CustomEvent("config-changed", {
@@ -275,10 +316,6 @@ class OrbitAreaCardEditor extends LitElement {
     return getInlineSvg.call(this, path, {
       forceColor: true,
     });
-  }
-
-  _renderActionSelector(label, key, defaultAction) {
-    return renderActionSelector.call(this, label, key, defaultAction);
   }
 
   _renderEntity(label, key, replacements) {
@@ -420,7 +457,6 @@ class OrbitAreaCardEditor extends LitElement {
 
   static styles = [
     editorStyles,
-    actionEditorStyles,
   ];
 }
 
@@ -469,8 +505,12 @@ const MAIN_ENTITY_DEPENDENT_KEYS = [
   "main_entity_icon",
   "main_entity_icon_on",
   "main_entity_icon_off",
+  "tap_action",
+  "hold_action",
+  "double_tap_action",
   "main_entity_tap_action",
   "main_entity_hold_action",
+  "main_entity_double_tap_action",
 ];
 
 const STATUS_ENTITY_DEPENDENT_SUFFIXES = [
@@ -489,6 +529,7 @@ const BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
   "_state_template",
   "_tap_action",
   "_hold_action",
+  "_double_tap_action",
 ];
 
 const CURVE_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
@@ -499,6 +540,7 @@ const CURVE_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
   "_state_template",
   "_tap_action",
   "_hold_action",
+  "_double_tap_action",
 ];
 
 const ACTION_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
@@ -509,6 +551,7 @@ const ACTION_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
   "_state_template",
   "_tap_action",
   "_hold_action",
+  "_double_tap_action",
 ];
 
 const AREA_CONFIG_ORDER = [
@@ -519,6 +562,9 @@ const AREA_CONFIG_ORDER = [
   "status_color",
   "area",
   "navigate",
+  "tap_action",
+  "hold_action",
+  "double_tap_action",
   "main_entity",
   "main_entity_icon_source",
   "main_entity_icon",
@@ -529,6 +575,7 @@ const AREA_CONFIG_ORDER = [
   "main_entity_icon_off_svg_color_override",
   "main_entity_tap_action",
   "main_entity_hold_action",
+  "main_entity_double_tap_action",
   "status_separator",
   ...[1, 2, 3].flatMap((index) => [
     `status${index}`,
@@ -550,6 +597,7 @@ const AREA_CONFIG_ORDER = [
     `button${index}_state_template`,
     `button${index}_tap_action`,
     `button${index}_hold_action`,
+    `button${index}_double_tap_action`,
   ]),
   "curve_buttons_lock_position",
   ...[1, 2, 3, 4, 5, 6].flatMap((index) => [
@@ -566,6 +614,7 @@ const AREA_CONFIG_ORDER = [
     `curve_button${index}_state_template`,
     `curve_button${index}_tap_action`,
     `curve_button${index}_hold_action`,
+    `curve_button${index}_double_tap_action`,
   ]),
   "action_button",
   "action_button_icon_source",
@@ -578,6 +627,7 @@ const AREA_CONFIG_ORDER = [
   "action_button_state_template",
   "action_button_tap_action",
   "action_button_hold_action",
+  "action_button_double_tap_action",
   "grid_options",
   "view_layout",
 ];

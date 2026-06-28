@@ -8,7 +8,7 @@ import {
   getColorStyle,
   getColorPickerValue,
   isImageIcon,
-  renderActionSelector,
+  renderInteractionsSection,
   renderColor,
   renderColorControl,
   renderEntity,
@@ -30,6 +30,9 @@ import { actionEditorStyles } from "../common/editor/styles/action-editor.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import {
+  getDefaultEntityAction,
+} from "../common/helpers/default-actions.js";
 import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
 
@@ -127,6 +130,7 @@ class OrbitActionCardEditor extends LitElement {
         main_entity_icon: config?.main_entity_icon || "",
         tap_action: config?.tap_action,
         hold_action: config?.hold_action,
+        double_tap_action: config?.double_tap_action,
       },
     ];
   }
@@ -241,6 +245,7 @@ class OrbitActionCardEditor extends LitElement {
       main_entity_icon: nextItem.main_entity_icon || "",
       tap_action: nextItem.tap_action,
       hold_action: nextItem.hold_action,
+      double_tap_action: nextItem.double_tap_action,
     });
   }
 
@@ -252,13 +257,7 @@ class OrbitActionCardEditor extends LitElement {
     return getColorPickerValue(value);
   }
 
-  _renderActionSelector(label, key, defaultAction) {
-    return renderActionSelector.call(this, label, key, defaultAction);
-  }
-
-  _renderActionItemActionSelector(label, key, index, defaultAction) {
-    const items = this._getActionItems();
-    const item = items[index] || {};
+  _renderActionItemInteractions(index, item) {
     const scopedEditor = {
       hass: this.hass,
       _config: item,
@@ -269,12 +268,32 @@ class OrbitActionCardEditor extends LitElement {
         this._updateActionItem(index, changes),
     };
 
-    return renderActionSelector.call(
-      scopedEditor,
-      label,
-      key,
-      defaultAction
-    );
+    return renderInteractionsSection.call(scopedEditor, {
+      interactions: [
+        {
+          key: "tap_action",
+          formKey: "tap_action",
+          label: "Tap behavior",
+          defaultAction: getDefaultEntityAction(item.entity, "toggle"),
+          defaultVisible: true,
+        },
+        {
+          key: "hold_action",
+          formKey: "hold_action",
+          label: "Hold behavior",
+          defaultAction: "more-info",
+        },
+        {
+          key: "double_tap_action",
+          formKey: "double_tap_action",
+          label: "Double tap behavior",
+          defaultAction: "none",
+        },
+      ],
+      context: {
+        entity_id: item.entity,
+      },
+    });
   }
 
   _renderColor(label, key) {
@@ -431,6 +450,7 @@ const ACTION_ENTITY_DEPENDENT_KEYS = [
   "main_entity_icon",
   "tap_action",
   "hold_action",
+  "double_tap_action",
 ];
 
 const ACTION_GROUP_ROOT_KEYS = [
@@ -446,6 +466,7 @@ const ACTION_ITEM_KEYS = [
   "main_entity_icon_svg_color_override",
   "tap_action",
   "hold_action",
+  "double_tap_action",
 ];
 
 const ACTION_CONFIG_ORDER = [
@@ -457,6 +478,7 @@ const ACTION_CONFIG_ORDER = [
   "main_entity_icon_svg_color_override",
   "tap_action",
   "hold_action",
+  "double_tap_action",
   "wrap",
   "actions_per_row",
   "separate_cards",

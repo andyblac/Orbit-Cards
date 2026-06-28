@@ -7,13 +7,29 @@ export function registerOrbitCard({
   getEntitySuggestion,
   aliases = [],
 }) {
-  customElements.define(tag, cardClass);
+  if (!customElements.get(tag)) {
+    customElements.define(tag, cardClass);
+  }
 
   aliases.forEach((alias) => {
-    customElements.define(alias.tag, alias.cardClass || cardClass);
+    if (!customElements.get(alias.tag)) {
+      customElements.define(alias.tag, alias.cardClass || cardClass);
+    }
   });
 
+  const registeredTypes = new Set([
+    tag,
+    ...aliases.map((alias) => alias.tag),
+  ]);
+
   window.customCards = window.customCards || [];
+
+  for (let index = window.customCards.length - 1; index >= 0; index -= 1) {
+    if (registeredTypes.has(window.customCards[index].type)) {
+      window.customCards.splice(index, 1);
+    }
+  }
+
   window.customCards.push({
     type: tag,
     name,

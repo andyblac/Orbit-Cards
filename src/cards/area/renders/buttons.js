@@ -13,6 +13,7 @@ export function renderButtons(button) {
         class="entity-button"
         style="background:${button.backgroundColor};"
         @click=${this._handleButtonClick}
+        @dblclick=${this._handleButtonDoubleClick}
 
         @pointerdown=${this._handleButtonPointerDown}
 
@@ -23,6 +24,7 @@ export function renderButtons(button) {
         .dataEntity=${button.entityId}
         .dataAction=${button.tapAction}
         .dataHoldAction=${button.holdAction}
+        .dataDoubleAction=${button.doubleTapAction}
       >
         ${button.isImage
           ? html`

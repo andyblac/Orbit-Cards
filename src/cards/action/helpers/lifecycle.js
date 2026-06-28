@@ -25,6 +25,7 @@ export function getActionItems(config = {}) {
         config.main_entity_icon_svg_color_override,
       tap_action: config.tap_action,
       hold_action: config.hold_action,
+      double_tap_action: config.double_tap_action,
     },
   ];
 }

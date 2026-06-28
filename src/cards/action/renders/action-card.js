@@ -54,6 +54,7 @@ function renderActionButton(action, index) {
         --action-icon-color:${action.iconColor};
       "
       @click=${(ev) => this._handleTap(ev, index)}
+      @dblclick=${(ev) => this._handleDoubleTap(ev, index)}
       @pointerdown=${(ev) => this._handlePointerDown(ev, index)}
       @pointerup=${this._handlePointerUp}
       @pointerleave=${this._handlePointerCancel}

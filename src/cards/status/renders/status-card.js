@@ -27,6 +27,12 @@ export function renderStatusCard() {
         --status-rows:${rowCount};
       "
       @click=${this._handleTap}
+      @dblclick=${this._handleDoubleTap}
+      @pointerdown=${this._handleCardPointerDown}
+      @pointerup=${this._handleCardPointerUp}
+      @pointerleave=${this._handleCardPointerCancel}
+      @pointercancel=${this._handleCardPointerCancel}
+      @contextmenu=${this._handleCardContextMenu}
     >
       <div
         class="container status-container mode-${mode} ${isGroupedIconOnly ? "grouped" : ""}"
@@ -50,6 +56,7 @@ export function renderStatusCard() {
           @touchend=${this._handleMainIconPointerUp}
           @touchcancel=${this._handleMainIconPointerCancel}
           @click=${this._handleMainIconClick}
+          @dblclick=${this._handleMainEntityDoubleTap}
           @contextmenu=${this._handleMainIconContextMenu}
         >
           ${mode === "person"
@@ -138,6 +145,7 @@ function renderIconOnlyStatusItem(item, index) {
         --status-icon-color:${item.iconColor};
       "
       @click=${(ev) => this._handleStatusItemClick(ev, index)}
+      @dblclick=${(ev) => this._handleStatusItemDoubleClick(ev, index)}
       @pointerdown=${(ev) => this._handleStatusItemPointerDown(ev, index)}
       @pointerup=${this._handleStatusItemPointerUp}
       @pointerleave=${this._handleStatusItemPointerCancel}

@@ -124,6 +124,92 @@ export function handleAction(actionConfig, entityId = null) {
   }
 }
 
+export function isActionEnabled(actionConfig) {
+  return Boolean(
+    actionConfig?.action &&
+    actionConfig.action !== "none"
+  );
+}
+
+export function isAddCardPickerPreview(element) {
+  let current = element;
+
+  while (current) {
+    const localName = current.localName || "";
+
+    if (
+      localName === "hui-card-picker" ||
+      localName === "hui-dialog-add-card" ||
+      localName === "hui-card-picker-card"
+    ) {
+      return true;
+    }
+
+    const root = current.getRootNode?.();
+
+    current =
+      current.parentElement ||
+      (root instanceof ShadowRoot ? root.host : null);
+  }
+
+  return false;
+}
+
+export function handleTapAction(
+  ev,
+  entityId,
+  tapAction,
+  doubleTapAction
+) {
+  if (isAddCardPickerPreview(this)) return;
+
+  stopActionEvent(ev);
+
+  this._clearDoubleTapTimer?.();
+
+  if (isActionEnabled(doubleTapAction)) {
+    this._doubleTapTimer = setTimeout(() => {
+      this._doubleTapTimer = null;
+      this._handleAction(tapAction, entityId);
+    }, 250);
+    return;
+  }
+
+  this._handleAction(tapAction, entityId);
+}
+
+export function handleDoubleTapAction(
+  ev,
+  entityId,
+  doubleTapAction
+) {
+  if (isAddCardPickerPreview(this)) return;
+
+  stopActionEvent(ev);
+
+  this._clearDoubleTapTimer?.();
+
+  if (!isActionEnabled(doubleTapAction)) return;
+
+  this._handleAction(doubleTapAction, entityId);
+}
+
+export function clearDoubleTapTimer() {
+  if (!this._doubleTapTimer) return;
+
+  clearTimeout(this._doubleTapTimer);
+  this._doubleTapTimer = null;
+}
+
+function stopActionEvent(ev) {
+  ev?.preventDefault?.();
+  ev?.stopPropagation?.();
+
+  if (ev?.stopImmediatePropagation) {
+    ev.stopImmediatePropagation();
+  }
+}
+
 function getPopupData(actionConfig, popupTitle, popupContent) {
   const {
     action,
@@ -167,12 +253,26 @@ export function toggleEntity(entityId, ev, actionConfig = null) {
 }
 
 export function handleButtonClick(ev) {
-  ev.stopPropagation();
-
   const entityId = ev.currentTarget.dataEntity;
-  const action = ev.currentTarget.dataAction;
+  const tapAction = ev.currentTarget.dataAction;
+  const doubleTapAction = ev.currentTarget.dataDoubleAction;
 
-  this._handleAction(action, entityId);
+  handleTapAction.call(
+    this,
+    ev,
+    entityId,
+    tapAction,
+    doubleTapAction
+  );
+}
+
+export function handleButtonDoubleClick(ev) {
+  handleDoubleTapAction.call(
+    this,
+    ev,
+    ev.currentTarget.dataEntity,
+    ev.currentTarget.dataDoubleAction
+  );
 }
 
 export function handleCurveButtonClick(ev) {
@@ -181,17 +281,26 @@ export function handleCurveButtonClick(ev) {
     return;
   }
 
-  ev.preventDefault();
-  ev.stopPropagation();
-
-  if (ev.stopImmediatePropagation) {
-    ev.stopImmediatePropagation();
-  }
-
   const entityId = ev.currentTarget.dataEntity;
-  const action = ev.currentTarget.dataAction;
+  const tapAction = ev.currentTarget.dataAction;
+  const doubleTapAction = ev.currentTarget.dataDoubleAction;
 
-  this._handleAction(action, entityId);
+  handleTapAction.call(
+    this,
+    ev,
+    entityId,
+    tapAction,
+    doubleTapAction
+  );
+}
+
+export function handleCurveButtonDoubleClick(ev) {
+  handleDoubleTapAction.call(
+    this,
+    ev,
+    ev.currentTarget.dataEntity,
+    ev.currentTarget.dataDoubleAction
+  );
 }
 
 export function handleTap(ev) {
@@ -207,13 +316,22 @@ export function handleTap(ev) {
     return;
   }
 
-  ev.stopPropagation();
+  handleTapAction.call(
+    this,
+    ev,
+    this._config.main_entity || this._config.entity,
+    getAreaCardTapAction(this._config),
+    this._config.double_tap_action
+  );
+}
 
-  const navigate = this._config.navigate || {
-    navigation_path: "/lovelace/home",
-  };
-
-  this._navigate(navigate.navigation_path);
+export function handleCardDoubleTap(ev) {
+  handleDoubleTapAction.call(
+    this,
+    ev,
+    this._config.main_entity || this._config.entity,
+    this._config.double_tap_action
+  );
 }
 
 export function handleMainEntityTap(ev) {
@@ -222,34 +340,49 @@ export function handleMainEntityTap(ev) {
     return;
   }
 
-  ev.preventDefault();
-  ev.stopPropagation();
-
-  if (ev.stopImmediatePropagation) {
-    ev.stopImmediatePropagation();
-  }
-
   const mainEntity =
     this._config.main_entity || this._config.entity;
 
-  if (mainEntity) {
-    const tapAction =
-      this._config.main_entity_tap_action || {
-        action: "more-info",
-      };
+  if (!mainEntity) return;
 
-    if (tapAction.action !== "none") {
-      this._handleAction(
-        tapAction,
-        mainEntity
-      );
-      return;
-    }
+  handleTapAction.call(
+    this,
+    ev,
+    mainEntity,
+    getAreaMainEntityTapAction(this._config),
+    this._config.main_entity_double_tap_action
+  );
+}
+
+export function handleMainEntityDoubleTap(ev) {
+  handleDoubleTapAction.call(
+    this,
+    ev,
+    this._config.main_entity || this._config.entity,
+    this._config.main_entity_double_tap_action
+  );
+}
+
+function getAreaCardTapAction(config = {}) {
+  if (config.tap_action?.action) {
+    return config.tap_action;
   }
 
-  const navigate = this._config.navigate || {
-    navigation_path: "/lovelace/home",
+  return {
+    action: "navigate",
+    navigation_path:
+      config.navigate?.navigation_path ||
+      config.navigation_path ||
+      "/lovelace/home",
   };
+}
 
-  this._navigate(navigate.navigation_path);
+function getAreaMainEntityTapAction(config = {}) {
+  if (config.main_entity_tap_action?.action === "none") {
+    return getAreaCardTapAction(config);
+  }
+
+  return config.main_entity_tap_action || {
+    action: "more-info",
+  };
 }
