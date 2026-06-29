@@ -2,5 +2,5 @@
   "name": "Orbit Cards",
   "render_readme": true,
   "filename": "orbit-cards.js",
-  "homeassistant": "2025.1.0"
+  "homeassistant": "2025.6.0"
 }
