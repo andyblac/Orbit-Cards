@@ -5742,8 +5742,8 @@ var $s, ec, tc = e((() => {
 })), Q, nc = e((() => {
 	Q = {
 		area: "0.8.2",
-		status: "0.13.1",
-		action: "0.6.1"
+		status: "0.13.2",
+		action: "0.6.2"
 	};
 })), rc = /* @__PURE__ */ t((() => {
 	A(), to(), Lo(), Ho(), Zo(), K(), _s(), V(), jt(), tc(), nc();
@@ -6935,6 +6935,14 @@ var Ic = e((() => {
 
   .status-container.mode-icon_only.grouped .status-icon-item {
     aspect-ratio: 0.94 / 1;
+  }
+
+  ha-card.mode-icon_only.grouped:not(.separate-cards) .status-icon-item {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
   }
 
   .status-container.mode-icon_only.grouped .status-icon-spacer {
@@ -8602,6 +8610,14 @@ var ll = e((() => {
     ha-card.grouped .action-button {
       aspect-ratio: 0.94 / 1;
       height: auto;
+    }
+
+    ha-card.grouped:not(.separate-cards) .action-button {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      overflow: visible;
     }
 
     ha-card.grouped .action-spacer {

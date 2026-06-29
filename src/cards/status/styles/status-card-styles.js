@@ -147,6 +147,14 @@ export const statusCardStyles = [
     aspect-ratio: 0.94 / 1;
   }
 
+  ha-card.mode-icon_only.grouped:not(.separate-cards) .status-icon-item {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+
   .status-container.mode-icon_only.grouped .status-icon-spacer {
     aspect-ratio: 0.94 / 1;
   }

@@ -77,6 +77,14 @@ export const actionCardStyles = [
       height: auto;
     }
 
+    ha-card.grouped:not(.separate-cards) .action-button {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      overflow: visible;
+    }
+
     ha-card.grouped .action-spacer {
       aspect-ratio: 0.94 / 1;
     }
