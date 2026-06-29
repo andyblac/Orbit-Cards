@@ -4,7 +4,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/frontend)
 [![GitHub Release](https://img.shields.io/github/release/Andyblac/Orbit-Cards.svg)](https://github.com/Andyblac/Orbit-Cards/releases)
 [![License](https://img.shields.io/github/license/Andyblac/Orbit-Cards.svg)](LICENSE)
-![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.1.0%2B-blue.svg)
+![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.6.0%2B-blue.svg)
 ![Maintenance](https://img.shields.io/maintenance/yes/2026.svg)
 [![GitHub Stars](https://img.shields.io/github/stars/Andyblac/Orbit-Cards?style=social)](https://github.com/Andyblac/Orbit-Cards)
 [![GitHub Issues](https://img.shields.io/github/issues/Andyblac/Orbit-Cards?style=flat-square)](https://github.com/Andyblac/Orbit-Cards/issues)
@@ -96,7 +96,7 @@ After updating the JavaScript file, refresh the browser or reload Home Assistant
 ## Compatibility
 
 - Home Assistant Lovelace dashboards.
-- Home Assistant 2025 and newer recommended.
+- Home Assistant 2025.6.0 and newer recommended.
 - HACS or manual resource installation.
 - Browser Mod is required only for Browser Mod popup actions.
 - Bubble Card is required only for Bubble Card hash popups.
