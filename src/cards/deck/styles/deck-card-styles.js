@@ -6,6 +6,24 @@ export const deckCardStyles = css`
     overflow: visible;
   }
 
+  ha-card.deck-card.wrap.separate-cards {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  ha-card.deck-card.wrap:not(.separate-cards) .deck-item,
+  ha-card.deck-card.wrap:not(.separate-cards) .deck-item > * {
+    --ha-card-background: transparent;
+    --ha-card-box-shadow: none;
+    --ha-card-border-width: 0;
+    --ha-card-border-color: transparent;
+    --ha-card-border-radius: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
   .deck-card.empty {
     min-height: 96px;
     display: flex;
@@ -43,6 +61,7 @@ export const deckCardStyles = css`
     align-items: end;
     gap: 4px;
     border-bottom: 1px solid var(--divider-color);
+    background: var(--orbit-deck-tab-background-color, transparent);
     overflow-x: auto;
   }
 
@@ -52,7 +71,7 @@ export const deckCardStyles = css`
     border: none;
     border-bottom: 3px solid transparent;
     background: transparent;
-    color: inherit;
+    color: var(--orbit-deck-tab-color, inherit);
     padding: 0 12px;
     font: inherit;
     font-size: var(--orbit-deck-tab-font-size, var(--ha-font-size-m, 14px));
@@ -80,8 +99,8 @@ export const deckCardStyles = css`
   }
 
   .deck-tab.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
+    color: var(--orbit-deck-tab-active-color, var(--primary-color));
+    border-bottom-color: var(--orbit-deck-tab-active-color, var(--primary-color));
     opacity: 1;
   }
 

@@ -5,6 +5,7 @@
 import { LitElement, html } from "lit";
 import { registerOrbitCard } from "../common/helpers/card-registration.js";
 import { CARD_VERSIONS } from "../version.js";
+import { computeFullColor } from "../common/helpers/colors.js";
 import { deckCardStyles } from "./deck/styles/deck-card-styles.js";
 import { DECK_PREVIEW_SELECTED_INDEX } from "../editors/deck-card-editor.js";
 
@@ -184,7 +185,7 @@ class OrbitDeckCard extends LitElement {
 
     return html`
       <ha-card
-        class="deck-card wrap"
+        class="deck-card wrap ${decks.length > 1 && this._config?.separate_cards ? "separate-cards" : ""}"
         style="--deck-columns:${columns};"
       >
         <div class="deck-wrap">
@@ -210,14 +211,12 @@ class OrbitDeckCard extends LitElement {
     );
     const selectedEntry = this._deckCards[selectedIndex];
     const tabWidthMode = getTabWidthMode(this._config);
-    const tabFontSize = this._config?.tab_font_size || "";
+    const tabStyles = getTabStyleVariables(this._config);
 
     return html`
       <ha-card
         class="deck-card tabs tab-width-${tabWidthMode}"
-        style=${tabFontSize
-          ? `--orbit-deck-tab-font-size:${tabFontSize};`
-          : ""}
+        style=${tabStyles}
       >
         <div class="deck-tabs" role="tablist">
           ${decks.map((item, index) => html`
@@ -290,6 +289,23 @@ function getTabWidthMode(config = {}) {
   return ["equal", "dynamic", "user"].includes(config?.tab_width_mode)
     ? config.tab_width_mode
     : "dynamic";
+}
+
+function getTabStyleVariables(config = {}) {
+  return [
+    config.tab_font_size
+      ? `--orbit-deck-tab-font-size:${config.tab_font_size};`
+      : "",
+    colorVariable("--orbit-deck-tab-color", config.tab_color),
+    colorVariable("--orbit-deck-tab-active-color", config.tab_active_color),
+    colorVariable("--orbit-deck-tab-background-color", config.tab_background_color),
+  ].filter(Boolean).join("");
+}
+
+function colorVariable(name, color) {
+  return color
+    ? `${name}:${computeFullColor(color)};`
+    : "";
 }
 
 function chunkItems(items, size = 1) {

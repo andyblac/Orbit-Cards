@@ -5,6 +5,10 @@ import {
   renderInteractionsSection,
 } from "../../../common/editor/helpers/renders.js";
 import { renderIconSourceControl } from "../../../common/editor/helpers/icon.js";
+import {
+  getGroupedEditorState,
+  renderGroupedEditorOptions,
+} from "../../../common/editor/helpers/group-options.js";
 
 export function renderStatusSection() {
   const mode = this._config?.mode || "standard";
@@ -161,68 +165,23 @@ function renderIconOnlyStatusConfig({
     items.length - 1
   );
   const selectedItem = items[selectedIndex] || {};
-  const itemsPerRow = Math.max(
-    1,
-    Number(this._config?.items_per_row) || 3
-  );
-  const shouldWrapTabs =
-    Boolean(this._config?.wrap) &&
-    items.length > itemsPerRow;
-  const showTabScrollHint =
-    (!shouldWrapTabs && items.length > 6) ||
-    (shouldWrapTabs && itemsPerRow > 6);
+  const {
+    itemsPerRow,
+    shouldWrapTabs,
+    showTabScrollHint,
+  } = getGroupedEditorState({
+    config: this._config,
+    itemCount: items.length,
+    defaultPerRow: 3,
+  });
 
   return html`
     <div class="section">
-      <div class="status-group-options">
-        <label class="status-wrap-toggle">
-          <span>${this._t("Wrap")}</span>
-          <ha-switch
-            .checked=${!!this._config?.wrap}
-            @change=${(e) =>
-              this._updateConfig({
-                wrap: e.target.checked,
-                items_per_row: e.target.checked
-                  ? this._config?.items_per_row || 3
-                  : this._config?.items_per_row,
-              })}
-          ></ha-switch>
-        </label>
-
-        ${items.length > 1
-          ? html`
-              <label class="status-wrap-toggle">
-                <span>${this._t("Separate cards")}</span>
-                <ha-switch
-                  .checked=${!!this._config?.separate_cards}
-                  @change=${(e) =>
-                    this._updateConfig({
-                      separate_cards: e.target.checked,
-                    })}
-                ></ha-switch>
-              </label>
-            `
-          : ""}
-
-      ${this._config?.wrap
-        ? html`
-            <div class="status-per-row-field">
-              ${this._renderNumberInput("Items per row", "items_per_row", {
-                value: this._config?.items_per_row || 3,
-                min: 1,
-                step: 1,
-                onValueChanged: (value) =>
-                  this._updateConfig({
-                    items_per_row: Math.max(
-                      1,
-                      Number(value) || 1
-                    ),
-                  }),
-              })}
-            </div>
-          `
-        : ""}
-      </div>
+      ${renderGroupedEditorOptions.call(this, {
+        itemCount: items.length,
+        classPrefix: "status",
+        defaultPerRow: 3,
+      })}
 
       <div
         class="status-tabs ${shouldWrapTabs ? "wrapped" : ""} ${showTabScrollHint ? "scroll-hint" : ""} ${items.length > 1 ? "has-tools" : ""}"

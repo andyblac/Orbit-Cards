@@ -4,10 +4,19 @@
 
 import { LitElement, html, css } from "lit";
 import {
+  connectEditorPopoverClose,
+  disconnectEditorPopoverClose,
+  getColorStyle,
+  getColorPickerValue,
   mergeConfig,
+  renderColorControl,
   renderInput,
   renderNumberInput,
 } from "../common/editor/helpers/helpers.js";
+import {
+  getGroupedEditorState,
+  renderGroupedEditorOptions,
+} from "../common/editor/helpers/group-options.js";
 import { editorStyles } from "../common/editor/styles/editor-styles.js";
 import { actionEditorStyles } from "../common/editor/styles/action-editor.js";
 import { localize } from "../common/localize.js";
@@ -24,6 +33,8 @@ class OrbitDeckCardEditor extends LitElement {
     _config: { state: true },
     _selectedTab: { state: true },
     _selectedDeckIndex: { state: true },
+    _colorPickerKey: { state: true },
+    _colorPickerTab: { state: true },
   };
 
   constructor() {
@@ -31,6 +42,18 @@ class OrbitDeckCardEditor extends LitElement {
     this._config = {};
     this._selectedTab = "setup";
     this._selectedDeckIndex = 0;
+    this._colorPickerKey = "";
+    this._colorPickerTab = "picker";
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    connectEditorPopoverClose(this);
+  }
+
+  disconnectedCallback() {
+    disconnectEditorPopoverClose(this);
+    super.disconnectedCallback();
   }
 
   setConfig(config) {
@@ -46,6 +69,14 @@ class OrbitDeckCardEditor extends LitElement {
 
   _t(key, replacements) {
     return localize(this.hass, key, replacements);
+  }
+
+  _getColorPickerValue(value) {
+    return getColorPickerValue(value);
+  }
+
+  _getColorStyle(value) {
+    return getColorStyle(value);
   }
 
   _updateConfig(changes) {
@@ -193,6 +224,17 @@ class OrbitDeckCardEditor extends LitElement {
     return renderNumberInput.call(this, label, key, options);
   }
 
+  _renderColorControl(label, pickerKey, value, onUpdate, previewValue = value) {
+    return renderColorControl.call(
+      this,
+      label,
+      pickerKey,
+      value,
+      onUpdate,
+      previewValue
+    );
+  }
+
   _renderSubTabs() {
     return html`
       <div class="deck-subtabs-row">
@@ -236,17 +278,19 @@ class OrbitDeckCardEditor extends LitElement {
   }
 
   _renderSetup() {
+    const items = this._getDeckItems();
+
     return html`
       <div class="section">
         ${this._config?.layout === "wrap"
-          ? this._renderNumberInput("Items per row", "items_per_row", {
-              value: this._config?.items_per_row || 1,
-              min: 1,
-              step: 1,
-              onValueChanged: (value) =>
-                this._updateConfig({
-                  items_per_row: Math.max(1, Number(value) || 1),
-                }),
+          ? renderGroupedEditorOptions.call(this, {
+              itemCount: items.length,
+              classPrefix: "action",
+              wrapEnabled: true,
+              showWrapToggle: false,
+              perRowKey: "items_per_row",
+              perRowLabel: "Items per row",
+              defaultPerRow: 1,
             })
           : html`
               ${this._renderTabWidthModeControl()}
@@ -257,6 +301,29 @@ class OrbitDeckCardEditor extends LitElement {
                     tab_font_size: value || undefined,
                   }),
               })}
+              <div class="field-grid two-columns deck-tab-colors">
+                ${this._renderColorControl(
+                  "Tab color",
+                  "tab_color",
+                  this._config?.tab_color || "",
+                  (value) => this._updateConfig({ tab_color: value || undefined }),
+                  "primary-text-color"
+                )}
+                ${this._renderColorControl(
+                  "Active tab color",
+                  "tab_active_color",
+                  this._config?.tab_active_color || "",
+                  (value) => this._updateConfig({ tab_active_color: value || undefined }),
+                  "primary-color"
+                )}
+                ${this._renderColorControl(
+                  "Tab background color",
+                  "tab_background_color",
+                  this._config?.tab_background_color || "",
+                  (value) => this._updateConfig({ tab_background_color: value || undefined }),
+                  "card-background-color"
+                )}
+              </div>
             `}
       </div>
     `;
@@ -301,13 +368,15 @@ class OrbitDeckCardEditor extends LitElement {
   }
 
   _renderDeckTabs(items, selectedIndex) {
-    const itemsPerRow = Math.max(
-      1,
-      Number(this._config?.items_per_row) || 1
-    );
-    const shouldWrapTabs =
-      this._config?.layout === "wrap" &&
-      items.length > itemsPerRow;
+    const {
+      itemsPerRow,
+      shouldWrapTabs,
+    } = getGroupedEditorState({
+      config: this._config,
+      itemCount: items.length,
+      wrapEnabled: this._config?.layout === "wrap",
+      defaultPerRow: 1,
+    });
 
     return html`
       <div
@@ -432,6 +501,22 @@ class OrbitDeckCardEditor extends LitElement {
     `;
   }
 
+  _renderTabIconPicker(index, item) {
+    return html`
+      <div class="field deck-tab-icon-field">
+        <ha-icon-picker
+          .hass=${this.hass}
+          .label=${this._t("Tab icon")}
+          .value=${item.attributes?.icon || ""}
+          @value-changed=${(ev) =>
+            this._updateDeckAttributes(index, {
+              icon: ev.detail.value || undefined,
+            })}
+        ></ha-icon-picker>
+      </div>
+    `;
+  }
+
   async _ensureNativeCardPicker() {
     if (this._cardPickerLoadRequested) {
       return;
@@ -474,13 +559,7 @@ class OrbitDeckCardEditor extends LitElement {
               ${selectedItem && this._config?.layout === "tabs"
                 ? html`
                     <div class="field-grid two-columns">
-                      ${this._renderInput("Tab icon", "tab_icon", "mdi:home", {
-                        value: selectedItem.attributes?.icon || "",
-                        onValueChanged: (value) =>
-                          this._updateDeckAttributes(selectedIndex, {
-                            icon: value || undefined,
-                          }),
-                      })}
+                      ${this._renderTabIconPicker(selectedIndex, selectedItem)}
 
                       ${this._renderInput("Tab name", "tab_name", "", {
                         value: selectedItem.attributes?.name || "",
@@ -585,6 +664,10 @@ class OrbitDeckCardEditor extends LitElement {
         margin-bottom: 12px;
       }
 
+      .deck-tab-colors {
+        margin-top: 12px;
+      }
+
       .deck-default-toggle {
         display: flex;
         align-items: center;
@@ -595,6 +678,10 @@ class OrbitDeckCardEditor extends LitElement {
 
       .deck-card-editor-frame {
         min-height: 160px;
+      }
+
+      .deck-tab-icon-field ha-icon-picker {
+        width: 100%;
       }
 
       .deck-card-picker-loading {
@@ -626,8 +713,12 @@ const DECK_CONFIG_ORDER = [
   "type",
   "layout",
   "items_per_row",
+  "separate_cards",
   "tab_font_size",
   "tab_width_mode",
+  "tab_color",
+  "tab_active_color",
+  "tab_background_color",
   "decks",
   "grid_options",
   "view_layout",
