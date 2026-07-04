@@ -65,6 +65,20 @@ export const deckCardStyles = css`
     cursor: pointer;
   }
 
+  .deck-card.tabs.tab-width-equal .deck-tab {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .deck-card.tabs.tab-width-dynamic .deck-tab {
+    flex: 0 0 auto;
+  }
+
+  .deck-card.tabs.tab-width-user .deck-tab {
+    flex: 0 0 var(--orbit-deck-tab-width, 120px);
+    min-width: var(--orbit-deck-tab-width, 120px);
+  }
+
   .deck-tab.active {
     color: var(--primary-color);
     border-bottom-color: var(--primary-color);

@@ -13,6 +13,10 @@ import { actionEditorStyles } from "../common/editor/styles/action-editor.js";
 import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
 
+export const DECK_PREVIEW_SELECTED_INDEX = Symbol.for(
+  "orbit-deck-card-preview-selected-index"
+);
+
 class OrbitDeckCardEditor extends LitElement {
   static properties = {
     hass: { attribute: false },
@@ -69,6 +73,20 @@ class OrbitDeckCardEditor extends LitElement {
 
   _selectDeckItem(index) {
     this._selectedDeckIndex = index;
+    this._dispatchPreviewSelection(index);
+  }
+
+  _dispatchPreviewSelection(index) {
+    this.dispatchEvent(new CustomEvent("config-changed", {
+      detail: {
+        config: {
+          ...this._config,
+          [DECK_PREVIEW_SELECTED_INDEX]: index,
+        },
+      },
+      bubbles: true,
+      composed: true,
+    }));
   }
 
   _addDeckItem() {
@@ -222,7 +240,54 @@ class OrbitDeckCardEditor extends LitElement {
                   items_per_row: Math.max(1, Number(value) || 1),
                 }),
             })
-          : this._renderInput("Tab font size", "tab_font_size", "18px")}
+          : html`
+              ${this._renderTabWidthModeControl()}
+              ${this._renderInput("Tab font size", "tab_font_size", "18px", {
+                value: this._config?.tab_font_size || "",
+                onValueChanged: (value) =>
+                  this._updateConfig({
+                    tab_font_size: value || undefined,
+                  }),
+              })}
+            `}
+      </div>
+    `;
+  }
+
+  _renderTabWidthModeControl() {
+    return html`
+      <div class="field editor-button-toggle-field">
+        <div class="field-header">
+          <label>Tab width</label>
+
+          <ha-selector
+            class="editor-header-button-toggle deck-tab-width-toggle"
+            .hass=${this.hass}
+            .selector=${{
+              button_toggle: {
+                options: [
+                  {
+                    label: "Equal",
+                    value: "equal",
+                  },
+                  {
+                    label: "Dynamic",
+                    value: "dynamic",
+                  },
+                  {
+                    label: "User",
+                    value: "user",
+                  },
+                ],
+              },
+            }}
+            .value=${this._config?.tab_width_mode || "dynamic"}
+            @value-changed=${(e) =>
+              this._updateConfig({
+                tab_width_mode: e.detail.value || "dynamic",
+              })}
+          ></ha-selector>
+        </div>
       </div>
     `;
   }
@@ -380,6 +445,16 @@ class OrbitDeckCardEditor extends LitElement {
                         @change=${(ev) => this._setDefaultDeck(selectedIndex, ev.target.checked)}
                       ></ha-switch>
                     </label>
+
+                    ${this._config?.tab_width_mode === "user"
+                      ? this._renderInput("Tab width", "tab_width", "120px", {
+                          value: selectedItem.attributes?.width || "",
+                          onValueChanged: (value) =>
+                            this._updateDeckAttributes(selectedIndex, {
+                              width: value || undefined,
+                            }),
+                        })
+                      : ""}
                   `
                 : ""}
 
@@ -445,6 +520,11 @@ class OrbitDeckCardEditor extends LitElement {
         margin-bottom: 6px;
       }
 
+      .deck-tab-width-toggle {
+        width: auto;
+        min-width: 260px;
+      }
+
       .field-grid.two-columns {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -482,6 +562,7 @@ const DECK_CONFIG_ORDER = [
   "layout",
   "items_per_row",
   "tab_font_size",
+  "tab_width_mode",
   "decks",
   "grid_options",
   "view_layout",

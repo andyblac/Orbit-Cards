@@ -6,6 +6,7 @@ import { LitElement, html } from "lit";
 import { registerOrbitCard } from "../common/helpers/card-registration.js";
 import { CARD_VERSIONS } from "../version.js";
 import { deckCardStyles } from "./deck/styles/deck-card-styles.js";
+import { DECK_PREVIEW_SELECTED_INDEX } from "../editors/deck-card-editor.js";
 
 import "../editors/deck-card-editor.js";
 
@@ -26,6 +27,7 @@ class OrbitDeckCard extends LitElement {
     this._selectedIndex = 0;
     this._cardHelpers = null;
     this._cardBuildKey = "";
+    this._defaultSelectionKey = "";
   }
 
   static getConfigElement() {
@@ -58,10 +60,24 @@ class OrbitDeckCard extends LitElement {
       layout: config?.layout === "tabs" ? "tabs" : "wrap",
     };
 
-    this._selectedIndex = Math.min(
-      this._selectedIndex || 0,
-      Math.max(0, getDeckItems(this._config).length - 1)
-    );
+    const decks = getDeckItems(this._config);
+    const defaultSelectionKey = getDefaultSelectionKey(decks);
+    const defaultIndex = getDefaultDeckIndex(decks);
+
+    if (Number.isInteger(config?.[DECK_PREVIEW_SELECTED_INDEX])) {
+      this._selectedIndex = Math.min(
+        Math.max(0, config[DECK_PREVIEW_SELECTED_INDEX]),
+        Math.max(0, decks.length - 1)
+      );
+    } else if (defaultSelectionKey !== this._defaultSelectionKey) {
+      this._selectedIndex = defaultIndex;
+      this._defaultSelectionKey = defaultSelectionKey;
+    } else {
+      this._selectedIndex = Math.min(
+        this._selectedIndex || 0,
+        Math.max(0, decks.length - 1)
+      );
+    }
 
     this._scheduleCardBuild();
   }
@@ -193,9 +209,16 @@ class OrbitDeckCard extends LitElement {
       Math.max(0, decks.length - 1)
     );
     const selectedEntry = this._deckCards[selectedIndex];
+    const tabWidthMode = getTabWidthMode(this._config);
+    const tabFontSize = this._config?.tab_font_size || "";
 
     return html`
-      <ha-card class="deck-card tabs">
+      <ha-card
+        class="deck-card tabs tab-width-${tabWidthMode}"
+        style=${tabFontSize
+          ? `--orbit-deck-tab-font-size:${tabFontSize};`
+          : ""}
+      >
         <div class="deck-tabs" role="tablist">
           ${decks.map((item, index) => html`
             <button
@@ -203,6 +226,9 @@ class OrbitDeckCard extends LitElement {
               class="deck-tab ${index === selectedIndex ? "active" : ""}"
               role="tab"
               aria-selected=${index === selectedIndex ? "true" : "false"}
+              style=${tabWidthMode === "user"
+                ? `--orbit-deck-tab-width:${item.attributes?.width || "120px"};`
+                : ""}
               @click=${() => this._selectTab(index)}
             >
               ${item.attributes?.icon
@@ -245,6 +271,25 @@ function getDeckItems(config = {}) {
         card: item?.card || {},
       }))
     : [];
+}
+
+function getDefaultDeckIndex(decks = []) {
+  return Math.max(
+    0,
+    decks.findIndex((item) => item.attributes?.default)
+  );
+}
+
+function getDefaultSelectionKey(decks = []) {
+  return decks
+    .map((item, index) => item.attributes?.default ? index : "")
+    .join(":");
+}
+
+function getTabWidthMode(config = {}) {
+  return ["equal", "dynamic", "user"].includes(config?.tab_width_mode)
+    ? config.tab_width_mode
+    : "dynamic";
 }
 
 function chunkItems(items, size = 1) {
