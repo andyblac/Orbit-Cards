@@ -95,9 +95,18 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.dialogs.entity_registry.editor.disabled_label",
     "ui.panel.config.entities.picker.status.disabled",
   ],
+  Default: [
+    "ui.common.default",
+  ],
+  Duplicate: [
+    "ui.common.duplicate",
+  ],
   Enabled: [
     "ui.dialogs.entity_registry.editor.enabled_label",
     "ui.panel.config.entities.picker.status.enabled",
+  ],
+  Equal: [
+    "ui.components.selectors.select.options.equal",
   ],
   Icon: [
     "ui.components.selectors.selector.types.icon",
@@ -196,6 +205,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Theme: [
     "ui.components.selectors.selector.types.theme",
     "ui.components.theme-picker.theme",
+  ],
+  User: [
+    "ui.panel.config.users.caption",
   ],
   Wrap: [
     "ui.panel.lovelace.editor.edit_view_header.settings.badges_wrap_options.wrap",

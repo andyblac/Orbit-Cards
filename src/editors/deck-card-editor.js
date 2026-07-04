@@ -195,7 +195,7 @@ class OrbitDeckCardEditor extends LitElement {
               class="editor-tab ${this._selectedTab === tab ? "active" : ""}"
               @click=${() => { this._selectedTab = tab; }}
             >
-              ${tab === "setup" ? "Setup" : "Card"}
+              ${tab === "setup" ? this._t("Setup") : this._t("Card")}
             </button>
           `)}
         </div>
@@ -207,11 +207,11 @@ class OrbitDeckCardEditor extends LitElement {
             button_toggle: {
               options: [
                 {
-                  label: "Wrap",
+                  label: this._t("Wrap"),
                   value: "wrap",
                 },
                 {
-                  label: "Tabs",
+                  label: this._t("Tabs"),
                   value: "tabs",
                 },
               ],
@@ -258,7 +258,7 @@ class OrbitDeckCardEditor extends LitElement {
     return html`
       <div class="field editor-button-toggle-field">
         <div class="field-header">
-          <label>Tab width</label>
+          <label>${this._t("Tab width")}</label>
 
           <ha-selector
             class="editor-header-button-toggle deck-tab-width-toggle"
@@ -267,15 +267,15 @@ class OrbitDeckCardEditor extends LitElement {
               button_toggle: {
                 options: [
                   {
-                    label: "Equal",
+                    label: this._t("Equal"),
                     value: "equal",
                   },
                   {
-                    label: "Dynamic",
+                    label: this._t("Dynamic"),
                     value: "dynamic",
                   },
                   {
-                    label: "User",
+                    label: this._t("User"),
                     value: "user",
                   },
                 ],
@@ -439,7 +439,7 @@ class OrbitDeckCardEditor extends LitElement {
                     </div>
 
                     <label class="deck-default-toggle">
-                      <span>Default</span>
+                      <span>${this._t("Default")}</span>
                       <ha-switch
                         .checked=${!!selectedItem.attributes?.default}
                         @change=${(ev) => this._setDefaultDeck(selectedIndex, ev.target.checked)}
@@ -458,12 +458,12 @@ class OrbitDeckCardEditor extends LitElement {
                   `
                 : ""}
 
-              <div class="sub-section-title">Card:</div>
+              <div class="sub-section-title">${this._t("Card")}:</div>
               <div class="deck-card-editor-frame">
                 ${this._renderCardPicker(selectedIndex, selectedItem)}
               </div>
             `
-          : html`<div class="deck-empty-editor">Add a card to start.</div>`}
+          : html`<div class="deck-empty-editor">${this._t("Add a card to start.")}</div>`}
       </div>
     `;
   }
@@ -603,18 +603,34 @@ function orderDeckItem(item) {
   const ordered = {};
   const usedKeys = new Set();
 
+  const cleanedItem = {
+    ...item,
+    attributes: cleanObject(item.attributes || {}),
+    card: item.card || {},
+  };
+
   DECK_ITEM_KEYS.forEach((key) => {
-    if (Object.prototype.hasOwnProperty.call(item, key)) {
-      ordered[key] = item[key];
+    if (Object.prototype.hasOwnProperty.call(cleanedItem, key)) {
+      ordered[key] = cleanedItem[key];
       usedKeys.add(key);
     }
   });
 
-  Object.keys(item).forEach((key) => {
+  Object.keys(cleanedItem).forEach((key) => {
     if (!usedKeys.has(key)) {
-      ordered[key] = item[key];
+      ordered[key] = cleanedItem[key];
     }
   });
 
   return ordered;
+}
+
+function cleanObject(value = {}) {
+  return Object.entries(value).reduce((result, [key, itemValue]) => {
+    if (itemValue !== undefined && itemValue !== "") {
+      result[key] = itemValue;
+    }
+
+    return result;
+  }, {});
 }
