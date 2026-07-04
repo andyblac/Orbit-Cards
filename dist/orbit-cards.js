@@ -9731,10 +9731,7 @@ var Yl, Xl, Zl, Ql, $l = e((() => {
 		}
 		_addDeckItem() {
 			let e = this._getDeckItems();
-			this._selectedDeckIndex = e.length, this._selectedTab = "card", this._updateConfig({ decks: [...e, {
-				attributes: {},
-				card: {}
-			}] });
+			this._selectedDeckIndex = e.length, this._selectedTab = "card", this.requestUpdate();
 		}
 		_removeDeckItem(e) {
 			let t = this._getDeckItems().filter((t, n) => n !== e);
@@ -9767,6 +9764,14 @@ var Yl, Xl, Zl, Ql, $l = e((() => {
 			} });
 		}
 		_updateDeckCard(e, t) {
+			let n = this._getDeckItems();
+			if (e >= n.length) {
+				this._selectedDeckIndex = n.length, this._updateConfig({ decks: [...n, {
+					attributes: {},
+					card: t
+				}] });
+				return;
+			}
 			this._updateDeckItem(e, { card: t });
 		}
 		_renderInput(e, t, n = "", r = {}) {
@@ -9885,7 +9890,7 @@ var Yl, Xl, Zl, Ql, $l = e((() => {
             +
           </button>
 
-          ${e.length > 0 ? C`
+          ${e.length > 0 && t < e.length ? C`
                 <button
                   type="button"
                   class="action-tool-button"
@@ -9938,7 +9943,7 @@ var Yl, Xl, Zl, Ql, $l = e((() => {
 				t.stopPropagation(), this._updateDeckCard(e, t.detail.config);
 			}}
         ></hui-card-element-editor>
-      ` : C`
+      ` : !this.hass || !this.lovelace ? C`` : customElements.get("hui-card-picker") ? C`
       <hui-card-picker
         .hass=${this.hass}
         .lovelace=${this.lovelace}
@@ -9947,16 +9952,40 @@ var Yl, Xl, Zl, Ql, $l = e((() => {
 				t.stopPropagation(), this._updateDeckCard(e, t.detail.config);
 			}}
       ></hui-card-picker>
-    `;
+    ` : (this._ensureNativeCardPicker(), C`
+        <hui-card-element-editor
+          class="native-picker-preloader"
+          .hass=${this.hass}
+          .lovelace=${this.lovelace}
+          .value=${{
+				type: "vertical-stack",
+				cards: []
+			}}
+          @config-changed=${(e) => e.stopPropagation()}
+        ></hui-card-element-editor>
+        <div class="deck-card-picker-loading">
+          <ha-spinner></ha-spinner>
+        </div>
+      `);
+		}
+		async _ensureNativeCardPicker() {
+			if (!this._cardPickerLoadRequested) {
+				this._cardPickerLoadRequested = !0;
+				try {
+					window.loadCardHelpers && await window.loadCardHelpers(), await Promise.race([customElements.whenDefined("hui-card-picker"), new Promise((e) => setTimeout(e, 1500))]);
+				} catch {} finally {
+					this._cardPickerLoadRequested = !1, this.requestUpdate();
+				}
+			}
 		}
 		_renderCard() {
-			let e = this._getDeckItems(), t = Math.min(this._selectedDeckIndex || 0, Math.max(0, e.length - 1)), n = e[t];
+			let e = this._getDeckItems(), t = Math.min(this._selectedDeckIndex || 0, e.length), n = e[t], r = t === e.length;
 			return C`
       <div class="section">
         ${this._renderDeckTabs(e, t)}
 
-        ${n ? C`
-              ${this._config?.layout === "tabs" ? C`
+        ${n || r ? C`
+              ${n && this._config?.layout === "tabs" ? C`
                     <div class="field-grid two-columns">
                       ${this._renderInput("Tab icon", "tab_icon", "mdi:home", {
 				value: n.attributes?.icon || "",
@@ -10058,6 +10087,18 @@ var Yl, Xl, Zl, Ql, $l = e((() => {
 
       .deck-card-editor-frame {
         min-height: 160px;
+      }
+
+      .deck-card-picker-loading {
+        width: 100%;
+        min-height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .native-picker-preloader {
+        display: none;
       }
 
       .deck-empty-editor {

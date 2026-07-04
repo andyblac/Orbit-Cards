@@ -94,15 +94,7 @@ class OrbitDeckCardEditor extends LitElement {
 
     this._selectedDeckIndex = items.length;
     this._selectedTab = "card";
-    this._updateConfig({
-      decks: [
-        ...items,
-        {
-          attributes: {},
-          card: {},
-        },
-      ],
-    });
+    this.requestUpdate();
   }
 
   _removeDeckItem(index) {
@@ -174,6 +166,22 @@ class OrbitDeckCardEditor extends LitElement {
   }
 
   _updateDeckCard(index, card) {
+    const items = this._getDeckItems();
+
+    if (index >= items.length) {
+      this._selectedDeckIndex = items.length;
+      this._updateConfig({
+        decks: [
+          ...items,
+          {
+            attributes: {},
+            card,
+          },
+        ],
+      });
+      return;
+    }
+
     this._updateDeckItem(index, { card });
   }
 
@@ -330,7 +338,7 @@ class OrbitDeckCardEditor extends LitElement {
             +
           </button>
 
-          ${items.length > 0
+          ${items.length > 0 && selectedIndex < items.length
             ? html`
                 <button
                   type="button"
@@ -391,6 +399,26 @@ class OrbitDeckCardEditor extends LitElement {
       `;
     }
 
+    if (!this.hass || !this.lovelace) {
+      return html``;
+    }
+
+    if (!customElements.get("hui-card-picker")) {
+      this._ensureNativeCardPicker();
+      return html`
+        <hui-card-element-editor
+          class="native-picker-preloader"
+          .hass=${this.hass}
+          .lovelace=${this.lovelace}
+          .value=${{ type: "vertical-stack", cards: [] }}
+          @config-changed=${(ev) => ev.stopPropagation()}
+        ></hui-card-element-editor>
+        <div class="deck-card-picker-loading">
+          <ha-spinner></ha-spinner>
+        </div>
+      `;
+    }
+
     return html`
       <hui-card-picker
         .hass=${this.hass}
@@ -404,21 +432,46 @@ class OrbitDeckCardEditor extends LitElement {
     `;
   }
 
+  async _ensureNativeCardPicker() {
+    if (this._cardPickerLoadRequested) {
+      return;
+    }
+
+    this._cardPickerLoadRequested = true;
+
+    try {
+      if (window.loadCardHelpers) {
+        await window.loadCardHelpers();
+      }
+
+      await Promise.race([
+        customElements.whenDefined("hui-card-picker"),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
+    } catch (_err) {
+      // HA does not expose a public card picker loader for custom editors.
+    } finally {
+      this._cardPickerLoadRequested = false;
+      this.requestUpdate();
+    }
+  }
+
   _renderCard() {
     const items = this._getDeckItems();
     const selectedIndex = Math.min(
       this._selectedDeckIndex || 0,
-      Math.max(0, items.length - 1)
+      items.length
     );
     const selectedItem = items[selectedIndex];
+    const isNewItem = selectedIndex === items.length;
 
     return html`
       <div class="section">
         ${this._renderDeckTabs(items, selectedIndex)}
 
-        ${selectedItem
+        ${selectedItem || isNewItem
           ? html`
-              ${this._config?.layout === "tabs"
+              ${selectedItem && this._config?.layout === "tabs"
                 ? html`
                     <div class="field-grid two-columns">
                       ${this._renderInput("Tab icon", "tab_icon", "mdi:home", {
@@ -542,6 +595,18 @@ class OrbitDeckCardEditor extends LitElement {
 
       .deck-card-editor-frame {
         min-height: 160px;
+      }
+
+      .deck-card-picker-loading {
+        width: 100%;
+        min-height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .native-picker-preloader {
+        display: none;
       }
 
       .deck-empty-editor {
