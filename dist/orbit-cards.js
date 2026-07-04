@@ -9614,6 +9614,12 @@ var ml, hl = e((() => {
 			let t = this._getDeckItems().filter((t, n) => n !== e);
 			this._selectedDeckIndex = Math.max(0, Math.min(e, t.length - 1)), this._updateConfig({ decks: t });
 		}
+		_duplicateDeckItem(e) {
+			let t = this._getDeckItems(), n = t[e];
+			if (!n) return;
+			let r = [...t];
+			r.splice(e + 1, 0, structuredClone(n)), this._selectedDeckIndex = e + 1, this._updateConfig({ decks: r });
+		}
 		_moveDeckItem(e, t) {
 			let n = this._getDeckItems(), r = e + t;
 			if (r < 0 || r >= n.length) return;
@@ -9637,6 +9643,12 @@ var ml, hl = e((() => {
 		_updateDeckCard(e, t) {
 			this._updateDeckItem(e, { card: t });
 		}
+		_renderInput(e, t, n = "", r = {}) {
+			return hi.call(this, e, t, n, r);
+		}
+		_renderNumberInput(e, t, n = {}) {
+			return _i.call(this, e, t, n);
+		}
 		_renderSubTabs() {
 			return w`
       <div class="deck-subtabs-row">
@@ -9654,39 +9666,31 @@ var ml, hl = e((() => {
           `)}
         </div>
 
-        <div class="editor-segment-menu deck-layout-toggle" style="--editor-segment-columns: 2;">
-          ${["wrap", "tabs"].map((e) => w`
-            <button
-              type="button"
-              class="editor-segment-item ${this._config?.layout === e ? "active" : ""}"
-              @click=${() => this._updateConfig({ layout: e })}
-            >
-              ${e === "wrap" ? "Wrap" : "Tabs"}
-            </button>
-          `)}
-        </div>
+        <ha-selector
+          class="editor-header-button-toggle deck-layout-toggle"
+          .hass=${this.hass}
+          .selector=${{ button_toggle: { options: [{
+				label: "Wrap",
+				value: "wrap"
+			}, {
+				label: "Tabs",
+				value: "tabs"
+			}] } }}
+          .value=${this._config?.layout || "wrap"}
+          @value-changed=${(e) => this._updateConfig({ layout: e.detail.value || "wrap" })}
+        ></ha-selector>
       </div>
     `;
 		}
 		_renderSetup() {
 			return w`
       <div class="section">
-        ${this._config?.layout === "wrap" ? w`
-              <ha-textfield
-                label="Items per row"
-                type="number"
-                min="1"
-                .value=${String(this._config?.items_per_row || 1)}
-                @input=${(e) => this._updateConfig({ items_per_row: Math.max(1, Number(e.target.value) || 1) })}
-              ></ha-textfield>
-            ` : w`
-              <ha-textfield
-                label="Tab font size"
-                .value=${this._config?.tab_font_size || ""}
-                placeholder="18px"
-                @input=${(e) => this._updateConfig({ tab_font_size: e.target.value || void 0 })}
-              ></ha-textfield>
-            `}
+        ${this._config?.layout === "wrap" ? this._renderNumberInput("Items per row", "items_per_row", {
+				value: this._config?.items_per_row || 1,
+				min: 1,
+				step: 1,
+				onValueChanged: (e) => this._updateConfig({ items_per_row: Math.max(1, Number(e) || 1) })
+			}) : this._renderInput("Tab font size", "tab_font_size", "18px")}
       </div>
     `;
 		}
@@ -9720,6 +9724,15 @@ var ml, hl = e((() => {
           </button>
 
           ${e.length > 0 ? w`
+                <button
+                  type="button"
+                  class="action-tool-button"
+                  title=${this._t("Duplicate")}
+                  @click=${() => this._duplicateDeckItem(t)}
+                >
+                  <ha-icon icon="mdi:content-copy"></ha-icon>
+                </button>
+
                 <button
                   type="button"
                   class="action-tool-button action-tool-remove"
@@ -9783,18 +9796,15 @@ var ml, hl = e((() => {
         ${n ? w`
               ${this._config?.layout === "tabs" ? w`
                     <div class="field-grid two-columns">
-                      <ha-textfield
-                        label="Tab icon"
-                        .value=${n.attributes?.icon || ""}
-                        placeholder="mdi:home"
-                        @input=${(e) => this._updateDeckAttributes(t, { icon: e.target.value || void 0 })}
-                      ></ha-textfield>
+                      ${this._renderInput("Tab icon", "tab_icon", "mdi:home", {
+				value: n.attributes?.icon || "",
+				onValueChanged: (e) => this._updateDeckAttributes(t, { icon: e || void 0 })
+			})}
 
-                      <ha-textfield
-                        label="Tab name"
-                        .value=${n.attributes?.name || ""}
-                        @input=${(e) => this._updateDeckAttributes(t, { name: e.target.value || void 0 })}
-                      ></ha-textfield>
+                      ${this._renderInput("Tab name", "tab_name", "", {
+				value: n.attributes?.name || "",
+				onValueChanged: (e) => this._updateDeckAttributes(t, { name: e || void 0 })
+			})}
                     </div>
 
                     <label class="deck-default-toggle">
@@ -9854,7 +9864,8 @@ var ml, hl = e((() => {
       }
 
       .deck-layout-toggle {
-        width: 180px;
+        width: auto;
+        min-width: 180px;
         margin-bottom: 6px;
       }
 

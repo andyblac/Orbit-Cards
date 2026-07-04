@@ -3,7 +3,11 @@
 // ==========================================
 
 import { LitElement, html, css } from "lit";
-import { mergeConfig } from "../common/editor/helpers/helpers.js";
+import {
+  mergeConfig,
+  renderInput,
+  renderNumberInput,
+} from "../common/editor/helpers/helpers.js";
 import { editorStyles } from "../common/editor/styles/editor-styles.js";
 import { actionEditorStyles } from "../common/editor/styles/action-editor.js";
 import { localize } from "../common/localize.js";
@@ -97,6 +101,21 @@ class OrbitDeckCardEditor extends LitElement {
     });
   }
 
+  _duplicateDeckItem(index) {
+    const items = this._getDeckItems();
+    const item = items[index];
+
+    if (!item) {
+      return;
+    }
+
+    const nextItems = [...items];
+    nextItems.splice(index + 1, 0, structuredClone(item));
+
+    this._selectedDeckIndex = index + 1;
+    this._updateConfig({ decks: nextItems });
+  }
+
   _moveDeckItem(index, direction) {
     const items = this._getDeckItems();
     const nextIndex = index + direction;
@@ -140,6 +159,14 @@ class OrbitDeckCardEditor extends LitElement {
     this._updateDeckItem(index, { card });
   }
 
+  _renderInput(label, key, placeholder = "", options = {}) {
+    return renderInput.call(this, label, key, placeholder, options);
+  }
+
+  _renderNumberInput(label, key, options = {}) {
+    return renderNumberInput.call(this, label, key, options);
+  }
+
   _renderSubTabs() {
     return html`
       <div class="deck-subtabs-row">
@@ -155,17 +182,29 @@ class OrbitDeckCardEditor extends LitElement {
           `)}
         </div>
 
-        <div class="editor-segment-menu deck-layout-toggle" style="--editor-segment-columns: 2;">
-          ${["wrap", "tabs"].map((layout) => html`
-            <button
-              type="button"
-              class="editor-segment-item ${this._config?.layout === layout ? "active" : ""}"
-              @click=${() => this._updateConfig({ layout })}
-            >
-              ${layout === "wrap" ? "Wrap" : "Tabs"}
-            </button>
-          `)}
-        </div>
+        <ha-selector
+          class="editor-header-button-toggle deck-layout-toggle"
+          .hass=${this.hass}
+          .selector=${{
+            button_toggle: {
+              options: [
+                {
+                  label: "Wrap",
+                  value: "wrap",
+                },
+                {
+                  label: "Tabs",
+                  value: "tabs",
+                },
+              ],
+            },
+          }}
+          .value=${this._config?.layout || "wrap"}
+          @value-changed=${(e) =>
+            this._updateConfig({
+              layout: e.detail.value || "wrap",
+            })}
+        ></ha-selector>
       </div>
     `;
   }
@@ -174,27 +213,16 @@ class OrbitDeckCardEditor extends LitElement {
     return html`
       <div class="section">
         ${this._config?.layout === "wrap"
-          ? html`
-              <ha-textfield
-                label="Items per row"
-                type="number"
-                min="1"
-                .value=${String(this._config?.items_per_row || 1)}
-                @input=${(ev) => this._updateConfig({
-                  items_per_row: Math.max(1, Number(ev.target.value) || 1),
-                })}
-              ></ha-textfield>
-            `
-          : html`
-              <ha-textfield
-                label="Tab font size"
-                .value=${this._config?.tab_font_size || ""}
-                placeholder="18px"
-                @input=${(ev) => this._updateConfig({
-                  tab_font_size: ev.target.value || undefined,
-                })}
-              ></ha-textfield>
-            `}
+          ? this._renderNumberInput("Items per row", "items_per_row", {
+              value: this._config?.items_per_row || 1,
+              min: 1,
+              step: 1,
+              onValueChanged: (value) =>
+                this._updateConfig({
+                  items_per_row: Math.max(1, Number(value) || 1),
+                }),
+            })
+          : this._renderInput("Tab font size", "tab_font_size", "18px")}
       </div>
     `;
   }
@@ -239,6 +267,15 @@ class OrbitDeckCardEditor extends LitElement {
 
           ${items.length > 0
             ? html`
+                <button
+                  type="button"
+                  class="action-tool-button"
+                  title=${this._t("Duplicate")}
+                  @click=${() => this._duplicateDeckItem(selectedIndex)}
+                >
+                  <ha-icon icon="mdi:content-copy"></ha-icon>
+                </button>
+
                 <button
                   type="button"
                   class="action-tool-button action-tool-remove"
@@ -319,22 +356,21 @@ class OrbitDeckCardEditor extends LitElement {
               ${this._config?.layout === "tabs"
                 ? html`
                     <div class="field-grid two-columns">
-                      <ha-textfield
-                        label="Tab icon"
-                        .value=${selectedItem.attributes?.icon || ""}
-                        placeholder="mdi:home"
-                        @input=${(ev) => this._updateDeckAttributes(selectedIndex, {
-                          icon: ev.target.value || undefined,
-                        })}
-                      ></ha-textfield>
+                      ${this._renderInput("Tab icon", "tab_icon", "mdi:home", {
+                        value: selectedItem.attributes?.icon || "",
+                        onValueChanged: (value) =>
+                          this._updateDeckAttributes(selectedIndex, {
+                            icon: value || undefined,
+                          }),
+                      })}
 
-                      <ha-textfield
-                        label="Tab name"
-                        .value=${selectedItem.attributes?.name || ""}
-                        @input=${(ev) => this._updateDeckAttributes(selectedIndex, {
-                          name: ev.target.value || undefined,
-                        })}
-                      ></ha-textfield>
+                      ${this._renderInput("Tab name", "tab_name", "", {
+                        value: selectedItem.attributes?.name || "",
+                        onValueChanged: (value) =>
+                          this._updateDeckAttributes(selectedIndex, {
+                            name: value || undefined,
+                          }),
+                      })}
                     </div>
 
                     <label class="deck-default-toggle">
@@ -404,7 +440,8 @@ class OrbitDeckCardEditor extends LitElement {
       }
 
       .deck-layout-toggle {
-        width: 180px;
+        width: auto;
+        min-width: 180px;
         margin-bottom: 6px;
       }
 
