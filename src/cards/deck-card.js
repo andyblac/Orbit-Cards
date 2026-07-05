@@ -6,6 +6,20 @@ import { LitElement, html } from "lit";
 import { registerOrbitCard } from "../common/helpers/card-registration.js";
 import { CARD_VERSIONS } from "../version.js";
 import { computeFullColor } from "../common/helpers/colors.js";
+import {
+  clearDoubleTapTimer,
+  handleAction,
+  handleDoubleTapAction,
+  handleTapAction,
+  isActionEnabled,
+  navigate,
+} from "../common/helpers/actions.js";
+import {
+  LONG_PRESS_DELAY,
+  cancelLongPress,
+  finishLongPress,
+  startLongPress,
+} from "../common/helpers/long-press.js";
 import { deckCardStyles } from "./deck/styles/deck-card-styles.js";
 import { DECK_PREVIEW_SELECTED_INDEX } from "../editors/deck-card-editor.js";
 
@@ -93,6 +107,7 @@ class OrbitDeckCard extends LitElement {
     }
 
     this._applyDeckPaddingToEntries();
+    this._bindDeckItemActionListeners();
   }
 
   _getColumnCount(count) {
@@ -108,22 +123,27 @@ class OrbitDeckCard extends LitElement {
 
   async _scheduleCardBuild() {
     const decks = getDeckItems(this._config);
-    const buildKey = JSON.stringify(decks.map((item) => item.card || {}));
+    const buildKey = JSON.stringify(
+      decks.map((item) => getDeckItemRenderCardConfig(item))
+    );
 
     if (buildKey === this._cardBuildKey) {
       this._deckCards = this._deckCards.map((entry, index) => ({
         ...entry,
         item: decks[index],
+        index,
       }));
       this._applyDeckPaddingToEntries();
       return;
     }
 
     this._cardBuildKey = buildKey;
-    this._deckCards = decks.map((item) => ({ item }));
+    this._deckCards = decks.map((item, index) => ({ item, index }));
 
     const helpers = await this._loadCardHelpers();
-    const entries = decks.map((item) => this._createDeckEntry(item, helpers));
+    const entries = decks.map((item, index) =>
+      this._createDeckEntry(item, helpers, index)
+    );
 
     if (buildKey === this._cardBuildKey) {
       this._deckCards = entries;
@@ -138,12 +158,13 @@ class OrbitDeckCard extends LitElement {
     return this._cardHelpers;
   }
 
-  _createDeckEntry(item, helpers) {
-    const cardConfig = item?.card || {};
+  _createDeckEntry(item, helpers, index) {
+    const cardConfig = getDeckItemRenderCardConfig(item);
 
     if (!cardConfig.type) {
       return {
         item,
+        index,
         error: "No card type configured",
       };
     }
@@ -159,11 +180,13 @@ class OrbitDeckCard extends LitElement {
 
       return {
         item,
+        index,
         element,
       };
     } catch (err) {
       return {
         item,
+        index,
         error: err?.message || "Unable to create card",
       };
     }
@@ -171,6 +194,148 @@ class OrbitDeckCard extends LitElement {
 
   _selectTab(index) {
     this._selectedIndex = index;
+  }
+
+  get _LONG_PRESS_DELAY() {
+    return LONG_PRESS_DELAY;
+  }
+
+  _handleAction(actionConfig, entityId = null) {
+    return handleAction.call(this, actionConfig, entityId);
+  }
+
+  _navigate(path) {
+    return navigate.call(this, path);
+  }
+
+  _clearDoubleTapTimer() {
+    return clearDoubleTapTimer.call(this);
+  }
+
+  _startLongPress(ev, entityId, longPressAction) {
+    return startLongPress.call(this, ev, entityId, longPressAction);
+  }
+
+  _cancelLongPress() {
+    return cancelLongPress.call(this);
+  }
+
+  _finishLongPress(ev) {
+    return finishLongPress.call(this, ev);
+  }
+
+  _getDeckEntryFromEventTarget(target) {
+    const index = Number(target?.dataset?.deckIndex);
+
+    if (!Number.isInteger(index)) return null;
+
+    return this._deckCards[index] || null;
+  }
+
+  _bindDeckItemActionListeners() {
+    this.renderRoot.querySelectorAll(".deck-item-interaction").forEach((el) => {
+      if (el._orbitDeckActionHost === this) return;
+
+      const listeners = {
+        pointerdown: (ev) => this._handleDeckItemPointerDown(
+          ev,
+          this._getDeckEntryFromEventTarget(el)
+        ),
+        click: (ev) => this._handleDeckItemClick(
+          ev,
+          this._getDeckEntryFromEventTarget(el)
+        ),
+        dblclick: (ev) => this._handleDeckItemDoubleClick(
+          ev,
+          this._getDeckEntryFromEventTarget(el)
+        ),
+        pointerup: (ev) => this._finishLongPress(ev),
+        pointerleave: () => this._cancelLongPress(),
+        pointercancel: () => this._cancelLongPress(),
+      };
+
+      el.addEventListener("pointerdown", listeners.pointerdown, {
+        capture: true,
+      });
+      el.addEventListener("click", listeners.click, { capture: true });
+      el.addEventListener("dblclick", listeners.dblclick, { capture: true });
+      el.addEventListener("pointerup", listeners.pointerup, {
+        capture: true,
+      });
+      el.addEventListener("pointerleave", listeners.pointerleave);
+      el.addEventListener("pointercancel", listeners.pointercancel);
+      el._orbitDeckActionHost = this;
+    });
+  }
+
+  _handleDeckItemPointerDown(ev, entry) {
+    if (!hasDeckItemActions(entry?.item)) return;
+
+    ev.stopPropagation();
+
+    const holdAction = getDeckItemAction(entry?.item, "hold_action");
+
+    if (!isActionEnabled(holdAction)) return;
+
+    return this._startLongPress(
+      ev,
+      getDeckItemEntity(entry.item),
+      holdAction
+    );
+  }
+
+  _handleDeckItemClick(ev, entry) {
+    if (this._longPressTriggered) {
+      this._longPressTriggered = false;
+      return;
+    }
+
+    const tapAction = getDeckItemAction(entry?.item, "tap_action");
+    const doubleTapAction = getDeckItemAction(
+      entry?.item,
+      "double_tap_action"
+    );
+
+    if (!isActionEnabled(tapAction) && !isActionEnabled(doubleTapAction)) {
+      return;
+    }
+
+    handleTapAction.call(
+      this,
+      ev,
+      getDeckItemEntity(entry.item),
+      tapAction || { action: "none" },
+      doubleTapAction
+    );
+  }
+
+  _handleDeckItemDoubleClick(ev, entry) {
+    const doubleTapAction = getDeckItemAction(
+      entry?.item,
+      "double_tap_action"
+    );
+
+    if (!isActionEnabled(doubleTapAction)) return;
+
+    handleDoubleTapAction.call(
+      this,
+      ev,
+      getDeckItemEntity(entry.item),
+      doubleTapAction
+    );
+  }
+
+  _renderInteractiveDeckEntry(entry) {
+    const hasActions = hasDeckItemActions(entry?.item);
+
+    return html`
+      <div
+        class="deck-item-interaction ${hasActions ? "has-actions" : ""}"
+        data-deck-index=${entry?.index ?? ""}
+      >
+        ${this._renderDeckEntry(entry)}
+      </div>
+    `;
   }
 
   _renderDeckEntry(entry) {
@@ -230,7 +395,7 @@ class OrbitDeckCard extends LitElement {
             <div class="deck-row">
               ${row.map((entry) => html`
                 <div class="deck-item">
-                  ${this._renderDeckEntry(entry)}
+                  ${this._renderInteractiveDeckEntry(entry)}
                 </div>
               `)}
               ${renderRowSpacers(row.length, columns)}
@@ -275,7 +440,7 @@ class OrbitDeckCard extends LitElement {
           `)}
         </div>
         <div class="deck-tab-content">
-          ${this._renderDeckEntry(selectedEntry)}
+          ${this._renderInteractiveDeckEntry(selectedEntry)}
         </div>
       </ha-card>
     `;
@@ -307,6 +472,57 @@ function getDeckItems(config = {}) {
         card: item?.card || {},
       }))
     : [];
+}
+
+function hasDeckItemActions(item = {}) {
+  return [
+    getDeckItemAction(item, "tap_action"),
+    getDeckItemAction(item, "hold_action"),
+    getDeckItemAction(item, "double_tap_action"),
+  ].some(isActionEnabled);
+}
+
+function getDeckItemAction(item = {}, key) {
+  const action =
+    item?.attributes?.[key] ||
+    item?.card?.[key];
+
+  return action?.action ? action : null;
+}
+
+function getDeckItemEntity(item = {}) {
+  return (
+    item?.attributes?.entity ||
+    getActionEntity(item?.attributes?.tap_action) ||
+    getActionEntity(item?.attributes?.hold_action) ||
+    getActionEntity(item?.attributes?.double_tap_action) ||
+    getActionEntity(item?.card?.tap_action) ||
+    getActionEntity(item?.card?.hold_action) ||
+    getActionEntity(item?.card?.double_tap_action) ||
+    item?.card?.entity ||
+    null
+  );
+}
+
+function getDeckItemRenderCardConfig(item = {}) {
+  const card = item?.card || {};
+
+  if (!hasDeckItemActions(item)) {
+    return card;
+  }
+
+  const {
+    tap_action,
+    hold_action,
+    double_tap_action,
+    ...renderCard
+  } = card;
+
+  return renderCard;
+}
+
+function getActionEntity(actionConfig) {
+  return actionConfig?.entity || actionConfig?.entity_id || null;
 }
 
 function getDefaultDeckIndex(decks = []) {

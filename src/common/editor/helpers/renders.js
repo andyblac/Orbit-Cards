@@ -904,13 +904,15 @@ export function renderInteractionsSection({
   title = "Interactions",
   expanded = false,
   context = {},
+  config = this._config,
+  onChange,
 } = {}) {
   const visibleInteractions = interactions.filter(Boolean);
 
   if (!visibleInteractions.length) return "";
 
   const defaultInteractions = visibleInteractions.filter((interaction) =>
-    shouldDisplayDefaultInteraction(this._config, interaction)
+    shouldDisplayDefaultInteraction(config, interaction)
   );
   const optionalInteractions = visibleInteractions.filter(
     (interaction) => !defaultInteractions.includes(interaction)
@@ -938,7 +940,7 @@ export function renderInteractionsSection({
     },
   ];
   const formData = getInteractionsFormData(
-    this._config,
+    config,
     visibleInteractions
   );
 
@@ -955,10 +957,14 @@ export function renderInteractionsSection({
         const changes = getInteractionConfigChanges(
           event.detail.value || {},
           visibleInteractions,
-          this._config
+          config
         );
 
-        this._updateConfig(changes);
+        if (onChange) {
+          onChange(changes);
+        } else {
+          this._updateConfig(changes);
+        }
         this.requestUpdate?.();
       }}
     ></ha-form>

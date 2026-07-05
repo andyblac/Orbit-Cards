@@ -13,7 +13,8 @@ export const deckCardStyles = css`
   }
 
   ha-card.deck-card.wrap:not(.separate-cards) .deck-item,
-  ha-card.deck-card.wrap:not(.separate-cards) .deck-item > * {
+  ha-card.deck-card.wrap:not(.separate-cards) .deck-item > *,
+  ha-card.deck-card.wrap:not(.separate-cards) .deck-item-interaction > * {
     --ha-card-background: transparent;
     --ha-card-box-shadow: none;
     --ha-card-border-width: 0;
@@ -49,6 +50,15 @@ export const deckCardStyles = css`
   .deck-spacer {
     flex: 1 1 0;
     min-width: 0;
+  }
+
+  .deck-item-interaction {
+    display: block;
+    height: 100%;
+  }
+
+  .deck-item-interaction.has-actions {
+    cursor: pointer;
   }
 
   .deck-spacer {

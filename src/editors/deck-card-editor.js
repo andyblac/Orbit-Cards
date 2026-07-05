@@ -17,6 +17,9 @@ import {
   getGroupedEditorState,
   renderGroupedEditorOptions,
 } from "../common/editor/helpers/group-options.js";
+import {
+  renderInteractionsSection,
+} from "../common/editor/helpers/renders.js";
 import { editorStyles } from "../common/editor/styles/editor-styles.js";
 import { actionEditorStyles } from "../common/editor/styles/action-editor.js";
 import { localize } from "../common/localize.js";
@@ -645,6 +648,51 @@ class OrbitDeckCardEditor extends LitElement {
     `;
   }
 
+  _renderDeckInteractions(index, item) {
+    const attributes = item?.attributes || {};
+    const tapDefault = getDeckChildActionDefault(item, "tap_action");
+    const holdDefault = getDeckChildActionDefault(item, "hold_action");
+    const doubleTapDefault = getDeckChildActionDefault(
+      item,
+      "double_tap_action"
+    );
+
+    return renderInteractionsSection.call(this, {
+      expanded: false,
+      config: attributes,
+      onChange: (changes) => this._updateDeckAttributes(index, changes),
+      interactions: [
+        {
+          key: "tap_action",
+          formKey: "tap_action",
+          label: "Tap behavior",
+          defaultAction: tapDefault,
+          defaultVisible: isVisibleDeckActionDefault(tapDefault),
+          displayDefaultValue: isVisibleDeckActionDefault(tapDefault),
+        },
+        {
+          key: "hold_action",
+          formKey: "hold_action",
+          label: "Hold behavior",
+          defaultAction: holdDefault,
+          defaultVisible: isVisibleDeckActionDefault(holdDefault),
+          displayDefaultValue: isVisibleDeckActionDefault(holdDefault),
+        },
+        {
+          key: "double_tap_action",
+          formKey: "double_tap_action",
+          label: "Double tap behavior",
+          defaultAction: doubleTapDefault,
+          defaultVisible: isVisibleDeckActionDefault(doubleTapDefault),
+          displayDefaultValue: isVisibleDeckActionDefault(doubleTapDefault),
+        },
+      ],
+      context: {
+        entity_id: attributes.entity || item?.card?.entity,
+      },
+    });
+  }
+
   async _ensureNativeCardPicker() {
     if (this._cardPickerLoadRequested) {
       return;
@@ -698,6 +746,10 @@ class OrbitDeckCardEditor extends LitElement {
 
               ${selectedItem
                 ? this._renderDeckStyleControls(selectedIndex, selectedItem)
+                : ""}
+
+              ${selectedItem
+                ? this._renderDeckInteractions(selectedIndex, selectedItem)
                 : ""}
 
               ${this._renderDeckCardSection(selectedIndex, selectedItem)}
@@ -913,4 +965,26 @@ function cleanObject(value = {}) {
 
     return result;
   }, {});
+}
+
+function getDeckChildActionDefault(item = {}, key) {
+  if (item?.card?.[key]?.action) {
+    return item.card[key];
+  }
+
+  if (key === "tap_action" && item?.card?.entity) {
+    return "more-info";
+  }
+
+  return "none";
+}
+
+function isVisibleDeckActionDefault(action) {
+  return getDeckActionName(action) !== "none";
+}
+
+function getDeckActionName(action) {
+  return typeof action === "string"
+    ? action
+    : action?.action || "none";
 }
