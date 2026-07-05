@@ -11,15 +11,15 @@ export function computeFullColor(colorInput) {
 }
 
 export function computeIconColor(colorInput) {
-  if (!colorInput) return "rgba(var(--color-theme), 0.4)";
+  if (!colorInput) return "rgba(var(--color-theme), 0.3)";
 
   const color = colorInput.toString().trim();
 
   if (color === "theme") {
-    return "rgba(var(--color-theme), 0.4)";
+    return "rgba(var(--color-theme), 0.3)";
   }
 
-  return getColorMix(color, 70);
+  return getColorMix(color, 50);
 }
 
 export function computeCircleColor(colorInput) {
