@@ -127,7 +127,8 @@ export function renderActionSection() {
         (value) =>
           this._updateActionItem(selectedIndex, {
             accent_color: value,
-          })
+          }),
+        this._config?.accent_color || "theme"
       )}
 
       ${renderActionItemIconSource.call(

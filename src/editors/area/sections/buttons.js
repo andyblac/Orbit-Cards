@@ -64,8 +64,8 @@ function renderButtonFields(index) {
       </div>
 
       <div class="color-pair">
-        ${this._renderColor(["Active", "Color"], `${key}_on_color`)}
-        ${this._renderColor(["Inactive", "Color"], `${key}_off_color`)}
+        ${this._renderColor(["Active", "Color"], `${key}_on_color`, "theme")}
+        ${this._renderColor(["Inactive", "Color"], `${key}_off_color`, "theme")}
       </div>
 
       ${renderIconSourceControl.call(this, {

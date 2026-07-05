@@ -19,10 +19,6 @@ export function computeIconColor(colorInput) {
     return "rgba(var(--color-theme), 0.4)";
   }
 
-  if (isCssColor(color)) {
-    return `color-mix(in srgb, transparent, ${color} 70%)`;
-  }
-
   return getColorMix(color, 70);
 }
 
@@ -30,10 +26,6 @@ export function computeCircleColor(colorInput) {
   if (!colorInput) return "rgba(var(--color-theme), 0.2)";
 
   const color = colorInput.toString().trim();
-
-  if (isCssColor(color)) {
-    return `color-mix(in srgb, transparent, ${color} 20%)`;
-  }
 
   if (color === "theme") {
     return "rgba(var(--color-theme), 0.05)";
@@ -46,10 +38,6 @@ export function computeButtonBackground(colorInput) {
   if (!colorInput) return "rgba(var(--color-theme), 0.25)";
 
   const color = colorInput.toString().trim();
-
-  if (isCssColor(color)) {
-    return `color-mix(in srgb, ${color} 25%, transparent)`;
-  }
 
   return getColorMix(color, 25);
 }
@@ -159,7 +147,12 @@ function hasCssVariable(name) {
 }
 
 export function getColorMix(colorInput, percent) {
-  return `color-mix(in srgb, transparent, ${getCssColor(colorInput)} ${percent}%)`;
+  const color = colorInput.toString().trim();
+  const cssColor = isCssColor(color)
+    ? color
+    : getCssColor(color);
+
+  return `color-mix(in srgb, transparent, ${cssColor} ${percent}%)`;
 }
 
 export function isCssColor(colorInput) {

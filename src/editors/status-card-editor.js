@@ -328,17 +328,18 @@ class OrbitStatusCardEditor extends LitElement {
     return renderNumberInput.call(this, label, key, options);
   }
 
-  _renderColor(label, key) {
-    return renderColor.call(this, label, key);
+  _renderColor(label, key, previewValue) {
+    return renderColor.call(this, label, key, previewValue);
   }
 
-  _renderColorControl(label, pickerKey, value, onUpdate) {
+  _renderColorControl(label, pickerKey, value, onUpdate, previewValue) {
     return renderColorControl.call(
       this,
       label,
       pickerKey,
       value,
-      onUpdate
+      onUpdate,
+      previewValue
     );
   }
 

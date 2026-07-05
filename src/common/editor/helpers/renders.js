@@ -134,7 +134,7 @@ const HOME_ASSISTANT_FIELD_LABELS = {
   ],
 };
 
-export function renderColor(label, key) {
+export function renderColor(label, key, previewValue) {
   const value = this._config?.[key] || "";
 
   return renderColorControl.call(
@@ -142,7 +142,8 @@ export function renderColor(label, key) {
     label,
     key,
     value,
-    (nextValue) => this._handleConfigUpdate(key, nextValue)
+    (nextValue) => this._handleConfigUpdate(key, nextValue),
+    previewValue
   );
 }
 
@@ -151,11 +152,16 @@ export function renderColorControl(
   pickerKey,
   value,
   onUpdate,
-  previewValue = value
+  previewValue
 ) {
   scheduleThemeColorWarmup.call(this);
 
-  const defaultTab = getDefaultColorTab(value);
+  const effectivePreviewValue = getEffectiveColorPreviewValue.call(
+    this,
+    value,
+    previewValue
+  );
+  const defaultTab = getDefaultColorTab(value || effectivePreviewValue);
   const activeTab =
     this._colorPickerKey === pickerKey
       ? this._colorPickerTab || defaultTab
@@ -176,6 +182,16 @@ export function renderColorControl(
                 this._colorPickerKey = pickerKey;
                 this._colorPickerTab = "picker";
                 this._themeColorPickerOpen = false;
+
+                const effectiveValue = value || effectivePreviewValue;
+
+                if (effectiveValue && !isNativeColorValue(effectiveValue)) {
+                  const nativeValue = this._getColorPickerValue(effectiveValue);
+
+                  if (nativeValue) {
+                    onUpdate(nativeValue);
+                  }
+                }
               }}
             >
               ${t(this, "Color")}
@@ -201,7 +217,7 @@ export function renderColorControl(
                   label,
                   value,
                   onUpdate,
-                  previewValue
+                  effectivePreviewValue
                 )}
               `
             : html`
@@ -210,7 +226,7 @@ export function renderColorControl(
                   label,
                   value,
                   onUpdate,
-                  previewValue
+                  effectivePreviewValue
                 )}
               `}
         </div>
@@ -219,14 +235,27 @@ export function renderColorControl(
   `;
 }
 
+function getEffectiveColorPreviewValue(value, previewValue) {
+  return (
+    previewValue ||
+    value ||
+    "theme"
+  );
+}
+
 function renderNativeColorPicker(label, value, onUpdate, previewValue = value) {
-  const hasConfiguredValue = Boolean(value);
+  const hasConfiguredValue = isNativeColorValue(value);
   const displayValue = hasConfiguredValue
     ? this._getColorPickerValue(value)
     : "";
   const inputValue =
     displayValue ||
-    this._getColorPickerValue(previewValue);
+    (
+      isNativeColorValue(value)
+        ? this._getColorPickerValue(value)
+        : this._getColorPickerValue(value || previewValue)
+    ) ||
+    "#000000";
 
   return html`
     <div
@@ -708,6 +737,9 @@ function getThemeColorLabel(color) {
   if (color === "theme") return t(this, "State color (default)");
   if (color === "light") return t(this, "State Light color");
   if (color === "primary-color") return t(this, "Primary");
+  if (color === "primary-text-color") return t(this, "Primary text color");
+  if (color === "card-background-color") return t(this, "Card background");
+  if (color === "secondary-background-color") return t(this, "Secondary background color");
   if (color === "accent-color") return t(this, "Accent");
 
   return color
@@ -784,13 +816,22 @@ function getDefaultColorTab(value) {
 
   if (!color) return "theme";
 
-  return (
-    color.startsWith("#") ||
-    color.startsWith("rgb") ||
-    color.startsWith("hsl")
-  )
+  return isNativeColorValue(color)
     ? "picker"
     : "theme";
+}
+
+function isNativeColorValue(value) {
+  const color = value?.toString().trim().toLowerCase();
+
+  return Boolean(
+    color &&
+    (
+      color.startsWith("#") ||
+      color.startsWith("rgb") ||
+      color.startsWith("hsl")
+    )
+  );
 }
 
 export function renderActionSelector(label, key, defaultAction) {
