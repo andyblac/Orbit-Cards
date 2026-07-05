@@ -37,6 +37,7 @@ Orbit Cards currently includes:
 - Tap, hold, navigation, service, popup, and Browser Mod actions.
 - Dynamic entity state updates scoped to only the entities used by each card.
 - Grouped compact layouts for Status Icon only and Action Card.
+- Deck Card layouts for wrapping any Lovelace cards into rows or showing them as tabs.
 
 ## Installation
 
