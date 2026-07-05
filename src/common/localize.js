@@ -199,6 +199,10 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Status: [
     "ui.panel.config.entities.picker.headers.status",
   ],
+  Style: [
+    "ui.panel.lovelace.editor.features.types.climate-preset-modes.style",
+    "ui.panel.lovelace.editor.features.types.numeric-input.style",
+  ],
   "Tap behavior": [
     "ui.panel.lovelace.editor.card.generic.tap_action",
   ],

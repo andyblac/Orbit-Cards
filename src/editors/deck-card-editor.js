@@ -35,6 +35,7 @@ class OrbitDeckCardEditor extends LitElement {
     _selectedDeckIndex: { state: true },
     _colorPickerKey: { state: true },
     _colorPickerTab: { state: true },
+    _cardSectionExpanded: { state: true },
   };
 
   constructor() {
@@ -44,6 +45,7 @@ class OrbitDeckCardEditor extends LitElement {
     this._selectedDeckIndex = 0;
     this._colorPickerKey = "";
     this._colorPickerTab = "picker";
+    this._cardSectionExpanded = true;
   }
 
   connectedCallback() {
@@ -86,11 +88,18 @@ class OrbitDeckCardEditor extends LitElement {
 
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
-        config: this._config,
+        config: this._getPreviewConfig(),
       },
       bubbles: true,
       composed: true,
     }));
+  }
+
+  _getPreviewConfig() {
+    return {
+      ...this._config,
+      [DECK_PREVIEW_SELECTED_INDEX]: this._selectedDeckIndex || 0,
+    };
   }
 
   _getDeckItems(config = this._config) {
@@ -111,7 +120,7 @@ class OrbitDeckCardEditor extends LitElement {
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
         config: {
-          ...this._config,
+          ...this._getPreviewConfig(),
           [DECK_PREVIEW_SELECTED_INDEX]: index,
         },
       },
@@ -501,19 +510,138 @@ class OrbitDeckCardEditor extends LitElement {
     `;
   }
 
-  _renderTabIconPicker(index, item) {
+  _renderDeckStyleControls(index, item) {
+    const attributes = item?.attributes || {};
+    const isTabs = this._config?.layout === "tabs";
+    const schemaFields = [
+      ...(isTabs
+        ? [
+            {
+              name: "",
+              type: "grid",
+              schema: [
+                {
+                  name: "tab_icon",
+                  selector: { icon: {} },
+                },
+                {
+                  name: "tab_name",
+                  selector: { text: {} },
+                },
+              ],
+            },
+          ]
+        : []),
+      ...(isTabs && this._config?.tab_width_mode === "user"
+        ? [
+            {
+              name: "tab_width",
+              selector: { text: {} },
+            },
+          ]
+        : []),
+      {
+        name: "padding_top",
+        selector: { text: {} },
+      },
+      {
+        name: "padding_right",
+        selector: { text: {} },
+      },
+      {
+        name: "padding_bottom",
+        selector: { text: {} },
+      },
+      {
+        name: "padding_left",
+        selector: { text: {} },
+      },
+    ];
+
+    const schema = [
+      {
+        name: "style",
+        type: "expandable",
+        flatten: true,
+        expanded: false,
+        icon: "mdi:palette",
+        schema: schemaFields,
+      },
+    ];
+    const data = {
+      tab_icon: attributes.icon || "",
+      tab_name: attributes.name || "",
+      tab_width: attributes.width || "",
+      padding_top: attributes.padding_top || "",
+      padding_right: attributes.padding_right || "",
+      padding_bottom: attributes.padding_bottom || "",
+      padding_left: attributes.padding_left || "",
+    };
+
     return html`
-      <div class="field deck-tab-icon-field">
-        <ha-icon-picker
-          .hass=${this.hass}
-          .label=${this._t("Tab icon")}
-          .value=${item.attributes?.icon || ""}
-          @value-changed=${(ev) =>
-            this._updateDeckAttributes(index, {
-              icon: ev.detail.value || undefined,
-            })}
-        ></ha-icon-picker>
-      </div>
+      <ha-form
+        class="deck-style-form"
+        .hass=${this.hass}
+        .data=${data}
+        .schema=${schema}
+        .computeLabel=${(item) => {
+          if (item.name === "style") return this._t("Style");
+          if (item.name === "tab_icon") return this._t("Tab icon");
+          if (item.name === "tab_name") return this._t("Tab name");
+          if (item.name === "tab_width") return this._t("Tab width");
+          if (item.name === "padding_top") return this._t("Top");
+          if (item.name === "padding_right") return this._t("Right");
+          if (item.name === "padding_bottom") return this._t("Bottom");
+          if (item.name === "padding_left") return this._t("Left");
+          return this._t(item.name);
+        }}
+        @value-changed=${(ev) => {
+          ev.stopPropagation();
+          const value = ev.detail.value || {};
+          const changes = {
+            padding_top: value.padding_top || undefined,
+            padding_right: value.padding_right || undefined,
+            padding_bottom: value.padding_bottom || undefined,
+            padding_left: value.padding_left || undefined,
+          };
+
+          if (isTabs) {
+            changes.icon = value.tab_icon || undefined;
+            changes.name = value.tab_name || undefined;
+
+            if (this._config?.tab_width_mode === "user") {
+              changes.width = value.tab_width || undefined;
+            }
+          }
+
+          this._updateDeckAttributes(index, changes);
+        }}
+      ></ha-form>
+    `;
+  }
+
+  _renderDeckCardSection(index, item) {
+    const expanded = this._cardSectionExpanded !== false;
+
+    return html`
+      <ha-expansion-panel
+        class="deck-card-section"
+        outlined
+        .expanded=${expanded}
+        @expanded-changed=${(ev) => {
+          this._cardSectionExpanded = ev.detail.expanded;
+        }}
+      >
+        <ha-icon slot="leading-icon" icon="mdi:cards-outline"></ha-icon>
+        <div slot="header" role="heading" aria-level="3">
+          ${this._t("Card")}
+        </div>
+        <div class="deck-card-section-content">
+          <div class="deck-card-editor-frame">
+            ${this._renderCardPicker(index, item)}
+          </div>
+        </div>
+      </ha-expansion-panel>
     `;
   }
 
@@ -558,18 +686,6 @@ class OrbitDeckCardEditor extends LitElement {
           ? html`
               ${selectedItem && this._config?.layout === "tabs"
                 ? html`
-                    <div class="field-grid two-columns">
-                      ${this._renderTabIconPicker(selectedIndex, selectedItem)}
-
-                      ${this._renderInput("Tab name", "tab_name", "", {
-                        value: selectedItem.attributes?.name || "",
-                        onValueChanged: (value) =>
-                          this._updateDeckAttributes(selectedIndex, {
-                            name: value || undefined,
-                          }),
-                      })}
-                    </div>
-
                     <label class="deck-default-toggle">
                       <span>${this._t("Default")}</span>
                       <ha-switch
@@ -577,23 +693,14 @@ class OrbitDeckCardEditor extends LitElement {
                         @change=${(ev) => this._setDefaultDeck(selectedIndex, ev.target.checked)}
                       ></ha-switch>
                     </label>
-
-                    ${this._config?.tab_width_mode === "user"
-                      ? this._renderInput("Tab width", "tab_width", "120px", {
-                          value: selectedItem.attributes?.width || "",
-                          onValueChanged: (value) =>
-                            this._updateDeckAttributes(selectedIndex, {
-                              width: value || undefined,
-                            }),
-                        })
-                      : ""}
                   `
                 : ""}
 
-              <div class="sub-section-title">${this._t("Card")}:</div>
-              <div class="deck-card-editor-frame">
-                ${this._renderCardPicker(selectedIndex, selectedItem)}
-              </div>
+              ${selectedItem
+                ? this._renderDeckStyleControls(selectedIndex, selectedItem)
+                : ""}
+
+              ${this._renderDeckCardSection(selectedIndex, selectedItem)}
             `
           : html`<div class="deck-empty-editor">${this._t("Add a card to start.")}</div>`}
       </div>
@@ -668,6 +775,11 @@ class OrbitDeckCardEditor extends LitElement {
         margin-top: 12px;
       }
 
+      .deck-style-form {
+        display: block;
+        margin: 14px 0 0;
+      }
+
       .deck-default-toggle {
         display: flex;
         align-items: center;
@@ -680,8 +792,20 @@ class OrbitDeckCardEditor extends LitElement {
         min-height: 160px;
       }
 
-      .deck-tab-icon-field ha-icon-picker {
-        width: 100%;
+      .deck-card-section {
+        display: block;
+        margin: 0 0 18px;
+        --expansion-panel-content-padding: 0;
+        border-radius: var(--ha-border-radius-md);
+        --ha-card-border-radius: var(--ha-border-radius-md);
+      }
+
+      .deck-card-section-content {
+        padding: 12px;
+      }
+
+      .deck-card-section ha-icon {
+        color: var(--secondary-text-color);
       }
 
       .deck-card-picker-loading {

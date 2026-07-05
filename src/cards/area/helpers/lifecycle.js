@@ -456,7 +456,7 @@ function getCurveButtonOverrideIconColor(key, stateObj, isOn) {
     customColor !== "theme";
 
   return hasCustomColor
-    ? getButtonIconColor.call(this, key, stateObj, isOn)
+    ? getCurveButtonCustomIconColor.call(this, key, stateObj, isOn, customColor)
     : getCurveButtonIconColor.call(this, key, stateObj, isOn);
 }
 
@@ -470,8 +470,18 @@ function getActionButtonIconColor(key, stateObj, isOn) {
     customColor !== "theme";
 
   return hasCustomColor
-    ? getButtonIconColor.call(this, key, stateObj, isOn)
+    ? getCurveButtonCustomIconColor.call(this, key, stateObj, isOn, customColor)
     : getCurveButtonIconColor.call(this, key, stateObj, isOn);
+}
+
+function getCurveButtonCustomIconColor(key, stateObj, isOn, customColor) {
+  if (isOn) {
+    return getButtonIconColor.call(this, key, stateObj, true);
+  }
+
+  if (customColor.startsWith("rgba(")) return customColor;
+
+  return getColorMix(customColor, 40);
 }
 
 function getMainEntityIconSource(config = {}, areaId, mainEntity) {

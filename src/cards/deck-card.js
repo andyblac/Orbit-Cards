@@ -91,6 +91,8 @@ class OrbitDeckCard extends LitElement {
         }
       });
     }
+
+    this._applyDeckPaddingToEntries();
   }
 
   _getColumnCount(count) {
@@ -109,6 +111,11 @@ class OrbitDeckCard extends LitElement {
     const buildKey = JSON.stringify(decks.map((item) => item.card || {}));
 
     if (buildKey === this._cardBuildKey) {
+      this._deckCards = this._deckCards.map((entry, index) => ({
+        ...entry,
+        item: decks[index],
+      }));
+      this._applyDeckPaddingToEntries();
       return;
     }
 
@@ -177,6 +184,36 @@ class OrbitDeckCard extends LitElement {
         <div>${entry?.error || "No card configured"}</div>
       </ha-card>
     `;
+  }
+
+  _applyDeckPaddingToEntries() {
+    this._deckCards.forEach((entry) => this._applyDeckCardPadding(entry));
+  }
+
+  _applyDeckCardPadding(entry) {
+    const element = entry?.element;
+
+    if (!element) return;
+
+    const padding = getDeckItemPadding(entry.item);
+    const waitForRender =
+      element.updateComplete instanceof Promise
+        ? element.updateComplete
+        : Promise.resolve();
+
+    waitForRender
+      .then(() => new Promise((resolve) => requestAnimationFrame(resolve)))
+      .then(() => {
+        const cardElement = getCardElement(element);
+
+        if (!cardElement) return;
+
+        setPaddingStyle(cardElement, "paddingTop", padding.top);
+        setPaddingStyle(cardElement, "paddingRight", padding.right);
+        setPaddingStyle(cardElement, "paddingBottom", padding.bottom);
+        setPaddingStyle(cardElement, "paddingLeft", padding.left);
+      })
+      .catch(() => {});
   }
 
   _renderWrap(decks) {
@@ -323,6 +360,45 @@ function renderRowSpacers(itemCount, columnCount) {
   return Array.from({ length: Math.max(0, columnCount - itemCount) }, () => html`
     <div class="deck-spacer"></div>
   `);
+}
+
+function getDeckItemPadding(item = {}) {
+  const attributes = item?.attributes || {};
+
+  return {
+    top: normalizePaddingValue(attributes.padding_top),
+    right: normalizePaddingValue(attributes.padding_right),
+    bottom: normalizePaddingValue(attributes.padding_bottom),
+    left: normalizePaddingValue(attributes.padding_left),
+  };
+}
+
+function normalizePaddingValue(value) {
+  if (value === undefined || value === null || value === "") {
+    return "";
+  }
+
+  const text = value.toString().trim();
+
+  if (!text) return "";
+  if (/^-?\d+(\.\d+)?$/.test(text)) return `${text}px`;
+
+  return text;
+}
+
+function getCardElement(element) {
+  if (element.localName === "ha-card") return element;
+
+  return element.shadowRoot?.querySelector("ha-card");
+}
+
+function setPaddingStyle(element, property, value) {
+  if (value) {
+    element.style[property] = value;
+    return;
+  }
+
+  element.style[property] = "";
 }
 
 registerOrbitCard({
