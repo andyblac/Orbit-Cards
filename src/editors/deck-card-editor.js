@@ -544,20 +544,31 @@ class OrbitDeckCardEditor extends LitElement {
           ]
         : []),
       {
-        name: "padding_top",
-        selector: { text: {} },
+        name: "force_padding",
+        selector: { boolean: {} },
       },
       {
-        name: "padding_right",
-        selector: { text: {} },
-      },
-      {
-        name: "padding_bottom",
-        selector: { text: {} },
-      },
-      {
-        name: "padding_left",
-        selector: { text: {} },
+        name: "",
+        type: "grid",
+        column_min_width: "80px",
+        schema: [
+          {
+            name: "padding_top",
+            selector: { text: {} },
+          },
+          {
+            name: "padding_bottom",
+            selector: { text: {} },
+          },
+          {
+            name: "padding_left",
+            selector: { text: {} },
+          },
+          {
+            name: "padding_right",
+            selector: { text: {} },
+          },
+        ],
       },
     ];
 
@@ -575,6 +586,7 @@ class OrbitDeckCardEditor extends LitElement {
       tab_icon: attributes.icon || "",
       tab_name: attributes.name || "",
       tab_width: attributes.width || "",
+      force_padding: attributes.force_padding === true,
       padding_top: attributes.padding_top || "",
       padding_right: attributes.padding_right || "",
       padding_bottom: attributes.padding_bottom || "",
@@ -592,6 +604,7 @@ class OrbitDeckCardEditor extends LitElement {
           if (item.name === "tab_icon") return this._t("Tab icon");
           if (item.name === "tab_name") return this._t("Tab name");
           if (item.name === "tab_width") return this._t("Tab width");
+          if (item.name === "force_padding") return this._t("Force padding");
           if (item.name === "padding_top") return this._t("Top");
           if (item.name === "padding_right") return this._t("Right");
           if (item.name === "padding_bottom") return this._t("Bottom");
@@ -602,6 +615,7 @@ class OrbitDeckCardEditor extends LitElement {
           ev.stopPropagation();
           const value = ev.detail.value || {};
           const changes = {
+            force_padding: value.force_padding ? true : undefined,
             padding_top: value.padding_top || undefined,
             padding_right: value.padding_right || undefined,
             padding_bottom: value.padding_bottom || undefined,

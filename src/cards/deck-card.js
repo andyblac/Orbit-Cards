@@ -7,6 +7,12 @@ import { registerOrbitCard } from "../common/helpers/card-registration.js";
 import { CARD_VERSIONS } from "../version.js";
 import { computeFullColor } from "../common/helpers/colors.js";
 import {
+  getDeckItemPadding,
+  isDeckItemPaddingForced,
+  shouldApplyDeckItemPadding,
+  shouldStripChildPaddingConfig,
+} from "../common/helpers/deck-padding.js";
+import {
   clearDoubleTapTimer,
   handleAction,
   handleDoubleTapAction,
@@ -43,6 +49,7 @@ class OrbitDeckCard extends LitElement {
     this._cardHelpers = null;
     this._cardBuildKey = "";
     this._defaultSelectionKey = "";
+    this._paddingApplyKey = "";
   }
 
   static getConfigElement() {
@@ -106,8 +113,10 @@ class OrbitDeckCard extends LitElement {
       });
     }
 
-    this._applyDeckPaddingToEntries();
-    this._bindDeckItemActionListeners();
+    if (changedProps.has("_deckCards") || changedProps.has("_config")) {
+      this._applyDeckPaddingToEntries();
+      this._bindDeckItemActionListeners();
+    }
   }
 
   _getColumnCount(count) {
@@ -133,7 +142,6 @@ class OrbitDeckCard extends LitElement {
         item: decks[index],
         index,
       }));
-      this._applyDeckPaddingToEntries();
       return;
     }
 
@@ -352,15 +360,21 @@ class OrbitDeckCard extends LitElement {
   }
 
   _applyDeckPaddingToEntries() {
+    const paddingApplyKey = getDeckPaddingApplyKey(this._deckCards);
+
+    if (paddingApplyKey === this._paddingApplyKey) return;
+
+    this._paddingApplyKey = paddingApplyKey;
     this._deckCards.forEach((entry) => this._applyDeckCardPadding(entry));
   }
 
-  _applyDeckCardPadding(entry) {
+  _applyDeckCardPadding(entry, attempt = 0) {
     const element = entry?.element;
 
     if (!element) return;
 
     const padding = getDeckItemPadding(entry.item);
+    const shouldApplyPadding = shouldApplyDeckItemPadding(entry.item);
     const waitForRender =
       element.updateComplete instanceof Promise
         ? element.updateComplete
@@ -370,13 +384,37 @@ class OrbitDeckCard extends LitElement {
       .then(() => new Promise((resolve) => requestAnimationFrame(resolve)))
       .then(() => {
         const cardElement = getCardElement(element);
+        const wrapperElement = getDeckItemWrapper(this.renderRoot, entry.index);
 
-        if (!cardElement) return;
+        if (!cardElement && !wrapperElement) return;
+        if (shouldApplyPadding && !cardElement && attempt < 10) {
+          window.setTimeout(
+            () => this._applyDeckCardPadding(entry, attempt + 1),
+            50
+          );
+        }
 
-        setPaddingStyle(cardElement, "paddingTop", padding.top);
-        setPaddingStyle(cardElement, "paddingRight", padding.right);
-        setPaddingStyle(cardElement, "paddingBottom", padding.bottom);
-        setPaddingStyle(cardElement, "paddingLeft", padding.left);
+        if (
+          !shouldApplyPadding &&
+          !cardElement?._orbitDeckPaddingApplied &&
+          !wrapperElement?._orbitDeckPaddingApplied
+        ) {
+          if (cardElement) disconnectDeckPaddingObserver(cardElement);
+          return;
+        }
+
+        if (wrapperElement) applyPaddingTarget(wrapperElement, padding, shouldApplyPadding);
+        if (cardElement) applyPaddingTarget(cardElement, padding, shouldApplyPadding);
+
+        if (shouldApplyPadding && cardElement) {
+          connectDeckPaddingObserver(cardElement, padding);
+          requestAnimationFrame(() => {
+            if (wrapperElement) applyPaddingTarget(wrapperElement, padding, true);
+            applyPaddingTarget(cardElement, padding, true);
+          });
+        } else {
+          if (cardElement) disconnectDeckPaddingObserver(cardElement);
+        }
       })
       .catch(() => {});
   }
@@ -505,7 +543,9 @@ function getDeckItemEntity(item = {}) {
 }
 
 function getDeckItemRenderCardConfig(item = {}) {
-  const card = item?.card || {};
+  const card = shouldStripChildPaddingConfig(item)
+    ? removeChildPaddingConfig(item?.card || {})
+    : item?.card || {};
 
   if (!hasDeckItemActions(item)) {
     return card;
@@ -519,6 +559,26 @@ function getDeckItemRenderCardConfig(item = {}) {
   } = card;
 
   return renderCard;
+}
+
+function removeChildPaddingConfig(value) {
+  if (Array.isArray(value)) {
+    return value.map((item) => removeChildPaddingConfig(item));
+  }
+
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+
+  return Object.entries(value).reduce((result, [key, itemValue]) => {
+    if (key.toLowerCase().includes("padding")) {
+      return result;
+    }
+
+    result[key] = removeChildPaddingConfig(itemValue);
+
+    return result;
+  }, {});
 }
 
 function getActionEntity(actionConfig) {
@@ -578,43 +638,106 @@ function renderRowSpacers(itemCount, columnCount) {
   `);
 }
 
-function getDeckItemPadding(item = {}) {
-  const attributes = item?.attributes || {};
+function getDeckPaddingApplyKey(entries = []) {
+  return entries.map((entry) => {
+    if (!entry?.element) {
+      return `${entry?.index ?? ""}:none`;
+    }
 
-  return {
-    top: normalizePaddingValue(attributes.padding_top),
-    right: normalizePaddingValue(attributes.padding_right),
-    bottom: normalizePaddingValue(attributes.padding_bottom),
-    left: normalizePaddingValue(attributes.padding_left),
-  };
+    const padding = getDeckItemPadding(entry.item);
+    const forcePadding = isDeckItemPaddingForced(entry.item);
+    const activePadding = shouldApplyDeckItemPadding(entry.item);
+
+    return [
+      entry.index,
+      entry.item?.card?.type || "",
+      forcePadding ? "force" : "child",
+      activePadding ? padding.top : "",
+      activePadding ? padding.right : "",
+      activePadding ? padding.bottom : "",
+      activePadding ? padding.left : "",
+    ].join(":");
+  }).join("|");
 }
 
-function normalizePaddingValue(value) {
-  if (value === undefined || value === null || value === "") {
-    return "";
-  }
-
-  const text = value.toString().trim();
-
-  if (!text) return "";
-  if (/^-?\d+(\.\d+)?$/.test(text)) return `${text}px`;
-
-  return text;
+function getDeckItemWrapper(root, index) {
+  return root?.querySelector?.(`.deck-item-interaction[data-deck-index="${index}"]`);
 }
 
 function getCardElement(element) {
   if (element.localName === "ha-card") return element;
 
-  return element.shadowRoot?.querySelector("ha-card");
+  return findCardElement(element.shadowRoot || element);
+}
+
+function findCardElement(root, seen = new WeakSet()) {
+  if (!root || seen.has(root)) return null;
+
+  seen.add(root);
+
+  if (root.localName === "ha-card") return root;
+
+  const direct = root.querySelector?.("ha-card");
+
+  if (direct) return direct;
+
+  const children = root.querySelectorAll?.("*") || [];
+
+  for (const child of children) {
+    const found = findCardElement(child.shadowRoot || child, seen);
+
+    if (found) return found;
+  }
+
+  return null;
+}
+
+function applyPaddingTarget(element, padding, applied) {
+  applyPaddingStyles(element, padding);
+  element._orbitDeckPaddingApplied = applied;
+}
+
+function applyPaddingStyles(element, padding) {
+  setPaddingStyle(element, "padding-top", padding.top);
+  setPaddingStyle(element, "padding-right", padding.right);
+  setPaddingStyle(element, "padding-bottom", padding.bottom);
+  setPaddingStyle(element, "padding-left", padding.left);
 }
 
 function setPaddingStyle(element, property, value) {
   if (value) {
-    element.style[property] = value;
-    return;
+    if (
+      element.style.getPropertyValue(property) !== value ||
+      element.style.getPropertyPriority(property) !== "important"
+    ) {
+      element.style.setProperty(property, value, "important");
+    }
+  } else {
+    element.style.removeProperty(property);
   }
+}
 
-  element.style[property] = "";
+function connectDeckPaddingObserver(element, padding) {
+  element._orbitDeckPadding = padding;
+
+  if (element._orbitDeckPaddingObserver) return;
+
+  element._orbitDeckPaddingObserver = new MutationObserver(() => {
+    if (!element._orbitDeckPadding) return;
+
+    applyPaddingStyles(element, element._orbitDeckPadding);
+  });
+
+  element._orbitDeckPaddingObserver.observe(element, {
+    attributes: true,
+    attributeFilter: ["style"],
+  });
+}
+
+function disconnectDeckPaddingObserver(element) {
+  element._orbitDeckPadding = null;
+  element._orbitDeckPaddingObserver?.disconnect();
+  element._orbitDeckPaddingObserver = null;
 }
 
 registerOrbitCard({
