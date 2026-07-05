@@ -696,9 +696,9 @@ function ot(e) {
 	return gt(t) ? t : ut(t);
 }
 function st(e) {
-	if (!e) return "rgba(var(--color-theme), 0.3)";
+	if (!e) return "rgba(var(--color-theme), 0.4)";
 	let t = e.toString().trim();
-	return t === "theme" ? "rgba(var(--color-theme), 0.3)" : L(t, 50);
+	return t === "theme" ? "rgba(var(--color-theme), 0.4)" : L(t, 70);
 }
 function ct(e) {
 	if (!e) return "rgba(var(--color-theme), 0.2)";
