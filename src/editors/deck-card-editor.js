@@ -816,6 +816,9 @@ class OrbitDeckCardEditor extends LitElement {
       }
 
       .deck-layout-toggle {
+        display: flex;
+        justify-content: flex-end;
+        margin-left: auto;
         width: auto;
         min-width: 180px;
         margin-bottom: 6px;
