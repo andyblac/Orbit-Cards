@@ -103,7 +103,7 @@ export const deckCardStyles = css`
     flex: 0 0 auto;
   }
 
-  .deck-card.tabs.tab-width-user .deck-tab {
+  .deck-card.tabs.tab-width-custom .deck-tab {
     flex: 0 0 var(--orbit-deck-tab-width, 120px);
     min-width: var(--orbit-deck-tab-width, 120px);
   }

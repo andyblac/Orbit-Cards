@@ -465,7 +465,7 @@ class OrbitDeckCard extends LitElement {
               class="deck-tab ${index === selectedIndex ? "active" : ""}"
               role="tab"
               aria-selected=${index === selectedIndex ? "true" : "false"}
-              style=${tabWidthMode === "user"
+              style=${tabWidthMode === "custom"
                 ? `--orbit-deck-tab-width:${item.attributes?.width || "120px"};`
                 : ""}
               @click=${() => this._selectTab(index)}
@@ -473,7 +473,7 @@ class OrbitDeckCard extends LitElement {
               ${item.attributes?.icon
                 ? html`<ha-icon .icon=${item.attributes.icon}></ha-icon>`
                 : ""}
-              <span>${item.attributes?.name || `Card ${index + 1}`}</span>
+              <span>${item.attributes?.name || item.attributes?.label || `Card ${index + 1}`}</span>
             </button>
           `)}
         </div>
@@ -599,9 +599,9 @@ function getDefaultSelectionKey(decks = []) {
 }
 
 function getTabWidthMode(config = {}) {
-  return ["equal", "dynamic", "user"].includes(config?.tab_width_mode)
+  return ["equal", "dynamic", "custom"].includes(config?.tab_width_mode)
     ? config.tab_width_mode
-    : "dynamic";
+    : "equal";
 }
 
 function getTabStyleVariables(config = {}) {

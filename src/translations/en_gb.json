@@ -49,12 +49,8 @@
   "Left": "Left",
   "Primary text color": "Primary text colour",
   "Secondary background color": "Secondary background colour",
-  "Active tab color": "Active tab colour",
-  "Tab background color": "Tab background colour",
-  "Tab color": "Tab colour",
+  "Background": "Background",
   "Tab font size": "Tab font size",
-  "Tab icon": "Tab icon",
-  "Tab name": "Tab name",
   "Tab width": "Tab width",
   "Tabs": "Tabs",
   "Tracker entity": "Tracker entity"

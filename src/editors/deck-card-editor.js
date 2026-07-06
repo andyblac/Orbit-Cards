@@ -38,6 +38,7 @@ class OrbitDeckCardEditor extends LitElement {
     _selectedDeckIndex: { state: true },
     _colorPickerKey: { state: true },
     _colorPickerTab: { state: true },
+    _styleSectionExpanded: { state: true },
     _cardSectionExpanded: { state: true },
   };
 
@@ -48,6 +49,7 @@ class OrbitDeckCardEditor extends LitElement {
     this._selectedDeckIndex = 0;
     this._colorPickerKey = "";
     this._colorPickerTab = "picker";
+    this._styleSectionExpanded = false;
     this._cardSectionExpanded = true;
   }
 
@@ -62,14 +64,20 @@ class OrbitDeckCardEditor extends LitElement {
   }
 
   setConfig(config) {
+    const normalized = normalizeDeckAttributeLabels(config || {});
+
     this._config = {
-      ...(config || {}),
+      ...normalized.config,
       layout: config?.layout === "tabs" ? "tabs" : "wrap",
     };
     this._selectedDeckIndex = Math.min(
       this._selectedDeckIndex || 0,
       Math.max(0, this._getDeckItems().length - 1)
     );
+
+    if (normalized.changed) {
+      queueMicrotask(() => this._dispatchConfigChanged());
+    }
   }
 
   _t(key, replacements) {
@@ -89,6 +97,10 @@ class OrbitDeckCardEditor extends LitElement {
       mergeConfig(this._config, changes)
     );
 
+    this._dispatchConfigChanged();
+  }
+
+  _dispatchConfigChanged() {
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
         config: this._getPreviewConfig(),
@@ -293,7 +305,7 @@ class OrbitDeckCardEditor extends LitElement {
     const items = this._getDeckItems();
 
     return html`
-      <div class="section">
+      <div class="section deck-card-tab-section">
         ${this._config?.layout === "wrap"
           ? renderGroupedEditorOptions.call(this, {
               itemCount: items.length,
@@ -315,21 +327,21 @@ class OrbitDeckCardEditor extends LitElement {
               })}
               <div class="field-grid two-columns deck-tab-colors">
                 ${this._renderColorControl(
-                  "Tab color",
+                  ["Inactive", "Color"],
                   "tab_color",
                   this._config?.tab_color || "",
                   (value) => this._updateConfig({ tab_color: value || undefined }),
                   "primary-text-color"
                 )}
                 ${this._renderColorControl(
-                  "Active tab color",
+                  ["Active", "Color"],
                   "tab_active_color",
                   this._config?.tab_active_color || "",
                   (value) => this._updateConfig({ tab_active_color: value || undefined }),
                   "primary-color"
                 )}
                 ${this._renderColorControl(
-                  "Tab background color",
+                  ["Background", "Color"],
                   "tab_background_color",
                   this._config?.tab_background_color || "",
                   (value) => this._updateConfig({ tab_background_color: value || undefined }),
@@ -362,16 +374,16 @@ class OrbitDeckCardEditor extends LitElement {
                     value: "dynamic",
                   },
                   {
-                    label: this._t("User"),
-                    value: "user",
+                    label: this._t("Custom"),
+                    value: "custom",
                   },
                 ],
               },
             }}
-            .value=${this._config?.tab_width_mode || "dynamic"}
+            .value=${this._config?.tab_width_mode || "equal"}
             @value-changed=${(e) =>
               this._updateConfig({
-                tab_width_mode: e.detail.value || "dynamic",
+                tab_width_mode: e.detail.value || "equal",
               })}
           ></ha-selector>
         </div>
@@ -516,124 +528,104 @@ class OrbitDeckCardEditor extends LitElement {
   _renderDeckStyleControls(index, item) {
     const attributes = item?.attributes || {};
     const isTabs = this._config?.layout === "tabs";
-    const schemaFields = [
-      ...(isTabs
-        ? [
-            {
-              name: "",
-              type: "grid",
-              schema: [
-                {
-                  name: "tab_icon",
-                  selector: { icon: {} },
-                },
-                {
-                  name: "tab_name",
-                  selector: { text: {} },
-                },
-              ],
-            },
-          ]
-        : []),
-      ...(isTabs && this._config?.tab_width_mode === "user"
-        ? [
-            {
-              name: "tab_width",
-              selector: { text: {} },
-            },
-          ]
-        : []),
-      {
-        name: "force_padding",
-        selector: { boolean: {} },
-      },
-      {
-        name: "",
-        type: "grid",
-        column_min_width: "80px",
-        schema: [
-          {
-            name: "padding_top",
-            selector: { text: {} },
-          },
-          {
-            name: "padding_bottom",
-            selector: { text: {} },
-          },
-          {
-            name: "padding_left",
-            selector: { text: {} },
-          },
-          {
-            name: "padding_right",
-            selector: { text: {} },
-          },
-        ],
-      },
-    ];
-
-    const schema = [
-      {
-        name: "style",
-        type: "expandable",
-        flatten: true,
-        expanded: false,
-        icon: "mdi:palette",
-        schema: schemaFields,
-      },
-    ];
-    const data = {
-      tab_icon: attributes.icon || "",
-      tab_name: attributes.name || "",
-      tab_width: attributes.width || "",
-      force_padding: attributes.force_padding === true,
-      padding_top: attributes.padding_top || "",
-      padding_right: attributes.padding_right || "",
-      padding_bottom: attributes.padding_bottom || "",
-      padding_left: attributes.padding_left || "",
-    };
+    const expanded = this._styleSectionExpanded === true;
 
     return html`
-      <ha-form
-        class="deck-style-form"
+      <ha-expansion-panel
+        class="deck-card-section deck-style-section"
+        outlined
+        .expanded=${expanded}
+        @expanded-changed=${(ev) => {
+          this._styleSectionExpanded = ev.detail.expanded;
+        }}
+      >
+        <ha-icon slot="leading-icon" icon="mdi:palette"></ha-icon>
+        <div slot="header" role="heading" aria-level="3">
+          ${this._t("Style")}
+        </div>
+        <div class="deck-card-section-content deck-style-content">
+          ${isTabs
+            ? html`
+                <div class="field-grid two-columns">
+                  ${this._renderAttributeSelector(index, {
+                    label: "Icon",
+                    selector: { icon: {} },
+                    value: attributes.icon || "",
+                    changeKey: "icon",
+                  })}
+                  ${this._renderAttributeSelector(index, {
+                    label: "Name",
+                    selector: { text: {} },
+                    value: attributes.name || attributes.label || "",
+                    changeKey: "name",
+                  })}
+                </div>
+              `
+            : ""}
+
+          ${isTabs && this._config?.tab_width_mode === "custom"
+            ? this._renderAttributeSelector(index, {
+                label: "Tab width",
+                selector: { text: {} },
+                value: attributes.width || "",
+                changeKey: "width",
+              })
+            : ""}
+
+          <label class="deck-force-padding-row">
+            <span>${this._t("Force padding")}</span>
+            <ha-switch
+              .checked=${attributes.force_padding === true}
+              @change=${(ev) =>
+                this._updateDeckAttributes(index, {
+                  force_padding: ev.target.checked ? true : undefined,
+                })}
+            ></ha-switch>
+          </label>
+
+          <div class="field-grid four-columns deck-padding-grid">
+            ${this._renderAttributeSelector(index, {
+              label: "Top",
+              selector: { text: {} },
+              value: attributes.padding_top || "",
+              changeKey: "padding_top",
+            })}
+            ${this._renderAttributeSelector(index, {
+              label: "Bottom",
+              selector: { text: {} },
+              value: attributes.padding_bottom || "",
+              changeKey: "padding_bottom",
+            })}
+            ${this._renderAttributeSelector(index, {
+              label: "Left",
+              selector: { text: {} },
+              value: attributes.padding_left || "",
+              changeKey: "padding_left",
+            })}
+            ${this._renderAttributeSelector(index, {
+              label: "Right",
+              selector: { text: {} },
+              value: attributes.padding_right || "",
+              changeKey: "padding_right",
+            })}
+          </div>
+        </div>
+      </ha-expansion-panel>
+    `;
+  }
+
+  _renderAttributeSelector(index, { label, selector, value, changeKey }) {
+    return html`
+      <ha-selector
         .hass=${this.hass}
-        .data=${data}
-        .schema=${schema}
-        .computeLabel=${(item) => {
-          if (item.name === "style") return this._t("Style");
-          if (item.name === "tab_icon") return this._t("Tab icon");
-          if (item.name === "tab_name") return this._t("Tab name");
-          if (item.name === "tab_width") return this._t("Tab width");
-          if (item.name === "force_padding") return this._t("Force padding");
-          if (item.name === "padding_top") return this._t("Top");
-          if (item.name === "padding_right") return this._t("Right");
-          if (item.name === "padding_bottom") return this._t("Bottom");
-          if (item.name === "padding_left") return this._t("Left");
-          return this._t(item.name);
-        }}
-        @value-changed=${(ev) => {
-          ev.stopPropagation();
-          const value = ev.detail.value || {};
-          const changes = {
-            force_padding: value.force_padding ? true : undefined,
-            padding_top: value.padding_top || undefined,
-            padding_right: value.padding_right || undefined,
-            padding_bottom: value.padding_bottom || undefined,
-            padding_left: value.padding_left || undefined,
-          };
-
-          if (isTabs) {
-            changes.icon = value.tab_icon || undefined;
-            changes.name = value.tab_name || undefined;
-
-            if (this._config?.tab_width_mode === "user") {
-              changes.width = value.tab_width || undefined;
-            }
-          }
-
-          this._updateDeckAttributes(index, changes);
-        }}
-      ></ha-form>
+        .label=${this._t(label)}
+        .selector=${selector}
+        .value=${value}
+        @value-changed=${(ev) =>
+          this._updateDeckAttributes(index, {
+            [changeKey]: ev.detail.value || undefined,
+          })}
+      ></ha-selector>
     `;
   }
 
@@ -763,7 +755,11 @@ class OrbitDeckCardEditor extends LitElement {
                 : ""}
 
               ${selectedItem
-                ? this._renderDeckInteractions(selectedIndex, selectedItem)
+                ? html`
+                    <div class="deck-interactions-section">
+                      ${this._renderDeckInteractions(selectedIndex, selectedItem)}
+                    </div>
+                  `
                 : ""}
 
               ${this._renderDeckCardSection(selectedIndex, selectedItem)}
@@ -837,13 +833,54 @@ class OrbitDeckCardEditor extends LitElement {
         margin-bottom: 12px;
       }
 
+      .field-grid.four-columns {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+      }
+
       .deck-tab-colors {
         margin-top: 12px;
       }
 
-      .deck-style-form {
-        display: block;
-        margin: 14px 0 0;
+      .deck-card-tab-section {
+        gap: 4px;
+      }
+
+      .deck-style-section {
+        margin-top: 4px;
+      }
+
+      .deck-style-content {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding-bottom: 0;
+      }
+
+      .deck-style-content .field-grid.two-columns {
+        margin-bottom: 0;
+      }
+
+      .deck-force-padding-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 36px;
+        margin: 0;
+        font-size: var(--ha-font-size-m, 14px);
+        font-weight: var(--ha-font-weight-normal, 400);
+        line-height: var(--ha-line-height-normal, 20px);
+      }
+
+      .deck-padding-grid {
+        margin-top: -4px;
+        margin-bottom: -26px;
+      }
+
+      .deck-interactions-section .interactions-form {
+        margin-top: 0;
       }
 
       .deck-default-toggle {
@@ -860,7 +897,7 @@ class OrbitDeckCardEditor extends LitElement {
 
       .deck-card-section {
         display: block;
-        margin: 0 0 18px;
+        margin: 0;
         --expansion-panel-content-padding: 0;
         border-radius: var(--ha-border-radius-md);
         --ha-card-border-radius: var(--ha-border-radius-md);
@@ -939,6 +976,45 @@ function orderDeckConfig(config) {
   });
 
   return ordered;
+}
+
+function normalizeDeckAttributeLabels(config) {
+  if (!Array.isArray(config?.decks)) {
+    return { config, changed: false };
+  }
+
+  let changed = false;
+  const decks = config.decks.map((item) => {
+    const attributes = item?.attributes || {};
+
+    if (!Object.prototype.hasOwnProperty.call(attributes, "label")) {
+      return item;
+    }
+
+    changed = true;
+    const {
+      label,
+      ...restAttributes
+    } = attributes;
+
+    return {
+      ...item,
+      attributes: {
+        ...restAttributes,
+        name: attributes.name || label,
+      },
+    };
+  });
+
+  return changed
+    ? {
+        config: {
+          ...config,
+          decks,
+        },
+        changed,
+      }
+    : { config, changed };
 }
 
 function orderDeckItem(item) {

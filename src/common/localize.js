@@ -72,6 +72,10 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.components.entity.entity-name-picker.types.area",
     "ui.components.area-picker.area",
   ],
+  Background: [
+    "ui.panel.lovelace.editor.card.tile.background",
+    "ui.panel.lovelace.editor.card.generic.background",
+  ],
   Color: [
     "ui.panel.lovelace.editor.card.tile.color",
     "ui.dialogs.label-detail.color",
@@ -209,9 +213,6 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Theme: [
     "ui.components.selectors.selector.types.theme",
     "ui.components.theme-picker.theme",
-  ],
-  User: [
-    "ui.panel.config.users.caption",
   ],
   Wrap: [
     "ui.panel.lovelace.editor.edit_view_header.settings.badges_wrap_options.wrap",
