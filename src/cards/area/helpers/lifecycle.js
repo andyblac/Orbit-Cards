@@ -1,6 +1,5 @@
 import {
   getColorMix,
-  isCssColor,
 } from "../../../common/helpers/colors.js";
 import { getDefaultEntityAction } from "../../../common/helpers/default-actions.js";
 
@@ -398,10 +397,6 @@ function getButtonBackgroundColor(key, stateObj, isOn) {
   const offColor =
     this._config[`${key}_off_color`] || "theme";
 
-  if (isCssColor(offColor)) {
-    return `color-mix(in srgb, transparent, ${offColor} 90%)`;
-  }
-
   if (!offColor || offColor === "theme") {
     return "rgba(var(--color-theme),0.05)";
   }
@@ -421,11 +416,7 @@ function getButtonIconColor(key, stateObj, isOn) {
 
   if (offColor.startsWith("rgba(")) return offColor;
 
-  if (isCssColor(offColor)) {
-    return `color-mix(in srgb, transparent, ${offColor} 80%)`;
-  }
-
-  return getColorMix(offColor, 20);
+  return this._computeIconColor(offColor);
 }
 
 function getResolvedButtonOnColor(key, stateObj) {
@@ -450,12 +441,6 @@ function getCurveButtonIconColor(_key, _stateObj, isOn) {
       : "rgba(var(--color-theme),0.2)";
   }
 
-  if (isCssColor(areaColor)) {
-    return isOn
-      ? areaColor
-      : `color-mix(in srgb, ${areaColor} 40%, transparent)`;
-  }
-
   return isOn
     ? this._computeFullColor(areaColor)
     : getColorMix(areaColor, 40);
@@ -471,7 +456,7 @@ function getCurveButtonOverrideIconColor(key, stateObj, isOn) {
     customColor !== "theme";
 
   return hasCustomColor
-    ? getButtonIconColor.call(this, key, stateObj, isOn)
+    ? getCurveButtonCustomIconColor.call(this, key, stateObj, isOn, customColor)
     : getCurveButtonIconColor.call(this, key, stateObj, isOn);
 }
 
@@ -485,8 +470,18 @@ function getActionButtonIconColor(key, stateObj, isOn) {
     customColor !== "theme";
 
   return hasCustomColor
-    ? getButtonIconColor.call(this, key, stateObj, isOn)
+    ? getCurveButtonCustomIconColor.call(this, key, stateObj, isOn, customColor)
     : getCurveButtonIconColor.call(this, key, stateObj, isOn);
+}
+
+function getCurveButtonCustomIconColor(key, stateObj, isOn, customColor) {
+  if (isOn) {
+    return getButtonIconColor.call(this, key, stateObj, true);
+  }
+
+  if (customColor.startsWith("rgba(")) return customColor;
+
+  return getColorMix(customColor, 40);
 }
 
 function getMainEntityIconSource(config = {}, areaId, mainEntity) {

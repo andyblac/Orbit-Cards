@@ -1,6 +1,10 @@
 import { html } from "lit";
 import { renderEntitySelector } from "../../../common/editor/helpers/renders.js";
 import { renderIconSourceControl } from "../../../common/editor/helpers/icon.js";
+import {
+  getGroupedEditorState,
+  renderGroupedEditorOptions,
+} from "../../../common/editor/helpers/group-options.js";
 
 export function renderActionSection() {
   const items = this._getActionItems();
@@ -10,68 +14,26 @@ export function renderActionSection() {
   );
   const selectedItem = items[selectedIndex] || {};
   const domainFilter = this._actionEntityDomainFilter || "all";
-  const actionsPerRow = Math.max(
-    1,
-    Number(this._config?.actions_per_row) || 3
-  );
-  const shouldWrapTabs =
-    Boolean(this._config?.wrap) &&
-    items.length > actionsPerRow;
-  const showTabScrollHint =
-    (!shouldWrapTabs && items.length > 6) ||
-    (shouldWrapTabs && actionsPerRow > 6);
+  const {
+    itemsPerRow: actionsPerRow,
+    shouldWrapTabs,
+    showTabScrollHint,
+  } = getGroupedEditorState({
+    config: this._config,
+    itemCount: items.length,
+    perRowKey: "actions_per_row",
+    defaultPerRow: 3,
+  });
 
   return html`
     <div class="section">
-      <div class="action-group-options">
-        <label class="action-wrap-toggle">
-          <span>${this._t("Wrap")}</span>
-          <ha-switch
-            .checked=${!!this._config?.wrap}
-            @change=${(e) =>
-              this._updateConfig({
-                wrap: e.target.checked,
-                actions_per_row: e.target.checked
-                  ? this._config?.actions_per_row || 3
-                  : this._config?.actions_per_row,
-              })}
-          ></ha-switch>
-        </label>
-
-        ${items.length > 1
-          ? html`
-              <label class="action-wrap-toggle">
-                <span>${this._t("Separate cards")}</span>
-                <ha-switch
-                  .checked=${!!this._config?.separate_cards}
-                  @change=${(e) =>
-                    this._updateConfig({
-                      separate_cards: e.target.checked,
-                    })}
-                ></ha-switch>
-              </label>
-            `
-          : ""}
-
-      ${this._config?.wrap
-        ? html`
-            <div class="action-per-row-field">
-              ${this._renderNumberInput("Actions per row", "actions_per_row", {
-                value: this._config?.actions_per_row || 3,
-                min: 1,
-                step: 1,
-                onValueChanged: (value) =>
-                  this._updateConfig({
-                    actions_per_row: Math.max(
-                      1,
-                      Number(value) || 1
-                    ),
-                  }),
-              })}
-            </div>
-          `
-        : ""}
-      </div>
+      ${renderGroupedEditorOptions.call(this, {
+        itemCount: items.length,
+        classPrefix: "action",
+        perRowKey: "actions_per_row",
+        perRowLabel: "Actions per row",
+        defaultPerRow: 3,
+      })}
 
       <div
         class="action-tabs ${shouldWrapTabs ? "wrapped" : ""} ${showTabScrollHint ? "scroll-hint" : ""} ${items.length > 1 ? "has-tools" : ""}"
@@ -165,7 +127,8 @@ export function renderActionSection() {
         (value) =>
           this._updateActionItem(selectedIndex, {
             accent_color: value,
-          })
+          }),
+        this._config?.accent_color || "theme"
       )}
 
       ${renderActionItemIconSource.call(

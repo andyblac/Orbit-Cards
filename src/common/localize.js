@@ -72,6 +72,10 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.components.entity.entity-name-picker.types.area",
     "ui.components.area-picker.area",
   ],
+  Background: [
+    "ui.panel.lovelace.editor.card.tile.background",
+    "ui.panel.lovelace.editor.card.generic.background",
+  ],
   Color: [
     "ui.panel.lovelace.editor.card.tile.color",
     "ui.dialogs.label-detail.color",
@@ -95,9 +99,18 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.dialogs.entity_registry.editor.disabled_label",
     "ui.panel.config.entities.picker.status.disabled",
   ],
+  Default: [
+    "ui.common.default",
+  ],
+  Duplicate: [
+    "ui.common.duplicate",
+  ],
   Enabled: [
     "ui.dialogs.entity_registry.editor.enabled_label",
     "ui.panel.config.entities.picker.status.enabled",
+  ],
+  Equal: [
+    "ui.components.selectors.select.options.equal",
   ],
   Icon: [
     "ui.components.selectors.selector.types.icon",
@@ -189,6 +202,10 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   ],
   Status: [
     "ui.panel.config.entities.picker.headers.status",
+  ],
+  Style: [
+    "ui.panel.lovelace.editor.features.types.climate-preset-modes.style",
+    "ui.panel.lovelace.editor.features.types.numeric-input.style",
   ],
   "Tap behavior": [
     "ui.panel.lovelace.editor.card.generic.tap_action",

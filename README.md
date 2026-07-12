@@ -22,6 +22,7 @@ Orbit Cards currently includes:
 | Area Card   | `custom:orbit-area-card`   | An area overview card with a main entity, area navigation, status entities, side buttons, and curved quick actions. |
 | Status Card | `custom:orbit-status-card` | A status summary card with Standard, Icon only, grouped Icon only, and Person modes.                               |
 | Action Card | `custom:orbit-action-card` | A compact action card for scenes, scripts, automations, and grouped action shortcuts.                              |
+| Deck Card   | `custom:orbit-deck-card`   | A generic container for Lovelace cards, with wrap and tab layouts.                                                 |
 
 <img title="" src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/Dev/images/Area-Card.png" alt="" width="252"><img title="" src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/Dev/images/Status-Action-Cards.png" alt="" width="361">
 
@@ -36,6 +37,7 @@ Orbit Cards currently includes:
 - Tap, hold, navigation, service, popup, and Browser Mod actions.
 - Dynamic entity state updates scoped to only the entities used by each card.
 - Grouped compact layouts for Status Icon only and Action Card.
+- Deck Card layouts for wrapping any Lovelace cards into rows or showing them as tabs.
 
 ## Installation
 

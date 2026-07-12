@@ -281,8 +281,8 @@ class OrbitAreaCardEditor extends LitElement {
     this._updateConfig({[key]: value});
   }
 
-  _renderColor(label, key) {
-    return renderColor.call(this, label, key);
+  _renderColor(label, key, previewValue) {
+    return renderColor.call(this, label, key, previewValue);
   }
 
   _renderColorControl(label, pickerKey, value, onUpdate, previewValue = value) {
