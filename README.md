@@ -15,16 +15,39 @@ Orbit Cards is a collection of modern Home Assistant dashboard cards with a shar
 
 ## Cards
 
-Orbit Cards currently includes:
-
-| Card        | Type                       | Purpose                                                                                                            |
-| ----------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Area Card   | `custom:orbit-area-card`   | An area overview card with a main entity, area navigation, status entities, side buttons, and curved quick actions. |
-| Status Card | `custom:orbit-status-card` | A status summary card with Standard, Icon only, grouped Icon only, and Person modes.                               |
-| Action Card | `custom:orbit-action-card` | A compact action card for scenes, scripts, automations, and grouped action shortcuts.                              |
-| Deck Card   | `custom:orbit-deck-card`   | A generic container for Lovelace cards, with wrap and tab layouts.                                                 |
-
-<img title="" src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/Dev/images/Area-Card.png" alt="" width="252"><img title="" src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/Dev/images/Status-Action-Cards.png" alt="" width="361">
+<table>
+  <tr>
+    <td width="50%" valign="top" align="center">
+      <h3>Area Card</h3>
+      <p><code>custom:orbit-area-card</code></p>
+      <img src="images/area-card-light.png" alt="Orbit Area Card" width="300">
+      <p align="left">An area overview with status text, a main entity, side buttons, curved quick actions, and navigation.</p>
+    </td>
+    <td width="50%" valign="top" align="center">
+      <h3>Status Card</h3>
+      <p><code>custom:orbit-status-card</code></p>
+      <img src="images/status-card-modes-light.png" alt="Orbit Status Card modes" width="380">
+      <p align="left">Visual entity summaries in Standard, Person, Icon only, and compact grouped Icon only modes.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top" align="center">
+      <h3>Action Card</h3>
+      <p><code>custom:orbit-action-card</code></p>
+      <img src="images/action-card-grouped-light.png" alt="Orbit Action Card group" width="380">
+      <p align="left">Compact controls for scenes, scripts, automations, buttons, cameras, and grouped shortcuts.</p>
+    </td>
+    <td width="50%" valign="top" align="center">
+      <h3>Deck Card</h3>
+      <p><code>custom:orbit-deck-card</code></p>
+      <p><strong>Wrap</strong></p>
+      <img src="images/deck-card-wrap-light.png" alt="Orbit Deck Card wrap layout" width="420">
+      <p><strong>Tabs</strong></p>
+      <img src="images/deck-card-tabs-home-light.png" alt="Orbit Deck Card tabs layout" width="360">
+      <p align="left">A generic container that arranges any Lovelace cards in a shared wrap layout or switches between them with tabs.</p>
+    </td>
+  </tr>
+</table>
 
 ## Features
 
