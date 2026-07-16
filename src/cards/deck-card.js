@@ -132,7 +132,9 @@ class OrbitDeckCard extends LitElement {
     }
 
     if (this._config?.layout === "overlay") {
-      this._scheduleOverlayGeometrySync();
+      if (changedProps.has("_deckCards") || changedProps.has("_config")) {
+        this._scheduleOverlayGeometrySync();
+      }
     } else {
       this._clearOverlayGeometryObserver();
     }
@@ -176,17 +178,9 @@ class OrbitDeckCard extends LitElement {
 
       const isBadge = item.classList.contains("overlay-badge");
 
-      item.style.width = isBadge ? "max-content" : `${availableWidth}px`;
-      item.style.height = "auto";
-      item.style.overflow = "visible";
-      content.style.width = isBadge ? "max-content" : "100%";
+      content.style.width = isBadge ? "max-content" : `${availableWidth}px`;
       content.style.height = "auto";
-      content.style.transform = "none";
     });
-
-    await nextAnimationFrame();
-
-    if (token !== this._overlayGeometryToken) return;
 
     items.forEach((item) => this._applyOverlayItemGeometry(item));
     this._observeOverlayGeometry(overlay, items);
@@ -201,9 +195,8 @@ class OrbitDeckCard extends LitElement {
 
     if (!entry || !content) return;
 
-    const naturalRect = content.getBoundingClientRect();
-    const naturalWidth = naturalRect.width;
-    const naturalHeight = naturalRect.height;
+    const naturalWidth = content.offsetWidth;
+    const naturalHeight = content.offsetHeight;
 
     if (naturalWidth <= 0 || naturalHeight <= 0) return;
 
@@ -798,10 +791,6 @@ function getOverlayGeometry(
     scaleX: configuredWidth / naturalWidth,
     scaleY: configuredHeight / naturalHeight,
   };
-}
-
-function nextAnimationFrame() {
-  return new Promise((resolve) => requestAnimationFrame(resolve));
 }
 
 function hasDeckItemActions(item = {}) {
