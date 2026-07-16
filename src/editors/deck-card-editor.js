@@ -680,6 +680,7 @@ class OrbitDeckCardEditor extends LitElement {
     const isTabs = this._config?.layout === "tabs";
     const isOverlaySecondary =
       this._config?.layout === "overlay" && index > 0;
+    const isOverlayCard = isOverlaySecondary && !item?.badge;
     const expanded = this._styleSectionExpanded === true;
 
     return html`
@@ -780,6 +781,22 @@ class OrbitDeckCardEditor extends LitElement {
                     changeKey: "height",
                   })}
                 </div>
+                ${isOverlayCard
+                  ? html`
+                      <label class="deck-force-padding-row">
+                        <span>${this._t("Transparent background")}</span>
+                        <ha-switch
+                          .checked=${attributes.transparent_background === true}
+                          @change=${(ev) =>
+                            this._updateDeckAttributes(index, {
+                              transparent_background: ev.target.checked
+                                ? true
+                                : undefined,
+                            })}
+                        ></ha-switch>
+                      </label>
+                    `
+                  : ""}
               `
             : ""}
 

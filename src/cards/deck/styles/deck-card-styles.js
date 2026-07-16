@@ -144,6 +144,8 @@ export const deckCardStyles = css`
   .deck-overlay {
     position: relative;
     width: 100%;
+    overflow: hidden;
+    border-radius: var(--ha-card-border-radius, 15px);
   }
 
   .deck-overlay-main {
@@ -175,6 +177,20 @@ export const deckCardStyles = css`
 
   .deck-overlay-item .deck-item-interaction {
     height: auto;
+  }
+
+  .deck-overlay-item.transparent-background,
+  .deck-overlay-item.transparent-background .deck-overlay-content,
+  .deck-overlay-item.transparent-background .deck-item-interaction,
+  .deck-overlay-item.transparent-background .deck-item-interaction > * {
+    --ha-card-background: transparent;
+    --card-background-color: transparent;
+    --ha-card-box-shadow: none;
+    --ha-card-border-width: 0;
+    --ha-card-border-color: transparent;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
   }
 
   .deck-error-card {

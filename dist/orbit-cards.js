@@ -5431,6 +5431,7 @@ select {
 		Width: Bs,
 		Height: Vs,
 		Top: "Top",
+		"Transparent background": "Transparent background",
 		Right: Hs,
 		Bottom: Us,
 		Left: Ws,
@@ -5497,6 +5498,7 @@ select {
 		Width: ac,
 		Height: oc,
 		Top: "Top",
+		"Transparent background": "Transparent background",
 		Right: sc,
 		Bottom: cc,
 		Left: lc,
@@ -5557,6 +5559,7 @@ select {
 		Width: wc,
 		Height: Tc,
 		Top: Ec,
+		"Transparent background": "Transparenter Hintergrund",
 		Right: Dc,
 		Bottom: Oc,
 		Left: kc,
@@ -5623,6 +5626,7 @@ select {
 		Width: Wc,
 		Height: Gc,
 		Top: Kc,
+		"Transparent background": "Fondo transparente",
 		Right: qc,
 		Bottom: Jc,
 		Left: Yc,
@@ -5689,6 +5693,7 @@ select {
 		Width: ul,
 		Height: dl,
 		Top: fl,
+		"Transparent background": "Arrière-plan transparent",
 		Right: pl,
 		Bottom: "Bas",
 		Left: ml,
@@ -5755,6 +5760,7 @@ select {
 		Width: kl,
 		Height: Al,
 		Top: jl,
+		"Transparent background": "Sfondo trasparente",
 		Right: Ml,
 		Bottom: Nl,
 		Left: Pl,
@@ -5821,6 +5827,7 @@ select {
 		Width: Yl,
 		Height: Xl,
 		Top: Zl,
+		"Transparent background": "Transparante achtergrond",
 		Right: Ql,
 		Bottom: $l,
 		Left: eu,
@@ -5887,6 +5894,7 @@ select {
 		Width: hu,
 		Height: gu,
 		Top: _u,
+		"Transparent background": "Fundo transparente",
 		Right: vu,
 		Bottom: yu,
 		Left: bu,
@@ -9937,6 +9945,8 @@ var rf = e((() => {})), af, of = e((() => {
   .deck-overlay {
     position: relative;
     width: 100%;
+    overflow: hidden;
+    border-radius: var(--ha-card-border-radius, 15px);
   }
 
   .deck-overlay-main {
@@ -9968,6 +9978,20 @@ var rf = e((() => {})), af, of = e((() => {
 
   .deck-overlay-item .deck-item-interaction {
     height: auto;
+  }
+
+  .deck-overlay-item.transparent-background,
+  .deck-overlay-item.transparent-background .deck-overlay-content,
+  .deck-overlay-item.transparent-background .deck-item-interaction,
+  .deck-overlay-item.transparent-background .deck-item-interaction > * {
+    --ha-card-background: transparent;
+    --card-background-color: transparent;
+    --ha-card-box-shadow: none;
+    --ha-card-border-width: 0;
+    --ha-card-border-color: transparent;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
   }
 
   .deck-error-card {
@@ -10478,7 +10502,7 @@ var gf, _f, vf, yf, bf = e((() => {
       `);
 		}
 		_renderDeckStyleControls(e, t) {
-			let n = t?.attributes || {}, r = this._config?.layout === "tabs", i = this._config?.layout === "overlay" && e > 0;
+			let n = t?.attributes || {}, r = this._config?.layout === "tabs", i = this._config?.layout === "overlay" && e > 0, a = i && !t?.badge;
 			return E`
       <ha-expansion-panel
         class="deck-card-section deck-style-section"
@@ -10560,6 +10584,15 @@ var gf, _f, vf, yf, bf = e((() => {
 				changeKey: "height"
 			})}
                 </div>
+                ${a ? E`
+                      <label class="deck-force-padding-row">
+                        <span>${this._t("Transparent background")}</span>
+                        <ha-switch
+                          .checked=${n.transparent_background === !0}
+                          @change=${(t) => this._updateDeckAttributes(e, { transparent_background: t.target.checked ? !0 : void 0 })}
+                        ></ha-switch>
+                      </label>
+                    ` : ""}
               ` : ""}
 
           <label class="deck-force-padding-row">
@@ -11280,7 +11313,7 @@ var gf, _f, vf, yf, bf = e((() => {
 
           ${t.map((e, t) => E`
             <div
-              class="deck-overlay-item deck-item ${a(e.item)} overlay-${e.kind || f(e.item)}"
+              class="deck-overlay-item deck-item ${a(e.item)} ${e.item?.attributes?.transparent_background === !0 ? "transparent-background" : ""} overlay-${e.kind || f(e.item)}"
               data-deck-index=${e.index}
               style=${n(e.item, t)}
             >

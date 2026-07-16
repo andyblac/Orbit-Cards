@@ -657,7 +657,11 @@ class OrbitDeckCard extends LitElement {
 
           ${overlayEntries.map((entry, index) => html`
             <div
-              class="deck-overlay-item deck-item ${getOverlayFit(entry.item)} overlay-${
+              class="deck-overlay-item deck-item ${getOverlayFit(entry.item)} ${
+                entry.item?.attributes?.transparent_background === true
+                  ? "transparent-background"
+                  : ""
+              } overlay-${
                 entry.kind || getDeckItemKind(entry.item)
               }"
               data-deck-index=${entry.index}
