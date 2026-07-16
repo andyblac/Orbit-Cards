@@ -10672,9 +10672,36 @@ var $d, ef, tf, nf, rf = e((() => {
 			if (!this._badgePickerLoadRequested) {
 				this._badgePickerLoadRequested = !0;
 				try {
-					window.loadCardHelpers && await window.loadCardHelpers(), await Promise.race([customElements.whenDefined("hui-badge-picker"), new Promise((e) => setTimeout(e, 1500))]);
+					window.loadCardHelpers && await window.loadCardHelpers(), customElements.get("hui-badge-picker") || await this._loadNativeBadgePicker(), await Promise.race([customElements.whenDefined("hui-badge-picker"), new Promise((e) => setTimeout(e, 1500))]);
 				} catch {} finally {
 					this._badgePickerLoadRequested = !1, this.requestUpdate();
+				}
+			}
+		}
+		async _loadNativeBadgePicker() {
+			let e = this._findElementInShadowRoots(document, (e) => e.localName === "hui-view" && e._layoutElement);
+			if (!e) return;
+			let t, n = (e) => {
+				e.detail?.dialogTag === "hui-dialog-create-badge" && (e.preventDefault(), e.stopImmediatePropagation(), t = e.detail.dialogImport);
+			};
+			e.addEventListener("show-dialog", n);
+			try {
+				e._layoutElement.dispatchEvent(new CustomEvent("ll-create-badge", {
+					bubbles: !1,
+					composed: !0
+				}));
+			} finally {
+				e.removeEventListener("show-dialog", n);
+			}
+			typeof t == "function" && await t();
+		}
+		_findElementInShadowRoots(e, t) {
+			let n = e.querySelectorAll?.("*") || [];
+			for (let e of n) {
+				if (t(e)) return e;
+				if (e.shadowRoot) {
+					let n = this._findElementInShadowRoots(e.shadowRoot, t);
+					if (n) return n;
 				}
 			}
 		}

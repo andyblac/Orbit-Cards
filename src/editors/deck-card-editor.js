@@ -902,16 +902,81 @@ class OrbitDeckCardEditor extends LitElement {
         await window.loadCardHelpers();
       }
 
+      if (!customElements.get("hui-badge-picker")) {
+        await this._loadNativeBadgePicker();
+      }
+
       await Promise.race([
         customElements.whenDefined("hui-badge-picker"),
         new Promise((resolve) => setTimeout(resolve, 1500)),
       ]);
     } catch (_err) {
-      // HA does not expose a public badge picker loader for custom editors.
+      // Keep the editor usable if HA changes its internal badge loader.
     } finally {
       this._badgePickerLoadRequested = false;
       this.requestUpdate();
     }
+  }
+
+  async _loadNativeBadgePicker() {
+    const huiView = this._findElementInShadowRoots(
+      document,
+      (element) =>
+        element.localName === "hui-view" && element._layoutElement
+    );
+
+    if (!huiView) {
+      return;
+    }
+
+    let badgeDialogImport;
+    const captureBadgeLoader = (event) => {
+      if (event.detail?.dialogTag !== "hui-dialog-create-badge") {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      badgeDialogImport = event.detail.dialogImport;
+    };
+
+    huiView.addEventListener("show-dialog", captureBadgeLoader);
+    try {
+      huiView._layoutElement.dispatchEvent(
+        new CustomEvent("ll-create-badge", {
+          bubbles: false,
+          composed: true,
+        })
+      );
+    } finally {
+      huiView.removeEventListener("show-dialog", captureBadgeLoader);
+    }
+
+    if (typeof badgeDialogImport === "function") {
+      await badgeDialogImport();
+    }
+  }
+
+  _findElementInShadowRoots(root, predicate) {
+    const elements = root.querySelectorAll?.("*") || [];
+
+    for (const element of elements) {
+      if (predicate(element)) {
+        return element;
+      }
+
+      if (element.shadowRoot) {
+        const match = this._findElementInShadowRoots(
+          element.shadowRoot,
+          predicate
+        );
+        if (match) {
+          return match;
+        }
+      }
+    }
+
+    return undefined;
   }
 
   async _ensureNativeCardPicker() {
