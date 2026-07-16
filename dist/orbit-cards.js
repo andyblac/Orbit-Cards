@@ -10425,7 +10425,7 @@ var $d, ef, tf, nf, rf = e((() => {
 			return this._childPickerType === "badge" ? this._renderBadgePicker(e, t) : this._renderCardPicker(e, t);
 		}
 		_renderBadgePicker(e, t) {
-			return t?.badge?.type ? E`
+			return t?.badge?.type ? customElements.get("hui-badge-element-editor") ? E`
         <hui-badge-element-editor
           .hass=${this.hass}
           .lovelace=${this.lovelace}
@@ -10434,7 +10434,11 @@ var $d, ef, tf, nf, rf = e((() => {
 				t.stopPropagation(), this._updateDeckBadge(e, t.detail.config);
 			}}
         ></hui-badge-element-editor>
-      ` : !this.hass || !this.lovelace ? E`` : customElements.get("hui-badge-picker") ? E`
+      ` : (this._ensureNativeBadgeEditor(), E`
+          <div class="deck-card-picker-loading">
+            <ha-spinner></ha-spinner>
+          </div>
+        `) : !this.hass || !this.lovelace ? E`` : customElements.get("hui-badge-picker") ? E`
       <hui-badge-picker
         .hass=${this.hass}
         .lovelace=${this.lovelace}
@@ -10672,28 +10676,51 @@ var $d, ef, tf, nf, rf = e((() => {
 			if (!this._badgePickerLoadRequested) {
 				this._badgePickerLoadRequested = !0;
 				try {
-					window.loadCardHelpers && await window.loadCardHelpers(), customElements.get("hui-badge-picker") || await this._loadNativeBadgePicker(), await Promise.race([customElements.whenDefined("hui-badge-picker"), new Promise((e) => setTimeout(e, 1500))]);
+					window.loadCardHelpers && await window.loadCardHelpers(), customElements.get("hui-badge-picker") || await this._loadNativeBadgeModule({
+						eventName: "ll-create-badge",
+						dialogTag: "hui-dialog-create-badge"
+					}), await Promise.race([customElements.whenDefined("hui-badge-picker"), new Promise((e) => setTimeout(e, 1500))]);
 				} catch {} finally {
 					this._badgePickerLoadRequested = !1, this.requestUpdate();
 				}
 			}
 		}
-		async _loadNativeBadgePicker() {
-			let e = this._findElementInShadowRoots(document, (e) => e.localName === "hui-view" && e._layoutElement);
-			if (!e) return;
-			let t, n = (e) => {
-				e.detail?.dialogTag === "hui-dialog-create-badge" && (e.preventDefault(), e.stopImmediatePropagation(), t = e.detail.dialogImport);
+		async _ensureNativeBadgeEditor() {
+			if (!this._badgeEditorLoadRequested) {
+				this._badgeEditorLoadRequested = !0;
+				try {
+					if (window.loadCardHelpers && await window.loadCardHelpers(), !customElements.get("hui-badge-element-editor")) {
+						let e = this._findElementInShadowRoots(document, (e) => e.localName === "hui-view" && e._layoutElement), t = Number.isInteger(e?.index) ? e.index : 0;
+						await this._loadNativeBadgeModule({
+							eventName: "ll-edit-badge",
+							dialogTag: "hui-dialog-edit-badge",
+							detail: { path: [t, 0] },
+							huiView: e
+						});
+					}
+					await Promise.race([customElements.whenDefined("hui-badge-element-editor"), new Promise((e) => setTimeout(e, 1500))]);
+				} catch {} finally {
+					this._badgeEditorLoadRequested = !1, this.requestUpdate();
+				}
+			}
+		}
+		async _loadNativeBadgeModule({ eventName: e, dialogTag: t, detail: n, huiView: r }) {
+			let i = r || this._findElementInShadowRoots(document, (e) => e.localName === "hui-view" && e._layoutElement);
+			if (!i) return;
+			let a, o = (e) => {
+				e.detail?.dialogTag === t && (e.preventDefault(), e.stopImmediatePropagation(), a = e.detail.dialogImport);
 			};
-			e.addEventListener("show-dialog", n);
+			i.addEventListener("show-dialog", o);
 			try {
-				e._layoutElement.dispatchEvent(new CustomEvent("ll-create-badge", {
+				i._layoutElement.dispatchEvent(new CustomEvent(e, {
+					detail: n,
 					bubbles: !1,
 					composed: !0
 				}));
 			} finally {
-				e.removeEventListener("show-dialog", n);
+				i.removeEventListener("show-dialog", o);
 			}
-			typeof t == "function" && await t();
+			typeof a == "function" && await a();
 		}
 		_findElementInShadowRoots(e, t) {
 			let n = e.querySelectorAll?.("*") || [];

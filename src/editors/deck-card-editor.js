@@ -579,6 +579,15 @@ class OrbitDeckCardEditor extends LitElement {
 
   _renderBadgePicker(index, item) {
     if (item?.badge?.type) {
+      if (!customElements.get("hui-badge-element-editor")) {
+        this._ensureNativeBadgeEditor();
+        return html`
+          <div class="deck-card-picker-loading">
+            <ha-spinner></ha-spinner>
+          </div>
+        `;
+      }
+
       return html`
         <hui-badge-element-editor
           .hass=${this.hass}
@@ -903,7 +912,10 @@ class OrbitDeckCardEditor extends LitElement {
       }
 
       if (!customElements.get("hui-badge-picker")) {
-        await this._loadNativeBadgePicker();
+        await this._loadNativeBadgeModule({
+          eventName: "ll-create-badge",
+          dialogTag: "hui-dialog-create-badge",
+        });
       }
 
       await Promise.race([
@@ -918,8 +930,55 @@ class OrbitDeckCardEditor extends LitElement {
     }
   }
 
-  async _loadNativeBadgePicker() {
-    const huiView = this._findElementInShadowRoots(
+  async _ensureNativeBadgeEditor() {
+    if (this._badgeEditorLoadRequested) {
+      return;
+    }
+
+    this._badgeEditorLoadRequested = true;
+
+    try {
+      if (window.loadCardHelpers) {
+        await window.loadCardHelpers();
+      }
+
+      if (!customElements.get("hui-badge-element-editor")) {
+        const huiView = this._findElementInShadowRoots(
+          document,
+          (element) =>
+            element.localName === "hui-view" && element._layoutElement
+        );
+        const viewIndex = Number.isInteger(huiView?.index)
+          ? huiView.index
+          : 0;
+
+        await this._loadNativeBadgeModule({
+          eventName: "ll-edit-badge",
+          dialogTag: "hui-dialog-edit-badge",
+          detail: { path: [viewIndex, 0] },
+          huiView,
+        });
+      }
+
+      await Promise.race([
+        customElements.whenDefined("hui-badge-element-editor"),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
+    } catch (_err) {
+      // Keep the editor usable if HA changes its internal badge loader.
+    } finally {
+      this._badgeEditorLoadRequested = false;
+      this.requestUpdate();
+    }
+  }
+
+  async _loadNativeBadgeModule({
+    eventName,
+    dialogTag,
+    detail,
+    huiView: providedHuiView,
+  }) {
+    const huiView = providedHuiView || this._findElementInShadowRoots(
       document,
       (element) =>
         element.localName === "hui-view" && element._layoutElement
@@ -931,7 +990,7 @@ class OrbitDeckCardEditor extends LitElement {
 
     let badgeDialogImport;
     const captureBadgeLoader = (event) => {
-      if (event.detail?.dialogTag !== "hui-dialog-create-badge") {
+      if (event.detail?.dialogTag !== dialogTag) {
         return;
       }
 
@@ -943,7 +1002,8 @@ class OrbitDeckCardEditor extends LitElement {
     huiView.addEventListener("show-dialog", captureBadgeLoader);
     try {
       huiView._layoutElement.dispatchEvent(
-        new CustomEvent("ll-create-badge", {
+        new CustomEvent(eventName, {
+          detail,
           bubbles: false,
           composed: true,
         })
