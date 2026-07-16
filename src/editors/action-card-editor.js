@@ -35,6 +35,9 @@ import {
 } from "../common/helpers/default-actions.js";
 import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
+import {
+  updateEditorDocumentationContext,
+} from "../common/helpers/documentation.js";
 
 class OrbitActionCardEditor extends LitElement {
   static svgCache = sharedSvgCache;
@@ -76,6 +79,7 @@ class OrbitActionCardEditor extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     connectEditorPopoverClose(this);
+    updateEditorDocumentationContext(this, "orbit-action-card");
   }
 
   disconnectedCallback() {

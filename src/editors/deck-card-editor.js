@@ -24,6 +24,9 @@ import { editorStyles } from "../common/editor/styles/editor-styles.js";
 import { actionEditorStyles } from "../common/editor/styles/action-editor.js";
 import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
+import {
+  updateEditorDocumentationContext,
+} from "../common/helpers/documentation.js";
 
 export const DECK_PREVIEW_SELECTED_INDEX = Symbol.for(
   "orbit-deck-card-preview-selected-index"
@@ -56,6 +59,7 @@ class OrbitDeckCardEditor extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     connectEditorPopoverClose(this);
+    this._updateDocumentationContext();
   }
 
   disconnectedCallback() {
@@ -74,6 +78,7 @@ class OrbitDeckCardEditor extends LitElement {
       this._selectedDeckIndex || 0,
       Math.max(0, this._getDeckItems().length - 1)
     );
+    this._updateDocumentationContext();
 
     if (normalized.changed) {
       queueMicrotask(() => this._dispatchConfigChanged());
@@ -267,7 +272,10 @@ class OrbitDeckCardEditor extends LitElement {
             <button
               type="button"
               class="editor-tab ${this._selectedTab === tab ? "active" : ""}"
-              @click=${() => { this._selectedTab = tab; }}
+              @click=${() => {
+                this._selectedTab = tab;
+                this._updateDocumentationContext();
+              }}
             >
               ${tab === "setup" ? this._t("Setup") : this._t("Card")}
             </button>
@@ -292,13 +300,23 @@ class OrbitDeckCardEditor extends LitElement {
             },
           }}
           .value=${this._config?.layout || "wrap"}
-          @value-changed=${(e) =>
+          @value-changed=${(e) => {
             this._updateConfig({
               layout: e.detail.value || "wrap",
-            })}
+            });
+            this._updateDocumentationContext();
+          }}
         ></ha-selector>
       </div>
     `;
+  }
+
+  _updateDocumentationContext() {
+    const context = this._selectedTab === "card"
+      ? "card"
+      : `setup-${this._config?.layout || "wrap"}`;
+
+    updateEditorDocumentationContext(this, "orbit-deck-card", context);
   }
 
   _renderSetup() {

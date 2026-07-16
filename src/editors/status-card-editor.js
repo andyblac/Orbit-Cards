@@ -35,6 +35,9 @@ import {
 } from "../common/helpers/svg-cache.js";
 import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
+import {
+  updateEditorDocumentationContext,
+} from "../common/helpers/documentation.js";
 
 class OrbitStatusCardEditor extends LitElement {
   static svgCache = sharedSvgCache;
@@ -74,6 +77,7 @@ class OrbitStatusCardEditor extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     connectEditorPopoverClose(this);
+    updateEditorDocumentationContext(this, "orbit-status-card");
   }
 
   disconnectedCallback() {
