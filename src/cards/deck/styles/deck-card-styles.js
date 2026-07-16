@@ -70,12 +70,14 @@ export const deckCardStyles = css`
     display: flex;
     align-items: end;
     gap: 4px;
-    border-bottom: 1px solid var(--divider-color);
+    border-bottom: none;
+    box-shadow: inset 0 -2px 0 var(--divider-color);
     background: var(--orbit-deck-tab-background-color, transparent);
     overflow-x: auto;
   }
 
   .deck-tab {
+    position: relative;
     min-width: 72px;
     min-height: 44px;
     border: none;
@@ -92,6 +94,17 @@ export const deckCardStyles = css`
     justify-content: center;
     gap: 8px;
     cursor: pointer;
+  }
+
+  .deck-card.tabs:not(.hide-tab-dividers) .deck-tab + .deck-tab::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: -3px;
+    top: 8px;
+    bottom: 0;
+    width: 2px;
+    background: var(--divider-color);
+    pointer-events: none;
   }
 
   .deck-card.tabs.tab-width-equal .deck-tab {

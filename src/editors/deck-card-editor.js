@@ -343,6 +343,16 @@ class OrbitDeckCardEditor extends LitElement {
                     tab_font_size: value || undefined,
                   }),
               })}
+              <label class="deck-tab-divider-row">
+                <span>${this._t("Divider")}</span>
+                <ha-switch
+                  .checked=${this._config?.tab_divider !== false}
+                  @change=${(event) =>
+                    this._updateConfig({
+                      tab_divider: event.target.checked ? undefined : false,
+                    })}
+                ></ha-switch>
+              </label>
               <div class="field-grid two-columns deck-tab-colors">
                 ${this._renderColorControl(
                   ["Inactive", "Color"],
@@ -864,6 +874,18 @@ class OrbitDeckCardEditor extends LitElement {
         margin-top: 12px;
       }
 
+      .deck-tab-divider-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 36px;
+        margin-top: 4px;
+        font-size: var(--ha-font-size-m, 14px);
+        font-weight: var(--ha-font-weight-normal, 400);
+        line-height: var(--ha-line-height-normal, 20px);
+      }
+
       .deck-card-tab-section {
         gap: 4px;
       }
@@ -963,6 +985,7 @@ const DECK_CONFIG_ORDER = [
   "items_per_row",
   "separate_cards",
   "tab_font_size",
+  "tab_divider",
   "tab_width_mode",
   "tab_color",
   "tab_active_color",

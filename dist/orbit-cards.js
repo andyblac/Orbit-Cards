@@ -5903,6 +5903,7 @@ var vl, yl, X = e((() => {
 			"ui.panel.lovelace.editor.card.generic.entity"
 		],
 		Disabled: ["ui.dialogs.entity_registry.editor.disabled_label", "ui.panel.config.entities.picker.status.disabled"],
+		Divider: ["ui.panel.lovelace.editor.card.entities.entity_row.divider"],
 		Default: ["ui.common.default"],
 		Duplicate: ["ui.common.duplicate"],
 		Enabled: ["ui.dialogs.entity_registry.editor.enabled_label", "ui.panel.config.entities.picker.status.enabled"],
@@ -5946,7 +5947,7 @@ var vl, yl, X = e((() => {
 		area: "0.8.3",
 		status: "0.13.3",
 		action: "0.6.3",
-		deck: "0.2.1"
+		deck: "0.2.2"
 	};
 })), bl = /* @__PURE__ */ t((() => {
 	j(), po(), Yo(), es(), ls(), U(), ks(), yn(), zt(), Ft(), X(), Q();
@@ -9790,12 +9791,14 @@ var qu = e((() => {})), Ju, Yu = e((() => {
     display: flex;
     align-items: end;
     gap: 4px;
-    border-bottom: 1px solid var(--divider-color);
+    border-bottom: none;
+    box-shadow: inset 0 -2px 0 var(--divider-color);
     background: var(--orbit-deck-tab-background-color, transparent);
     overflow-x: auto;
   }
 
   .deck-tab {
+    position: relative;
     min-width: 72px;
     min-height: 44px;
     border: none;
@@ -9812,6 +9815,17 @@ var qu = e((() => {})), Ju, Yu = e((() => {
     justify-content: center;
     gap: 8px;
     cursor: pointer;
+  }
+
+  .deck-card.tabs:not(.hide-tab-dividers) .deck-tab + .deck-tab::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: -3px;
+    top: 8px;
+    bottom: 0;
+    width: 2px;
+    background: var(--divider-color);
+    pointer-events: none;
   }
 
   .deck-card.tabs.tab-width-equal .deck-tab {
@@ -10102,6 +10116,13 @@ var rd, id, ad, od, sd = e((() => {
 				value: this._config?.tab_font_size || "",
 				onValueChanged: (e) => this._updateConfig({ tab_font_size: e || void 0 })
 			})}
+              <label class="deck-tab-divider-row">
+                <span>${this._t("Divider")}</span>
+                <ha-switch
+                  .checked=${this._config?.tab_divider !== !1}
+                  @change=${(e) => this._updateConfig({ tab_divider: e.target.checked ? void 0 : !1 })}
+                ></ha-switch>
+              </label>
               <div class="field-grid two-columns deck-tab-colors">
                 ${this._renderColorControl(["Inactive", "Color"], "tab_color", this._config?.tab_color || "", (e) => this._updateConfig({ tab_color: e || void 0 }), "primary-text-color")}
                 ${this._renderColorControl(["Active", "Color"], "tab_active_color", this._config?.tab_active_color || "", (e) => this._updateConfig({ tab_active_color: e || void 0 }), "primary-color")}
@@ -10509,6 +10530,18 @@ var rd, id, ad, od, sd = e((() => {
         margin-top: 12px;
       }
 
+      .deck-tab-divider-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 36px;
+        margin-top: 4px;
+        font-size: var(--ha-font-size-m, 14px);
+        font-weight: var(--ha-font-weight-normal, 400);
+        line-height: var(--ha-line-height-normal, 20px);
+      }
+
       .deck-card-tab-section {
         gap: 4px;
       }
@@ -10601,6 +10634,7 @@ var rd, id, ad, od, sd = e((() => {
 		"items_per_row",
 		"separate_cards",
 		"tab_font_size",
+		"tab_divider",
 		"tab_width_mode",
 		"tab_color",
 		"tab_active_color",
@@ -10821,11 +10855,11 @@ var rd, id, ad, od, sd = e((() => {
     `;
 		}
 		_renderTabs(e) {
-			let t = Math.min(this._selectedIndex || 0, Math.max(0, e.length - 1)), n = this._deckCards[t], r = u(this._config);
+			let t = Math.min(this._selectedIndex || 0, Math.max(0, e.length - 1)), n = this._deckCards[t], r = u(this._config), i = d(this._config);
 			return E`
       <ha-card
-        class="deck-card tabs tab-width-${r}"
-        style=${d(this._config)}
+        class="deck-card tabs tab-width-${r} ${this._config?.tab_divider === !1 ? "hide-tab-dividers" : ""}"
+        style=${i}
       >
         <div class="deck-tabs" role="tablist">
           ${e.map((e, n) => E`

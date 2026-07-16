@@ -455,7 +455,9 @@ class OrbitDeckCard extends LitElement {
 
     return html`
       <ha-card
-        class="deck-card tabs tab-width-${tabWidthMode}"
+        class="deck-card tabs tab-width-${tabWidthMode} ${this._config?.tab_divider === false
+          ? "hide-tab-dividers"
+          : ""}"
         style=${tabStyles}
       >
         <div class="deck-tabs" role="tablist">

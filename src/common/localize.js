@@ -99,6 +99,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.dialogs.entity_registry.editor.disabled_label",
     "ui.panel.config.entities.picker.status.disabled",
   ],
+  Divider: [
+    "ui.panel.lovelace.editor.card.entities.entity_row.divider",
+  ],
   Default: [
     "ui.common.default",
   ],
