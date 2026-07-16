@@ -72,7 +72,9 @@ class OrbitDeckCardEditor extends LitElement {
 
     this._config = {
       ...normalized.config,
-      layout: config?.layout === "tabs" ? "tabs" : "wrap",
+      layout: ["tabs", "overlay"].includes(config?.layout)
+        ? config.layout
+        : "wrap",
     };
     this._selectedDeckIndex = Math.min(
       this._selectedDeckIndex || 0,
@@ -296,6 +298,10 @@ class OrbitDeckCardEditor extends LitElement {
                   label: this._t("Tabs"),
                   value: "tabs",
                 },
+                {
+                  label: this._t("Overlay"),
+                  value: "overlay",
+                },
               ],
             },
           }}
@@ -334,7 +340,8 @@ class OrbitDeckCardEditor extends LitElement {
               perRowLabel: "Items per row",
               defaultPerRow: 1,
             })
-          : html`
+          : this._config?.layout === "tabs"
+            ? html`
               ${this._renderTabWidthModeControl()}
               ${this._renderInput("Tab font size", "tab_font_size", "18px", {
                 value: this._config?.tab_font_size || "",
@@ -376,7 +383,8 @@ class OrbitDeckCardEditor extends LitElement {
                   "card-background-color"
                 )}
               </div>
-            `}
+              `
+            : ""}
       </div>
     `;
   }
@@ -444,7 +452,9 @@ class OrbitDeckCardEditor extends LitElement {
               class="action-tab ${index === selectedIndex ? "active" : ""}"
               @click=${() => this._selectDeckItem(index)}
             >
-              ${index + 1}
+              ${this._config?.layout === "overlay" && index === 0
+                ? this._t("Main")
+                : index + 1}
             </button>
           `)}
         </div>
@@ -556,6 +566,8 @@ class OrbitDeckCardEditor extends LitElement {
   _renderDeckStyleControls(index, item) {
     const attributes = item?.attributes || {};
     const isTabs = this._config?.layout === "tabs";
+    const isOverlaySecondary =
+      this._config?.layout === "overlay" && index > 0;
     const expanded = this._styleSectionExpanded === true;
 
     return html`
@@ -598,6 +610,53 @@ class OrbitDeckCardEditor extends LitElement {
                 value: attributes.width || "",
                 changeKey: "width",
               })
+            : ""}
+
+          ${isOverlaySecondary
+            ? html`
+                <div class="field editor-button-toggle-field">
+                  <div class="field-header">
+                    <label>${this._t("Position")}</label>
+                    <ha-selector
+                      class="editor-header-button-toggle deck-overlay-position-toggle"
+                      .hass=${this.hass}
+                      .selector=${{
+                        button_toggle: {
+                          options: ["top", "right", "bottom", "left"].map(
+                            (position) => ({
+                              label: this._t(
+                                `${position[0].toUpperCase()}${position.slice(1)}`
+                              ),
+                              value: position,
+                            })
+                          ),
+                        },
+                      }}
+                      .value=${attributes.position || "right"}
+                      @value-changed=${(ev) =>
+                        this._updateDeckAttributes(index, {
+                          position: ev.detail.value === "right"
+                            ? undefined
+                            : ev.detail.value,
+                        })}
+                    ></ha-selector>
+                  </div>
+                </div>
+                <div class="field-grid two-columns">
+                  ${this._renderAttributeSelector(index, {
+                    label: "Width",
+                    selector: { text: {} },
+                    value: attributes.width || "64px",
+                    changeKey: "width",
+                  })}
+                  ${this._renderAttributeSelector(index, {
+                    label: "Height",
+                    selector: { text: {} },
+                    value: attributes.height || "64px",
+                    changeKey: "height",
+                  })}
+                </div>
+              `
             : ""}
 
           <label class="deck-force-padding-row">
@@ -848,13 +907,18 @@ class OrbitDeckCardEditor extends LitElement {
         justify-content: flex-end;
         margin-left: auto;
         width: auto;
-        min-width: 180px;
+        min-width: 270px;
         margin-bottom: 6px;
       }
 
       .deck-tab-width-toggle {
         width: auto;
         min-width: 260px;
+      }
+
+      .deck-overlay-position-toggle {
+        width: min(360px, 100%);
+        min-width: 0;
       }
 
       .field-grid.two-columns {

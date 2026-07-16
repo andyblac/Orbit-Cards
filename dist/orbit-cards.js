@@ -10027,7 +10027,7 @@ var rd, id, ad, od, sd = e((() => {
 			let t = Zu(e || {});
 			this._config = {
 				...t.config,
-				layout: e?.layout === "tabs" ? "tabs" : "wrap"
+				layout: ["tabs", "overlay"].includes(e?.layout) ? e.layout : "wrap"
 			}, this._selectedDeckIndex = Math.min(this._selectedDeckIndex || 0, Math.max(0, this._getDeckItems().length - 1)), this._updateDocumentationContext(), t.changed && queueMicrotask(() => this._dispatchConfigChanged());
 		}
 		_t(e, t) {
@@ -10148,13 +10148,20 @@ var rd, id, ad, od, sd = e((() => {
         <ha-selector
           class="editor-header-button-toggle deck-layout-toggle"
           .hass=${this.hass}
-          .selector=${{ button_toggle: { options: [{
-				label: this._t("Wrap"),
-				value: "wrap"
-			}, {
-				label: this._t("Tabs"),
-				value: "tabs"
-			}] } }}
+          .selector=${{ button_toggle: { options: [
+				{
+					label: this._t("Wrap"),
+					value: "wrap"
+				},
+				{
+					label: this._t("Tabs"),
+					value: "tabs"
+				},
+				{
+					label: this._t("Overlay"),
+					value: "overlay"
+				}
+			] } }}
           .value=${this._config?.layout || "wrap"}
           @value-changed=${(e) => {
 				this._updateConfig({ layout: e.detail.value || "wrap" }), this._updateDocumentationContext();
@@ -10179,7 +10186,7 @@ var rd, id, ad, od, sd = e((() => {
 				perRowKey: "items_per_row",
 				perRowLabel: "Items per row",
 				defaultPerRow: 1
-			}) : D`
+			}) : this._config?.layout === "tabs" ? D`
               ${this._renderTabWidthModeControl()}
               ${this._renderInput("Tab font size", "tab_font_size", "18px", {
 				value: this._config?.tab_font_size || "",
@@ -10197,7 +10204,7 @@ var rd, id, ad, od, sd = e((() => {
                 ${this._renderColorControl(["Active", "Color"], "tab_active_color", this._config?.tab_active_color || "", (e) => this._updateConfig({ tab_active_color: e || void 0 }), "primary-color")}
                 ${this._renderColorControl(["Background", "Color"], "tab_background_color", this._config?.tab_background_color || "", (e) => this._updateConfig({ tab_background_color: e || void 0 }), "card-background-color")}
               </div>
-            `}
+              ` : ""}
       </div>
     `;
 		}
@@ -10250,7 +10257,7 @@ var rd, id, ad, od, sd = e((() => {
               class="action-tab ${n === t ? "active" : ""}"
               @click=${() => this._selectDeckItem(n)}
             >
-              ${n + 1}
+              ${this._config?.layout === "overlay" && n === 0 ? this._t("Main") : n + 1}
             </button>
           `)}
         </div>
@@ -10344,7 +10351,7 @@ var rd, id, ad, od, sd = e((() => {
       `);
 		}
 		_renderDeckStyleControls(e, t) {
-			let n = t?.attributes || {}, r = this._config?.layout === "tabs";
+			let n = t?.attributes || {}, r = this._config?.layout === "tabs", i = this._config?.layout === "overlay" && e > 0;
 			return D`
       <ha-expansion-panel
         class="deck-card-section deck-style-section"
@@ -10382,6 +10389,43 @@ var rd, id, ad, od, sd = e((() => {
 				value: n.width || "",
 				changeKey: "width"
 			}) : ""}
+
+          ${i ? D`
+                <div class="field editor-button-toggle-field">
+                  <div class="field-header">
+                    <label>${this._t("Position")}</label>
+                    <ha-selector
+                      class="editor-header-button-toggle deck-overlay-position-toggle"
+                      .hass=${this.hass}
+                      .selector=${{ button_toggle: { options: [
+				"top",
+				"right",
+				"bottom",
+				"left"
+			].map((e) => ({
+				label: this._t(`${e[0].toUpperCase()}${e.slice(1)}`),
+				value: e
+			})) } }}
+                      .value=${n.position || "right"}
+                      @value-changed=${(t) => this._updateDeckAttributes(e, { position: t.detail.value === "right" ? void 0 : t.detail.value })}
+                    ></ha-selector>
+                  </div>
+                </div>
+                <div class="field-grid two-columns">
+                  ${this._renderAttributeSelector(e, {
+				label: "Width",
+				selector: { text: {} },
+				value: n.width || "64px",
+				changeKey: "width"
+			})}
+                  ${this._renderAttributeSelector(e, {
+				label: "Height",
+				selector: { text: {} },
+				value: n.height || "64px",
+				changeKey: "height"
+			})}
+                </div>
+              ` : ""}
 
           <label class="deck-force-padding-row">
             <span>${this._t("Force padding")}</span>
@@ -10573,13 +10617,18 @@ var rd, id, ad, od, sd = e((() => {
         justify-content: flex-end;
         margin-left: auto;
         width: auto;
-        min-width: 180px;
+        min-width: 270px;
         margin-bottom: 6px;
       }
 
       .deck-tab-width-toggle {
         width: auto;
         min-width: 260px;
+      }
+
+      .deck-overlay-position-toggle {
+        width: min(360px, 100%);
+        min-width: 0;
       }
 
       .field-grid.two-columns {
