@@ -76,6 +76,10 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.panel.lovelace.editor.card.tile.background",
     "ui.panel.lovelace.editor.card.generic.background",
   ],
+  Badges: [
+    "ui.panel.lovelace.editor.card.heading.badges",
+    "ui.panel.lovelace.editor.badges.name",
+  ],
   Color: [
     "ui.panel.lovelace.editor.card.tile.color",
     "ui.dialogs.label-detail.color",

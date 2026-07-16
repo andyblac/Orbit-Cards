@@ -137,7 +137,10 @@ class OrbitDeckCard extends LitElement {
   async _scheduleCardBuild() {
     const decks = getDeckItems(this._config);
     const buildKey = JSON.stringify(
-      decks.map((item) => getDeckItemRenderCardConfig(item))
+      decks.map((item) => ({
+        kind: getDeckItemKind(item),
+        config: getDeckItemRenderConfig(item),
+      }))
     );
 
     if (buildKey === this._cardBuildKey) {
@@ -171,18 +174,21 @@ class OrbitDeckCard extends LitElement {
   }
 
   _createDeckEntry(item, helpers, index) {
-    const cardConfig = getDeckItemRenderCardConfig(item);
+    const kind = getDeckItemKind(item);
+    const childConfig = getDeckItemRenderConfig(item);
 
-    if (!cardConfig.type) {
+    if (!childConfig.type) {
       return {
         item,
         index,
-        error: "No card type configured",
+        error: `No ${kind} type configured`,
       };
     }
 
     try {
-      const element = helpers.createCardElement(cardConfig);
+      const element = kind === "badge"
+        ? helpers.createBadgeElement(childConfig)
+        : helpers.createCardElement(childConfig);
       element.hass = this.hass;
       element.addEventListener(
         "ll-rebuild",
@@ -193,6 +199,7 @@ class OrbitDeckCard extends LitElement {
       return {
         item,
         index,
+        kind,
         element,
       };
     } catch (err) {
@@ -554,10 +561,15 @@ class OrbitDeckCard extends LitElement {
 
 function getDeckItems(config = {}) {
   return Array.isArray(config?.decks)
-    ? config.decks.map((item) => ({
-        attributes: item?.attributes || {},
-        card: item?.card || {},
-      }))
+    ? config.decks.map((item) => item?.badge
+      ? {
+          attributes: item?.attributes || {},
+          badge: item.badge || {},
+        }
+      : {
+          attributes: item?.attributes || {},
+          card: item?.card || {},
+        })
     : [];
 }
 
@@ -599,44 +611,56 @@ function hasDeckItemActions(item = {}) {
 }
 
 function getDeckItemAction(item = {}, key) {
+  const child = getDeckItemConfig(item);
   const action =
     item?.attributes?.[key] ||
-    item?.card?.[key];
+    child?.[key];
 
   return action?.action ? action : null;
 }
 
 function getDeckItemEntity(item = {}) {
+  const child = getDeckItemConfig(item);
+
   return (
     item?.attributes?.entity ||
     getActionEntity(item?.attributes?.tap_action) ||
     getActionEntity(item?.attributes?.hold_action) ||
     getActionEntity(item?.attributes?.double_tap_action) ||
-    getActionEntity(item?.card?.tap_action) ||
-    getActionEntity(item?.card?.hold_action) ||
-    getActionEntity(item?.card?.double_tap_action) ||
-    item?.card?.entity ||
+    getActionEntity(child?.tap_action) ||
+    getActionEntity(child?.hold_action) ||
+    getActionEntity(child?.double_tap_action) ||
+    child?.entity ||
     null
   );
 }
 
-function getDeckItemRenderCardConfig(item = {}) {
-  const card = shouldStripChildPaddingConfig(item)
-    ? removeChildPaddingConfig(item?.card || {})
-    : item?.card || {};
+function getDeckItemRenderConfig(item = {}) {
+  const child = getDeckItemConfig(item);
+  const renderChild = shouldStripChildPaddingConfig(item)
+    ? removeChildPaddingConfig(child)
+    : child;
 
   if (!hasDeckItemActions(item)) {
-    return card;
+    return renderChild;
   }
 
   const {
     tap_action,
     hold_action,
     double_tap_action,
-    ...renderCard
-  } = card;
+    ...renderConfig
+  } = renderChild;
 
-  return renderCard;
+  return renderConfig;
+}
+
+function getDeckItemKind(item = {}) {
+  return item?.badge ? "badge" : "card";
+}
+
+function getDeckItemConfig(item = {}) {
+  return item?.badge || item?.card || {};
 }
 
 function removeChildPaddingConfig(value) {
@@ -728,7 +752,8 @@ function getDeckPaddingApplyKey(entries = []) {
 
     return [
       entry.index,
-      entry.item?.card?.type || "",
+      entry.kind || getDeckItemKind(entry.item),
+      getDeckItemConfig(entry.item)?.type || "",
       forcePadding ? "force" : "child",
       activePadding ? padding.top : "",
       activePadding ? padding.right : "",

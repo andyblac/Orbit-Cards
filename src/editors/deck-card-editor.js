@@ -39,6 +39,7 @@ class OrbitDeckCardEditor extends LitElement {
     _config: { state: true },
     _selectedTab: { state: true },
     _selectedDeckIndex: { state: true },
+    _childPickerType: { state: true },
     _colorPickerKey: { state: true },
     _colorPickerTab: { state: true },
     _styleSectionExpanded: { state: true },
@@ -50,6 +51,7 @@ class OrbitDeckCardEditor extends LitElement {
     this._config = {};
     this._selectedTab = "setup";
     this._selectedDeckIndex = 0;
+    this._childPickerType = "badge";
     this._colorPickerKey = "";
     this._colorPickerTab = "picker";
     this._styleSectionExpanded = false;
@@ -80,6 +82,8 @@ class OrbitDeckCardEditor extends LitElement {
       this._selectedDeckIndex || 0,
       Math.max(0, this._getDeckItems().length - 1)
     );
+    const selectedItem = this._getDeckItems()[this._selectedDeckIndex];
+    this._childPickerType = selectedItem?.badge ? "badge" : "card";
     this._updateDocumentationContext();
 
     if (normalized.changed) {
@@ -126,15 +130,15 @@ class OrbitDeckCardEditor extends LitElement {
 
   _getDeckItems(config = this._config) {
     return Array.isArray(config?.decks)
-      ? config.decks.map((item) => ({
-          attributes: item?.attributes || {},
-          card: item?.card || {},
-        }))
+      ? config.decks.map(normalizeDeckItem)
       : [];
   }
 
   _selectDeckItem(index) {
+    const item = this._getDeckItems()[index];
+
     this._selectedDeckIndex = index;
+    this._childPickerType = item?.badge ? "badge" : "card";
     this._dispatchPreviewSelection(index);
   }
 
@@ -156,6 +160,7 @@ class OrbitDeckCardEditor extends LitElement {
 
     this._selectedDeckIndex = items.length;
     this._selectedTab = "card";
+    this._childPickerType = "badge";
     this.requestUpdate();
   }
 
@@ -244,7 +249,33 @@ class OrbitDeckCardEditor extends LitElement {
       return;
     }
 
-    this._updateDeckItem(index, { card });
+    this._updateDeckItem(index, {
+      badge: undefined,
+      card,
+    });
+  }
+
+  _updateDeckBadge(index, badge) {
+    const items = this._getDeckItems();
+
+    if (index >= items.length) {
+      this._selectedDeckIndex = items.length;
+      this._updateConfig({
+        decks: [
+          ...items,
+          {
+            attributes: {},
+            badge,
+          },
+        ],
+      });
+      return;
+    }
+
+    this._updateDeckItem(index, {
+      badge,
+      card: undefined,
+    });
   }
 
   _renderInput(label, key, placeholder = "", options = {}) {
@@ -515,6 +546,78 @@ class OrbitDeckCardEditor extends LitElement {
     `;
   }
 
+  _renderChildTypeTabs(item) {
+    const selectedType = this._childPickerType;
+
+    return html`
+      <div class="editor-tabs deck-child-type-tabs" role="tablist">
+        ${[
+          ["badge", "Badges"],
+          ["card", "Cards"],
+        ].map(([type, label]) => html`
+          <button
+            type="button"
+            class="editor-tab ${selectedType === type ? "active" : ""}"
+            role="tab"
+            aria-selected=${selectedType === type ? "true" : "false"}
+            @click=${() => {
+              this._childPickerType = type;
+            }}
+          >
+            ${this._t(label)}
+          </button>
+        `)}
+      </div>
+    `;
+  }
+
+  _renderChildPicker(index, item) {
+    return this._childPickerType === "badge"
+      ? this._renderBadgePicker(index, item)
+      : this._renderCardPicker(index, item);
+  }
+
+  _renderBadgePicker(index, item) {
+    if (item?.badge?.type) {
+      return html`
+        <hui-badge-element-editor
+          .hass=${this.hass}
+          .lovelace=${this.lovelace}
+          .value=${item.badge}
+          @config-changed=${(ev) => {
+            ev.stopPropagation();
+            this._updateDeckBadge(index, ev.detail.config);
+          }}
+        ></hui-badge-element-editor>
+      `;
+    }
+
+    if (!this.hass || !this.lovelace) {
+      return html``;
+    }
+
+    if (!customElements.get("hui-badge-picker")) {
+      this._ensureNativeBadgePicker();
+      return html`
+        <div class="deck-card-picker-loading">
+          <ha-spinner></ha-spinner>
+        </div>
+      `;
+    }
+
+    return html`
+      <hui-badge-picker
+        .hass=${this.hass}
+        .lovelace=${this.lovelace}
+        .badgePicked=${(badge) => this._updateDeckBadge(index, badge)}
+        @config-changed=${(ev) => {
+          ev.stopPropagation();
+          this._updateDeckBadge(index, ev.detail.config);
+        }}
+      ></hui-badge-picker>
+    `;
+  }
+
   _renderCardPicker(index, item) {
     if (item?.card?.type) {
       return html`
@@ -733,8 +836,9 @@ class OrbitDeckCardEditor extends LitElement {
           ${this._t("Card")}
         </div>
         <div class="deck-card-section-content">
+          ${this._renderChildTypeTabs(item)}
           <div class="deck-card-editor-frame">
-            ${this._renderCardPicker(index, item)}
+            ${this._renderChildPicker(index, item)}
           </div>
         </div>
       </ha-expansion-panel>
@@ -781,9 +885,33 @@ class OrbitDeckCardEditor extends LitElement {
         },
       ],
       context: {
-        entity_id: attributes.entity || item?.card?.entity,
+        entity_id: attributes.entity || getDeckChildConfig(item)?.entity,
       },
     });
+  }
+
+  async _ensureNativeBadgePicker() {
+    if (this._badgePickerLoadRequested) {
+      return;
+    }
+
+    this._badgePickerLoadRequested = true;
+
+    try {
+      if (window.loadCardHelpers) {
+        await window.loadCardHelpers();
+      }
+
+      await Promise.race([
+        customElements.whenDefined("hui-badge-picker"),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
+    } catch (_err) {
+      // HA does not expose a public badge picker loader for custom editors.
+    } finally {
+      this._badgePickerLoadRequested = false;
+      this.requestUpdate();
+    }
   }
 
   async _ensureNativeCardPicker() {
@@ -1002,6 +1130,15 @@ class OrbitDeckCardEditor extends LitElement {
         min-height: 160px;
       }
 
+      .deck-child-type-tabs {
+        margin: -4px 0 12px;
+      }
+
+      hui-badge-picker {
+        display: block;
+        min-height: 320px;
+      }
+
       .deck-card-section {
         display: block;
         margin: 0;
@@ -1061,6 +1198,7 @@ const DECK_CONFIG_ORDER = [
 
 const DECK_ITEM_KEYS = [
   "attributes",
+  "badge",
   "card",
 ];
 
@@ -1136,8 +1274,18 @@ function orderDeckItem(item) {
   const cleanedItem = {
     ...item,
     attributes: cleanObject(item.attributes || {}),
-    card: item.card || {},
   };
+
+  if (item.badge?.type) {
+    cleanedItem.badge = item.badge;
+    delete cleanedItem.card;
+  } else if (item.card?.type) {
+    cleanedItem.card = item.card;
+    delete cleanedItem.badge;
+  } else {
+    delete cleanedItem.badge;
+    delete cleanedItem.card;
+  }
 
   DECK_ITEM_KEYS.forEach((key) => {
     if (Object.prototype.hasOwnProperty.call(cleanedItem, key)) {
@@ -1166,15 +1314,35 @@ function cleanObject(value = {}) {
 }
 
 function getDeckChildActionDefault(item = {}, key) {
-  if (item?.card?.[key]?.action) {
-    return item.card[key];
+  const child = getDeckChildConfig(item);
+
+  if (child?.[key]?.action) {
+    return child[key];
   }
 
-  if (key === "tap_action" && item?.card?.entity) {
+  if (key === "tap_action" && child?.entity) {
     return "more-info";
   }
 
   return "none";
+}
+
+function normalizeDeckItem(item = {}) {
+  if (item?.badge) {
+    return {
+      attributes: item.attributes || {},
+      badge: item.badge || {},
+    };
+  }
+
+  return {
+    attributes: item?.attributes || {},
+    card: item?.card || {},
+  };
+}
+
+function getDeckChildConfig(item = {}) {
+  return item?.badge || item?.card || {};
 }
 
 function isVisibleDeckActionDefault(action) {
