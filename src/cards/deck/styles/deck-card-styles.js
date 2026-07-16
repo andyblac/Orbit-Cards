@@ -12,6 +12,12 @@ export const deckCardStyles = css`
     box-shadow: none;
   }
 
+  ha-card.deck-card.overlay {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
   ha-card.deck-card.wrap:not(.separate-cards) .deck-item,
   ha-card.deck-card.wrap:not(.separate-cards) .deck-item > *,
   ha-card.deck-card.wrap:not(.separate-cards) .deck-item-interaction > * {
@@ -133,6 +139,69 @@ export const deckCardStyles = css`
 
   .deck-tab-content {
     padding-top: var(--orbit-deck-gap, 8px);
+  }
+
+  .deck-overlay {
+    position: relative;
+    width: 100%;
+  }
+
+  .deck-overlay-main {
+    position: relative;
+    z-index: 0;
+  }
+
+  .deck-overlay-group {
+    position: absolute;
+    z-index: 1;
+    display: flex;
+    gap: var(--orbit-deck-gap, 8px);
+    pointer-events: none;
+  }
+
+  .deck-overlay-top,
+  .deck-overlay-bottom {
+    inset-inline: var(--orbit-deck-gap, 8px);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .deck-overlay-top {
+    top: var(--orbit-deck-gap, 8px);
+  }
+
+  .deck-overlay-bottom {
+    bottom: var(--orbit-deck-gap, 8px);
+  }
+
+  .deck-overlay-left,
+  .deck-overlay-right {
+    top: var(--orbit-deck-gap, 8px);
+    bottom: var(--orbit-deck-gap, 8px);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .deck-overlay-left {
+    inset-inline-start: var(--orbit-deck-gap, 8px);
+  }
+
+  .deck-overlay-right {
+    inset-inline-end: var(--orbit-deck-gap, 8px);
+  }
+
+  .deck-overlay-item {
+    flex: 0 0 auto;
+    width: var(--orbit-deck-overlay-width, 64px);
+    height: var(--orbit-deck-overlay-height, 64px);
+    pointer-events: auto;
+  }
+
+  .deck-overlay-item .deck-item-interaction,
+  .deck-overlay-item .deck-item-interaction > * {
+    width: 100%;
+    height: 100%;
   }
 
   .deck-error-card {

@@ -77,9 +77,13 @@ class OrbitDeckCard extends LitElement {
   }
 
   setConfig(config) {
+    const layout = ["tabs", "overlay"].includes(config?.layout)
+      ? config.layout
+      : "wrap";
+
     this._config = {
       ...config,
-      layout: config?.layout === "tabs" ? "tabs" : "wrap",
+      layout,
     };
 
     const decks = getDeckItems(this._config);
@@ -120,7 +124,7 @@ class OrbitDeckCard extends LitElement {
   }
 
   _getColumnCount(count) {
-    if (this._config?.layout === "tabs") {
+    if (["tabs", "overlay"].includes(this._config?.layout)) {
       return 1;
     }
 
@@ -486,6 +490,43 @@ class OrbitDeckCard extends LitElement {
     `;
   }
 
+  _renderOverlay() {
+    const mainEntry = this._deckCards[0];
+    const overlayEntries = this._deckCards.slice(1);
+    const positions = ["top", "bottom", "left", "right"];
+
+    return html`
+      <ha-card class="deck-card overlay">
+        <div class="deck-overlay">
+          <div class="deck-overlay-main deck-item">
+            ${this._renderInteractiveDeckEntry(mainEntry)}
+          </div>
+
+          ${positions.map((position) => {
+            const entries = overlayEntries.filter(
+              (entry) => getOverlayPosition(entry.item) === position
+            );
+
+            if (!entries.length) return "";
+
+            return html`
+              <div class="deck-overlay-group deck-overlay-${position}">
+                ${entries.map((entry) => html`
+                  <div
+                    class="deck-overlay-item deck-item"
+                    style=${getOverlayItemStyle(entry.item)}
+                  >
+                    ${this._renderInteractiveDeckEntry(entry)}
+                  </div>
+                `)}
+              </div>
+            `;
+          })}
+        </div>
+      </ha-card>
+    `;
+  }
+
   render() {
     const decks = getDeckItems(this._config);
 
@@ -497,9 +538,15 @@ class OrbitDeckCard extends LitElement {
       `;
     }
 
-    return this._config?.layout === "tabs"
-      ? this._renderTabs(decks)
-      : this._renderWrap(decks);
+    if (this._config?.layout === "tabs") {
+      return this._renderTabs(decks);
+    }
+
+    if (this._config?.layout === "overlay") {
+      return this._renderOverlay();
+    }
+
+    return this._renderWrap(decks);
   }
 
   static styles = deckCardStyles;
@@ -512,6 +559,35 @@ function getDeckItems(config = {}) {
         card: item?.card || {},
       }))
     : [];
+}
+
+function getOverlayPosition(item = {}) {
+  const position = item?.attributes?.position;
+
+  return ["top", "bottom", "left", "right"].includes(position)
+    ? position
+    : "right";
+}
+
+function getOverlayItemStyle(item = {}) {
+  const attributes = item?.attributes || {};
+  const width = normalizeOverlaySize(attributes.width, "64px");
+  const height = normalizeOverlaySize(attributes.height, "64px");
+
+  return `--orbit-deck-overlay-width:${width};--orbit-deck-overlay-height:${height};`;
+}
+
+function normalizeOverlaySize(value, fallback) {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
+  }
+
+  const text = value.toString().trim();
+
+  if (!text) return fallback;
+  if (/^-?\d+(\.\d+)?$/.test(text)) return `${text}px`;
+
+  return text;
 }
 
 function hasDeckItemActions(item = {}) {
