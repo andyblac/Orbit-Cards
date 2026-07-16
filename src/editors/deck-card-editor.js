@@ -728,43 +728,55 @@ class OrbitDeckCardEditor extends LitElement {
             ? html`
                 <div class="field editor-button-toggle-field">
                   <div class="field-header">
-                    <label>${this._t("Position")}</label>
+                    <label>${this._t("Mode")}</label>
                     <ha-selector
-                      class="editor-header-button-toggle deck-overlay-position-toggle"
+                      class="editor-header-button-toggle deck-overlay-fit-toggle"
                       .hass=${this.hass}
                       .selector=${{
                         button_toggle: {
-                          options: ["top", "right", "bottom", "left"].map(
-                            (position) => ({
-                              label: this._t(
-                                `${position[0].toUpperCase()}${position.slice(1)}`
-                              ),
-                              value: position,
-                            })
-                          ),
+                          options: [
+                            {
+                              label: this._t("Crop"),
+                              value: "crop",
+                            },
+                            {
+                              label: this._t("Resize"),
+                              value: "resize",
+                            },
+                          ],
                         },
                       }}
-                      .value=${attributes.position || "right"}
+                      .value=${attributes.fit || "resize"}
                       @value-changed=${(ev) =>
                         this._updateDeckAttributes(index, {
-                          position: ev.detail.value === "right"
+                          fit: ev.detail.value === "resize"
                             ? undefined
                             : ev.detail.value,
                         })}
                     ></ha-selector>
                   </div>
                 </div>
-                <div class="field-grid two-columns">
-                  ${this._renderAttributeSelector(index, {
+                <div class="field-grid four-columns deck-overlay-layout-grid">
+                  ${this._renderOverlayNumberSelector(index, {
+                    label: "Left",
+                    value: attributes.left,
+                    changeKey: "left",
+                    min: -10000,
+                  })}
+                  ${this._renderOverlayNumberSelector(index, {
+                    label: "Top",
+                    value: attributes.top,
+                    changeKey: "top",
+                    min: -10000,
+                  })}
+                  ${this._renderOverlayNumberSelector(index, {
                     label: "Width",
-                    selector: { text: {} },
-                    value: attributes.width || "64px",
+                    value: attributes.width,
                     changeKey: "width",
                   })}
-                  ${this._renderAttributeSelector(index, {
+                  ${this._renderOverlayNumberSelector(index, {
                     label: "Height",
-                    selector: { text: {} },
-                    value: attributes.height || "64px",
+                    value: attributes.height,
                     changeKey: "height",
                   })}
                 </div>
@@ -826,6 +838,22 @@ class OrbitDeckCardEditor extends LitElement {
           })}
       ></ha-selector>
     `;
+  }
+
+  _renderOverlayNumberSelector(
+    index,
+    { label, value, changeKey, min = 0 }
+  ) {
+    return renderNumberInput.call(this, label, changeKey, {
+      value: value ?? "",
+      min,
+      onValueChanged: (nextValue) =>
+        this._updateDeckAttributes(index, {
+          [changeKey]: nextValue === "" || nextValue === null
+            ? undefined
+            : nextValue,
+        }),
+    });
   }
 
   _renderDeckCardSection(index, item) {
@@ -1169,7 +1197,7 @@ class OrbitDeckCardEditor extends LitElement {
         min-width: 260px;
       }
 
-      .deck-overlay-position-toggle {
+      .deck-overlay-fit-toggle {
         width: min(360px, 100%);
         min-width: 0;
       }

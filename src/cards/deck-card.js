@@ -500,7 +500,6 @@ class OrbitDeckCard extends LitElement {
   _renderOverlay() {
     const mainEntry = this._deckCards[0];
     const overlayEntries = this._deckCards.slice(1);
-    const positions = ["top", "bottom", "left", "right"];
 
     return html`
       <ha-card class="deck-card overlay">
@@ -509,26 +508,16 @@ class OrbitDeckCard extends LitElement {
             ${this._renderInteractiveDeckEntry(mainEntry)}
           </div>
 
-          ${positions.map((position) => {
-            const entries = overlayEntries.filter(
-              (entry) => getOverlayPosition(entry.item) === position
-            );
-
-            if (!entries.length) return "";
-
-            return html`
-              <div class="deck-overlay-group deck-overlay-${position}">
-                ${entries.map((entry) => html`
-                  <div
-                    class="deck-overlay-item deck-item"
-                    style=${getOverlayItemStyle(entry.item)}
-                  >
-                    ${this._renderInteractiveDeckEntry(entry)}
-                  </div>
-                `)}
+          ${overlayEntries.map((entry, index) => html`
+            <div
+              class="deck-overlay-item deck-item ${getOverlayFit(entry.item)}"
+              style=${getOverlayItemStyle(entry.item, index)}
+            >
+              <div class="deck-overlay-content">
+                ${this._renderInteractiveDeckEntry(entry)}
               </div>
-            `;
-          })}
+            </div>
+          `)}
         </div>
       </ha-card>
     `;
@@ -573,33 +562,44 @@ function getDeckItems(config = {}) {
     : [];
 }
 
-function getOverlayPosition(item = {}) {
-  const position = item?.attributes?.position;
-
-  return ["top", "bottom", "left", "right"].includes(position)
-    ? position
-    : "right";
-}
-
-function getOverlayItemStyle(item = {}) {
+function getOverlayItemStyle(item = {}, index = 0) {
   const attributes = item?.attributes || {};
-  const width = normalizeOverlaySize(attributes.width, "64px");
-  const height = normalizeOverlaySize(attributes.height, "64px");
+  const left = normalizeOverlayNumber(attributes.left, 0);
+  const top = normalizeOverlayNumber(attributes.top, 0);
+  const width = normalizeOverlayDimension(attributes.width);
+  const height = normalizeOverlayDimension(attributes.height);
+  const declarations = [
+    `--orbit-deck-overlay-left:${left}px`,
+    `--orbit-deck-overlay-top:${top}px`,
+    `--orbit-deck-overlay-z-index:${index + 1}`,
+  ];
 
-  return `--orbit-deck-overlay-width:${width};--orbit-deck-overlay-height:${height};`;
+  if (width !== null) {
+    declarations.push(`--orbit-deck-overlay-width:${width}px`);
+  }
+  if (height !== null) {
+    declarations.push(`--orbit-deck-overlay-height:${height}px`);
+  }
+
+  return `${declarations.join(";")};`;
 }
 
-function normalizeOverlaySize(value, fallback) {
+function normalizeOverlayNumber(value, fallback) {
   if (value === undefined || value === null || value === "") {
     return fallback;
   }
 
-  const text = value.toString().trim();
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
 
-  if (!text) return fallback;
-  if (/^-?\d+(\.\d+)?$/.test(text)) return `${text}px`;
+function normalizeOverlayDimension(value) {
+  const number = normalizeOverlayNumber(value, null);
+  return number === null ? null : Math.max(0, number);
+}
 
-  return text;
+function getOverlayFit(item = {}) {
+  return item?.attributes?.fit === "crop" ? "crop" : "resize";
 }
 
 function hasDeckItemActions(item = {}) {

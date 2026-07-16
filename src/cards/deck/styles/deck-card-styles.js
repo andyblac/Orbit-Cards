@@ -151,55 +151,24 @@ export const deckCardStyles = css`
     z-index: 0;
   }
 
-  .deck-overlay-group {
-    position: absolute;
-    z-index: 1;
-    display: flex;
-    gap: var(--orbit-deck-gap, 8px);
-    pointer-events: none;
-  }
-
-  .deck-overlay-top,
-  .deck-overlay-bottom {
-    inset-inline: var(--orbit-deck-gap, 8px);
-    justify-content: center;
-    align-items: center;
-  }
-
-  .deck-overlay-top {
-    top: var(--orbit-deck-gap, 8px);
-  }
-
-  .deck-overlay-bottom {
-    bottom: var(--orbit-deck-gap, 8px);
-  }
-
-  .deck-overlay-left,
-  .deck-overlay-right {
-    top: var(--orbit-deck-gap, 8px);
-    bottom: var(--orbit-deck-gap, 8px);
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .deck-overlay-left {
-    inset-inline-start: var(--orbit-deck-gap, 8px);
-  }
-
-  .deck-overlay-right {
-    inset-inline-end: var(--orbit-deck-gap, 8px);
-  }
-
   .deck-overlay-item {
+    position: absolute;
+    inset-inline-start: var(--orbit-deck-overlay-left, 0);
+    top: var(--orbit-deck-overlay-top, 0);
+    z-index: var(--orbit-deck-overlay-z-index, 1);
     flex: 0 0 auto;
-    width: var(--orbit-deck-overlay-width, 64px);
-    height: var(--orbit-deck-overlay-height, 64px);
+    width: var(--orbit-deck-overlay-width, auto);
+    height: var(--orbit-deck-overlay-height, auto);
     pointer-events: auto;
   }
 
-  .deck-overlay-item .deck-item-interaction,
-  .deck-overlay-item .deck-item-interaction > * {
+  .deck-overlay-item.crop {
+    overflow: hidden;
+  }
+
+  .deck-overlay-item.resize .deck-overlay-content,
+  .deck-overlay-item.resize .deck-item-interaction,
+  .deck-overlay-item.resize .deck-item-interaction > * {
     width: 100%;
     height: 100%;
   }
