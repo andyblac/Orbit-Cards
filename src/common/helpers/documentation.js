@@ -28,6 +28,7 @@ const DOCUMENTATION_CONTEXTS = {
     default: "Deck-Card",
     "setup-wrap": "Deck-Card#wrap-layout",
     "setup-tabs": "Deck-Card#tabs-layout",
+    "setup-overlay": "Deck-Card#overlay-layout",
     card: "Deck-Card#deck-items",
   },
 };

@@ -44,7 +44,7 @@ Orbit Cards is a collection of modern Home Assistant dashboard cards with a shar
       <img src="images/deck-card-wrap-light.png" alt="Orbit Deck Card wrap layout" width="420">
       <p><strong>Tabs</strong></p>
       <img src="images/deck-card-tabs-home-light.png" alt="Orbit Deck Card tabs layout" width="360">
-      <p align="left">A generic container that arranges any Lovelace cards in a shared wrap layout or switches between them with tabs.</p>
+      <p align="left">A generic container that wraps Lovelace cards into rows, switches between them with tabs, or places compact cards over a main card.</p>
     </td>
   </tr>
 </table>
@@ -60,7 +60,7 @@ Orbit Cards is a collection of modern Home Assistant dashboard cards with a shar
 - Tap, hold, navigation, service, popup, and Browser Mod actions.
 - Dynamic entity state updates scoped to only the entities used by each card.
 - Grouped compact layouts for Status Icon only and Action Card.
-- Deck Card layouts for wrapping any Lovelace cards into rows or showing them as tabs.
+- Deck Card layouts for wrapping Lovelace cards into rows, showing them as tabs, or overlaying compact controls on a main card.
 
 ## Installation
 
