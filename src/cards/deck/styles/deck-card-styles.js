@@ -157,20 +157,24 @@ export const deckCardStyles = css`
     top: var(--orbit-deck-overlay-top, 0);
     z-index: var(--orbit-deck-overlay-z-index, 1);
     flex: 0 0 auto;
-    width: var(--orbit-deck-overlay-width, auto);
-    height: var(--orbit-deck-overlay-height, auto);
     pointer-events: auto;
   }
 
-  .deck-overlay-item.crop {
-    overflow: hidden;
+  .deck-overlay-item.overlay-card {
+    width: 100%;
   }
 
-  .deck-overlay-item.resize .deck-overlay-content,
-  .deck-overlay-item.resize .deck-item-interaction,
-  .deck-overlay-item.resize .deck-item-interaction > * {
-    width: 100%;
-    height: 100%;
+  .deck-overlay-item.overlay-badge {
+    width: max-content;
+  }
+
+  .deck-overlay-content {
+    display: block;
+    transform-origin: top left;
+  }
+
+  .deck-overlay-item .deck-item-interaction {
+    height: auto;
   }
 
   .deck-error-card {
