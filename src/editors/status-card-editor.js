@@ -218,6 +218,24 @@ class OrbitStatusCardEditor extends LitElement {
     ));
   }
 
+  _duplicateStatusItem(index) {
+    const items = this._getStatusItems();
+    const item = items[index];
+
+    if (!item) {
+      return;
+    }
+
+    const nextItems = [...items];
+    nextItems.splice(index + 1, 0, structuredClone(item));
+
+    this._selectedStatusIndex = index + 1;
+    this._updateConfig(clearKeys(
+      STATUS_GROUP_ROOT_KEYS,
+      { entities: nextItems }
+    ));
+  }
+
   _removeStatusItem(index) {
     const items = this._getStatusItems();
 

@@ -7602,6 +7602,15 @@ function _d({ cardActionDefault: e, mainEntityActionDefault: t }) {
             +
           </button>
 
+          <button
+            type="button"
+            class="status-tool-button"
+            title=${this._t("Duplicate")}
+            @click=${() => this._duplicateStatusItem(r)}
+          >
+            <ha-icon icon="mdi:content-copy"></ha-icon>
+          </button>
+
           ${n.length > 1 ? T`
                 <button
                   type="button"
@@ -8028,6 +8037,12 @@ var Cd, wd = e((() => {
 		_addStatusItem() {
 			let e = this._getStatusItems();
 			this._selectedStatusIndex = e.length, this._updateConfig(W(r, { entities: [...e, { entity: "" }] }));
+		}
+		_duplicateStatusItem(e) {
+			let t = this._getStatusItems(), n = t[e];
+			if (!n) return;
+			let i = [...t];
+			i.splice(e + 1, 0, structuredClone(n)), this._selectedStatusIndex = e + 1, this._updateConfig(W(r, { entities: i }));
 		}
 		_removeStatusItem(e) {
 			let t = this._getStatusItems();
