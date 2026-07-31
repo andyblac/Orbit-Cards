@@ -6025,9 +6025,9 @@ var Ou, ku, X = e((() => {
 })), Z, Q = e((() => {
 	Z = {
 		area: "0.8.3",
-		status: "0.13.3",
+		status: "0.13.4",
 		action: "0.6.3",
-		deck: "0.3.0"
+		deck: "0.4.0"
 	};
 })), Au = /* @__PURE__ */ t((() => {
 	A(), po(), Yo(), es(), ls(), U(), ks(), bn(), Bt(), It(), X(), Q();
