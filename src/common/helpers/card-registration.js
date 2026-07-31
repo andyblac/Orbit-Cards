@@ -1,3 +1,5 @@
+import { getOrbitDocumentationURL } from "./documentation.js";
+
 export function registerOrbitCard({
   tag,
   cardClass,
@@ -5,7 +7,7 @@ export function registerOrbitCard({
   description,
   version,
   getEntitySuggestion,
-  documentationURL = "https://github.com/andyblac/Orbit-Cards",
+  documentationURL,
   aliases = [],
 }) {
   if (!customElements.get(tag)) {
@@ -37,7 +39,7 @@ export function registerOrbitCard({
     description,
     preview: true,
     version,
-    documentationURL,
+    documentationURL: documentationURL || getOrbitDocumentationURL(tag),
     getEntitySuggestion,
   });
 

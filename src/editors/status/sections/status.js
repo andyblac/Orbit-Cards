@@ -219,6 +219,15 @@ function renderIconOnlyStatusConfig({
             +
           </button>
 
+          <button
+            type="button"
+            class="status-tool-button"
+            title=${this._t("Duplicate")}
+            @click=${() => this._duplicateStatusItem(selectedIndex)}
+          >
+            <ha-icon icon="mdi:content-copy"></ha-icon>
+          </button>
+
           ${items.length > 1
             ? html`
                 <button

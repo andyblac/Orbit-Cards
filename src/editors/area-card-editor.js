@@ -42,6 +42,9 @@ import {
 import {
   migrateAreaCardConfig,
 } from "../common/helpers/config-migration.js";
+import {
+  updateEditorDocumentationContext,
+} from "../common/helpers/documentation.js";
 import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
 
@@ -95,6 +98,7 @@ class OrbitAreaCardEditor extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     connectEditorPopoverClose(this);
+    this._updateDocumentationContext();
   }
 
   disconnectedCallback() {
@@ -121,6 +125,7 @@ class OrbitAreaCardEditor extends LitElement {
     } = migrateAreaCardConfig(config || {});
 
     this._config = migratedConfig || {};
+    this._updateDocumentationContext();
 
     if (migrated) {
       this._queueConfigMigration();
@@ -424,6 +429,7 @@ class OrbitAreaCardEditor extends LitElement {
             class="editor-tab ${this._activeSection === tab.key ? "active" : ""}"
             @click=${() => {
               this._activeSection = tab.key;
+              this._updateDocumentationContext();
             }}
           >
             ${this._t(tab.label)}
@@ -431,6 +437,14 @@ class OrbitAreaCardEditor extends LitElement {
         `)}
       </div>
     `;
+  }
+
+  _updateDocumentationContext() {
+    updateEditorDocumentationContext(
+      this,
+      this._config?.type || "orbit-area-card",
+      this._activeSection || "card"
+    );
   }
 
   _renderActiveSection() {

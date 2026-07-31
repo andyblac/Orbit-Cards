@@ -76,6 +76,10 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.panel.lovelace.editor.card.tile.background",
     "ui.panel.lovelace.editor.card.generic.background",
   ],
+  Badges: [
+    "ui.panel.lovelace.editor.card.heading.badges",
+    "ui.panel.lovelace.editor.badges.name",
+  ],
   Color: [
     "ui.panel.lovelace.editor.card.tile.color",
     "ui.dialogs.label-detail.color",
@@ -98,6 +102,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Disabled: [
     "ui.dialogs.entity_registry.editor.disabled_label",
     "ui.panel.config.entities.picker.status.disabled",
+  ],
+  Divider: [
+    "ui.panel.lovelace.editor.card.entities.entity_row.divider",
   ],
   Default: [
     "ui.common.default",
@@ -172,6 +179,10 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Person: [
     "component.person.entity_component._.name",
   ],
+  Position: [
+    "ui.panel.lovelace.editor.card.entities.secondary_info_values.position",
+    "ui.card.cover.position",
+  ],
   Prefix: [
     "ui.panel.lovelace.editor.elements.prefix",
   ],
@@ -213,6 +224,22 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Theme: [
     "ui.components.selectors.selector.types.theme",
     "ui.components.theme-picker.theme",
+  ],
+  Top: [
+    "ui.panel.lovelace.editor.edit_view_header.settings.badges_position_options.top",
+  ],
+  Right: [
+    "ui.panel.lovelace.editor.card.energy-date-selection.opening_directions.right",
+  ],
+  Bottom: [
+    "ui.panel.lovelace.editor.card.tile.features_position_options.bottom",
+    "ui.panel.lovelace.editor.edit_view_header.settings.badges_position_options.bottom",
+  ],
+  Left: [
+    "ui.panel.lovelace.editor.card.energy-date-selection.opening_directions.left",
+  ],
+  Width: [
+    "ui.panel.lovelace.editor.edit_section.settings.column_span",
   ],
   Wrap: [
     "ui.panel.lovelace.editor.edit_view_header.settings.badges_wrap_options.wrap",

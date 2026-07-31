@@ -12,6 +12,12 @@ export const deckCardStyles = css`
     box-shadow: none;
   }
 
+  ha-card.deck-card.overlay {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
   ha-card.deck-card.wrap:not(.separate-cards) .deck-item,
   ha-card.deck-card.wrap:not(.separate-cards) .deck-item > *,
   ha-card.deck-card.wrap:not(.separate-cards) .deck-item-interaction > * {
@@ -70,12 +76,14 @@ export const deckCardStyles = css`
     display: flex;
     align-items: end;
     gap: 4px;
-    border-bottom: 1px solid var(--divider-color);
+    border-bottom: none;
+    box-shadow: inset 0 -2px 0 var(--divider-color);
     background: var(--orbit-deck-tab-background-color, transparent);
     overflow-x: auto;
   }
 
   .deck-tab {
+    position: relative;
     min-width: 72px;
     min-height: 44px;
     border: none;
@@ -92,6 +100,17 @@ export const deckCardStyles = css`
     justify-content: center;
     gap: 8px;
     cursor: pointer;
+  }
+
+  .deck-card.tabs:not(.hide-tab-dividers) .deck-tab + .deck-tab::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: -3px;
+    top: 8px;
+    bottom: 0;
+    width: 2px;
+    background: var(--divider-color);
+    pointer-events: none;
   }
 
   .deck-card.tabs.tab-width-equal .deck-tab {
@@ -120,6 +139,58 @@ export const deckCardStyles = css`
 
   .deck-tab-content {
     padding-top: var(--orbit-deck-gap, 8px);
+  }
+
+  .deck-overlay {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: var(--ha-card-border-radius, 15px);
+  }
+
+  .deck-overlay-main {
+    position: relative;
+    z-index: 0;
+  }
+
+  .deck-overlay-item {
+    position: absolute;
+    inset-inline-start: var(--orbit-deck-overlay-left, 0);
+    top: var(--orbit-deck-overlay-top, 0);
+    z-index: var(--orbit-deck-overlay-z-index, 1);
+    flex: 0 0 auto;
+    pointer-events: auto;
+  }
+
+  .deck-overlay-item.overlay-card {
+    width: 100%;
+  }
+
+  .deck-overlay-item.overlay-badge {
+    width: max-content;
+  }
+
+  .deck-overlay-content {
+    display: block;
+    transform-origin: top left;
+  }
+
+  .deck-overlay-item .deck-item-interaction {
+    height: auto;
+  }
+
+  .deck-overlay-item.transparent-background,
+  .deck-overlay-item.transparent-background .deck-overlay-content,
+  .deck-overlay-item.transparent-background .deck-item-interaction,
+  .deck-overlay-item.transparent-background .deck-item-interaction > * {
+    --ha-card-background: transparent;
+    --card-background-color: transparent;
+    --ha-card-box-shadow: none;
+    --ha-card-border-width: 0;
+    --ha-card-border-color: transparent;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
   }
 
   .deck-error-card {

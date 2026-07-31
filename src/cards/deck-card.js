@@ -50,6 +50,15 @@ class OrbitDeckCard extends LitElement {
     this._cardBuildKey = "";
     this._defaultSelectionKey = "";
     this._paddingApplyKey = "";
+    this._overlayGeometryFrame = null;
+    this._overlayGeometryObserver = null;
+    this._overlayObservedTargets = new Set();
+    this._overlayGeometryToken = 0;
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this._clearOverlayGeometryObserver();
   }
 
   static getConfigElement() {
@@ -77,9 +86,13 @@ class OrbitDeckCard extends LitElement {
   }
 
   setConfig(config) {
+    const layout = ["tabs", "overlay"].includes(config?.layout)
+      ? config.layout
+      : "wrap";
+
     this._config = {
       ...config,
-      layout: config?.layout === "tabs" ? "tabs" : "wrap",
+      layout,
     };
 
     const decks = getDeckItems(this._config);
@@ -117,10 +130,141 @@ class OrbitDeckCard extends LitElement {
       this._applyDeckPaddingToEntries();
       this._bindDeckItemActionListeners();
     }
+
+    if (this._config?.layout === "overlay") {
+      if (changedProps.has("_deckCards") || changedProps.has("_config")) {
+        this._scheduleOverlayGeometrySync();
+      }
+    } else {
+      this._clearOverlayGeometryObserver();
+    }
+  }
+
+  _scheduleOverlayGeometrySync() {
+    if (this._overlayGeometryFrame !== null) {
+      cancelAnimationFrame(this._overlayGeometryFrame);
+    }
+
+    const token = ++this._overlayGeometryToken;
+    this._overlayGeometryFrame = requestAnimationFrame(() => {
+      this._overlayGeometryFrame = null;
+      this._syncOverlayGeometry(token);
+    });
+  }
+
+  async _syncOverlayGeometry(token) {
+    if (this._config?.layout !== "overlay") return;
+
+    const overlay = this.renderRoot.querySelector(".deck-overlay");
+    const items = [...this.renderRoot.querySelectorAll(".deck-overlay-item")];
+
+    if (!overlay || !items.length) return;
+
+    await Promise.all(
+      this._deckCards.slice(1).map((entry) =>
+        entry?.element?.updateComplete instanceof Promise
+          ? entry.element.updateComplete.catch(() => {})
+          : Promise.resolve()
+      )
+    );
+
+    if (token !== this._overlayGeometryToken) return;
+
+    const availableWidth = overlay.clientWidth;
+
+    items.forEach((item) => {
+      const content = item.querySelector(".deck-overlay-content");
+      if (!content) return;
+
+      const isBadge = item.classList.contains("overlay-badge");
+
+      content.style.width = isBadge ? "max-content" : `${availableWidth}px`;
+      content.style.height = "auto";
+    });
+
+    items.forEach((item) => this._applyOverlayItemGeometry(item));
+    this._observeOverlayGeometry(overlay, items);
+  }
+
+  _applyOverlayItemGeometry(item) {
+    const entryIndex = Number(item.dataset.deckIndex);
+    const entry = Number.isInteger(entryIndex)
+      ? this._deckCards[entryIndex]
+      : null;
+    const content = item.querySelector(".deck-overlay-content");
+
+    if (!entry || !content) return;
+
+    const naturalWidth = content.offsetWidth;
+    const naturalHeight = content.offsetHeight;
+
+    if (naturalWidth <= 0 || naturalHeight <= 0) return;
+
+    const attributes = entry.item?.attributes || {};
+    const isBadge = getDeckItemKind(entry.item) === "badge";
+    const configuredWidth = normalizeOverlayDimension(attributes.width);
+    const configuredHeight = normalizeOverlayDimension(attributes.height);
+    const isCrop = getOverlayFit(entry.item) === "crop";
+    const geometry = getOverlayGeometry(
+      naturalWidth,
+      naturalHeight,
+      configuredWidth,
+      configuredHeight,
+      isCrop
+    );
+
+    item.style.width = `${geometry.width}px`;
+    item.style.height = `${geometry.height}px`;
+    item.style.overflow = isCrop ? "hidden" : "visible";
+    content.style.width = isBadge ? "max-content" : `${naturalWidth}px`;
+    content.style.height = "auto";
+    content.style.transform = isCrop
+      ? "none"
+      : `scale(${geometry.scaleX}, ${geometry.scaleY})`;
+    item.dataset.naturalWidth = String(naturalWidth);
+    item.dataset.naturalHeight = String(naturalHeight);
+  }
+
+  _observeOverlayGeometry(overlay, items) {
+    if (!window.ResizeObserver) return;
+
+    if (!this._overlayGeometryObserver) {
+      this._overlayGeometryObserver = new ResizeObserver(() => {
+        this._scheduleOverlayGeometrySync();
+      });
+    }
+
+    const targets = new Set([overlay]);
+    items.forEach((item) => {
+      const content = item.querySelector(".deck-overlay-content");
+      if (content) targets.add(content);
+    });
+
+    this._overlayObservedTargets.forEach((target) => {
+      if (!targets.has(target)) this._overlayGeometryObserver.unobserve(target);
+    });
+    targets.forEach((target) => {
+      if (!this._overlayObservedTargets.has(target)) {
+        this._overlayGeometryObserver.observe(target);
+      }
+    });
+    this._overlayObservedTargets = targets;
+  }
+
+  _clearOverlayGeometryObserver() {
+    this._overlayGeometryToken += 1;
+
+    if (this._overlayGeometryFrame !== null) {
+      cancelAnimationFrame(this._overlayGeometryFrame);
+      this._overlayGeometryFrame = null;
+    }
+
+    this._overlayGeometryObserver?.disconnect();
+    this._overlayObservedTargets.clear();
   }
 
   _getColumnCount(count) {
-    if (this._config?.layout === "tabs") {
+    if (["tabs", "overlay"].includes(this._config?.layout)) {
       return 1;
     }
 
@@ -133,7 +277,10 @@ class OrbitDeckCard extends LitElement {
   async _scheduleCardBuild() {
     const decks = getDeckItems(this._config);
     const buildKey = JSON.stringify(
-      decks.map((item) => getDeckItemRenderCardConfig(item))
+      decks.map((item) => ({
+        kind: getDeckItemKind(item),
+        config: getDeckItemRenderConfig(item),
+      }))
     );
 
     if (buildKey === this._cardBuildKey) {
@@ -167,18 +314,21 @@ class OrbitDeckCard extends LitElement {
   }
 
   _createDeckEntry(item, helpers, index) {
-    const cardConfig = getDeckItemRenderCardConfig(item);
+    const kind = getDeckItemKind(item);
+    const childConfig = getDeckItemRenderConfig(item);
 
-    if (!cardConfig.type) {
+    if (!childConfig.type) {
       return {
         item,
         index,
-        error: "No card type configured",
+        error: `No ${kind} type configured`,
       };
     }
 
     try {
-      const element = helpers.createCardElement(cardConfig);
+      const element = kind === "badge"
+        ? helpers.createBadgeElement(childConfig)
+        : helpers.createCardElement(childConfig);
       element.hass = this.hass;
       element.addEventListener(
         "ll-rebuild",
@@ -189,6 +339,7 @@ class OrbitDeckCard extends LitElement {
       return {
         item,
         index,
+        kind,
         element,
       };
     } catch (err) {
@@ -455,7 +606,9 @@ class OrbitDeckCard extends LitElement {
 
     return html`
       <ha-card
-        class="deck-card tabs tab-width-${tabWidthMode}"
+        class="deck-card tabs tab-width-${tabWidthMode} ${this._config?.tab_divider === false
+          ? "hide-tab-dividers"
+          : ""}"
         style=${tabStyles}
       >
         <div class="deck-tabs" role="tablist">
@@ -484,6 +637,39 @@ class OrbitDeckCard extends LitElement {
     `;
   }
 
+  _renderOverlay() {
+    const mainEntry = this._deckCards[0];
+    const overlayEntries = this._deckCards.slice(1);
+
+    return html`
+      <ha-card class="deck-card overlay">
+        <div class="deck-overlay">
+          <div class="deck-overlay-main deck-item">
+            ${this._renderInteractiveDeckEntry(mainEntry)}
+          </div>
+
+          ${overlayEntries.map((entry, index) => html`
+            <div
+              class="deck-overlay-item deck-item ${getOverlayFit(entry.item)} ${
+                entry.item?.attributes?.transparent_background === true
+                  ? "transparent-background"
+                  : ""
+              } overlay-${
+                entry.kind || getDeckItemKind(entry.item)
+              }"
+              data-deck-index=${entry.index}
+              style=${getOverlayItemStyle(entry.item, index)}
+            >
+              <div class="deck-overlay-content">
+                ${this._renderInteractiveDeckEntry(entry)}
+              </div>
+            </div>
+          `)}
+        </div>
+      </ha-card>
+    `;
+  }
+
   render() {
     const decks = getDeckItems(this._config);
 
@@ -495,9 +681,15 @@ class OrbitDeckCard extends LitElement {
       `;
     }
 
-    return this._config?.layout === "tabs"
-      ? this._renderTabs(decks)
-      : this._renderWrap(decks);
+    if (this._config?.layout === "tabs") {
+      return this._renderTabs(decks);
+    }
+
+    if (this._config?.layout === "overlay") {
+      return this._renderOverlay();
+    }
+
+    return this._renderWrap(decks);
   }
 
   static styles = deckCardStyles;
@@ -505,11 +697,100 @@ class OrbitDeckCard extends LitElement {
 
 function getDeckItems(config = {}) {
   return Array.isArray(config?.decks)
-    ? config.decks.map((item) => ({
-        attributes: item?.attributes || {},
-        card: item?.card || {},
-      }))
+    ? config.decks.map((item) => item?.badge
+      ? {
+          attributes: item?.attributes || {},
+          badge: item.badge || {},
+        }
+      : {
+          attributes: item?.attributes || {},
+          card: item?.card || {},
+        })
     : [];
+}
+
+function getOverlayItemStyle(item = {}, index = 0) {
+  const attributes = item?.attributes || {};
+  const left = normalizeOverlayNumber(attributes.left, 0);
+  const top = normalizeOverlayNumber(attributes.top, 0);
+  const declarations = [
+    `--orbit-deck-overlay-left:${left}px`,
+    `--orbit-deck-overlay-top:${top}px`,
+    `--orbit-deck-overlay-z-index:${index + 1}`,
+  ];
+
+  return `${declarations.join(";")};`;
+}
+
+function normalizeOverlayNumber(value, fallback) {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
+  }
+
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function normalizeOverlayDimension(value) {
+  const number = normalizeOverlayNumber(value, null);
+  return number === null ? null : Math.max(0, number);
+}
+
+function getOverlayFit(item = {}) {
+  return item?.attributes?.fit === "crop" ? "crop" : "resize";
+}
+
+function getOverlayGeometry(
+  naturalWidth,
+  naturalHeight,
+  configuredWidth,
+  configuredHeight,
+  isCrop
+) {
+  if (isCrop) {
+    return {
+      width: configuredWidth ?? naturalWidth,
+      height: configuredHeight ?? naturalHeight,
+      scaleX: 1,
+      scaleY: 1,
+    };
+  }
+
+  if (configuredWidth === null && configuredHeight === null) {
+    return {
+      width: naturalWidth,
+      height: naturalHeight,
+      scaleX: 1,
+      scaleY: 1,
+    };
+  }
+
+  if (configuredWidth !== null && configuredHeight === null) {
+    const scale = configuredWidth / naturalWidth;
+    return {
+      width: configuredWidth,
+      height: naturalHeight * scale,
+      scaleX: scale,
+      scaleY: scale,
+    };
+  }
+
+  if (configuredWidth === null && configuredHeight !== null) {
+    const scale = configuredHeight / naturalHeight;
+    return {
+      width: naturalWidth * scale,
+      height: configuredHeight,
+      scaleX: scale,
+      scaleY: scale,
+    };
+  }
+
+  return {
+    width: configuredWidth,
+    height: configuredHeight,
+    scaleX: configuredWidth / naturalWidth,
+    scaleY: configuredHeight / naturalHeight,
+  };
 }
 
 function hasDeckItemActions(item = {}) {
@@ -521,44 +802,56 @@ function hasDeckItemActions(item = {}) {
 }
 
 function getDeckItemAction(item = {}, key) {
+  const child = getDeckItemConfig(item);
   const action =
     item?.attributes?.[key] ||
-    item?.card?.[key];
+    child?.[key];
 
   return action?.action ? action : null;
 }
 
 function getDeckItemEntity(item = {}) {
+  const child = getDeckItemConfig(item);
+
   return (
     item?.attributes?.entity ||
     getActionEntity(item?.attributes?.tap_action) ||
     getActionEntity(item?.attributes?.hold_action) ||
     getActionEntity(item?.attributes?.double_tap_action) ||
-    getActionEntity(item?.card?.tap_action) ||
-    getActionEntity(item?.card?.hold_action) ||
-    getActionEntity(item?.card?.double_tap_action) ||
-    item?.card?.entity ||
+    getActionEntity(child?.tap_action) ||
+    getActionEntity(child?.hold_action) ||
+    getActionEntity(child?.double_tap_action) ||
+    child?.entity ||
     null
   );
 }
 
-function getDeckItemRenderCardConfig(item = {}) {
-  const card = shouldStripChildPaddingConfig(item)
-    ? removeChildPaddingConfig(item?.card || {})
-    : item?.card || {};
+function getDeckItemRenderConfig(item = {}) {
+  const child = getDeckItemConfig(item);
+  const renderChild = shouldStripChildPaddingConfig(item)
+    ? removeChildPaddingConfig(child)
+    : child;
 
   if (!hasDeckItemActions(item)) {
-    return card;
+    return renderChild;
   }
 
   const {
     tap_action,
     hold_action,
     double_tap_action,
-    ...renderCard
-  } = card;
+    ...renderConfig
+  } = renderChild;
 
-  return renderCard;
+  return renderConfig;
+}
+
+function getDeckItemKind(item = {}) {
+  return item?.badge ? "badge" : "card";
+}
+
+function getDeckItemConfig(item = {}) {
+  return item?.badge || item?.card || {};
 }
 
 function removeChildPaddingConfig(value) {
@@ -650,7 +943,8 @@ function getDeckPaddingApplyKey(entries = []) {
 
     return [
       entry.index,
-      entry.item?.card?.type || "",
+      entry.kind || getDeckItemKind(entry.item),
+      getDeckItemConfig(entry.item)?.type || "",
       forcePadding ? "force" : "child",
       activePadding ? padding.top : "",
       activePadding ? padding.right : "",

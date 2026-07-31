@@ -24,6 +24,9 @@ import { editorStyles } from "../common/editor/styles/editor-styles.js";
 import { actionEditorStyles } from "../common/editor/styles/action-editor.js";
 import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
+import {
+  updateEditorDocumentationContext,
+} from "../common/helpers/documentation.js";
 
 export const DECK_PREVIEW_SELECTED_INDEX = Symbol.for(
   "orbit-deck-card-preview-selected-index"
@@ -36,6 +39,7 @@ class OrbitDeckCardEditor extends LitElement {
     _config: { state: true },
     _selectedTab: { state: true },
     _selectedDeckIndex: { state: true },
+    _childPickerType: { state: true },
     _colorPickerKey: { state: true },
     _colorPickerTab: { state: true },
     _styleSectionExpanded: { state: true },
@@ -47,6 +51,7 @@ class OrbitDeckCardEditor extends LitElement {
     this._config = {};
     this._selectedTab = "setup";
     this._selectedDeckIndex = 0;
+    this._childPickerType = "badge";
     this._colorPickerKey = "";
     this._colorPickerTab = "picker";
     this._styleSectionExpanded = false;
@@ -56,6 +61,7 @@ class OrbitDeckCardEditor extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     connectEditorPopoverClose(this);
+    this._updateDocumentationContext();
   }
 
   disconnectedCallback() {
@@ -68,12 +74,17 @@ class OrbitDeckCardEditor extends LitElement {
 
     this._config = {
       ...normalized.config,
-      layout: config?.layout === "tabs" ? "tabs" : "wrap",
+      layout: ["tabs", "overlay"].includes(config?.layout)
+        ? config.layout
+        : "wrap",
     };
     this._selectedDeckIndex = Math.min(
       this._selectedDeckIndex || 0,
       Math.max(0, this._getDeckItems().length - 1)
     );
+    const selectedItem = this._getDeckItems()[this._selectedDeckIndex];
+    this._childPickerType = selectedItem?.badge ? "badge" : "card";
+    this._updateDocumentationContext();
 
     if (normalized.changed) {
       queueMicrotask(() => this._dispatchConfigChanged());
@@ -119,15 +130,15 @@ class OrbitDeckCardEditor extends LitElement {
 
   _getDeckItems(config = this._config) {
     return Array.isArray(config?.decks)
-      ? config.decks.map((item) => ({
-          attributes: item?.attributes || {},
-          card: item?.card || {},
-        }))
+      ? config.decks.map(normalizeDeckItem)
       : [];
   }
 
   _selectDeckItem(index) {
+    const item = this._getDeckItems()[index];
+
     this._selectedDeckIndex = index;
+    this._childPickerType = item?.badge ? "badge" : "card";
     this._dispatchPreviewSelection(index);
   }
 
@@ -149,6 +160,7 @@ class OrbitDeckCardEditor extends LitElement {
 
     this._selectedDeckIndex = items.length;
     this._selectedTab = "card";
+    this._childPickerType = "badge";
     this.requestUpdate();
   }
 
@@ -237,7 +249,33 @@ class OrbitDeckCardEditor extends LitElement {
       return;
     }
 
-    this._updateDeckItem(index, { card });
+    this._updateDeckItem(index, {
+      badge: undefined,
+      card,
+    });
+  }
+
+  _updateDeckBadge(index, badge) {
+    const items = this._getDeckItems();
+
+    if (index >= items.length) {
+      this._selectedDeckIndex = items.length;
+      this._updateConfig({
+        decks: [
+          ...items,
+          {
+            attributes: {},
+            badge,
+          },
+        ],
+      });
+      return;
+    }
+
+    this._updateDeckItem(index, {
+      badge,
+      card: undefined,
+    });
   }
 
   _renderInput(label, key, placeholder = "", options = {}) {
@@ -267,7 +305,10 @@ class OrbitDeckCardEditor extends LitElement {
             <button
               type="button"
               class="editor-tab ${this._selectedTab === tab ? "active" : ""}"
-              @click=${() => { this._selectedTab = tab; }}
+              @click=${() => {
+                this._selectedTab = tab;
+                this._updateDocumentationContext();
+              }}
             >
               ${tab === "setup" ? this._t("Setup") : this._t("Card")}
             </button>
@@ -288,17 +329,31 @@ class OrbitDeckCardEditor extends LitElement {
                   label: this._t("Tabs"),
                   value: "tabs",
                 },
+                {
+                  label: this._t("Overlay"),
+                  value: "overlay",
+                },
               ],
             },
           }}
           .value=${this._config?.layout || "wrap"}
-          @value-changed=${(e) =>
+          @value-changed=${(e) => {
             this._updateConfig({
               layout: e.detail.value || "wrap",
-            })}
+            });
+            this._updateDocumentationContext();
+          }}
         ></ha-selector>
       </div>
     `;
+  }
+
+  _updateDocumentationContext() {
+    const context = this._selectedTab === "card"
+      ? "card"
+      : `setup-${this._config?.layout || "wrap"}`;
+
+    updateEditorDocumentationContext(this, "orbit-deck-card", context);
   }
 
   _renderSetup() {
@@ -316,7 +371,8 @@ class OrbitDeckCardEditor extends LitElement {
               perRowLabel: "Items per row",
               defaultPerRow: 1,
             })
-          : html`
+          : this._config?.layout === "tabs"
+            ? html`
               ${this._renderTabWidthModeControl()}
               ${this._renderInput("Tab font size", "tab_font_size", "18px", {
                 value: this._config?.tab_font_size || "",
@@ -325,6 +381,16 @@ class OrbitDeckCardEditor extends LitElement {
                     tab_font_size: value || undefined,
                   }),
               })}
+              <label class="deck-tab-divider-row">
+                <span>${this._t("Divider")}</span>
+                <ha-switch
+                  .checked=${this._config?.tab_divider !== false}
+                  @change=${(event) =>
+                    this._updateConfig({
+                      tab_divider: event.target.checked ? undefined : false,
+                    })}
+                ></ha-switch>
+              </label>
               <div class="field-grid two-columns deck-tab-colors">
                 ${this._renderColorControl(
                   ["Inactive", "Color"],
@@ -348,7 +414,8 @@ class OrbitDeckCardEditor extends LitElement {
                   "card-background-color"
                 )}
               </div>
-            `}
+              `
+            : ""}
       </div>
     `;
   }
@@ -416,7 +483,9 @@ class OrbitDeckCardEditor extends LitElement {
               class="action-tab ${index === selectedIndex ? "active" : ""}"
               @click=${() => this._selectDeckItem(index)}
             >
-              ${index + 1}
+              ${this._config?.layout === "overlay" && index === 0
+                ? this._t("Main")
+                : index + 1}
             </button>
           `)}
         </div>
@@ -477,6 +546,87 @@ class OrbitDeckCardEditor extends LitElement {
     `;
   }
 
+  _renderChildTypeTabs(item) {
+    const selectedType = this._childPickerType;
+
+    return html`
+      <div class="editor-tabs deck-child-type-tabs" role="tablist">
+        ${[
+          ["badge", "Badges"],
+          ["card", "Cards"],
+        ].map(([type, label]) => html`
+          <button
+            type="button"
+            class="editor-tab ${selectedType === type ? "active" : ""}"
+            role="tab"
+            aria-selected=${selectedType === type ? "true" : "false"}
+            @click=${() => {
+              this._childPickerType = type;
+            }}
+          >
+            ${this._t(label)}
+          </button>
+        `)}
+      </div>
+    `;
+  }
+
+  _renderChildPicker(index, item) {
+    return this._childPickerType === "badge"
+      ? this._renderBadgePicker(index, item)
+      : this._renderCardPicker(index, item);
+  }
+
+  _renderBadgePicker(index, item) {
+    if (item?.badge?.type) {
+      if (!customElements.get("hui-badge-element-editor")) {
+        this._ensureNativeBadgeEditor();
+        return html`
+          <div class="deck-card-picker-loading">
+            <ha-spinner></ha-spinner>
+          </div>
+        `;
+      }
+
+      return html`
+        <hui-badge-element-editor
+          .hass=${this.hass}
+          .lovelace=${this.lovelace}
+          .value=${item.badge}
+          @config-changed=${(ev) => {
+            ev.stopPropagation();
+            this._updateDeckBadge(index, ev.detail.config);
+          }}
+        ></hui-badge-element-editor>
+      `;
+    }
+
+    if (!this.hass || !this.lovelace) {
+      return html``;
+    }
+
+    if (!customElements.get("hui-badge-picker")) {
+      this._ensureNativeBadgePicker();
+      return html`
+        <div class="deck-card-picker-loading">
+          <ha-spinner></ha-spinner>
+        </div>
+      `;
+    }
+
+    return html`
+      <hui-badge-picker
+        .hass=${this.hass}
+        .lovelace=${this.lovelace}
+        .badgePicked=${(badge) => this._updateDeckBadge(index, badge)}
+        @config-changed=${(ev) => {
+          ev.stopPropagation();
+          this._updateDeckBadge(index, ev.detail.config);
+        }}
+      ></hui-badge-picker>
+    `;
+  }
+
   _renderCardPicker(index, item) {
     if (item?.card?.type) {
       return html`
@@ -528,6 +678,8 @@ class OrbitDeckCardEditor extends LitElement {
   _renderDeckStyleControls(index, item) {
     const attributes = item?.attributes || {};
     const isTabs = this._config?.layout === "tabs";
+    const isOverlaySecondary =
+      this._config?.layout === "overlay" && index > 0;
     const expanded = this._styleSectionExpanded === true;
 
     return html`
@@ -570,6 +722,77 @@ class OrbitDeckCardEditor extends LitElement {
                 value: attributes.width || "",
                 changeKey: "width",
               })
+            : ""}
+
+          ${isOverlaySecondary
+            ? html`
+                <div class="field editor-button-toggle-field">
+                  <div class="field-header">
+                    <label>${this._t("Mode")}</label>
+                    <ha-selector
+                      class="editor-header-button-toggle deck-overlay-fit-toggle"
+                      .hass=${this.hass}
+                      .selector=${{
+                        button_toggle: {
+                          options: [
+                            {
+                              label: this._t("Crop"),
+                              value: "crop",
+                            },
+                            {
+                              label: this._t("Resize"),
+                              value: "resize",
+                            },
+                          ],
+                        },
+                      }}
+                      .value=${attributes.fit || "resize"}
+                      @value-changed=${(ev) =>
+                        this._updateDeckAttributes(index, {
+                          fit: ev.detail.value === "resize"
+                            ? undefined
+                            : ev.detail.value,
+                        })}
+                    ></ha-selector>
+                  </div>
+                </div>
+                <div class="field-grid four-columns deck-overlay-layout-grid">
+                  ${this._renderOverlayNumberSelector(index, {
+                    label: "Left",
+                    value: attributes.left,
+                    changeKey: "left",
+                    min: -10000,
+                  })}
+                  ${this._renderOverlayNumberSelector(index, {
+                    label: "Top",
+                    value: attributes.top,
+                    changeKey: "top",
+                    min: -10000,
+                  })}
+                  ${this._renderOverlayNumberSelector(index, {
+                    label: "Width",
+                    value: attributes.width,
+                    changeKey: "width",
+                  })}
+                  ${this._renderOverlayNumberSelector(index, {
+                    label: "Height",
+                    value: attributes.height,
+                    changeKey: "height",
+                  })}
+                </div>
+                <label class="deck-force-padding-row">
+                  <span>${this._t("Transparent background")}</span>
+                  <ha-switch
+                    .checked=${attributes.transparent_background === true}
+                    @change=${(ev) =>
+                      this._updateDeckAttributes(index, {
+                        transparent_background: ev.target.checked
+                          ? true
+                          : undefined,
+                      })}
+                  ></ha-switch>
+                </label>
+              `
             : ""}
 
           <label class="deck-force-padding-row">
@@ -629,6 +852,22 @@ class OrbitDeckCardEditor extends LitElement {
     `;
   }
 
+  _renderOverlayNumberSelector(
+    index,
+    { label, value, changeKey, min = 0 }
+  ) {
+    return renderNumberInput.call(this, label, changeKey, {
+      value: value ?? "",
+      min,
+      onValueChanged: (nextValue) =>
+        this._updateDeckAttributes(index, {
+          [changeKey]: nextValue === "" || nextValue === null
+            ? undefined
+            : nextValue,
+        }),
+    });
+  }
+
   _renderDeckCardSection(index, item) {
     const expanded = this._cardSectionExpanded !== false;
 
@@ -646,8 +885,9 @@ class OrbitDeckCardEditor extends LitElement {
           ${this._t("Card")}
         </div>
         <div class="deck-card-section-content">
+          ${this._renderChildTypeTabs(item)}
           <div class="deck-card-editor-frame">
-            ${this._renderCardPicker(index, item)}
+            ${this._renderChildPicker(index, item)}
           </div>
         </div>
       </ha-expansion-panel>
@@ -694,9 +934,149 @@ class OrbitDeckCardEditor extends LitElement {
         },
       ],
       context: {
-        entity_id: attributes.entity || item?.card?.entity,
+        entity_id: attributes.entity || getDeckChildConfig(item)?.entity,
       },
     });
+  }
+
+  async _ensureNativeBadgePicker() {
+    if (this._badgePickerLoadRequested) {
+      return;
+    }
+
+    this._badgePickerLoadRequested = true;
+
+    try {
+      if (window.loadCardHelpers) {
+        await window.loadCardHelpers();
+      }
+
+      if (!customElements.get("hui-badge-picker")) {
+        await this._loadNativeBadgeModule({
+          eventName: "ll-create-badge",
+          dialogTag: "hui-dialog-create-badge",
+        });
+      }
+
+      await Promise.race([
+        customElements.whenDefined("hui-badge-picker"),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
+    } catch (_err) {
+      // Keep the editor usable if HA changes its internal badge loader.
+    } finally {
+      this._badgePickerLoadRequested = false;
+      this.requestUpdate();
+    }
+  }
+
+  async _ensureNativeBadgeEditor() {
+    if (this._badgeEditorLoadRequested) {
+      return;
+    }
+
+    this._badgeEditorLoadRequested = true;
+
+    try {
+      if (window.loadCardHelpers) {
+        await window.loadCardHelpers();
+      }
+
+      if (!customElements.get("hui-badge-element-editor")) {
+        const huiView = this._findElementInShadowRoots(
+          document,
+          (element) =>
+            element.localName === "hui-view" && element._layoutElement
+        );
+        const viewIndex = Number.isInteger(huiView?.index)
+          ? huiView.index
+          : 0;
+
+        await this._loadNativeBadgeModule({
+          eventName: "ll-edit-badge",
+          dialogTag: "hui-dialog-edit-badge",
+          detail: { path: [viewIndex, 0] },
+          huiView,
+        });
+      }
+
+      await Promise.race([
+        customElements.whenDefined("hui-badge-element-editor"),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
+    } catch (_err) {
+      // Keep the editor usable if HA changes its internal badge loader.
+    } finally {
+      this._badgeEditorLoadRequested = false;
+      this.requestUpdate();
+    }
+  }
+
+  async _loadNativeBadgeModule({
+    eventName,
+    dialogTag,
+    detail,
+    huiView: providedHuiView,
+  }) {
+    const huiView = providedHuiView || this._findElementInShadowRoots(
+      document,
+      (element) =>
+        element.localName === "hui-view" && element._layoutElement
+    );
+
+    if (!huiView) {
+      return;
+    }
+
+    let badgeDialogImport;
+    const captureBadgeLoader = (event) => {
+      if (event.detail?.dialogTag !== dialogTag) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      badgeDialogImport = event.detail.dialogImport;
+    };
+
+    huiView.addEventListener("show-dialog", captureBadgeLoader);
+    try {
+      huiView._layoutElement.dispatchEvent(
+        new CustomEvent(eventName, {
+          detail,
+          bubbles: false,
+          composed: true,
+        })
+      );
+    } finally {
+      huiView.removeEventListener("show-dialog", captureBadgeLoader);
+    }
+
+    if (typeof badgeDialogImport === "function") {
+      await badgeDialogImport();
+    }
+  }
+
+  _findElementInShadowRoots(root, predicate) {
+    const elements = root.querySelectorAll?.("*") || [];
+
+    for (const element of elements) {
+      if (predicate(element)) {
+        return element;
+      }
+
+      if (element.shadowRoot) {
+        const match = this._findElementInShadowRoots(
+          element.shadowRoot,
+          predicate
+        );
+        if (match) {
+          return match;
+        }
+      }
+    }
+
+    return undefined;
   }
 
   async _ensureNativeCardPicker() {
@@ -820,13 +1200,18 @@ class OrbitDeckCardEditor extends LitElement {
         justify-content: flex-end;
         margin-left: auto;
         width: auto;
-        min-width: 180px;
+        min-width: 270px;
         margin-bottom: 6px;
       }
 
       .deck-tab-width-toggle {
         width: auto;
         min-width: 260px;
+      }
+
+      .deck-overlay-fit-toggle {
+        width: min(360px, 100%);
+        min-width: 0;
       }
 
       .field-grid.two-columns {
@@ -844,6 +1229,18 @@ class OrbitDeckCardEditor extends LitElement {
 
       .deck-tab-colors {
         margin-top: 12px;
+      }
+
+      .deck-tab-divider-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-height: 36px;
+        margin-top: 4px;
+        font-size: var(--ha-font-size-m, 14px);
+        font-weight: var(--ha-font-weight-normal, 400);
+        line-height: var(--ha-line-height-normal, 20px);
       }
 
       .deck-card-tab-section {
@@ -898,6 +1295,15 @@ class OrbitDeckCardEditor extends LitElement {
         min-height: 160px;
       }
 
+      .deck-child-type-tabs {
+        margin: -4px 0 12px;
+      }
+
+      hui-badge-picker {
+        display: block;
+        min-height: 320px;
+      }
+
       .deck-card-section {
         display: block;
         margin: 0;
@@ -945,6 +1351,7 @@ const DECK_CONFIG_ORDER = [
   "items_per_row",
   "separate_cards",
   "tab_font_size",
+  "tab_divider",
   "tab_width_mode",
   "tab_color",
   "tab_active_color",
@@ -956,6 +1363,7 @@ const DECK_CONFIG_ORDER = [
 
 const DECK_ITEM_KEYS = [
   "attributes",
+  "badge",
   "card",
 ];
 
@@ -1031,8 +1439,18 @@ function orderDeckItem(item) {
   const cleanedItem = {
     ...item,
     attributes: cleanObject(item.attributes || {}),
-    card: item.card || {},
   };
+
+  if (item.badge?.type) {
+    cleanedItem.badge = item.badge;
+    delete cleanedItem.card;
+  } else if (item.card?.type) {
+    cleanedItem.card = item.card;
+    delete cleanedItem.badge;
+  } else {
+    delete cleanedItem.badge;
+    delete cleanedItem.card;
+  }
 
   DECK_ITEM_KEYS.forEach((key) => {
     if (Object.prototype.hasOwnProperty.call(cleanedItem, key)) {
@@ -1061,15 +1479,35 @@ function cleanObject(value = {}) {
 }
 
 function getDeckChildActionDefault(item = {}, key) {
-  if (item?.card?.[key]?.action) {
-    return item.card[key];
+  const child = getDeckChildConfig(item);
+
+  if (child?.[key]?.action) {
+    return child[key];
   }
 
-  if (key === "tap_action" && item?.card?.entity) {
+  if (key === "tap_action" && child?.entity) {
     return "more-info";
   }
 
   return "none";
+}
+
+function normalizeDeckItem(item = {}) {
+  if (item?.badge) {
+    return {
+      attributes: item.attributes || {},
+      badge: item.badge || {},
+    };
+  }
+
+  return {
+    attributes: item?.attributes || {},
+    card: item?.card || {},
+  };
+}
+
+function getDeckChildConfig(item = {}) {
+  return item?.badge || item?.card || {};
 }
 
 function isVisibleDeckActionDefault(action) {

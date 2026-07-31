@@ -35,6 +35,9 @@ import {
 } from "../common/helpers/svg-cache.js";
 import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
+import {
+  updateEditorDocumentationContext,
+} from "../common/helpers/documentation.js";
 
 class OrbitStatusCardEditor extends LitElement {
   static svgCache = sharedSvgCache;
@@ -74,6 +77,7 @@ class OrbitStatusCardEditor extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     connectEditorPopoverClose(this);
+    updateEditorDocumentationContext(this, "orbit-status-card");
   }
 
   disconnectedCallback() {
@@ -211,6 +215,24 @@ class OrbitStatusCardEditor extends LitElement {
           },
         ],
       }
+    ));
+  }
+
+  _duplicateStatusItem(index) {
+    const items = this._getStatusItems();
+    const item = items[index];
+
+    if (!item) {
+      return;
+    }
+
+    const nextItems = [...items];
+    nextItems.splice(index + 1, 0, structuredClone(item));
+
+    this._selectedStatusIndex = index + 1;
+    this._updateConfig(clearKeys(
+      STATUS_GROUP_ROOT_KEYS,
+      { entities: nextItems }
     ));
   }
 
