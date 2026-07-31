@@ -22,13 +22,13 @@ Orbit Cards is available directly from the default HACS repository. Search for `
     <td width="50%" valign="top" align="center">
       <h3>Area Card</h3>
       <p><code>custom:orbit-area-card</code></p>
-      <img src="images/area-card-light.png" alt="Orbit Area Card" width="300">
+      <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/area-card-light.png" alt="Orbit Area Card" width="300">
       <p align="left">An area overview with status text, a main entity, side buttons, curved quick actions, and navigation.</p>
     </td>
     <td width="50%" valign="top" align="center">
       <h3>Status Card</h3>
       <p><code>custom:orbit-status-card</code></p>
-      <img src="images/status-card-modes-light.png" alt="Orbit Status Card modes" width="380">
+      <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/status-card-modes-light.png" alt="Orbit Status Card modes" width="380">
       <p align="left">Visual entity summaries in Standard, Person, Icon only, and compact grouped Icon only modes.</p>
     </td>
   </tr>
@@ -36,16 +36,16 @@ Orbit Cards is available directly from the default HACS repository. Search for `
     <td width="50%" valign="top" align="center">
       <h3>Action Card</h3>
       <p><code>custom:orbit-action-card</code></p>
-      <img src="images/action-card-grouped-light.png" alt="Orbit Action Card group" width="380">
+      <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/action-card-grouped-light.png" alt="Orbit Action Card group" width="380">
       <p align="left">Compact controls for scenes, scripts, automations, buttons, cameras, and grouped shortcuts.</p>
     </td>
     <td width="50%" valign="top" align="center">
       <h3>Deck Card</h3>
       <p><code>custom:orbit-deck-card</code></p>
       <p><strong>Wrap</strong></p>
-      <img src="images/deck-card-wrap-light.png" alt="Orbit Deck Card wrap layout" width="420">
+      <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/deck-card-wrap-light.png" alt="Orbit Deck Card wrap layout" width="420">
       <p><strong>Tabs</strong></p>
-      <img src="images/deck-card-tabs-home-light.png" alt="Orbit Deck Card tabs layout" width="360">
+      <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/deck-card-tabs-home-light.png" alt="Orbit Deck Card tabs layout" width="360">
       <p align="left">A generic container that wraps Lovelace cards into rows, switches between them with tabs, or places compact cards over a main card.</p>
     </td>
   </tr>
