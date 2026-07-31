@@ -1,7 +1,7 @@
 # Orbit Cards
 
 ![Downloads](https://img.shields.io/github/downloads/Andyblac/Orbit-Cards/total?color=41BDF5&logo=home-assistant&label=Downloads&suffix=%20downloads&style=for-the-badge)
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/frontend)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://hacs.xyz/)
 [![GitHub Release](https://img.shields.io/github/release/Andyblac/Orbit-Cards.svg)](https://github.com/Andyblac/Orbit-Cards/releases)
 [![License](https://img.shields.io/github/license/Andyblac/Orbit-Cards.svg)](LICENSE)
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.6.0%2B-blue.svg)
@@ -10,6 +10,8 @@
 [![GitHub Issues](https://img.shields.io/github/issues/Andyblac/Orbit-Cards?style=flat-square)](https://github.com/Andyblac/Orbit-Cards/issues)
 
 Orbit Cards is a collection of modern Home Assistant dashboard cards with a shared visual style, shared editor controls, and support for custom icons, dynamic colours, popups, navigation, and compact grouped layouts.
+
+Orbit Cards is available directly from the default HACS repository. Search for `Orbit Cards` in HACS to install it.
 
 ---
 
@@ -66,25 +68,15 @@ Orbit Cards is a collection of modern Home Assistant dashboard cards with a shar
 
 ### HACS
 
-1. Open HACS.
+1. Open HACS in Home Assistant.
 
-2. Go to `Frontend`.
+2. Search for `Orbit Cards`.
 
-3. Open the menu and choose `Custom repositories`.
+3. Select `Orbit Cards`, then choose `Download`.
 
-4. Add:
-   
-   ```text
-   https://github.com/andyblac/Orbit-Cards
-   ```
+4. Refresh Home Assistant when the download is complete.
 
-5. Select category `Dashboard`.
-
-6. Install `Orbit Cards`.
-
-7. Refresh Home Assistant.
-
-8. Add one of the Orbit cards from the dashboard card picker.
+5. Add one of the Orbit cards from the dashboard card picker.
 
 ### Manual
 
@@ -122,7 +114,7 @@ After updating the JavaScript file, refresh the browser or reload Home Assistant
 
 - Home Assistant Lovelace dashboards.
 - Home Assistant 2025.6.0 and newer recommended.
-- HACS or manual resource installation.
+- Available from the default HACS repository, with manual resource installation as a fallback.
 - Browser Mod is required only for Browser Mod popup actions.
 - Bubble Card is required only for Bubble Card hash popups.
 - `custom:orbit-room-card` remains registered as a legacy alias for `custom:orbit-area-card`.
