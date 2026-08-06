@@ -236,7 +236,8 @@ export const statusCardStyles = [
     justify-content: center;
   }
 
-  .person-badge ha-icon {
+  .person-badge ha-icon,
+  .person-badge ha-state-icon {
     --mdc-icon-size: 92%;
     width: 92%;
     height: 92%;
@@ -255,6 +256,10 @@ export const statusCardStyles = [
 
   .person-badge-zone ha-icon {
     transform: none;
+  }
+
+  .person-badge ha-state-icon {
+    transform: translateY(-6%);
   }
 
   .person-badge-battery-1 {

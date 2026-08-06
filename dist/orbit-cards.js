@@ -6877,11 +6877,11 @@ function Xu(e) {
 function Zu(e) {
 	let t = e && this.hass ? this.hass.states[e] : null;
 	if (!t) return null;
-	let n = Number(t.state), r = "green";
-	return Number.isFinite(n) && (n <= 15 ? r = "red" : n <= 30 && (r = "amber")), {
+	let n = Number(t.state), r = "var(--state-icon-color)";
+	return Number.isFinite(n) && (r = n >= 70 ? "var(--state-sensor-battery-high-color)" : n >= 30 ? "var(--state-sensor-battery-medium-color)" : "var(--state-sensor-battery-low-color)"), {
 		entityId: e,
-		icon: t.attributes?.icon || "mdi:battery",
-		color: this._computeFullColor(r)
+		stateObj: t,
+		color: r
 	};
 }
 var Qu = e((() => {
@@ -7049,13 +7049,13 @@ function nd() {
 
       ${rd.call(this, "zone", this._personZoneIcon || "mdi:home-minus", this._computeFullColor("blue"))}
 
-      ${this._personBattery1 ? rd.call(this, "battery-1", this._personBattery1.icon, this._personBattery1.color, this._personBattery1.entityId) : ""}
+      ${this._personBattery1 ? rd.call(this, "battery-1", null, this._personBattery1.color, this._personBattery1.entityId, this._personBattery1.stateObj) : ""}
 
-      ${this._personBattery2 ? rd.call(this, "battery-2", this._personBattery2.icon, this._personBattery2.color, this._personBattery2.entityId) : ""}
+      ${this._personBattery2 ? rd.call(this, "battery-2", null, this._personBattery2.color, this._personBattery2.entityId, this._personBattery2.stateObj) : ""}
     </div>
   `;
 }
-function rd(e, t, n, r = null) {
+function rd(e, t, n, r = null, i = null) {
 	return T`
     <span
       class="person-badge person-badge-${e} ${r ? "clickable" : ""}"
@@ -7071,7 +7071,11 @@ function rd(e, t, n, r = null) {
       @click=${this._handlePersonBadgeClick}
     >
       <span class="person-badge-icon">
-        <ha-icon .icon=${t}></ha-icon>
+        ${i ? T`
+              <ha-state-icon
+                .stateObj=${i}
+              ></ha-state-icon>
+            ` : T`<ha-icon .icon=${t}></ha-icon>`}
       </span>
     </span>
   `;
@@ -7326,7 +7330,8 @@ var sd = e((() => {
     justify-content: center;
   }
 
-  .person-badge ha-icon {
+  .person-badge ha-icon,
+  .person-badge ha-state-icon {
     --mdc-icon-size: 92%;
     width: 92%;
     height: 92%;
@@ -7345,6 +7350,10 @@ var sd = e((() => {
 
   .person-badge-zone ha-icon {
     transform: none;
+  }
+
+  .person-badge ha-state-icon {
+    transform: translateY(-6%);
   }
 
   .person-badge-battery-1 {

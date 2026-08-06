@@ -423,21 +423,19 @@ function getPersonBadge(entityId) {
   if (!stateObj) return null;
 
   const value = Number(stateObj.state);
-  let color = "green";
+  let color = "var(--state-icon-color)";
 
   if (Number.isFinite(value)) {
-    if (value <= 15) {
-      color = "red";
-    } else if (value <= 30) {
-      color = "amber";
-    }
+    color = value >= 70
+      ? "var(--state-sensor-battery-high-color)"
+      : value >= 30
+        ? "var(--state-sensor-battery-medium-color)"
+        : "var(--state-sensor-battery-low-color)";
   }
 
   return {
     entityId,
-    icon:
-      stateObj.attributes?.icon ||
-      "mdi:battery",
-    color: this._computeFullColor(color),
+    stateObj,
+    color,
   };
 }
