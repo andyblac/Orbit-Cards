@@ -25,6 +25,16 @@
     "tags": ["motion", "sensor"]
   },
   {
+    "name": "Shutter Opening",
+    "file": "shutter-opening.svg",
+    "tags": ["cover", "shade", "shutter", "opening"]
+  },
+  {
+    "name": "Shutter Closing",
+    "file": "shutter-closing.svg",
+    "tags": ["cover", "shade", "shutter", "closing"]
+  },
+  {
     "name": "Shower On",
     "file": "shower_on.svg",
     "tags": ["bathroom", "water"]

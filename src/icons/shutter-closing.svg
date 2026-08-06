@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="color: inherit;" role="img" aria-labelledby="title desc">
+  <title id="title">Closing shutter</title>
+  <desc id="desc">A blue shutter smoothly closes from twenty percent closed to fully closed.</desc>
+  <style>
+    .shade-closing {
+      transform-box: view-box;
+      transform-origin: 0 4.021px;
+      animation: shade-closing 5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .rail-closing {
+      animation: rail-closing 5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes shade-closing {
+      from { transform: scaleY(1); }
+      to   { transform: scaleY(3.943322); }
+    }
+
+    @keyframes rail-closing {
+      from { transform: translateY(0); }
+      to   { transform: translateY(12.827px); }
+    }
+  </style>
+
+  <g fill="currentColor" shape-rendering="geometricPrecision">
+    <!-- Top housing -->
+    <rect x="2.42" y="2" width="19.16" height="1.707"/>
+
+    <!-- Fabric/shade -->
+    <rect class="shade-closing" x="2.651" y="4.021" width="18.698" height="4.358"/>
+
+    <!-- Bottom rail -->
+    <rect class="rail-closing" x="2.42" y="8.694" width="19.16" height="0.479"/>
+  </g>
+</svg>
