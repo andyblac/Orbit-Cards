@@ -25,7 +25,8 @@
 
   <g fill="currentColor" shape-rendering="geometricPrecision">
     <!-- Top housing -->
-    <rect x="2.42" y="2" width="19.16" height="1.707"/>
+    <path fill-rule="evenodd"
+      d="M2.42 2H21.58V3.707H2.42Z M2.991 2.273H6.173V3.359H2.991Z M3.194 2.476H5.97V3.157H3.194Z"/>
 
     <!-- Fabric/shade -->
     <rect class="shade-closing" x="2.651" y="4.021" width="18.698" height="4.358"/>
