@@ -70,6 +70,13 @@ function renderActionButton(action, index) {
                   : html`<img src=${iconPath} alt="" />`}
               </div>
             `
+          : action.useStateIcon && action.stateObj
+          ? html`
+              <ha-state-icon
+                class="main-icon"
+                .stateObj=${action.stateObj}
+              ></ha-state-icon>
+            `
           : html`
               <ha-icon
                 class="main-icon"

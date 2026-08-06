@@ -120,7 +120,7 @@ export const actionCardStyles = [
     }
 
     .action-circle .main-icon {
-      --mdc-icon-size: 58%;
+      --orbit-main-icon-size: 58%;
     }
 
     .action-circle .main-image-icon {

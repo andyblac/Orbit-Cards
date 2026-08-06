@@ -1,7 +1,8 @@
 import { css } from "lit";
 
 export const CurveButtonIconStyles = css`
-  .curve-button ha-icon {
+  .curve-button ha-icon,
+  .curve-button ha-state-icon {
     width: clamp(24px, 13cqw, 78px);
     height: clamp(24px, 13cqw, 78px);
     --mdc-icon-size: 100%;
@@ -25,6 +26,7 @@ export const CurveButtonIconStyles = css`
   }
 
   .curve-button.action-button ha-icon,
+  .curve-button.action-button ha-state-icon,
   .curve-button.action-button .curve-image-icon {
     width: clamp(30px, 16cqw, 96px);
     height: clamp(30px, 16cqw, 96px);

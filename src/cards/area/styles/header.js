@@ -25,6 +25,10 @@ export const AreaCardHeaderStyles = css`
     flex: none;
   }
 
+  ha-state-icon.status-prefix-icon {
+    --mdc-icon-size: 100%;
+  }
+
   .status-prefix-image {
     display: inline-flex;
     color: currentColor;

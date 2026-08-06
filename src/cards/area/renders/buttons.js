@@ -40,6 +40,13 @@ export function renderButtons(button) {
                   : ""}
               </div>
             `
+          : button.useStateIcon && button.stateObj
+            ? html`
+                <ha-state-icon
+                  .stateObj=${button.stateObj}
+                  style="color:${button.iconColor};"
+                ></ha-state-icon>
+              `
           : html`
               <ha-icon
                 .icon=${button.icon}

@@ -59,7 +59,7 @@ export const statusCardStyles = [
   }
 
   .status-circle .main-icon {
-    --mdc-icon-size: 45%;
+    --orbit-main-icon-size: 45%;
     color: var(--status-icon-color);
   }
 
@@ -172,7 +172,7 @@ export const statusCardStyles = [
   }
 
   .status-container.mode-icon_only .status-circle .main-icon {
-    --mdc-icon-size: 54%;
+    --orbit-main-icon-size: 54%;
   }
 
   .status-container.mode-icon_only .status-circle .main-image-icon {

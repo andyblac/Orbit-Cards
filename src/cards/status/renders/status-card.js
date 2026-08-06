@@ -71,6 +71,13 @@ export function renderStatusCard() {
                     : html`<img src=${iconPath} alt="" />`}
                 </div>
               `
+            : this._useNativeMainIcon && this._mainStateObj
+            ? html`
+                <ha-state-icon
+                  class="main-icon"
+                  .stateObj=${this._mainStateObj}
+                ></ha-state-icon>
+              `
             : html`
                 <ha-icon
                   class="main-icon"
@@ -160,6 +167,13 @@ function renderIconOnlyStatusItem(item, index) {
                   ? unsafeHTML(inlineSvg)
                   : html`<img src=${iconPath} alt="" />`}
               </div>
+            `
+          : item.useStateIcon && item.stateObj
+          ? html`
+              <ha-state-icon
+                class="main-icon"
+                .stateObj=${item.stateObj}
+              ></ha-state-icon>
             `
           : html`
               <ha-icon
