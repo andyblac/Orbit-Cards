@@ -59,7 +59,7 @@ export const statusCardStyles = [
   }
 
   .status-circle .main-icon {
-    --mdc-icon-size: 45%;
+    --orbit-main-icon-size: 45%;
     color: var(--status-icon-color);
   }
 
@@ -172,7 +172,7 @@ export const statusCardStyles = [
   }
 
   .status-container.mode-icon_only .status-circle .main-icon {
-    --mdc-icon-size: 54%;
+    --orbit-main-icon-size: 54%;
   }
 
   .status-container.mode-icon_only .status-circle .main-image-icon {
@@ -236,7 +236,8 @@ export const statusCardStyles = [
     justify-content: center;
   }
 
-  .person-badge ha-icon {
+  .person-badge ha-icon,
+  .person-badge ha-state-icon {
     --mdc-icon-size: 92%;
     width: 92%;
     height: 92%;
@@ -255,6 +256,10 @@ export const statusCardStyles = [
 
   .person-badge-zone ha-icon {
     transform: none;
+  }
+
+  .person-badge ha-state-icon {
+    transform: translateY(-6%);
   }
 
   .person-badge-battery-1 {

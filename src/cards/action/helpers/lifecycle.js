@@ -46,17 +46,10 @@ function getActionState(item) {
     ? this._computeFullColor(accentColor)
     : this._computeIconColor(accentColor);
   const iconSource = getItemIconSource(item, entityId);
-  const entityIcon =
-    stateObj?.attributes?.icon ||
-    this.hass?.entities?.[entityId]?.icon ||
-    (
-      stateObj
-        ? this._getDefaultDomainIcon(
-            stateObj.entity_id.split(".")[0],
-            stateObj
-          )
-        : "mdi:play-circle"
-    );
+  const customIcon =
+    iconSource === "custom"
+      ? item.main_entity_icon || item.icon || ""
+      : "";
 
   const selectedIconKey =
     iconSource === "custom" && item.main_entity_icon
@@ -65,16 +58,13 @@ function getActionState(item) {
         ? "icon"
         : "";
 
-  const icon =
-    iconSource === "custom"
-      ? item.main_entity_icon ||
-        item.icon ||
-        entityIcon
-      : entityIcon;
+  const icon = customIcon || "mdi:play-circle";
 
   return {
     ...item,
     entityId,
+    stateObj,
+    useStateIcon: Boolean(stateObj) && !customIcon,
     icon,
     iconColor,
     cardBackground,

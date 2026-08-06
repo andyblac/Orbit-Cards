@@ -25,7 +25,6 @@ import {
   registerOrbitCard,
 } from "../common/helpers/card-registration.js";
 import {
-  getDefaultDomainIcon,
   getInlineSvg,
   getSvgColorOverride,
   isImageIcon,
@@ -256,10 +255,6 @@ class OrbitActionCard extends LitElement {
 
   _computeCircleColor(colorInput) {
     return computeCircleColor.call(this, colorInput);
-  }
-
-  _getDefaultDomainIcon(domain, stateObj = null) {
-    return getDefaultDomainIcon.call(this, domain, stateObj);
   }
 
   _isImageIcon(icon) {

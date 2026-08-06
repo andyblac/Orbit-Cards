@@ -67,6 +67,14 @@ export function renderAreaCard() {
                     : html`<img src=${iconPath} alt="" />`}
                 </div>
               `
+            : this._useNativeMainIcon && this._mainStateObj
+              ? html`
+                  <ha-state-icon
+                    class="main-icon"
+                    .stateObj=${this._mainStateObj}
+                    style="color:${this._iconColor}"
+                  ></ha-state-icon>
+                `
             : html`
                 <ha-icon
                   class="main-icon"
@@ -107,7 +115,7 @@ function renderStatusItems() {
 }
 
 function renderStatusIcon(item) {
-  if (!item.icon) return "";
+  if (!item.icon && !item.useStateIcon) return "";
 
   if (item.isImage) {
     return html`
@@ -116,6 +124,15 @@ function renderStatusIcon(item) {
           ? unsafeHTML(this._getInlineSvg(item.iconPath, true))
           : ""}
       </span>
+    `;
+  }
+
+  if (item.useStateIcon && item.stateObj) {
+    return html`
+      <ha-state-icon
+        class="status-prefix-icon"
+        .stateObj=${item.stateObj}
+      ></ha-state-icon>
     `;
   }
 

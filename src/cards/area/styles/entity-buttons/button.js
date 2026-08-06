@@ -32,6 +32,12 @@ export const EntityButtonStyles = css`
     --mdc-icon-size: 54%;
   }
 
+  .entity-button ha-state-icon {
+    width: 54%;
+    height: 54%;
+    --mdc-icon-size: 100%;
+  }
+
   .button-image-icon {
     width: 54%;
     height: 54%;

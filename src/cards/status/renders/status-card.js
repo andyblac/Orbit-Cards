@@ -71,6 +71,13 @@ export function renderStatusCard() {
                     : html`<img src=${iconPath} alt="" />`}
                 </div>
               `
+            : this._useNativeMainIcon && this._mainStateObj
+            ? html`
+                <ha-state-icon
+                  class="main-icon"
+                  .stateObj=${this._mainStateObj}
+                ></ha-state-icon>
+              `
             : html`
                 <ha-icon
                   class="main-icon"
@@ -161,6 +168,13 @@ function renderIconOnlyStatusItem(item, index) {
                   : html`<img src=${iconPath} alt="" />`}
               </div>
             `
+          : item.useStateIcon && item.stateObj
+          ? html`
+              <ha-state-icon
+                class="main-icon"
+                .stateObj=${item.stateObj}
+              ></ha-state-icon>
+            `
           : html`
               <ha-icon
                 class="main-icon"
@@ -208,9 +222,10 @@ function renderPersonIcon() {
         ? renderPersonBadge.call(
             this,
             "battery-1",
-            this._personBattery1.icon,
+            null,
             this._personBattery1.color,
-            this._personBattery1.entityId
+            this._personBattery1.entityId,
+            this._personBattery1.stateObj
           )
         : ""}
 
@@ -218,16 +233,23 @@ function renderPersonIcon() {
         ? renderPersonBadge.call(
             this,
             "battery-2",
-            this._personBattery2.icon,
+            null,
             this._personBattery2.color,
-            this._personBattery2.entityId
+            this._personBattery2.entityId,
+            this._personBattery2.stateObj
           )
         : ""}
     </div>
   `;
 }
 
-function renderPersonBadge(position, icon, color, entityId = null) {
+function renderPersonBadge(
+  position,
+  icon,
+  color,
+  entityId = null,
+  stateObj = null
+) {
   return html`
     <span
       class="person-badge person-badge-${position} ${entityId ? "clickable" : ""}"
@@ -243,7 +265,13 @@ function renderPersonBadge(position, icon, color, entityId = null) {
       @click=${this._handlePersonBadgeClick}
     >
       <span class="person-badge-icon">
-        <ha-icon .icon=${icon}></ha-icon>
+        ${stateObj
+          ? html`
+              <ha-state-icon
+                .stateObj=${stateObj}
+              ></ha-state-icon>
+            `
+          : html`<ha-icon .icon=${icon}></ha-icon>`}
       </span>
     </span>
   `;

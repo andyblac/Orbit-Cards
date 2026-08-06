@@ -30,8 +30,6 @@ import {
   getEntityActiveState,
 } from "../common/helpers/entities.js";
 import {
-  getBinarySensorIcon,
-  getDefaultDomainIcon,
   getInlineSvg,
   getSvgColorOverride,
   isImageIcon,
@@ -489,14 +487,6 @@ class OrbitStatusCard extends LitElement {
 
   _getEntityActiveState(stateObj) {
     return getEntityActiveState(stateObj);
-  }
-
-  _getBinarySensorIcon(stateObj) {
-    return getBinarySensorIcon(stateObj);
-  }
-
-  _getDefaultDomainIcon(domain, stateObj = null) {
-    return getDefaultDomainIcon.call(this, domain, stateObj);
   }
 
   _isImageIcon(icon) {

@@ -154,22 +154,14 @@ function getStatusState(item, rootConfig = {}) {
     templatedState
   );
   const iconSource = getStatusIconSource(config, entityId);
-  const entityIcon =
-    getStatusAttribute(stateObj, "icon") ||
-    this.hass?.entities?.[entityId]?.icon ||
-    (stateObj
-      ? this._getDefaultDomainIcon(
-          stateObj.entity_id.split(".")[0],
-          stateObj
-        )
-      : "mdi:information-outline");
-
-  const icon =
+  const customStateIcon =
     iconSource === "custom"
       ? (isOn ? customIconOn : customIconOff) ||
         customIcon ||
-        entityIcon
-      : entityIcon;
+        ""
+      : "";
+
+  const icon = customStateIcon || "mdi:information-outline";
 
   const selectedIconKey =
     iconSource === "custom" && isOn && customIconOn
@@ -201,6 +193,8 @@ function getStatusState(item, rootConfig = {}) {
   return {
     ...item,
     entityId,
+    stateObj,
+    useStateIcon: Boolean(stateObj) && !customStateIcon,
     cardName,
     statusText,
     icon,
@@ -238,6 +232,8 @@ function applyStatusState(state) {
     localize(this.hass, "Status");
   this._statusText = state.statusText || "";
   this._icon = state.icon || "mdi:information-outline";
+  this._mainStateObj = state.stateObj || null;
+  this._useNativeMainIcon = state.useStateIcon ?? false;
   this._navigationPath = state.navigationPath || "";
   this._nameColor = state.nameColor || this._nameColor;
   this._statusColor = state.statusColor || this._statusColor;
@@ -427,21 +423,19 @@ function getPersonBadge(entityId) {
   if (!stateObj) return null;
 
   const value = Number(stateObj.state);
-  let color = "green";
+  let color = "var(--state-icon-color)";
 
   if (Number.isFinite(value)) {
-    if (value <= 15) {
-      color = "red";
-    } else if (value <= 30) {
-      color = "amber";
-    }
+    color = value >= 70
+      ? "var(--state-sensor-battery-high-color)"
+      : value >= 30
+        ? "var(--state-sensor-battery-medium-color)"
+        : "var(--state-sensor-battery-low-color)";
   }
 
   return {
     entityId,
-    icon:
-      stateObj.attributes?.icon ||
-      "mdi:battery",
-    color: this._computeFullColor(color),
+    stateObj,
+    color,
   };
 }

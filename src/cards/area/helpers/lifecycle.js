@@ -44,25 +44,18 @@ export function updateAreaCard(changedProps) {
       ? this.hass.areas[areaId].icon || "mdi:sofa"
       : "mdi:sofa";
 
-  const entityIcon =
-    mainStateObj
-      ? mainStateObj.attributes?.icon ||
-        this.hass?.entities?.[mainEntity]?.icon ||
-      this._getDefaultDomainIcon(
-        mainStateObj.entity_id.split(".")[0],
-        mainStateObj
-      ) ||
-        "mdi:sofa"
-      : "mdi:sofa";
+  const customStateIcon =
+    useCustomIcon
+      ? (isOn ? customIconOn : customIconOff) ||
+        customIcon ||
+        ""
+      : "";
 
-  const autoIcon =
-    iconSource === "area"
-      ? areaIcon
-      : iconSource === "entity"
-        ? entityIcon
-        : mainStateObj
-          ? entityIcon
-          : areaIcon;
+  this._mainStateObj = mainStateObj;
+  this._useNativeMainIcon =
+    Boolean(mainStateObj) &&
+    iconSource !== "area" &&
+    !customStateIcon;
 
   const selectedIconKey =
     useCustomIcon && isOn && customIconOn
@@ -73,12 +66,7 @@ export function updateAreaCard(changedProps) {
             ? "main_entity_icon"
             : "";
 
-  this._icon =
-    useCustomIcon
-      ? (isOn ? customIconOn : customIconOff) ||
-        customIcon ||
-        autoIcon
-      : autoIcon;
+  this._icon = customStateIcon || areaIcon;
 
   this._iconSvgForceColor =
     selectedIconKey
@@ -109,18 +97,13 @@ function getStatusItems() {
       );
       const icon = iconSource === "custom"
         ? customIcon
-        : iconSource === "entity"
-          ? stateObj?.attributes?.icon ||
-            this.hass?.entities?.[entityId]?.icon ||
-            this._getDefaultDomainIcon(
-              entityId.split(".")[0],
-              stateObj
-            ) ||
-            ""
-          : "";
+        : "";
 
       return {
         entityId,
+        stateObj,
+        useStateIcon:
+          iconSource === "entity" && Boolean(stateObj),
         text: formatStatusText.call(
           this,
           stateObj,
@@ -286,18 +269,22 @@ function getAreaButtonModel(prefix, entityId, index, options) {
       : evaluatedState === true ||
         evaluatedState === "on";
 
-  const icon = getButtonIcon.call(
+  const iconSource = getButtonIconSource.call(
     this,
     key,
-    entityId,
-    stateObj,
-    isOn
+    entityId
   );
+
+  const icon = getButtonIcon.call(this, key, isOn);
 
   const isImage = this._isImageIcon(icon);
 
   return {
     entityId,
+    stateObj,
+    useStateIcon:
+      Boolean(stateObj) &&
+      (iconSource === "entity" || !icon),
     holdAction:
       this._config?.[`${key}_hold_action`] ||
       options.defaultHoldAction,
@@ -343,30 +330,20 @@ function getButtonSvgColorOverride(key, isOn) {
     : true;
 }
 
-function getButtonIcon(key, entityId, stateObj, isOn) {
+function getButtonIcon(key, isOn) {
   const customIcon = this._config?.[`${key}_icon`];
   const customIconOn = this._config?.[`${key}_icon_on`];
   const customIconOff = this._config?.[`${key}_icon_off`];
-  const domain = entityId.split(".")[0];
-  const iconSource = getButtonIconSource.call(this, key, entityId);
-
-  const defaultIcon =
-    this._getDefaultDomainIcon(domain, stateObj);
-
-  const entityIcon =
-    stateObj?.attributes?.icon ||
-    this.hass?.entities?.[entityId]?.icon ||
-    defaultIcon ||
-    "mdi:help-circle";
+  const iconSource = getButtonIconSource.call(this, key);
 
   if (iconSource === "entity") {
-    return entityIcon;
+    return "";
   }
 
   return (
     (isOn ? customIconOn : customIconOff) ||
     customIcon ||
-    entityIcon
+    ""
   );
 }
 
