@@ -281,9 +281,10 @@ class OrbitAreaCard extends LitElement {
     return resolveIconPath(iconPath);
   }
 
-  _getInlineSvg(path, forceColor = true) {
+  _getInlineSvg(path, forceColor = true, animate = false) {
     return getInlineSvg.call(this, path, {
       forceColor,
+      animate,
     });
   }
 

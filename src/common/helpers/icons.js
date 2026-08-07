@@ -80,11 +80,64 @@ function getOrbitIconPath(file) {
   return `${base}icons/${file}`;
 }
 
+let orbitManifestRevisionPromise;
+
+function getOrbitManifestRevision(path) {
+  if (!path.split("?")[0].startsWith(getOrbitIconPath(""))) {
+    return Promise.resolve("");
+  }
+
+  if (!orbitManifestRevisionPromise) {
+    orbitManifestRevisionPromise = fetch(
+      getOrbitIconPath("manifest.json"),
+      { cache: "no-cache" }
+    )
+      .then(async (response) => {
+        if (!response.ok) return "";
+
+        const headerRevision =
+          response.headers.get("etag") ||
+          response.headers.get("last-modified");
+
+        if (headerRevision) return headerRevision;
+
+        return hashManifest(await response.text());
+      })
+      .catch(() => "");
+  }
+
+  return orbitManifestRevisionPromise;
+}
+
+function hashManifest(value) {
+  let hash = 0x811c9dc5;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+
+  return (hash >>> 0).toString(16);
+}
+
+function addManifestRevision(path, revision) {
+  if (!revision) return path;
+
+  const separator = path.includes("?") ? "&" : "?";
+
+  return `${path}${separator}orbit_manifest=${encodeURIComponent(revision)}`;
+}
+
 export function getInlineSvg(path, options = {}) {
   if (!path) return "";
 
   const forceColor = options.forceColor !== false;
-  const cacheKey = `${path}::${forceColor ? "forced" : "auto"}`;
+  const animate = options.animate === true;
+  const cacheKey = [
+    path,
+    forceColor ? "forced" : "auto",
+    animate ? "animated" : "static",
+  ].join("::");
   const svgCache = this.constructor.svgCache;
   const cached = svgCache[cacheKey];
 
@@ -112,7 +165,7 @@ export function getInlineSvg(path, options = {}) {
       return response.text();
     })
     .then((svg) => {
-      svg = prepareInlineSvg(svg, forceColor);
+      svg = prepareInlineSvg(svg, forceColor, animate);
 
       svgCache[cacheKey] = svg;
 
@@ -135,10 +188,24 @@ export function getSvgColorOverride(config, iconKey) {
   return config[`${iconKey}_svg_color_override`] !== false;
 }
 
-function prepareInlineSvg(svg, forceColor) {
-  let prepared = svg
-    .replace(/width="[^"]*"/gi, 'width="100%"')
-    .replace(/height="[^"]*"/gi, 'height="100%"');
+function prepareInlineSvg(svg, forceColor, animate = false) {
+  let prepared = svg.replace(
+    /<svg\b[^>]*>/i,
+    (openingTag) => {
+      let preparedTag = openingTag
+        .replace(/\swidth="[^"]*"/i, ' width="100%"')
+        .replace(/\sheight="[^"]*"/i, ' height="100%"');
+
+      if (animate) {
+        preparedTag = preparedTag.replace(
+          /^<svg\b/i,
+          '<svg data-orbit-animate="true"'
+        );
+      }
+
+      return preparedTag;
+    }
+  );
 
   if (!forceColor) {
     return prepared;
@@ -189,10 +256,15 @@ function notifySvgSubscribers(path) {
 }
 
 function fetchInlineSvg(path) {
-  return fetch(path)
-    .then((response) => {
-      if (response.ok) return response;
+  return getOrbitManifestRevision(path)
+    .then((revision) => {
+      const requestPath = addManifestRevision(path, revision);
 
-      return fetch(path, { cache: "reload" });
+      return fetch(requestPath)
+        .then((response) => {
+          if (response.ok) return response;
+
+          return fetch(requestPath, { cache: "reload" });
+        });
     });
 }

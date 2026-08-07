@@ -278,6 +278,21 @@ function getAreaButtonModel(prefix, entityId, index, options) {
   const icon = getButtonIcon.call(this, key, isOn);
 
   const isImage = this._isImageIcon(icon);
+  const previousIconState = this._buttonIconStates?.get(key);
+  const animateIcon = Boolean(
+    previousIconState &&
+    previousIconState.entityId === entityId &&
+    previousIconState.isOn !== isOn
+  );
+
+  if (!this._buttonIconStates) {
+    this._buttonIconStates = new Map();
+  }
+
+  this._buttonIconStates.set(key, {
+    entityId,
+    isOn,
+  });
 
   return {
     entityId,
@@ -303,6 +318,7 @@ function getAreaButtonModel(prefix, entityId, index, options) {
       ? this._resolveIconPath(icon)
       : "",
     svgForceColor: getButtonSvgColorOverride.call(this, key, isOn),
+    animateIcon,
     isImage,
   };
 }

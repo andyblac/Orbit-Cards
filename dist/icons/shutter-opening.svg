@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="color: inherit;" role="img" aria-labelledby="title desc">
+  <title id="title">Opening shutter</title>
+  <desc id="desc">A blue shutter smoothly opens from fully closed to twenty percent closed.</desc>
+  <style>
+    .shade-opening {
+      transform-box: view-box;
+      transform-origin: 0 4.021px;
+      transform: scaleY(0.253593);
+    }
+
+    .rail-opening {
+      transform: translateY(-12.827px);
+    }
+
+    svg[data-orbit-animate="true"] .shade-opening {
+      animation: shade-opening 5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    svg[data-orbit-animate="true"] .rail-opening {
+      animation: rail-opening 5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes shade-opening {
+      from { transform: scaleY(1); }
+      to   { transform: scaleY(0.253593); }
+    }
+
+    @keyframes rail-opening {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-12.827px); }
+    }
+  </style>
+
+  <g fill="currentColor" shape-rendering="geometricPrecision">
+    <!-- Top housing -->
+    <path fill-rule="evenodd"
+      d="M2.42 2H21.58V3.707H2.42Z M2.991 2.273H6.173V3.359H2.991Z M3.194 2.476H5.97V3.157H3.194Z"/>
+
+    <!-- Fabric/shade -->
+    <rect class="shade-opening" x="2.651" y="4.021" width="18.698" height="17.185"/>
+
+    <!-- Bottom rail -->
+    <rect class="rail-opening" x="2.42" y="21.521" width="19.16" height="0.479"/>
+  </g>
+</svg>

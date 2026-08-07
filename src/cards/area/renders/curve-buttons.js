@@ -48,7 +48,8 @@ export function renderCurveButtons() {
                     >
                       ${unsafeHTML(this._getInlineSvg(
                         button.iconPath,
-                        button.svgForceColor
+                        button.svgForceColor,
+                        button.animateIcon
                       ))}
                     </div>
                   `
@@ -103,7 +104,8 @@ function renderActionButton(button) {
             >
               ${unsafeHTML(this._getInlineSvg(
                 button.iconPath,
-                button.svgForceColor
+                button.svgForceColor,
+                button.animateIcon
               ))}
             </div>
           `
