@@ -5,10 +5,18 @@
     .shade-closing {
       transform-box: view-box;
       transform-origin: 0 4.021px;
-      animation: shade-closing 5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      transform: scaleY(3.943322);
     }
 
     .rail-closing {
+      transform: translateY(12.827px);
+    }
+
+    svg[data-orbit-animate="true"] .shade-closing {
+      animation: shade-closing 5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    svg[data-orbit-animate="true"] .rail-closing {
       animation: rail-closing 5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
 

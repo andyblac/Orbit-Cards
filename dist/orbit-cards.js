@@ -983,22 +983,29 @@ function Xt(e, t) {
 }
 function Zt(e, t = {}) {
 	if (!e) return "";
-	let n = t.forceColor !== !1, r = `${e}::${n ? "forced" : "auto"}`, i = this.constructor.svgCache, a = i[r];
-	return typeof a == "string" && a !== "loading" ? a : a === "loading" ? (en(r, this), "") : (i[r] = "loading", en(r, this), nn(e).then((e) => {
+	let n = t.forceColor !== !1, r = t.animate === !0, i = [
+		e,
+		n ? "forced" : "auto",
+		r ? "animated" : "static"
+	].join("::"), a = this.constructor.svgCache, o = a[i];
+	return typeof o == "string" && o !== "loading" ? o : o === "loading" ? (en(i, this), "") : (a[i] = "loading", en(i, this), nn(e).then((e) => {
 		if (!e.ok) throw Error(`HTTP ${e.status}`);
 		return e.text();
 	}).then((e) => {
-		e = $t(e, n), i[r] = e, tn(r);
+		e = $t(e, n, r), a[i] = e, tn(i);
 	}).catch((t) => {
-		console.error("SVG load failed:", e, t), delete i[r], tn(r);
+		console.error("SVG load failed:", e, t), delete a[i], tn(i);
 	}), "");
 }
 function Qt(e, t) {
 	return !e || !t ? !0 : e[`${t}_svg_color_override`] !== !1;
 }
-function $t(e, t) {
-	let n = e.replace(/<svg\b[^>]*>/i, (e) => e.replace(/\swidth="[^"]*"/i, " width=\"100%\"").replace(/\sheight="[^"]*"/i, " height=\"100%\""));
-	return t ? n.replace(/fill="(?!none|transparent|currentColor|inherit|initial|unset|url\()[^"]*"/gi, "fill=\"currentColor\"").replace(/stroke="(?!none|transparent|currentColor|inherit|initial|unset|url\()[^"]*"/gi, "stroke=\"currentColor\"").replace(/fill:\s*(?!none|transparent|currentColor|inherit|initial|unset|url\()[^;"]+/gi, "fill:currentColor").replace(/stroke:\s*(?!none|transparent|currentColor|inherit|initial|unset|url\()[^;"]+/gi, "stroke:currentColor") : n;
+function $t(e, t, n = !1) {
+	let r = e.replace(/<svg\b[^>]*>/i, (e) => {
+		let t = e.replace(/\swidth="[^"]*"/i, " width=\"100%\"").replace(/\sheight="[^"]*"/i, " height=\"100%\"");
+		return n && (t = t.replace(/^<svg\b/i, "<svg data-orbit-animate=\"true\"")), t;
+	});
+	return t ? r.replace(/fill="(?!none|transparent|currentColor|inherit|initial|unset|url\()[^"]*"/gi, "fill=\"currentColor\"").replace(/stroke="(?!none|transparent|currentColor|inherit|initial|unset|url\()[^"]*"/gi, "stroke=\"currentColor\"").replace(/fill:\s*(?!none|transparent|currentColor|inherit|initial|unset|url\()[^;"]+/gi, "fill:currentColor").replace(/stroke:\s*(?!none|transparent|currentColor|inherit|initial|unset|url\()[^;"]+/gi, "stroke:currentColor") : r;
 }
 function en(e, t) {
 	t && (an[e] = an[e] || /* @__PURE__ */ new Set(), an[e].add(t));
@@ -1227,8 +1234,11 @@ function Nn() {
 function Pn(e, t, n, r) {
 	let i = this.hass?.states[t];
 	if (!i) return null;
-	let a = r.key || `${e}${n + 1}`, o = this._config?.[`${a}_state_template`], s = this._evaluateStateTemplate(o, t), c = s == null ? this._getEntityActiveState(i) : s === !0 || s === "on", l = Ln.call(this, a, t), u = In.call(this, a, c), d = this._isImageIcon(u);
-	return {
+	let a = r.key || `${e}${n + 1}`, o = this._config?.[`${a}_state_template`], s = this._evaluateStateTemplate(o, t), c = s == null ? this._getEntityActiveState(i) : s === !0 || s === "on", l = Ln.call(this, a, t), u = In.call(this, a, c), d = this._isImageIcon(u), f = this._buttonIconStates?.get(a), p = !!(f && f.entityId === t && f.isOn !== c);
+	return this._buttonIconStates ||= /* @__PURE__ */ new Map(), this._buttonIconStates.set(a, {
+		entityId: t,
+		isOn: c
+	}), {
 		entityId: t,
 		stateObj: i,
 		useStateIcon: !!i && (l === "entity" || !u),
@@ -1240,6 +1250,7 @@ function Pn(e, t, n, r) {
 		iconColor: r.getIconColor.call(this, a, i, c),
 		iconPath: d ? this._resolveIconPath(u) : "",
 		svgForceColor: Fn.call(this, a, c),
+		animateIcon: p,
 		isImage: d
 	};
 }
@@ -1365,7 +1376,7 @@ function $n(e) {
                 class="button-image-icon"
                 style="color:${e.iconColor};"
               >
-                ${e.iconPath ? R(this._getInlineSvg(e.iconPath, e.svgForceColor)) : ""}
+                ${e.iconPath ? R(this._getInlineSvg(e.iconPath, e.svgForceColor, e.animateIcon)) : ""}
               </div>
             ` : e.useStateIcon && e.stateObj ? T`
                 <ha-state-icon
@@ -1605,7 +1616,7 @@ function vr() {
                       class="curve-image-icon"
                       style="color:${e.iconColor};"
                     >
-                      ${R(this._getInlineSvg(e.iconPath, e.svgForceColor))}
+                      ${R(this._getInlineSvg(e.iconPath, e.svgForceColor, e.animateIcon))}
                     </div>
                   ` : e.useStateIcon && e.stateObj ? T`
                       <ha-state-icon
@@ -1648,7 +1659,7 @@ function yr(e) {
               class="curve-image-icon"
               style="color:${e.iconColor};"
             >
-              ${R(this._getInlineSvg(e.iconPath, e.svgForceColor))}
+              ${R(this._getInlineSvg(e.iconPath, e.svgForceColor, e.animateIcon))}
             </div>
           ` : e.useStateIcon && e.stateObj ? T`
               <ha-state-icon
@@ -6604,8 +6615,11 @@ var ku, Au, ju = e((() => {
 		_resolveIconPath(e) {
 			return Kt(e);
 		}
-		_getInlineSvg(e, t = !0) {
-			return Zt.call(this, e, { forceColor: t });
+		_getInlineSvg(e, t = !0, n = !1) {
+			return Zt.call(this, e, {
+				forceColor: t,
+				animate: n
+			});
 		}
 		_getSvgColorOverride(e) {
 			return Qt(this._config, e);

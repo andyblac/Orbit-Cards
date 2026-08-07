@@ -27,13 +27,13 @@
   {
     "name": "Shutter Opening",
     "file": "shutter-opening.svg",
-    "revision": "6c21047a",
+    "revision": "3bfde376",
     "tags": ["cover", "shade", "shutter", "opening"]
   },
   {
     "name": "Shutter Closing",
     "file": "shutter-closing.svg",
-    "revision": "6f4d49c",
+    "revision": "458fb44b",
     "tags": ["cover", "shade", "shutter", "closing"]
   },
   {

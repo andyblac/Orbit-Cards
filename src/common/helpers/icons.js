@@ -132,7 +132,12 @@ export function getInlineSvg(path, options = {}) {
   if (!path) return "";
 
   const forceColor = options.forceColor !== false;
-  const cacheKey = `${path}::${forceColor ? "forced" : "auto"}`;
+  const animate = options.animate === true;
+  const cacheKey = [
+    path,
+    forceColor ? "forced" : "auto",
+    animate ? "animated" : "static",
+  ].join("::");
   const svgCache = this.constructor.svgCache;
   const cached = svgCache[cacheKey];
 
@@ -160,7 +165,7 @@ export function getInlineSvg(path, options = {}) {
       return response.text();
     })
     .then((svg) => {
-      svg = prepareInlineSvg(svg, forceColor);
+      svg = prepareInlineSvg(svg, forceColor, animate);
 
       svgCache[cacheKey] = svg;
 
@@ -183,12 +188,23 @@ export function getSvgColorOverride(config, iconKey) {
   return config[`${iconKey}_svg_color_override`] !== false;
 }
 
-function prepareInlineSvg(svg, forceColor) {
+function prepareInlineSvg(svg, forceColor, animate = false) {
   let prepared = svg.replace(
     /<svg\b[^>]*>/i,
-    (openingTag) => openingTag
-      .replace(/\swidth="[^"]*"/i, ' width="100%"')
-      .replace(/\sheight="[^"]*"/i, ' height="100%"')
+    (openingTag) => {
+      let preparedTag = openingTag
+        .replace(/\swidth="[^"]*"/i, ' width="100%"')
+        .replace(/\sheight="[^"]*"/i, ' height="100%"');
+
+      if (animate) {
+        preparedTag = preparedTag.replace(
+          /^<svg\b/i,
+          '<svg data-orbit-animate="true"'
+        );
+      }
+
+      return preparedTag;
+    }
   );
 
   if (!forceColor) {
