@@ -259,7 +259,11 @@ export const statusCardStyles = [
   }
 
   .person-badge ha-state-icon {
-    transform: translateY(-6%);
+    transform: translate(6%, -10%);
+  }
+
+  .person-badge ha-state-icon.charging {
+    transform: translate(10%, -10%);
   }
 
   .person-badge-battery-1 {

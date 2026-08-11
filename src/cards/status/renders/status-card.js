@@ -250,6 +250,8 @@ function renderPersonBadge(
   entityId = null,
   stateObj = null
 ) {
+  const isCharging = isChargingBatteryState(stateObj);
+
   return html`
     <span
       class="person-badge person-badge-${position} ${entityId ? "clickable" : ""}"
@@ -268,6 +270,7 @@ function renderPersonBadge(
         ${stateObj
           ? html`
               <ha-state-icon
+                class=${isCharging ? "charging" : ""}
                 .stateObj=${stateObj}
               ></ha-state-icon>
             `
@@ -275,6 +278,16 @@ function renderPersonBadge(
       </span>
     </span>
   `;
+}
+
+function isChargingBatteryState(stateObj) {
+  const attributes = stateObj?.attributes || {};
+  const icon = String(attributes.icon || "").toLowerCase();
+
+  return icon.includes("battery-charging") ||
+    attributes.battery_charging === true ||
+    attributes.is_charging === true ||
+    attributes.charging === true;
 }
 
 function getIconOnlyStatusText(statusText) {
