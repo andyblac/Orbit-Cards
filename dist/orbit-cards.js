@@ -7387,7 +7387,7 @@ var fd = e((() => {
   }
 
   .person-badge ha-state-icon {
-    transform: translate(6%, -10%);
+    transform: translate(4%, -10%);
   }
 
   .person-badge ha-state-icon.charging {
@@ -7400,8 +7400,8 @@ var fd = e((() => {
   }
 
   .person-badge-battery-2 {
-    left: 91%;
-    top: 22%;
+    left: 94%;
+    top: 25%;
   }
 
   .status-badge {
