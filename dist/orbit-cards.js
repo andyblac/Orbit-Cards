@@ -1713,7 +1713,7 @@ var br = e((() => {
     display: block;
     width: 100%;
     box-sizing: border-box;
-    background: var(--card-background-color, #1a1a1a);
+    background: var(--ha-card-background, var(--card-background-color, #1a1a1a));
     border-radius: 18px;
     overflow: hidden;
     position: relative;
@@ -7016,8 +7016,50 @@ function id(e, t) {
   `;
 }
 function ad(e, t) {
-	let n = ld(e.statusText), r = this._isImageIcon(e.icon) ? this._resolveIconPath(e.icon) : "", i = r ? this._getInlineSvg(r, e.svgForceColor) : "";
-	return T`
+	let n = ld(e.statusText), r = this._isImageIcon(e.icon) ? this._resolveIconPath(e.icon) : "", i = r ? this._getInlineSvg(r, e.svgForceColor) : "", a = T`
+    <div class="circle status-circle">
+      ${this._isImageIcon(e.icon) ? T`
+            <div class="main-image-icon">
+              ${i ? R(i) : T`<img src=${r} alt="" />`}
+            </div>
+          ` : e.useStateIcon && e.stateObj ? T`
+            <ha-state-icon
+              class="main-icon"
+              .stateObj=${e.stateObj}
+            ></ha-state-icon>
+          ` : T`
+            <ha-icon
+              class="main-icon"
+              .icon=${e.icon}
+            ></ha-icon>
+          `}
+    </div>
+
+    <div
+      class="status-badge"
+      ?hidden=${!n}
+    >
+      ${n}
+    </div>
+  `;
+	return (this._statusItems?.length || 0) > 1 && !this._config?.separate_cards ? T`
+      <div
+        class="status-icon-item"
+        style="
+          --status-circle-color:${e.circleColor};
+          --status-icon-color:${e.iconColor};
+        "
+        @click=${(e) => this._handleStatusItemClick(e, t)}
+        @dblclick=${(e) => this._handleStatusItemDoubleClick(e, t)}
+        @pointerdown=${(e) => this._handleStatusItemPointerDown(e, t)}
+        @pointerup=${this._handleStatusItemPointerUp}
+        @pointerleave=${this._handleStatusItemPointerCancel}
+        @pointercancel=${this._handleStatusItemPointerCancel}
+        @contextmenu=${(e) => this._handleStatusItemContextMenu(e, t)}
+      >
+        ${a}
+      </div>
+    ` : T`
     <ha-card
       class="status-icon-item"
       style="
@@ -7032,30 +7074,7 @@ function ad(e, t) {
       @pointercancel=${this._handleStatusItemPointerCancel}
       @contextmenu=${(e) => this._handleStatusItemContextMenu(e, t)}
     >
-      <div class="circle status-circle">
-        ${this._isImageIcon(e.icon) ? T`
-              <div class="main-image-icon">
-                ${i ? R(i) : T`<img src=${r} alt="" />`}
-              </div>
-            ` : e.useStateIcon && e.stateObj ? T`
-              <ha-state-icon
-                class="main-icon"
-                .stateObj=${e.stateObj}
-              ></ha-state-icon>
-            ` : T`
-              <ha-icon
-                class="main-icon"
-                .icon=${e.icon}
-              ></ha-icon>
-            `}
-      </div>
-
-      <div
-        class="status-badge"
-        ?hidden=${!n}
-      >
-        ${n}
-      </div>
+      ${a}
     </ha-card>
   `;
 }
@@ -7147,13 +7166,19 @@ var fd = e((() => {
   }
 
   ha-card.mode-icon_only.grouped {
+    --orbit-grouped-item-gap: clamp(5px, 1.4cqw, 8px);
     aspect-ratio: auto;
     container-type: inline-size;
   }
 
+  ha-card.mode-icon_only.grouped:not(.separate-cards) {
+    background: var(--ha-card-background, var(--card-background-color, #1a1a1a));
+    overflow: hidden;
+  }
+
   ha-card.mode-icon_only.grouped.separate-cards {
     background: transparent;
-    border: none;
+    border: var(--ha-card-border-width, 1px) solid transparent;
     box-shadow: none;
     overflow: visible;
   }
@@ -7230,7 +7255,7 @@ var fd = e((() => {
   .status-icon-grid {
     display: flex;
     flex-direction: column;
-    gap: clamp(4px, 2cqw, 10px);
+    gap: var(--orbit-grouped-item-gap);
     width: 100%;
     height: 100%;
     box-sizing: border-box;
@@ -7242,21 +7267,16 @@ var fd = e((() => {
 
   .status-icon-row {
     display: flex;
-    gap: clamp(4px, 2cqw, 10px);
+    gap: var(--orbit-grouped-item-gap);
     width: 100%;
   }
 
-  ha-card.mode-icon_only.grouped.separate-cards .status-icon-grid {
-    gap: clamp(5px, 1.4cqw, 8px);
-  }
-
-  ha-card.mode-icon_only.grouped.separate-cards .status-icon-row {
-    gap: clamp(5px, 1.4cqw, 8px);
-  }
-
   .status-icon-item {
+    border-radius: 15px;
+    box-sizing: border-box;
     container-type: size;
     cursor: pointer;
+    overflow: hidden;
     position: relative;
     flex: 1 1 0;
     min-width: 0;
@@ -7276,11 +7296,11 @@ var fd = e((() => {
   }
 
   ha-card.mode-icon_only.grouped:not(.separate-cards) .status-icon-item {
-    background: transparent;
-    border: none;
+    --ha-card-background: transparent;
+    --card-background-color: transparent;
+    background: transparent !important;
+    border: var(--ha-card-border-width, 1px) solid transparent;
     box-shadow: none;
-    border-radius: 0;
-    overflow: visible;
   }
 
   .status-container.mode-icon_only.grouped .status-icon-spacer {
@@ -8878,8 +8898,45 @@ function Rd() {
   `;
 }
 function zd(e, t) {
-	let n = this._isImageIcon(e.icon) ? this._resolveIconPath(e.icon) : "", r = n ? this._getInlineSvg(n, e.svgForceColor) : "";
-	return T`
+	let n = this._isImageIcon(e.icon) ? this._resolveIconPath(e.icon) : "", r = n ? this._getInlineSvg(n, e.svgForceColor) : "", i = T`
+    <div class="circle action-circle">
+      ${this._isImageIcon(e.icon) ? T`
+            <div class="main-image-icon">
+              ${r ? R(r) : T`<img src=${n} alt="" />`}
+            </div>
+          ` : e.useStateIcon && e.stateObj ? T`
+            <ha-state-icon
+              class="main-icon"
+              .stateObj=${e.stateObj}
+            ></ha-state-icon>
+          ` : T`
+            <ha-icon
+              class="main-icon"
+              .icon=${e.icon}
+            ></ha-icon>
+          `}
+    </div>
+  `;
+	return (this._actions?.length || 0) > 1 && !this._config?.separate_cards ? T`
+      <div
+        class="action-button ${e.isRunning ? "running" : ""}"
+        role="button"
+        tabindex="0"
+        style="
+          --action-card-background:${e.cardBackground};
+          --action-icon-color:${e.iconColor};
+        "
+        @click=${(e) => this._handleTap(e, t)}
+        @dblclick=${(e) => this._handleDoubleTap(e, t)}
+        @pointerdown=${(e) => this._handlePointerDown(e, t)}
+        @pointerup=${this._handlePointerUp}
+        @pointerleave=${this._handlePointerCancel}
+        @pointercancel=${this._handlePointerCancel}
+        @contextmenu=${(e) => this._handleContextMenu(e, t)}
+      >
+        ${i}
+      </div>
+    ` : T`
     <ha-card
       class="action-button ${e.isRunning ? "running" : ""}"
       role="button"
@@ -8896,23 +8953,7 @@ function zd(e, t) {
       @pointercancel=${this._handlePointerCancel}
       @contextmenu=${(e) => this._handleContextMenu(e, t)}
     >
-      <div class="circle action-circle">
-        ${this._isImageIcon(e.icon) ? T`
-              <div class="main-image-icon">
-                ${r ? R(r) : T`<img src=${n} alt="" />`}
-              </div>
-            ` : e.useStateIcon && e.stateObj ? T`
-              <ha-state-icon
-                class="main-icon"
-                .stateObj=${e.stateObj}
-              ></ha-state-icon>
-            ` : T`
-              <ha-icon
-                class="main-icon"
-                .icon=${e.icon}
-              ></ha-icon>
-            `}
-      </div>
+      ${i}
     </ha-card>
   `;
 }
@@ -8940,13 +8981,19 @@ var Hd = e((() => {
     }
 
     ha-card.grouped {
+      --orbit-grouped-item-gap: clamp(5px, 1.4cqw, 8px);
       aspect-ratio: auto;
       container-type: inline-size;
     }
 
+    ha-card.grouped:not(.separate-cards) {
+      background: var(--ha-card-background, var(--card-background-color, #1a1a1a));
+      overflow: hidden;
+    }
+
     ha-card.grouped.separate-cards {
       background: transparent;
-      border: none;
+      border: var(--ha-card-border-width, 1px) solid transparent;
       box-shadow: none;
       overflow: visible;
     }
@@ -8954,7 +9001,7 @@ var Hd = e((() => {
     .action-container {
       display: flex;
       flex-direction: column;
-      gap: clamp(4px, 2cqw, 10px);
+      gap: var(--orbit-grouped-item-gap);
       height: auto;
       padding: 0;
       box-sizing: border-box;
@@ -8963,7 +9010,7 @@ var Hd = e((() => {
     .action-row {
       display: flex;
       flex: 1 1 auto;
-      gap: clamp(4px, 2cqw, 10px);
+      gap: var(--orbit-grouped-item-gap);
       min-height: 0;
       width: 100%;
     }
@@ -8972,15 +9019,10 @@ var Hd = e((() => {
       flex: 0 0 auto;
     }
 
-    ha-card.grouped.separate-cards .action-container {
-      gap: clamp(5px, 1.4cqw, 8px);
-    }
-
-    ha-card.grouped.separate-cards .action-row {
-      gap: clamp(5px, 1.4cqw, 8px);
-    }
-
     .action-button {
+      border-radius: 15px;
+      box-sizing: border-box;
+      overflow: hidden;
       width: 100%;
       height: 100%;
       display: flex;
@@ -9005,11 +9047,11 @@ var Hd = e((() => {
     }
 
     ha-card.grouped:not(.separate-cards) .action-button {
-      background: transparent;
-      border: none;
+      --ha-card-background: transparent;
+      --card-background-color: transparent;
+      background: transparent !important;
+      border: var(--ha-card-border-width, 1px) solid transparent;
       box-shadow: none;
-      border-radius: 0;
-      overflow: visible;
     }
 
     ha-card.grouped .action-spacer {
