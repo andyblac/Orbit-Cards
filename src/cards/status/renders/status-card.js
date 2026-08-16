@@ -143,6 +143,61 @@ function renderIconOnlyStatusItem(item, index) {
   const inlineSvg = iconPath
     ? this._getInlineSvg(iconPath, item.svgForceColor)
     : "";
+  const content = html`
+    <div class="circle status-circle">
+      ${this._isImageIcon(item.icon)
+        ? html`
+            <div class="main-image-icon">
+              ${inlineSvg
+                ? unsafeHTML(inlineSvg)
+                : html`<img src=${iconPath} alt="" />`}
+            </div>
+          `
+        : item.useStateIcon && item.stateObj
+        ? html`
+            <ha-state-icon
+              class="main-icon"
+              .stateObj=${item.stateObj}
+            ></ha-state-icon>
+          `
+        : html`
+            <ha-icon
+              class="main-icon"
+              .icon=${item.icon}
+            ></ha-icon>
+          `}
+    </div>
+
+    <div
+      class="status-badge"
+      ?hidden=${!badgeText}
+    >
+      ${badgeText}
+    </div>
+  `;
+  const isFlattenedGroup =
+    (this._statusItems?.length || 0) > 1 && !this._config?.separate_cards;
+
+  if (isFlattenedGroup) {
+    return html`
+      <div
+        class="status-icon-item"
+        style="
+          --status-circle-color:${item.circleColor};
+          --status-icon-color:${item.iconColor};
+        "
+        @click=${(ev) => this._handleStatusItemClick(ev, index)}
+        @dblclick=${(ev) => this._handleStatusItemDoubleClick(ev, index)}
+        @pointerdown=${(ev) => this._handleStatusItemPointerDown(ev, index)}
+        @pointerup=${this._handleStatusItemPointerUp}
+        @pointerleave=${this._handleStatusItemPointerCancel}
+        @pointercancel=${this._handleStatusItemPointerCancel}
+        @contextmenu=${(ev) => this._handleStatusItemContextMenu(ev, index)}
+      >
+        ${content}
+      </div>
+    `;
+  }
 
   return html`
     <ha-card
@@ -159,36 +214,7 @@ function renderIconOnlyStatusItem(item, index) {
       @pointercancel=${this._handleStatusItemPointerCancel}
       @contextmenu=${(ev) => this._handleStatusItemContextMenu(ev, index)}
     >
-      <div class="circle status-circle">
-        ${this._isImageIcon(item.icon)
-          ? html`
-              <div class="main-image-icon">
-                ${inlineSvg
-                  ? unsafeHTML(inlineSvg)
-                  : html`<img src=${iconPath} alt="" />`}
-              </div>
-            `
-          : item.useStateIcon && item.stateObj
-          ? html`
-              <ha-state-icon
-                class="main-icon"
-                .stateObj=${item.stateObj}
-              ></ha-state-icon>
-            `
-          : html`
-              <ha-icon
-                class="main-icon"
-                .icon=${item.icon}
-              ></ha-icon>
-            `}
-      </div>
-
-      <div
-        class="status-badge"
-        ?hidden=${!badgeText}
-      >
-        ${badgeText}
-      </div>
+      ${content}
     </ha-card>
   `;
 }
@@ -250,6 +276,8 @@ function renderPersonBadge(
   entityId = null,
   stateObj = null
 ) {
+  const isCharging = isChargingBatteryState(stateObj);
+
   return html`
     <span
       class="person-badge person-badge-${position} ${entityId ? "clickable" : ""}"
@@ -268,6 +296,7 @@ function renderPersonBadge(
         ${stateObj
           ? html`
               <ha-state-icon
+                class=${isCharging ? "charging" : ""}
                 .stateObj=${stateObj}
               ></ha-state-icon>
             `
@@ -275,6 +304,16 @@ function renderPersonBadge(
       </span>
     </span>
   `;
+}
+
+function isChargingBatteryState(stateObj) {
+  const attributes = stateObj?.attributes || {};
+  const icon = String(attributes.icon || "").toLowerCase();
+
+  return icon.includes("battery-charging") ||
+    attributes.battery_charging === true ||
+    attributes.is_charging === true ||
+    attributes.charging === true;
 }
 
 function getIconOnlyStatusText(statusText) {

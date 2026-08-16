@@ -19,13 +19,21 @@ export const statusCardStyles = [
   }
 
   ha-card.mode-icon_only.grouped {
+    --orbit-grouped-item-gap: clamp(5px, 1.4cqw, 8px);
     aspect-ratio: auto;
     container-type: inline-size;
   }
 
+  ha-card.mode-icon_only.grouped:not(.separate-cards) {
+    background: var(--ha-card-background, var(--card-background-color, #1a1a1a));
+    overflow: hidden;
+  }
+
   ha-card.mode-icon_only.grouped.separate-cards {
     background: transparent;
-    border: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: var(--ha-card-border-width, 1px) solid transparent;
     box-shadow: none;
     overflow: visible;
   }
@@ -102,7 +110,7 @@ export const statusCardStyles = [
   .status-icon-grid {
     display: flex;
     flex-direction: column;
-    gap: clamp(4px, 2cqw, 10px);
+    gap: var(--orbit-grouped-item-gap);
     width: 100%;
     height: 100%;
     box-sizing: border-box;
@@ -114,21 +122,16 @@ export const statusCardStyles = [
 
   .status-icon-row {
     display: flex;
-    gap: clamp(4px, 2cqw, 10px);
+    gap: var(--orbit-grouped-item-gap);
     width: 100%;
   }
 
-  ha-card.mode-icon_only.grouped.separate-cards .status-icon-grid {
-    gap: clamp(5px, 1.4cqw, 8px);
-  }
-
-  ha-card.mode-icon_only.grouped.separate-cards .status-icon-row {
-    gap: clamp(5px, 1.4cqw, 8px);
-  }
-
   .status-icon-item {
+    border-radius: 15px;
+    box-sizing: border-box;
     container-type: size;
     cursor: pointer;
+    overflow: hidden;
     position: relative;
     flex: 1 1 0;
     min-width: 0;
@@ -148,11 +151,11 @@ export const statusCardStyles = [
   }
 
   ha-card.mode-icon_only.grouped:not(.separate-cards) .status-icon-item {
-    background: transparent;
-    border: none;
+    --ha-card-background: transparent;
+    --card-background-color: transparent;
+    background: transparent !important;
+    border: var(--ha-card-border-width, 1px) solid transparent;
     box-shadow: none;
-    border-radius: 0;
-    overflow: visible;
   }
 
   .status-container.mode-icon_only.grouped .status-icon-spacer {
@@ -259,7 +262,11 @@ export const statusCardStyles = [
   }
 
   .person-badge ha-state-icon {
-    transform: translateY(-6%);
+    transform: translate(4%, -10%);
+  }
+
+  .person-badge ha-state-icon.charging {
+    transform: translate(10%, -10%);
   }
 
   .person-badge-battery-1 {
@@ -268,8 +275,8 @@ export const statusCardStyles = [
   }
 
   .person-badge-battery-2 {
-    left: 91%;
-    top: 22%;
+    left: 94%;
+    top: 25%;
   }
 
   .status-badge {

@@ -8,12 +8,16 @@ export const deckCardStyles = css`
 
   ha-card.deck-card.wrap.separate-cards {
     background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border: none;
     box-shadow: none;
   }
 
   ha-card.deck-card.overlay {
     background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border: none;
     box-shadow: none;
   }
@@ -22,12 +26,14 @@ export const deckCardStyles = css`
   ha-card.deck-card.wrap:not(.separate-cards) .deck-item > *,
   ha-card.deck-card.wrap:not(.separate-cards) .deck-item-interaction > * {
     --ha-card-background: transparent;
+    --card-background-color: transparent;
     --ha-card-box-shadow: none;
-    --ha-card-border-width: 0;
     --ha-card-border-color: transparent;
-    --ha-card-border-radius: 0;
+    --ha-card-backdrop-filter: none;
     background: transparent;
-    border: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-color: transparent;
     box-shadow: none;
   }
 
@@ -188,7 +194,10 @@ export const deckCardStyles = css`
     --ha-card-box-shadow: none;
     --ha-card-border-width: 0;
     --ha-card-border-color: transparent;
+    --ha-card-backdrop-filter: none;
     background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border-color: transparent;
     box-shadow: none;
   }

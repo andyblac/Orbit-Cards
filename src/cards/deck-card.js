@@ -277,9 +277,12 @@ class OrbitDeckCard extends LitElement {
   async _scheduleCardBuild() {
     const decks = getDeckItems(this._config);
     const buildKey = JSON.stringify(
-      decks.map((item) => ({
+      decks.map((item, index) => ({
         kind: getDeckItemKind(item),
-        config: getDeckItemRenderConfig(item),
+        config: getDeckItemRenderConfig(
+          item,
+          shouldFlattenDeckCardSurface(this._config, item, index)
+        ),
       }))
     );
 
@@ -297,7 +300,12 @@ class OrbitDeckCard extends LitElement {
 
     const helpers = await this._loadCardHelpers();
     const entries = decks.map((item, index) =>
-      this._createDeckEntry(item, helpers, index)
+      this._createDeckEntry(
+        item,
+        helpers,
+        index,
+        shouldFlattenDeckCardSurface(this._config, item, index)
+      )
     );
 
     if (buildKey === this._cardBuildKey) {
@@ -313,9 +321,9 @@ class OrbitDeckCard extends LitElement {
     return this._cardHelpers;
   }
 
-  _createDeckEntry(item, helpers, index) {
+  _createDeckEntry(item, helpers, index, flattenSurfaces = false) {
     const kind = getDeckItemKind(item);
-    const childConfig = getDeckItemRenderConfig(item);
+    const childConfig = getDeckItemRenderConfig(item, flattenSurfaces);
 
     if (!childConfig.type) {
       return {
@@ -511,7 +519,14 @@ class OrbitDeckCard extends LitElement {
   }
 
   _applyDeckPaddingToEntries() {
-    const paddingApplyKey = getDeckPaddingApplyKey(this._deckCards);
+    const surfaceKey = this._deckCards
+      .map((entry) => shouldFlattenDeckCardSurface(
+        this._config,
+        entry.item,
+        entry.index
+      ) ? "flat" : "native")
+      .join(":");
+    const paddingApplyKey = `${getDeckPaddingApplyKey(this._deckCards)}|surface:${surfaceKey}`;
 
     if (paddingApplyKey === this._paddingApplyKey) return;
 
@@ -534,16 +549,25 @@ class OrbitDeckCard extends LitElement {
     waitForRender
       .then(() => new Promise((resolve) => requestAnimationFrame(resolve)))
       .then(() => {
-        const cardElement = getCardElement(element);
+        const cardElements = getCardElements(element);
+        const cardElement = cardElements[0] || null;
         const wrapperElement = getDeckItemWrapper(this.renderRoot, entry.index);
+        const flattenSurface = shouldFlattenDeckCardSurface(
+          this._config,
+          entry.item,
+          entry.index
+        );
 
         if (!cardElement && !wrapperElement) return;
-        if (shouldApplyPadding && !cardElement && attempt < 10) {
+        if ((shouldApplyPadding || flattenSurface) && !cardElement && attempt < 10) {
           window.setTimeout(
             () => this._applyDeckCardPadding(entry, attempt + 1),
             50
           );
         }
+
+        applyDeckCardSurface(element, flattenSurface);
+        cardElements.forEach((card) => applyDeckCardSurface(card, flattenSurface));
 
         if (
           !shouldApplyPadding &&
@@ -554,13 +578,16 @@ class OrbitDeckCard extends LitElement {
           return;
         }
 
-        if (wrapperElement) applyPaddingTarget(wrapperElement, padding, shouldApplyPadding);
+        // Apply item padding to the embedded card only. Applying the same
+        // padding to its interaction wrapper compounds the offset (for
+        // example, 5px on the wrapper plus 5px on the card becomes 10px).
+        if (wrapperElement) applyPaddingTarget(wrapperElement, padding, false);
         if (cardElement) applyPaddingTarget(cardElement, padding, shouldApplyPadding);
 
         if (shouldApplyPadding && cardElement) {
           connectDeckPaddingObserver(cardElement, padding);
           requestAnimationFrame(() => {
-            if (wrapperElement) applyPaddingTarget(wrapperElement, padding, true);
+            if (wrapperElement) applyPaddingTarget(wrapperElement, padding, false);
             applyPaddingTarget(cardElement, padding, true);
           });
         } else {
@@ -826,22 +853,34 @@ function getDeckItemEntity(item = {}) {
   );
 }
 
-function getDeckItemRenderConfig(item = {}) {
+function getDeckItemRenderConfig(item = {}, flattenSurface = false) {
   const child = getDeckItemConfig(item);
   const renderChild = shouldStripChildPaddingConfig(item)
     ? removeChildPaddingConfig(child)
     : child;
+  let renderConfig = renderChild;
 
-  if (!hasDeckItemActions(item)) {
-    return renderChild;
+  if (hasDeckItemActions(item)) {
+    const {
+      tap_action,
+      hold_action,
+      double_tap_action,
+      ...actionlessConfig
+    } = renderChild;
+
+    renderConfig = actionlessConfig;
   }
 
-  const {
-    tap_action,
-    hold_action,
-    double_tap_action,
-    ...renderConfig
-  } = renderChild;
+  // Some custom cards paint their surface through their own configuration
+  // instead of the standard ha-card variables. Pass the common native switch
+  // to every embedded card in combined mode; cards that do not support it
+  // simply ignore the additional configuration key.
+  if (flattenSurface) {
+    return {
+      ...renderConfig,
+      hide_background: true,
+    };
+  }
 
   return renderConfig;
 }
@@ -958,36 +997,136 @@ function getDeckItemWrapper(root, index) {
   return root?.querySelector?.(`.deck-item-interaction[data-deck-index="${index}"]`);
 }
 
-function getCardElement(element) {
-  if (element.localName === "ha-card") return element;
-
-  return findCardElement(element.shadowRoot || element);
-}
-
-function findCardElement(root, seen = new WeakSet()) {
-  if (!root || seen.has(root)) return null;
-
-  seen.add(root);
-
-  if (root.localName === "ha-card") return root;
-
-  const direct = root.querySelector?.("ha-card");
-
-  if (direct) return direct;
-
-  const children = root.querySelectorAll?.("*") || [];
-
-  for (const child of children) {
-    const found = findCardElement(child.shadowRoot || child, seen);
-
-    if (found) return found;
+function shouldFlattenDeckCardSurface(config = {}, item = {}, index = 0) {
+  if (config?.layout === "wrap") {
+    return !config?.separate_cards;
   }
 
-  return null;
+  if (config?.layout === "overlay") {
+    return index > 0 && item?.attributes?.transparent_background === true;
+  }
+
+  return config?.layout === "tabs";
+}
+
+const DECK_CARD_SURFACE_STYLES = {
+  "--ha-card-background": "transparent",
+  "--card-background-color": "transparent",
+  "--ha-card-box-shadow": "none",
+  "--ha-card-border-color": "transparent",
+  "--ha-card-backdrop-filter": "none",
+  background: "transparent",
+  "backdrop-filter": "none",
+  "-webkit-backdrop-filter": "none",
+  "border-color": "transparent",
+  "box-shadow": "none",
+};
+
+function applyDeckCardSurface(element, flatten) {
+  if (flatten) {
+    if (!element._orbitDeckSurfaceStyles) {
+      element._orbitDeckSurfaceStyles = Object.fromEntries(
+        Object.keys(DECK_CARD_SURFACE_STYLES).map((property) => [
+          property,
+          {
+            value: element.style.getPropertyValue(property),
+            priority: element.style.getPropertyPriority(property),
+          },
+        ])
+      );
+    }
+
+    applyDeckCardSurfaceStyles(element);
+    connectDeckCardSurfaceObserver(element);
+    return;
+  }
+
+  const previousStyles = element._orbitDeckSurfaceStyles;
+
+  if (!previousStyles) return;
+
+  disconnectDeckCardSurfaceObserver(element);
+
+  Object.entries(previousStyles).forEach(([property, previous]) => {
+    if (previous.value) {
+      element.style.setProperty(property, previous.value, previous.priority);
+    } else {
+      element.style.removeProperty(property);
+    }
+  });
+  delete element._orbitDeckSurfaceStyles;
+}
+
+function applyDeckCardSurfaceStyles(element) {
+  Object.entries(DECK_CARD_SURFACE_STYLES).forEach(([property, value]) => {
+    if (
+      element.style.getPropertyValue(property) !== value ||
+      element.style.getPropertyPriority(property) !== "important"
+    ) {
+      element.style.setProperty(property, value, "important");
+    }
+  });
+}
+
+function connectDeckCardSurfaceObserver(element) {
+  if (element._orbitDeckSurfaceObserver) return;
+
+  element._orbitDeckSurfaceObserver = new MutationObserver(() => {
+    if (!element._orbitDeckSurfaceStyles) return;
+
+    applyDeckCardSurfaceStyles(element);
+  });
+
+  element._orbitDeckSurfaceObserver.observe(element, {
+    attributes: true,
+    attributeFilter: ["style"],
+  });
+}
+
+function disconnectDeckCardSurfaceObserver(element) {
+  element._orbitDeckSurfaceObserver?.disconnect();
+  element._orbitDeckSurfaceObserver = null;
+}
+
+function getCardElements(element) {
+  const cards = [];
+
+  collectCardElements(element, cards, new WeakSet());
+  return cards;
+}
+
+function collectCardElements(element, cards, seen) {
+  if (!element || seen.has(element)) return;
+
+  seen.add(element);
+
+  if (element.localName === "ha-card" && !cards.includes(element)) {
+    cards.push(element);
+  }
+
+  const roots = [element.shadowRoot, element].filter(Boolean);
+
+  roots.forEach((root) => {
+    const children = root.querySelectorAll?.("*") || [];
+
+    for (const child of children) {
+      if (child.localName === "ha-card" && !cards.includes(child)) {
+        cards.push(child);
+      }
+      if (child.shadowRoot) {
+        collectCardElements(child, cards, seen);
+      }
+    }
+  });
 }
 
 function applyPaddingTarget(element, padding, applied) {
-  applyPaddingStyles(element, padding);
+  applyPaddingStyles(
+    element,
+    applied
+      ? padding
+      : { top: "", right: "", bottom: "", left: "" }
+  );
   element._orbitDeckPaddingApplied = applied;
 }
 

@@ -13,13 +13,21 @@ export const actionCardStyles = [
     }
 
     ha-card.grouped {
+      --orbit-grouped-item-gap: clamp(5px, 1.4cqw, 8px);
       aspect-ratio: auto;
       container-type: inline-size;
     }
 
+    ha-card.grouped:not(.separate-cards) {
+      background: var(--ha-card-background, var(--card-background-color, #1a1a1a));
+      overflow: hidden;
+    }
+
     ha-card.grouped.separate-cards {
       background: transparent;
-      border: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border: var(--ha-card-border-width, 1px) solid transparent;
       box-shadow: none;
       overflow: visible;
     }
@@ -27,7 +35,7 @@ export const actionCardStyles = [
     .action-container {
       display: flex;
       flex-direction: column;
-      gap: clamp(4px, 2cqw, 10px);
+      gap: var(--orbit-grouped-item-gap);
       height: auto;
       padding: 0;
       box-sizing: border-box;
@@ -36,7 +44,7 @@ export const actionCardStyles = [
     .action-row {
       display: flex;
       flex: 1 1 auto;
-      gap: clamp(4px, 2cqw, 10px);
+      gap: var(--orbit-grouped-item-gap);
       min-height: 0;
       width: 100%;
     }
@@ -45,15 +53,10 @@ export const actionCardStyles = [
       flex: 0 0 auto;
     }
 
-    ha-card.grouped.separate-cards .action-container {
-      gap: clamp(5px, 1.4cqw, 8px);
-    }
-
-    ha-card.grouped.separate-cards .action-row {
-      gap: clamp(5px, 1.4cqw, 8px);
-    }
-
     .action-button {
+      border-radius: 15px;
+      box-sizing: border-box;
+      overflow: hidden;
       width: 100%;
       height: 100%;
       display: flex;
@@ -78,11 +81,11 @@ export const actionCardStyles = [
     }
 
     ha-card.grouped:not(.separate-cards) .action-button {
-      background: transparent;
-      border: none;
+      --ha-card-background: transparent;
+      --card-background-color: transparent;
+      background: transparent !important;
+      border: var(--ha-card-border-width, 1px) solid transparent;
       box-shadow: none;
-      border-radius: 0;
-      overflow: visible;
     }
 
     ha-card.grouped .action-spacer {

@@ -43,6 +43,56 @@ function renderActionButton(action, index) {
   const inlineSvg = iconPath
     ? this._getInlineSvg(iconPath, action.svgForceColor)
     : "";
+  const content = html`
+    <div class="circle action-circle">
+      ${this._isImageIcon(action.icon)
+        ? html`
+            <div class="main-image-icon">
+              ${inlineSvg
+                ? unsafeHTML(inlineSvg)
+                : html`<img src=${iconPath} alt="" />`}
+            </div>
+          `
+        : action.useStateIcon && action.stateObj
+        ? html`
+            <ha-state-icon
+              class="main-icon"
+              .stateObj=${action.stateObj}
+            ></ha-state-icon>
+          `
+        : html`
+            <ha-icon
+              class="main-icon"
+              .icon=${action.icon}
+            ></ha-icon>
+          `}
+    </div>
+  `;
+  const isFlattenedGroup =
+    (this._actions?.length || 0) > 1 && !this._config?.separate_cards;
+
+  if (isFlattenedGroup) {
+    return html`
+      <div
+        class="action-button ${action.isRunning ? "running" : ""}"
+        role="button"
+        tabindex="0"
+        style="
+          --action-card-background:${action.cardBackground};
+          --action-icon-color:${action.iconColor};
+        "
+        @click=${(ev) => this._handleTap(ev, index)}
+        @dblclick=${(ev) => this._handleDoubleTap(ev, index)}
+        @pointerdown=${(ev) => this._handlePointerDown(ev, index)}
+        @pointerup=${this._handlePointerUp}
+        @pointerleave=${this._handlePointerCancel}
+        @pointercancel=${this._handlePointerCancel}
+        @contextmenu=${(ev) => this._handleContextMenu(ev, index)}
+      >
+        ${content}
+      </div>
+    `;
+  }
 
   return html`
     <ha-card
@@ -61,29 +111,7 @@ function renderActionButton(action, index) {
       @pointercancel=${this._handlePointerCancel}
       @contextmenu=${(ev) => this._handleContextMenu(ev, index)}
     >
-      <div class="circle action-circle">
-        ${this._isImageIcon(action.icon)
-          ? html`
-              <div class="main-image-icon">
-                ${inlineSvg
-                  ? unsafeHTML(inlineSvg)
-                  : html`<img src=${iconPath} alt="" />`}
-              </div>
-            `
-          : action.useStateIcon && action.stateObj
-          ? html`
-              <ha-state-icon
-                class="main-icon"
-                .stateObj=${action.stateObj}
-              ></ha-state-icon>
-            `
-          : html`
-              <ha-icon
-                class="main-icon"
-                .icon=${action.icon}
-              ></ha-icon>
-            `}
-      </div>
+      ${content}
     </ha-card>
   `;
 }
