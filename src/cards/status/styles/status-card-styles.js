@@ -31,6 +31,8 @@ export const statusCardStyles = [
 
   ha-card.mode-icon_only.grouped.separate-cards {
     background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border: var(--ha-card-border-width, 1px) solid transparent;
     box-shadow: none;
     overflow: visible;

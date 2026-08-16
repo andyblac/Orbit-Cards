@@ -7178,6 +7178,8 @@ var fd = e((() => {
 
   ha-card.mode-icon_only.grouped.separate-cards {
     background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border: var(--ha-card-border-width, 1px) solid transparent;
     box-shadow: none;
     overflow: visible;
@@ -8993,6 +8995,8 @@ var Hd = e((() => {
 
     ha-card.grouped.separate-cards {
       background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
       border: var(--ha-card-border-width, 1px) solid transparent;
       box-shadow: none;
       overflow: visible;
@@ -9924,12 +9928,16 @@ var sf = e((() => {})), cf, lf = e((() => {
 
   ha-card.deck-card.wrap.separate-cards {
     background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border: none;
     box-shadow: none;
   }
 
   ha-card.deck-card.overlay {
     background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border: none;
     box-shadow: none;
   }

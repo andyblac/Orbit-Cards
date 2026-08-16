@@ -8,12 +8,16 @@ export const deckCardStyles = css`
 
   ha-card.deck-card.wrap.separate-cards {
     background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border: none;
     box-shadow: none;
   }
 
   ha-card.deck-card.overlay {
     background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border: none;
     box-shadow: none;
   }
