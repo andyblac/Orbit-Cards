@@ -968,7 +968,7 @@ function Wt(e) {
 }
 function Gt(e) {
 	let t = import.meta.url.split("?")[0];
-	return `${t.slice(0, t.lastIndexOf("/") + 1)}icons/${e}`;
+	return `${t.slice(0, t.lastIndexOf("/") + 1)}${e}`;
 }
 function Kt(e) {
 	return e.split("?")[0].startsWith(Gt("")) ? (tn ||= fetch(Gt("manifest.json"), { cache: "no-cache" }).then(async (e) => e.ok ? e.headers.get("etag") || e.headers.get("last-modified") || qt(await e.text()) : "").catch(() => ""), tn) : Promise.resolve("");
@@ -2093,7 +2093,7 @@ function Yr(e) {
 }
 function Xr(e) {
 	let t = import.meta.url.split("?")[0];
-	return `${t.slice(0, t.lastIndexOf("/") + 1)}icons/${e}`;
+	return `${t.slice(0, t.lastIndexOf("/") + 1)}${e}`;
 }
 function Zr(e, t, n) {
 	let r = this._config?.[t] || "", i = `${this._iconPickerPrefix || "icon"}-${t}`, a = r && this._isImageIcon(r) ? "files" : "ha", o = this._iconPickerKey === i && this._iconPickerTab || a;

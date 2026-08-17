@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import { access, cp, mkdir, rm } from "node:fs/promises";
+import { access, copyFile, mkdir, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
 function copyOrbitIcons() {
@@ -7,7 +7,7 @@ function copyOrbitIcons() {
     name: "copy-orbit-icons",
     async writeBundle() {
       const source = resolve("src/icons");
-      const target = resolve("dist/icons");
+      const target = resolve("dist");
 
       try {
         await access(source);
@@ -15,17 +15,24 @@ function copyOrbitIcons() {
         return;
       }
 
-      await rm(target, {
-        recursive: true,
-        force: true,
-      });
       await mkdir(target, {
         recursive: true,
       });
-      await cp(source, target, {
-        recursive: true,
-        filter: (path) => !path.endsWith(".DS_Store"),
+
+      const entries = await readdir(source, {
+        withFileTypes: true,
       });
+
+      await Promise.all(
+        entries
+          .filter((entry) => entry.isFile() && entry.name !== ".DS_Store")
+          .map((entry) =>
+            copyFile(
+              resolve(source, entry.name),
+              resolve(target, entry.name)
+            )
+          )
+      );
     },
   };
 }

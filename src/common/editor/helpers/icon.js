@@ -81,7 +81,7 @@ function getOrbitIconPath(file) {
   const moduleUrl = import.meta.url.split("?")[0];
   const base = moduleUrl.slice(0, moduleUrl.lastIndexOf("/") + 1);
 
-  return `${base}icons/${file}`;
+  return `${base}${file}`;
 }
 
 export function renderIconInput(label, key, placeholder) {

@@ -88,10 +88,11 @@ Orbit Cards is available directly from the default HACS repository. Search for `
    /config/www/orbit-cards.js
    ```
 
-3. Optional: to use bundled `orbit:` icons with a manual install, copy `dist/icons` to:
+3. Optional: to use bundled `orbit:` icons with a manual install, copy
+   `dist/manifest.json` and the `dist/*.svg` files beside `orbit-cards.js` in:
    
    ```text
-   /config/www/icons
+   /config/www
    ```
 
 4. In Home Assistant, go to `Settings` -> `Dashboards` -> `Resources`.
