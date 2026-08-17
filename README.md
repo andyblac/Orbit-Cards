@@ -83,6 +83,11 @@ entity: binary_sensor.front_door_contact_sensor
 Native Entity badge options such as `entity`, `name`, `icon`, `color`,
 `show_name`, `show_state`, `show_icon`, `show_entity_picture`,
 `state_content`, `time_format`, and tap/hold/double-tap actions are supported.
+Set Mode to Card (`display_style: card`) for a circular, icon-only badge suited
+to card overlays such as an Orbit Deck Card. Set its
+background with `card_color`. In Card mode, State type controls visibility:
+Always, Entity state, or Template. Template visibility uses `active_template`
+and shows the badge when that template renders a truthy result.
 
 Area Count is the Orbit-specific state type and can also be used inside a Heading card:
 

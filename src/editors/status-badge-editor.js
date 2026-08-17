@@ -116,10 +116,16 @@ class OrbitStatusBadgeEditor extends LitElement {
       this._config?.state_template,
       this._config?.active_template,
       this._config?.name_template,
-    ].filter(Boolean);
-    const entries = stateSource === "template"
-      ? templates.map((template) => ({ template, entityId: "" }))
+    ];
+    const cardMode = this._config?.display_style === "card";
+    const selectedTemplates = stateSource === "template"
+      ? cardMode
+        ? [this._config?.active_template]
+        : templates
       : [];
+    const entries = selectedTemplates
+      .filter(Boolean)
+      .map((template) => ({ template, entityId: "" }));
 
     syncTemplateSubscriptions.call(
       this,
@@ -366,6 +372,9 @@ class OrbitStatusBadgeEditor extends LitElement {
   }
 
   render() {
+    const cardMode = ["card", "icon"].includes(
+      this._config?.display_style
+    );
     const deviceClassOptions = this._getDeviceClassOptions();
     const domainConfig = STATUS_BADGE_DOMAINS.find(
       (item) => item.value === this._config?.domain
@@ -387,6 +396,32 @@ class OrbitStatusBadgeEditor extends LitElement {
     return html`
       <div class="wrapper">
         <div class="section">
+          <div class="field editor-button-toggle-field mode-field">
+            <div class="field-header">
+              <label>${this._t("Mode")}</label>
+              <ha-selector
+                class="editor-header-button-toggle"
+                .hass=${this.hass}
+                .selector=${{
+                  button_toggle: {
+                    options: [
+                      { label: this._t("Header"), value: "header" },
+                      { label: this._t("Card"), value: "card" },
+                    ],
+                  },
+                }}
+                .value=${["card", "icon"].includes(
+                  this._config?.display_style
+                ) ? "card" : "header"}
+                @value-changed=${(e) =>
+                  this._handleConfigUpdate(
+                    "display_style",
+                    e.detail.value === "card" ? "card" : undefined
+                  )}
+              ></ha-selector>
+            </div>
+          </div>
+
           <ha-expansion-panel
             class="state-type-panel"
             outlined
@@ -407,6 +442,7 @@ class OrbitStatusBadgeEditor extends LitElement {
                 stateSource,
                 domainConfig,
                 deviceClassOptions,
+                cardMode,
               })}
             </div>
           </ha-expansion-panel>
@@ -424,114 +460,138 @@ class OrbitStatusBadgeEditor extends LitElement {
               ${this._t("Content")}
             </div>
             <div class="content-panel-body">
-              <div class="field">
-                <ha-selector
-                  class=${stateSource === "template"
-                    ? "status-badge-name-selector"
-                    : ""}
-                  .hass=${stateContentHass}
-                  .label=${this.hass?.localize(
-                    "ui.panel.lovelace.editor.card.generic.name"
-                  ) || this._t("Name")}
-                  .helper=${this.hass?.localize(
-                    "ui.panel.lovelace.editor.card.heading.entity_config.name_helper"
-                  ) || this._t("Visible if selected in state content")}
-                  .selector=${{
-                    entity_name: {
-                      entity_id: stateContentEntityId,
-                    },
-                  }}
-                  .value=${this._config?.name}
-                  @value-changed=${(e) =>
-                    this._handleConfigUpdate("name", e.detail.value)}
-                ></ha-selector>
-              </div>
+              ${cardMode
+                ? this._renderColor(
+                    ["Background", "Color"],
+                    "card_color",
+                    "primary-color"
+                  )
+                : html`
+                    <div class="field">
+                      <ha-selector
+                        class=${stateSource === "template"
+                          ? "status-badge-name-selector"
+                          : ""}
+                        .hass=${stateContentHass}
+                        .label=${this.hass?.localize(
+                          "ui.panel.lovelace.editor.card.generic.name"
+                        ) || this._t("Name")}
+                        .helper=${this.hass?.localize(
+                          "ui.panel.lovelace.editor.card.heading.entity_config.name_helper"
+                        ) || this._t("Visible if selected in state content")}
+                        .selector=${{
+                          entity_name: {
+                            entity_id: stateContentEntityId,
+                          },
+                        }}
+                        .value=${this._config?.name}
+                        @value-changed=${(e) =>
+                          this._handleConfigUpdate("name", e.detail.value)}
+                      ></ha-selector>
+                    </div>
+                  `}
 
               <div class="color-pair">
                 ${this._renderColor(
                   ["Active", "Color"],
-                  "accent_on_color"
+                  "accent_on_color",
+                  cardMode ? "white" : "theme"
                 )}
                 ${this._renderColor(
                   ["Inactive", "Color"],
-                  "accent_off_color"
+                  "accent_off_color",
+                  cardMode ? "white" : "theme"
                 )}
               </div>
 
               ${renderBadgeIconControl.call(this, stateSource)}
 
-              <div class="field">
-                <label>${this.hass?.localize(
-                  "ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements"
-                ) || this._t("Displayed elements")}</label>
-                <ha-selector
-                  .hass=${this.hass}
-                  .selector=${{
-                    select: {
-                      mode: "list",
-                      multiple: true,
-                      options: [
-                        {
-                          value: "name",
-                          label: this.hass?.localize(
-                            "ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.name"
-                          ) || this._t("Name"),
-                        },
-                        {
-                          value: "state",
-                          label: this.hass?.localize(
-                            "ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.state"
-                          ) || this._t("State"),
-                        },
-                        {
-                          value: "icon",
-                          label: this.hass?.localize(
-                            "ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.icon"
-                          ) || this._t("Icon"),
-                        },
-                      ],
-                    },
-                  }}
-                  .value=${displayedElements}
-                  @value-changed=${(e) => {
-                    const value = e.detail.value || [];
-                    this._updateConfig({
-                      show_name: value.includes("name") ? true : undefined,
-                      show_state: value.includes("state") ? undefined : false,
-                      show_icon: value.includes("icon") ? undefined : false,
-                    });
-                  }}
-                ></ha-selector>
-              </div>
-
-              ${stateSource !== "template"
+              ${!cardMode
                 ? html`
                     <div class="field">
+                      <label>${this.hass?.localize(
+                        "ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements"
+                      ) || this._t("Displayed elements")}</label>
                       <ha-selector
-                        .hass=${stateContentHass}
-                        .label=${this.hass?.localize(
-                          "ui.panel.lovelace.editor.card.heading.entity_config.state_content"
-                        ) || this._t("State content")}
+                        .hass=${this.hass}
                         .selector=${{
-                          ui_state_content: {
-                            entity_id: stateContentEntityId,
-                            allow_name: true,
+                          select: {
+                            mode: "list",
+                            multiple: true,
+                            options: [
+                              {
+                                value: "name",
+                                label: this.hass?.localize(
+                                  "ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.name"
+                                ) || this._t("Name"),
+                              },
+                              {
+                                value: "state",
+                                label: this.hass?.localize(
+                                  "ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.state"
+                                ) || this._t("State"),
+                              },
+                              {
+                                value: "icon",
+                                label: this.hass?.localize(
+                                  "ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.icon"
+                                ) || this._t("Icon"),
+                              },
+                            ],
                           },
                         }}
-                        .value=${this._config?.state_content ||
-                          (stateSource === "entity" ? "state" : "count")}
-                        @value-changed=${(e) =>
-                          this._handleConfigUpdate("state_content", (() => {
-                            const value = e.detail.value;
-                            const defaultValue = stateSource === "entity"
-                              ? "state"
-                              : "count";
-                            return !value || value === defaultValue
+                        .value=${displayedElements}
+                        @value-changed=${(e) => {
+                          const value = e.detail.value || [];
+                          this._updateConfig({
+                            show_name: value.includes("name")
+                              ? true
+                              : undefined,
+                            show_state: value.includes("state")
                               ? undefined
-                              : value;
-                          })())}
+                              : false,
+                            show_icon: value.includes("icon")
+                              ? undefined
+                              : false,
+                          });
+                        }}
                       ></ha-selector>
                     </div>
+                    ${stateSource !== "template"
+                      ? html`
+                          <div class="field">
+                            <ha-selector
+                              .hass=${stateContentHass}
+                              .label=${this.hass?.localize(
+                                "ui.panel.lovelace.editor.card.heading.entity_config.state_content"
+                              ) || this._t("State content")}
+                              .selector=${{
+                                ui_state_content: {
+                                  entity_id: stateContentEntityId,
+                                  allow_name: true,
+                                },
+                              }}
+                              .value=${this._config?.state_content ||
+                                (stateSource === "entity"
+                                  ? "state"
+                                  : "count")}
+                              @value-changed=${(e) =>
+                                this._handleConfigUpdate(
+                                  "state_content",
+                                  (() => {
+                                    const value = e.detail.value;
+                                    const defaultValue = stateSource === "entity"
+                                      ? "state"
+                                      : "count";
+                                    return !value || value === defaultValue
+                                      ? undefined
+                                      : value;
+                                  })()
+                                )}
+                            ></ha-selector>
+                          </div>
+                        `
+                      : ""}
                   `
                 : ""}
             </div>
@@ -685,8 +745,23 @@ function renderBadgeStateControl({
   stateSource,
   domainConfig,
   deviceClassOptions,
+  cardMode,
 }) {
   const domainValue = this._config?.domain || "";
+  const selectedType = cardMode
+    ? this._config?.card_visibility || "always"
+    : stateSource;
+  const typeOptions = cardMode
+    ? [
+        { label: this._t("Always"), value: "always" },
+        { label: this._t("Entity state"), value: "state" },
+        { label: this._t("Template"), value: "template" },
+      ]
+    : [
+        { label: this._t("Entity"), value: "entity" },
+        { label: this._t("Area Count"), value: "area_count" },
+        { label: this._t("Template"), value: "template" },
+      ];
 
   return html`
     <div class="field main-entity-icon-source-field">
@@ -697,25 +772,53 @@ function renderBadgeStateControl({
           .hass=${this.hass}
           .selector=${{
             button_toggle: {
-              options: [
-                {
-                  label: this._t("Entity"),
-                  value: "entity",
-                },
-                {
-                  label: this._t("Area Count"),
-                  value: "area_count",
-                },
-                {
-                  label: this._t("Template"),
-                  value: "template",
-                },
-              ],
+              options: typeOptions,
             },
           }}
-          .value=${stateSource}
+          .value=${selectedType}
           @value-changed=${(e) => {
-            const value = e.detail.value || "entity";
+            const value = e.detail.value || (cardMode ? "always" : "entity");
+            if (cardMode) {
+              this._updateConfig(
+                value === "always"
+                  ? {
+                      card_visibility: undefined,
+                      state_source: undefined,
+                      entity: undefined,
+                      area: undefined,
+                      domain: undefined,
+                      device_class: undefined,
+                      state_template: undefined,
+                      active_template: undefined,
+                      name_template: undefined,
+                      state_content: undefined,
+                    }
+                  : value === "state"
+                    ? {
+                        card_visibility: "state",
+                        state_source: undefined,
+                        area: undefined,
+                        domain: undefined,
+                        device_class: undefined,
+                        state_template: undefined,
+                        active_template: undefined,
+                        name_template: undefined,
+                        state_content: undefined,
+                      }
+                    : {
+                        card_visibility: "template",
+                        state_source: "template",
+                        entity: undefined,
+                        area: undefined,
+                        domain: undefined,
+                        device_class: undefined,
+                        state_template: undefined,
+                        name_template: undefined,
+                        state_content: undefined,
+                      }
+              );
+              return;
+            }
             this._updateConfig(
               value === "entity"
                 ? {
@@ -748,18 +851,22 @@ function renderBadgeStateControl({
         ></ha-selector>
       </div>
 
-      ${stateSource === "entity"
+      ${cardMode && selectedType === "always"
+        ? ""
+        : (!cardMode && stateSource === "entity") ||
+            (cardMode && selectedType === "state")
         ? html`
             <ha-selector
               .hass=${this.hass}
               .label=${this._t("Entity")}
               .selector=${{ entity: {} }}
+              .required=${false}
               .value=${this._config?.entity || ""}
               @value-changed=${(e) =>
                 this._handleConfigUpdate("entity", e.detail.value || "")}
             ></ha-selector>
           `
-        : stateSource === "area_count"
+        : !cardMode && stateSource === "area_count"
           ? html`
             <div class="field">
               <span class="native-picker-label">${this._t("Area")}</span>
@@ -826,24 +933,29 @@ function renderBadgeStateControl({
                 `
               : ""}
           `
-          : html`
-              <div class="field">
-                <ha-selector
-                  .hass=${this.hass}
-                  .label=${this._t("Display template")}
-                  .selector=${{ template: {} }}
-                  .value=${this._config?.state_template || ""}
-                  @value-changed=${(e) =>
-                    this._handleConfigUpdate(
-                      "state_template",
-                      e.detail.value || ""
-                    )}
-                ></ha-selector>
-                ${renderTemplateError.call(
-                  this,
-                  this._config?.state_template
-                )}
-              </div>
+          : selectedType === "template"
+            ? html`
+              ${!cardMode
+                ? html`
+                    <div class="field">
+                      <ha-selector
+                        .hass=${this.hass}
+                        .label=${this._t("Display template")}
+                        .selector=${{ template: {} }}
+                        .value=${this._config?.state_template || ""}
+                        @value-changed=${(e) =>
+                          this._handleConfigUpdate(
+                            "state_template",
+                            e.detail.value || ""
+                          )}
+                      ></ha-selector>
+                      ${renderTemplateError.call(
+                        this,
+                        this._config?.state_template
+                      )}
+                    </div>
+                  `
+                : ""}
               <div class="field">
                 <ha-selector
                   .hass=${this.hass}
@@ -861,24 +973,29 @@ function renderBadgeStateControl({
                   this._config?.active_template
                 )}
               </div>
-              <div class="field">
-                <ha-selector
-                  .hass=${this.hass}
-                  .label=${this._t("Name template")}
-                  .selector=${{ template: {} }}
-                  .value=${this._config?.name_template || ""}
-                  @value-changed=${(e) =>
-                    this._handleConfigUpdate(
-                      "name_template",
-                      e.detail.value || undefined
-                    )}
-                ></ha-selector>
-                ${renderTemplateError.call(
-                  this,
-                  this._config?.name_template
-                )}
-              </div>
-            `}
+              ${!cardMode
+                ? html`
+                    <div class="field">
+                      <ha-selector
+                        .hass=${this.hass}
+                        .label=${this._t("Name template")}
+                        .selector=${{ template: {} }}
+                        .value=${this._config?.name_template || ""}
+                        @value-changed=${(e) =>
+                          this._handleConfigUpdate(
+                            "name_template",
+                            e.detail.value || undefined
+                          )}
+                      ></ha-selector>
+                      ${renderTemplateError.call(
+                        this,
+                        this._config?.name_template
+                      )}
+                    </div>
+                  `
+                : ""}
+            `
+            : ""}
     </div>
   `;
 }

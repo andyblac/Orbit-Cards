@@ -1,4 +1,4 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, nothing } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 import {
@@ -95,14 +95,18 @@ class OrbitStatusBadge extends LitElement {
     const template = this._config?.state_template?.trim() || "";
     const activeTemplate = this._config?.active_template?.trim() || "";
     const nameTemplate = this._config?.name_template?.trim() || "";
-    const entries = stateSource === "template"
-      ? [template, activeTemplate, nameTemplate]
-          .filter(Boolean)
-          .map((entryTemplate) => ({
-            template: entryTemplate,
-            entityId: "",
-          }))
+    const cardMode = this._config?.display_style === "card";
+    const templates = stateSource === "template"
+      ? cardMode
+        ? [activeTemplate]
+        : [template, activeTemplate, nameTemplate]
       : [];
+    const entries = templates
+      .filter(Boolean)
+      .map((entryTemplate) => ({
+        template: entryTemplate,
+        entityId: "",
+      }));
 
     syncTemplateSubscriptions.call(
       this,
@@ -150,11 +154,15 @@ class OrbitStatusBadge extends LitElement {
     const activeTemplateResult = stateSource === "template" && activeTemplate
       ? evaluateStateTemplate.call(this, activeTemplate, "")
       : null;
-    const isOn = stateSource === "template"
+    const computedIsOn = stateSource === "template"
       ? getTemplateResultActiveState(
           activeTemplateResult ?? templateResult
         )
       : activeEntities.length > 0;
+    const isOn = this._config?.display_style === "card" &&
+        !this._config?.card_visibility
+      ? true
+      : computedIsOn;
     const selectedEntity = stateSource === "entity" ? entities[0] : undefined;
     const domain = selectedEntity?.entity_id.split(".")[0] ||
       this._config?.domain || "";
@@ -171,6 +179,12 @@ class OrbitStatusBadge extends LitElement {
     const configuredColor = isOn
       ? this._config?.accent_on_color ?? this._config?.color
       : this._config?.accent_off_color;
+    const hasIconColorOverride = Boolean(configuredColor && ![
+      "theme",
+      "state",
+      "state-active",
+      "state-inactive",
+    ].includes(configuredColor));
     const colorInput = !configuredColor || [
       "theme",
       "state",
@@ -269,6 +283,7 @@ class OrbitStatusBadge extends LitElement {
             context: representativeStateObj.context,
           },
       defaultStateContent: stateSource === "area_count" ? "count" : "state",
+      hasIconColorOverride,
       iconColor: colorInput === "theme"
         ? getNativeEntityBadgeColor(representativeStateObj, isOn)
         : computeFullColor(colorInput),
@@ -340,6 +355,15 @@ class OrbitStatusBadge extends LitElement {
   }
 
   _renderIcon(model) {
+    const cardMode = ["card", "icon"].includes(
+      this._config?.display_style
+    );
+    const cardImageStyle = cardMode
+      ? "width:12px;height:12px;margin:0;"
+      : "";
+    const cardEntityPictureStyle = cardMode
+      ? "width:16px;height:16px;margin:0;border-radius:var(--ha-border-radius-md);"
+      : "";
     const entityPicture = model.stateSource === "entity" &&
       this._config?.show_entity_picture
       ? model.representativeStateObj.attributes?.entity_picture_local ||
@@ -350,7 +374,15 @@ class OrbitStatusBadge extends LitElement {
       const imageUrl = this.hass?.hassUrl
         ? this.hass.hassUrl(entityPicture)
         : entityPicture;
-      return html`<img class="entity-picture" slot="icon" src=${imageUrl} alt="" />`;
+      return html`
+        <img
+          class="entity-picture"
+          slot="icon"
+          src=${imageUrl}
+          alt=""
+          style=${cardEntityPictureStyle}
+        />
+      `;
     }
 
     if (!isImageIcon(model.icon)) {
@@ -376,10 +408,20 @@ class OrbitStatusBadge extends LitElement {
 
         return svg
           ? html`<span slot="icon" class="image-icon">${unsafeHTML(svg)}</span>`
-          : html`<img slot="icon" src=${path} alt="" />`;
+          : html`<img
+              slot="icon"
+              src=${path}
+              alt=""
+              style=${cardImageStyle}
+            />`;
       }
 
-      return html`<img slot="icon" src=${path} alt="" />`;
+      return html`<img
+        slot="icon"
+        src=${path}
+        alt=""
+        style=${cardImageStyle}
+      />`;
     }
 
     return "";
@@ -397,8 +439,26 @@ class OrbitStatusBadge extends LitElement {
     const hasAction = isActionEnabled(tapAction) ||
       isActionEnabled(this._config?.hold_action) ||
       isActionEnabled(this._config?.double_tap_action);
-    const showState = this._config?.show_state !== false;
-    const showIcon = this._config?.show_icon !== false;
+    const cardMode = ["card", "icon"].includes(
+      this._config?.display_style
+    );
+    const cardVisibility = this._config?.card_visibility || "always";
+    const showCardBadge = cardVisibility === "always" ||
+      (["state", "template"].includes(cardVisibility) && model.isOn);
+    const showState = !cardMode && this._config?.show_state !== false;
+    const showName = !cardMode && this._config?.show_name === true;
+    const showIcon = cardMode || this._config?.show_icon !== false;
+    const cardBackgroundColor = this._config?.card_color
+      ? computeFullColor(this._config.card_color)
+      : "var(--primary-color)";
+    const badgeStyle = `--badge-color:${model.iconColor};`;
+    const cardBadgeStyle = [
+      `--tile-badge-background-color:${cardBackgroundColor}`,
+      `--tile-badge-icon-color:${model.hasIconColorOverride
+        ? model.iconColor
+        : "var(--white-color, #fff)"}`,
+      "--mdc-icon-size:12px",
+    ].join(";");
 
     const content = html`
       ${showIcon ? this._renderIcon(model) : ""}
@@ -426,6 +486,29 @@ class OrbitStatusBadge extends LitElement {
       pointerup: (ev) => this._handlePointerEnd(ev),
     };
 
+    if (cardMode && !showCardBadge) return nothing;
+
+    if (cardMode) {
+      return html`
+        <div
+          class="card-badge"
+          style=${cardBadgeStyle}
+          role=${hasAction ? "button" : "img"}
+          tabindex=${hasAction ? "0" : "-1"}
+          title=${`${model.label}: ${model.displayValue}`}
+          aria-label=${`${model.label}: ${model.displayValue}`}
+          @click=${events.click}
+          @dblclick=${events.dblclick}
+          @pointerdown=${events.pointerdown}
+          @pointerup=${events.pointerup}
+          @pointercancel=${() => this._cancelLongPress()}
+          @pointerleave=${() => this._cancelLongPress()}
+        >
+          ${content}
+        </div>
+      `;
+    }
+
     return this._isHeadingBadge
       ? html`
           <ha-heading-badge
@@ -446,9 +529,9 @@ class OrbitStatusBadge extends LitElement {
       : html`
           <ha-badge
             .type=${hasAction ? "button" : "badge"}
-            .label=${this._config?.show_name ? model.label : undefined}
-            .iconOnly=${!showState && !this._config?.show_name}
-            style=${`--badge-color:${model.iconColor};`}
+            .label=${showName ? model.label : undefined}
+            .iconOnly=${cardMode || (!showState && !showName)}
+            style=${badgeStyle}
             .title=${`${model.label}: ${model.displayValue}`}
             aria-label=${`${model.label}: ${model.displayValue}`}
             @click=${events.click}
@@ -464,6 +547,39 @@ class OrbitStatusBadge extends LitElement {
   }
 
   static styles = css`
+    .card-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
+      width: 16px;
+      height: 16px;
+      border-radius: var(--ha-border-radius-md);
+      background-color: var(--tile-badge-background-color);
+      transition: background-color 280ms ease-in-out;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    .card-badge[role="button"] {
+      cursor: pointer;
+    }
+
+    .card-badge:focus-visible {
+      outline: 2px solid var(--tile-badge-background-color);
+      outline-offset: 2px;
+    }
+
+    .card-badge > * {
+      color: var(--tile-badge-icon-color);
+    }
+
+    .card-badge .image-icon {
+      width: 12px;
+      height: 12px;
+      color: var(--tile-badge-icon-color);
+    }
+
     .image-icon {
       width: var(--ha-badge-icon-size, 18px);
       height: var(--ha-badge-icon-size, 18px);

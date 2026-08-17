@@ -69,7 +69,7 @@ export function validateStatusBadgeConfig(config = {}) {
 }
 
 export function normalizeStatusBadgeColors(config = {}) {
-  const stateSource = getStatusBadgeStateSource(config);
+  let stateSource = getStatusBadgeStateSource(config);
   const legacyExampleColors =
     config.accent_on_color === "amber" &&
     config.accent_off_color === "grey";
@@ -92,6 +92,32 @@ export function normalizeStatusBadgeColors(config = {}) {
   if (normalized.show_entity_picture === false) {
     delete normalized.show_entity_picture;
   }
+  if (["pill", "header"].includes(normalized.display_style)) {
+    delete normalized.display_style;
+  }
+  if (normalized.display_style === "icon") {
+    normalized.display_style = "card";
+  }
+  if (normalized.card_visibility === "always") {
+    delete normalized.card_visibility;
+  }
+  if (
+    normalized.card_visibility === "template" &&
+    normalized.card_visibility_template
+  ) {
+    normalized.active_template = normalized.card_visibility_template;
+    normalized.state_source = "template";
+    delete normalized.entity;
+    delete normalized.area;
+    delete normalized.domain;
+    delete normalized.device_class;
+    delete normalized.state_template;
+    delete normalized.name_template;
+  }
+  delete normalized.card_visibility_template;
+  stateSource = getStatusBadgeStateSource(normalized);
+  delete normalized.remove_shadow;
+  delete normalized.badge_size;
 
   if (stateSource === "entity") {
     delete normalized.state_source;
