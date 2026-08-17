@@ -3,9 +3,7 @@
   "version": "1.0.5",
   "scripts": {
     "build": "vite build",
-    "build:dev": "vite build && vite build --mode orbit-dev",
-    "watch": "vite build --watch",
-    "watch:dev": "vite build --mode orbit-dev --watch"
+    "watch": "vite build --watch"
   },
   "description": "A modern, highly configurable Home Assistant area card designed to provide a clean area overview with quick access to devices, scenes, sensors, and navigation.",
   "main": "jest.config.js",

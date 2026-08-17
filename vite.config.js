@@ -26,73 +26,15 @@ function copyOrbitDevIcons() {
   };
 }
 
-const DEV_ELEMENT_NAMES = [
-  "orbit-area-card",
-  "orbit-room-card",
-  "orbit-status-card",
-  "orbit-action-card",
-  "orbit-deck-card",
-  "orbit-status-badge",
-];
+export default defineConfig({
+  plugins: [copyOrbitDevIcons()],
 
-const DEV_DISPLAY_NAMES = [
-  "Orbit Area Card",
-  "Orbit Status Card",
-  "Orbit Action Card",
-  "Orbit Deck Card",
-  "Orbit Status Badge",
-];
-
-function namespaceOrbitDevBuild(enabled) {
-  return {
-    name: "namespace-orbit-dev-build",
-    enforce: "post",
-    renderChunk(code) {
-      if (!enabled) return null;
-
-      let namespacedCode = code;
-
-      for (const elementName of DEV_ELEMENT_NAMES) {
-        namespacedCode = namespacedCode.replaceAll(
-          elementName,
-          `${elementName}-dev`
-        );
-      }
-
-      for (const displayName of DEV_DISPLAY_NAMES) {
-        namespacedCode = namespacedCode.replaceAll(
-          displayName,
-          `${displayName} (Dev)`
-        );
-      }
-
-      return {
-        code: `console.info("Orbit Cards development namespace active (-dev)");\n${namespacedCode}`,
-        map: null,
-      };
+  build: {
+    codeSplitting: false,
+    lib: {
+      entry: "src/index.js",
+      formats: ["es"],
+      fileName: () => "orbit-cards.js",
     },
-  };
-}
-
-export default defineConfig(({ mode }) => {
-  const isDevNamespace = mode === "orbit-dev";
-
-  return {
-    plugins: [
-      copyOrbitDevIcons(),
-      namespaceOrbitDevBuild(isDevNamespace),
-    ],
-
-    build: {
-      emptyOutDir: !isDevNamespace,
-      codeSplitting: false,
-      lib: {
-        entry: "src/index.js",
-        formats: ["es"],
-        fileName: () => isDevNamespace
-          ? "orbit-cards-dev.js"
-          : "orbit-cards.js",
-      },
-    },
-  };
+  },
 });
