@@ -5498,22 +5498,44 @@ select {
 		qs,
 		Ys
 	];
-})), $s, ec, tc, nc, rc, ic, ac, oc, sc, cc, lc, uc, dc, fc, pc, mc, hc, gc, _c = e((() => {
-	$s = "Cards", ec = "Dynamic", tc = "Equal", nc = "Files", rc = "Separator", ic = "Main", ac = "Overlay", oc = "Crop", sc = "Resize", cc = "Position", lc = "Width", uc = "Height", dc = "Right", fc = "Bottom", pc = "Left", mc = "Background", hc = "Tabs", gc = {
+})), $s, ec, tc, nc, rc, ic, ac, oc, sc, cc, lc, uc, dc, fc, pc, mc, hc, gc, _c, vc, yc, bc, xc, Sc, Cc, wc, Tc, Ec, Dc, Oc, kc, Ac = e((() => {
+	$s = "Active", ec = "Area", tc = "Color", nc = "Content", rc = "Custom", ic = "Domain", ac = "Entity", oc = "Icon", sc = "Inactive", cc = "Interactions", lc = "Name", uc = "State", dc = "Type", fc = "Cards", pc = "Dynamic", mc = "Equal", hc = "Files", gc = "Separator", _c = "Main", vc = "Overlay", yc = "Crop", bc = "Resize", xc = "Position", Sc = "Width", Cc = "Height", wc = "Right", Tc = "Bottom", Ec = "Left", Dc = "Background", Oc = "Tabs", kc = {
+		Active: $s,
+		Area: ec,
+		"Area Count": "Area Count",
+		Color: tc,
+		Content: nc,
+		Custom: rc,
+		"Device class": "Device class",
+		"Displayed elements": "Displayed elements",
+		Domain: ic,
+		"Double tap behavior": "Double tap behavior",
+		Entity: ac,
+		"Hold behavior": "Hold behavior",
+		Icon: oc,
+		Inactive: sc,
+		Interactions: cc,
+		Name: lc,
+		State: uc,
+		"State content": "State content",
+		"State type": "State type",
+		"Tap behavior": "Tap behavior",
+		Type: dc,
+		"Visible if selected in state content": "Visible if selected in state content",
 		"Accent color": "Accent color",
 		"Action button": "Action button",
 		"Actions per row": "Actions per row",
 		"Add a card to start.": "Add a card to start.",
 		"Battery entity {index}": "Battery entity {index}",
 		"Button {index}": "Button {index}",
-		Cards: $s,
+		Cards: fc,
 		"Choose color": "Choose color",
 		"Choose icon": "Choose icon",
 		"Curve buttons": "Curve buttons",
-		Dynamic: ec,
+		Dynamic: pc,
 		"ETA entity": "ETA entity",
-		Equal: tc,
-		Files: nc,
+		Equal: mc,
+		Files: hc,
 		"Icon only": "Icon only",
 		"Items per row": "Items per row",
 		"Label template": "Label template",
@@ -5538,7 +5560,7 @@ select {
 		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}",
 		"Person entity": "Person entity",
 		"Separate cards": "Separate cards",
-		Separator: rc,
+		Separator: gc,
 		"State light color": "State light color",
 		"State color (default)": "State color (default)",
 		"State color": "State color",
@@ -5549,42 +5571,64 @@ select {
 		"Status sensors": "Status sensors",
 		"Card background": "Card background",
 		"Force padding": "Force padding",
-		Main: ic,
-		Overlay: ac,
-		Crop: oc,
-		Resize: sc,
-		Position: cc,
-		Width: lc,
-		Height: uc,
+		Main: _c,
+		Overlay: vc,
+		Crop: yc,
+		Resize: bc,
+		Position: xc,
+		Width: Sc,
+		Height: Cc,
 		Top: "Top",
 		"Transparent background": "Transparent background",
-		Right: dc,
-		Bottom: fc,
-		Left: pc,
+		Right: wc,
+		Bottom: Tc,
+		Left: Ec,
 		"Primary text color": "Primary text color",
 		"Secondary background color": "Secondary background color",
-		Background: mc,
+		Background: Dc,
 		"Tab font size": "Tab font size",
 		"Tab width": "Tab width",
-		Tabs: hc,
+		Tabs: Oc,
 		"Tracker entity": "Tracker entity"
 	};
-})), vc, yc, bc, xc, Sc, Cc, wc, Tc, Ec, Dc, Oc, kc, Ac, jc, Mc, Nc, Pc, Fc, Ic = e((() => {
-	vc = "Cards", yc = "Dynamic", bc = "Equal", xc = "Files", Sc = "Separator", Cc = "Main", wc = "Overlay", Tc = "Crop", Ec = "Resize", Dc = "Position", Oc = "Width", kc = "Height", Ac = "Right", jc = "Bottom", Mc = "Left", Nc = "Background", Pc = "Tabs", Fc = {
+})), jc, Mc, Nc, Pc, Fc, Ic, Lc, Rc, zc, Bc, Vc, Hc, Uc, Wc, Gc, Kc, qc, Jc, Yc, Xc, Zc, Qc, $c, el, tl, nl, rl, il, al, ol, sl, cl = e((() => {
+	jc = "Active", Mc = "Area", Nc = "Colour", Pc = "Content", Fc = "Custom", Ic = "Domain", Lc = "Entity", Rc = "Icon", zc = "Inactive", Bc = "Interactions", Vc = "Name", Hc = "State", Uc = "Type", Wc = "Cards", Gc = "Dynamic", Kc = "Equal", qc = "Files", Jc = "Separator", Yc = "Main", Xc = "Overlay", Zc = "Crop", Qc = "Resize", $c = "Position", el = "Width", tl = "Height", nl = "Right", rl = "Bottom", il = "Left", al = "Background", ol = "Tabs", sl = {
+		Active: jc,
+		Area: Mc,
+		"Area Count": "Area Count",
+		Color: Nc,
+		Content: Pc,
+		Custom: Fc,
+		"Device class": "Device class",
+		"Displayed elements": "Displayed elements",
+		Domain: Ic,
+		"Double tap behavior": "Double tap behaviour",
+		Entity: Lc,
+		"Hold behavior": "Hold behaviour",
+		Icon: Rc,
+		Inactive: zc,
+		Interactions: Bc,
+		Name: Vc,
+		State: Hc,
+		"State content": "State content",
+		"State type": "State type",
+		"Tap behavior": "Tap behaviour",
+		Type: Uc,
+		"Visible if selected in state content": "Visible if selected in state content",
 		"Accent color": "Accent colour",
 		"Action button": "Action button",
 		"Actions per row": "Actions per row",
 		"Add a card to start.": "Add a card to start.",
 		"Battery entity {index}": "Battery entity {index}",
 		"Button {index}": "Button {index}",
-		Cards: vc,
+		Cards: Wc,
 		"Choose color": "Choose colour",
 		"Choose icon": "Choose icon",
 		"Curve buttons": "Curve buttons",
-		Dynamic: yc,
+		Dynamic: Gc,
 		"ETA entity": "ETA entity",
-		Equal: bc,
-		Files: xc,
+		Equal: Kc,
+		Files: qc,
 		"Icon only": "Icon only",
 		"Items per row": "Items per row",
 		"Label template": "Label template",
@@ -5606,9 +5650,10 @@ select {
 		"Orbit Icons": "Orbit Icons",
 		"Orbit Area Card v{version}": "Orbit Area Card v{version}",
 		"Orbit Status Card v{version}": "Orbit Status Card v{version}",
+		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}",
 		"Person entity": "Person entity",
 		"Separate cards": "Separate cards",
-		Separator: Sc,
+		Separator: Jc,
 		"State light color": "State light colour",
 		"State color (default)": "State colour (default)",
 		"State color": "State colour",
@@ -5619,42 +5664,64 @@ select {
 		"Status sensors": "Status sensors",
 		"Card background": "Card background",
 		"Force padding": "Force padding",
-		Main: Cc,
-		Overlay: wc,
-		Crop: Tc,
-		Resize: Ec,
-		Position: Dc,
-		Width: Oc,
-		Height: kc,
+		Main: Yc,
+		Overlay: Xc,
+		Crop: Zc,
+		Resize: Qc,
+		Position: $c,
+		Width: el,
+		Height: tl,
 		Top: "Top",
 		"Transparent background": "Transparent background",
-		Right: Ac,
-		Bottom: jc,
-		Left: Mc,
+		Right: nl,
+		Bottom: rl,
+		Left: il,
 		"Primary text color": "Primary text colour",
 		"Secondary background color": "Secondary background colour",
-		Background: Nc,
+		Background: al,
 		"Tab font size": "Tab font size",
 		"Tab width": "Tab width",
-		Tabs: Pc,
+		Tabs: ol,
 		"Tracker entity": "Tracker entity"
 	};
-})), Lc, Rc, zc, Bc, Vc, Hc, Uc, Wc, Gc, Kc, qc, Jc, Yc, Xc, Zc, Qc, $c, el, tl, nl = e((() => {
-	Lc = "Karten", Rc = "Dynamisch", zc = "Gleich", Bc = "Dateien", Vc = "Trennzeichen", Hc = "Hauptkarte", Uc = "Überlagerung", Wc = "Zuschneiden", Gc = "Größe ändern", Kc = "Position", qc = "Breite", Jc = "Höhe", Yc = "Oben", Xc = "Rechts", Zc = "Unten", Qc = "Links", $c = "Hintergrund", el = "Tabs", tl = {
+})), ll, ul, dl, fl, pl, ml, hl, gl, _l, vl, yl, bl, xl, Sl, Cl, wl, Tl, El, Dl, Ol, kl, Al, jl, Ml, Nl, Pl, Fl, Il, Ll, Rl, zl, Bl = e((() => {
+	ll = "Aktiv", ul = "Bereich", dl = "Farbe", fl = "Inhalt", pl = "Benutzerdefiniert", ml = "Domäne", hl = "Entität", gl = "Symbol", _l = "Inaktiv", vl = "Interaktionen", yl = "Name", bl = "Zustand", xl = "Karten", Sl = "Dynamisch", Cl = "Gleich", wl = "Dateien", Tl = "Trennzeichen", El = "Hauptkarte", Dl = "Überlagerung", Ol = "Zuschneiden", kl = "Größe ändern", Al = "Position", jl = "Breite", Ml = "Höhe", Nl = "Oben", Pl = "Rechts", Fl = "Unten", Il = "Links", Ll = "Hintergrund", Rl = "Tabs", zl = {
+		Active: ll,
+		Area: ul,
+		"Area Count": "Bereichszähler",
+		Color: dl,
+		Content: fl,
+		Custom: pl,
+		"Device class": "Geräteklasse",
+		"Displayed elements": "Angezeigte Elemente",
+		Domain: ml,
+		"Double tap behavior": "Doppeltippverhalten",
+		Entity: hl,
+		"Hold behavior": "Halteverhalten",
+		Icon: gl,
+		Inactive: _l,
+		Interactions: vl,
+		Name: yl,
+		State: bl,
+		"State content": "Zustandsinhalt",
+		"State type": "Zustandstyp",
+		"Tap behavior": "Tippverhalten",
+		Type: "Typ",
+		"Visible if selected in state content": "Sichtbar, wenn im Zustandsinhalt ausgewählt",
 		"Accent color": "Akzentfarbe",
 		"Action button": "Aktionstaste",
 		"Actions per row": "Aktionen pro Zeile",
 		"Add a card to start.": "Füge eine Karte hinzu, um zu beginnen.",
 		"Battery entity {index}": "Batterie-Entität {index}",
 		"Button {index}": "Taste {index}",
-		Cards: Lc,
+		Cards: xl,
 		"Choose color": "Farbe auswählen",
 		"Choose icon": "Symbol auswählen",
 		"Curve buttons": "Bogen-Tasten",
-		Dynamic: Rc,
+		Dynamic: Sl,
 		"ETA entity": "ETA-Entität",
-		Equal: zc,
-		Files: Bc,
+		Equal: Cl,
+		Files: wl,
 		"Icon only": "Nur Symbol",
 		"Items per row": "Elemente pro Zeile",
 		"Label template": "Beschriftungsvorlage",
@@ -5665,14 +5732,17 @@ select {
 		"Move left": "Nach links verschieben",
 		"Move right": "Nach rechts verschieben",
 		"Navigation path": "Navigationspfad",
+		"Native active state color": "Native Farbe für aktiven Zustand",
+		"Native inactive state color": "Native Farbe für inaktiven Zustand",
 		"No matching colors": "Keine passenden Farben",
 		"No matching actions": "Keine passenden Aktionen",
 		"No matching files": "Keine passenden Dateien",
 		"Person entity": "Personen-Entität",
 		"Separate cards": "Separate Karten",
-		Separator: Vc,
+		Separator: Tl,
 		"State light color": "Lichtstatusfarbe",
 		"State color (default)": "Statusfarbe (Standard)",
+		"State color": "Statusfarbe",
 		"State template": "Zustandsvorlage",
 		"Status {index}": "Status {index}",
 		"Status color": "Statusfarbe",
@@ -5680,48 +5750,71 @@ select {
 		"Status sensors": "Statussensoren",
 		"Card background": "Kartenhintergrund",
 		"Force padding": "Padding erzwingen",
-		Main: Hc,
-		Overlay: Uc,
-		Crop: Wc,
-		Resize: Gc,
-		Position: Kc,
-		Width: qc,
-		Height: Jc,
-		Top: Yc,
+		Main: El,
+		Overlay: Dl,
+		Crop: Ol,
+		Resize: kl,
+		Position: Al,
+		Width: jl,
+		Height: Ml,
+		Top: Nl,
 		"Transparent background": "Transparenter Hintergrund",
-		Right: Xc,
-		Bottom: Zc,
-		Left: Qc,
+		Right: Pl,
+		Bottom: Fl,
+		Left: Il,
 		"Primary text color": "Primäre Textfarbe",
 		"Secondary background color": "Sekundäre Hintergrundfarbe",
-		Background: $c,
+		Background: Ll,
 		"Tab font size": "Tab-Schriftgröße",
 		"Tab width": "Tab-Breite",
-		Tabs: el,
+		Tabs: Rl,
 		"Tracker entity": "Tracker-Entität",
 		"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "Keine Dateien gefunden. Füge ein lokales Symbolmanifest unter /local/icons/manifest.json hinzu oder gib den Dateinamen manuell ein.",
 		"Orbit Action Card v{version}": "Orbit Action Card v{version}",
 		"Orbit Icons": "Orbit-Symbole",
 		"Orbit Area Card v{version}": "Orbit Area Card v{version}",
 		"Orbit Deck Card v{version}": "Orbit Deck Card v{version}",
-		"Orbit Status Card v{version}": "Orbit Status Card v{version}"
+		"Orbit Status Card v{version}": "Orbit Status Card v{version}",
+		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 	};
-})), rl, il, al, ol, sl, cl, ll, ul, dl, fl, pl, ml, hl, gl, _l, vl, yl, bl, xl, Sl = e((() => {
-	rl = "Tarjetas", il = "Dinámico", al = "Igual", ol = "Archivos", sl = "Separador", cl = "Principal", ll = "Superposición", ul = "Recortar", dl = "Redimensionar", fl = "Posición", pl = "Ancho", ml = "Alto", hl = "Arriba", gl = "Derecha", _l = "Abajo", vl = "Izquierda", yl = "Fondo", bl = "Pestañas", xl = {
+})), Vl, Hl, Ul, Wl, Gl, Kl, ql, Jl, Yl, Xl, Zl, Ql, $l, eu, tu, nu, ru, iu, au, ou, su, cu, lu, uu, du, fu, pu, mu, hu, gu, _u, vu, yu = e((() => {
+	Vl = "Activo", Hl = "Área", Ul = "Color", Wl = "Contenido", Gl = "Personalizado", Kl = "Dominio", ql = "Entidad", Jl = "Icono", Yl = "Inactivo", Xl = "Interacciones", Zl = "Nombre", Ql = "Estado", $l = "Tipo", eu = "Tarjetas", tu = "Dinámico", nu = "Igual", ru = "Archivos", iu = "Separador", au = "Principal", ou = "Superposición", su = "Recortar", cu = "Redimensionar", lu = "Posición", uu = "Ancho", du = "Alto", fu = "Arriba", pu = "Derecha", mu = "Abajo", hu = "Izquierda", gu = "Fondo", _u = "Pestañas", vu = {
+		Active: Vl,
+		Area: Hl,
+		"Area Count": "Recuento de área",
+		Color: Ul,
+		Content: Wl,
+		Custom: Gl,
+		"Device class": "Clase de dispositivo",
+		"Displayed elements": "Elementos mostrados",
+		Domain: Kl,
+		"Double tap behavior": "Comportamiento al tocar dos veces",
+		Entity: ql,
+		"Hold behavior": "Comportamiento al mantener pulsado",
+		Icon: Jl,
+		Inactive: Yl,
+		Interactions: Xl,
+		Name: Zl,
+		State: Ql,
+		"State content": "Contenido del estado",
+		"State type": "Tipo de estado",
+		"Tap behavior": "Comportamiento al tocar",
+		Type: $l,
+		"Visible if selected in state content": "Visible si se selecciona en el contenido del estado",
 		"Accent color": "Color de acento",
 		"Action button": "Botón de acción",
 		"Actions per row": "Acciones por fila",
 		"Add a card to start.": "Añade una tarjeta para empezar.",
 		"Battery entity {index}": "Entidad de batería {index}",
 		"Button {index}": "Botón {index}",
-		Cards: rl,
+		Cards: eu,
 		"Choose color": "Elegir color",
 		"Choose icon": "Elegir icono",
 		"Curve buttons": "Botones curvos",
-		Dynamic: il,
+		Dynamic: tu,
 		"ETA entity": "Entidad ETA",
-		Equal: al,
-		Files: ol,
+		Equal: nu,
+		Files: ru,
 		"Icon only": "Solo icono",
 		"Items per row": "Elementos por fila",
 		"Label template": "Plantilla de etiqueta",
@@ -5732,14 +5825,17 @@ select {
 		"Move left": "Mover a la izquierda",
 		"Move right": "Mover a la derecha",
 		"Navigation path": "Ruta de navegación",
+		"Native active state color": "Color nativo del estado activo",
+		"Native inactive state color": "Color nativo del estado inactivo",
 		"No matching colors": "No hay colores coincidentes",
 		"No matching actions": "No hay acciones coincidentes",
 		"No matching files": "No hay archivos coincidentes",
 		"Person entity": "Entidad de persona",
 		"Separate cards": "Tarjetas separadas",
-		Separator: sl,
+		Separator: iu,
 		"State light color": "Color de luz de estado",
 		"State color (default)": "Color de estado (predeterminado)",
+		"State color": "Color de estado",
 		"State template": "Plantilla de estado",
 		"Status {index}": "Estado {index}",
 		"Status color": "Color de estado",
@@ -5747,48 +5843,71 @@ select {
 		"Status sensors": "Sensores de estado",
 		"Card background": "Fondo de tarjeta",
 		"Force padding": "Forzar relleno",
-		Main: cl,
-		Overlay: ll,
-		Crop: ul,
-		Resize: dl,
-		Position: fl,
-		Width: pl,
-		Height: ml,
-		Top: hl,
+		Main: au,
+		Overlay: ou,
+		Crop: su,
+		Resize: cu,
+		Position: lu,
+		Width: uu,
+		Height: du,
+		Top: fu,
 		"Transparent background": "Fondo transparente",
-		Right: gl,
-		Bottom: _l,
-		Left: vl,
+		Right: pu,
+		Bottom: mu,
+		Left: hu,
 		"Primary text color": "Color de texto primario",
 		"Secondary background color": "Color de fondo secundario",
-		Background: yl,
+		Background: gu,
 		"Tab font size": "Tamaño de fuente de pestaña",
 		"Tab width": "Ancho de pestaña",
-		Tabs: bl,
+		Tabs: _u,
 		"Tracker entity": "Entidad de seguimiento",
 		"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "No se encontraron archivos. Añade un manifiesto de iconos local en /local/icons/manifest.json o escribe el nombre del archivo manualmente.",
 		"Orbit Action Card v{version}": "Orbit Action Card v{version}",
 		"Orbit Icons": "Iconos de Orbit",
 		"Orbit Area Card v{version}": "Orbit Area Card v{version}",
 		"Orbit Deck Card v{version}": "Orbit Deck Card v{version}",
-		"Orbit Status Card v{version}": "Orbit Status Card v{version}"
+		"Orbit Status Card v{version}": "Orbit Status Card v{version}",
+		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 	};
-})), Cl, wl, Tl, El, Dl, Ol, kl, Al, jl, Ml, Nl, Pl, Fl, Il, Ll, Rl, zl, Bl, Vl = e((() => {
-	Cl = "Cartes", wl = "Dynamique", Tl = "Égal", El = "Fichiers", Dl = "Séparateur", Ol = "Principal", kl = "Superposition", Al = "Recadrer", jl = "Redimensionner", Ml = "Position", Nl = "Largeur", Pl = "Hauteur", Fl = "Haut", Il = "Droite", Ll = "Gauche", Rl = "Arrière-plan", zl = "Onglets", Bl = {
+})), bu, xu, Su, Cu, wu, Tu, Eu, Du, Ou, ku, Au, ju, Mu, Nu, Pu, Fu, Iu, Lu, Ru, zu, Bu, Vu, Hu, Uu, Wu, Gu, Ku, qu, Ju, Yu, Xu = e((() => {
+	bu = "Actif", xu = "Zone", Su = "Couleur", Cu = "Contenu", wu = "Personnalisé", Tu = "Domaine", Eu = "Entité", Du = "Icône", Ou = "Inactif", ku = "Interactions", Au = "État", ju = "Type", Mu = "Cartes", Nu = "Dynamique", Pu = "Égal", Fu = "Fichiers", Iu = "Séparateur", Lu = "Principal", Ru = "Superposition", zu = "Recadrer", Bu = "Redimensionner", Vu = "Position", Hu = "Largeur", Uu = "Hauteur", Wu = "Haut", Gu = "Droite", Ku = "Gauche", qu = "Arrière-plan", Ju = "Onglets", Yu = {
+		Active: bu,
+		Area: xu,
+		"Area Count": "Comptage de zone",
+		Color: Su,
+		Content: Cu,
+		Custom: wu,
+		"Device class": "Classe d’appareil",
+		"Displayed elements": "Éléments affichés",
+		Domain: Tu,
+		"Double tap behavior": "Comportement lors du double appui",
+		Entity: Eu,
+		"Hold behavior": "Comportement lors de l’appui prolongé",
+		Icon: Du,
+		Inactive: Ou,
+		Interactions: ku,
+		Name: "Nom",
+		State: Au,
+		"State content": "Contenu de l’état",
+		"State type": "Type d’état",
+		"Tap behavior": "Comportement lors de l’appui",
+		Type: ju,
+		"Visible if selected in state content": "Visible si sélectionné dans le contenu de l’état",
 		"Accent color": "Couleur d'accent",
 		"Action button": "Bouton d'action",
 		"Actions per row": "Actions par ligne",
 		"Add a card to start.": "Ajoutez une carte pour commencer.",
 		"Battery entity {index}": "Entité batterie {index}",
 		"Button {index}": "Bouton {index}",
-		Cards: Cl,
+		Cards: Mu,
 		"Choose color": "Choisir une couleur",
 		"Choose icon": "Choisir une icône",
 		"Curve buttons": "Boutons courbes",
-		Dynamic: wl,
+		Dynamic: Nu,
 		"ETA entity": "Entité ETA",
-		Equal: Tl,
-		Files: El,
+		Equal: Pu,
+		Files: Fu,
 		"Icon only": "Icône seule",
 		"Items per row": "Éléments par ligne",
 		"Label template": "Modèle de libellé",
@@ -5799,14 +5918,17 @@ select {
 		"Move left": "Déplacer à gauche",
 		"Move right": "Déplacer à droite",
 		"Navigation path": "Chemin de navigation",
+		"Native active state color": "Couleur native de l’état actif",
+		"Native inactive state color": "Couleur native de l’état inactif",
 		"No matching colors": "Aucune couleur correspondante",
 		"No matching actions": "Aucune action correspondante",
 		"No matching files": "Aucun fichier correspondant",
 		"Person entity": "Entité personne",
 		"Separate cards": "Cartes séparées",
-		Separator: Dl,
+		Separator: Iu,
 		"State light color": "Couleur d’état de lumière",
 		"State color (default)": "Couleur d’état (par défaut)",
+		"State color": "Couleur d’état",
 		"State template": "Modèle d'état",
 		"Status {index}": "Statut {index}",
 		"Status color": "Couleur du statut",
@@ -5814,48 +5936,71 @@ select {
 		"Status sensors": "Capteurs de statut",
 		"Card background": "Arrière-plan de la carte",
 		"Force padding": "Forcer le remplissage",
-		Main: Ol,
-		Overlay: kl,
-		Crop: Al,
-		Resize: jl,
-		Position: Ml,
-		Width: Nl,
-		Height: Pl,
-		Top: Fl,
+		Main: Lu,
+		Overlay: Ru,
+		Crop: zu,
+		Resize: Bu,
+		Position: Vu,
+		Width: Hu,
+		Height: Uu,
+		Top: Wu,
 		"Transparent background": "Arrière-plan transparent",
-		Right: Il,
+		Right: Gu,
 		Bottom: "Bas",
-		Left: Ll,
+		Left: Ku,
 		"Primary text color": "Couleur du texte principal",
 		"Secondary background color": "Couleur d’arrière-plan secondaire",
-		Background: Rl,
+		Background: qu,
 		"Tab font size": "Taille de police de l’onglet",
 		"Tab width": "Largeur de l’onglet",
-		Tabs: zl,
+		Tabs: Ju,
 		"Tracker entity": "Entité de suivi",
 		"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "Aucun fichier trouvé. Ajoutez un manifeste d’icônes local dans /local/icons/manifest.json ou saisissez le nom du fichier manuellement.",
 		"Orbit Action Card v{version}": "Orbit Action Card v{version}",
 		"Orbit Icons": "Icônes Orbit",
 		"Orbit Area Card v{version}": "Orbit Area Card v{version}",
 		"Orbit Deck Card v{version}": "Orbit Deck Card v{version}",
-		"Orbit Status Card v{version}": "Orbit Status Card v{version}"
+		"Orbit Status Card v{version}": "Orbit Status Card v{version}",
+		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 	};
-})), Hl, Ul, Wl, Gl, Kl, ql, Jl, Yl, Xl, Zl, Ql, $l, eu, tu, nu, ru, iu, au, ou, su = e((() => {
-	Hl = "Schede", Ul = "Dinamico", Wl = "Uguale", Gl = "File", Kl = "Separatore", ql = "Principale", Jl = "Sovrapposizione", Yl = "Ritaglia", Xl = "Ridimensiona", Zl = "Posizione", Ql = "Larghezza", $l = "Altezza", eu = "Alto", tu = "Destra", nu = "Basso", ru = "Sinistra", iu = "Sfondo", au = "Schede", ou = {
+})), Zu, Qu, $u, ed, td, nd, rd, id, ad, od, sd, cd, ld, ud, dd, fd, pd, md, hd, gd, _d, vd, yd, bd, xd, Sd, Cd, wd, Td, Ed, Dd, Od, kd = e((() => {
+	Zu = "Attivo", Qu = "Area", $u = "Colore", ed = "Contenuto", td = "Personalizzato", nd = "Dominio", rd = "Entità", id = "Icona", ad = "Inattivo", od = "Interazioni", sd = "Nome", cd = "Stato", ld = "Tipo", ud = "Schede", dd = "Dinamico", fd = "Uguale", pd = "File", md = "Separatore", hd = "Principale", gd = "Sovrapposizione", _d = "Ritaglia", vd = "Ridimensiona", yd = "Posizione", bd = "Larghezza", xd = "Altezza", Sd = "Alto", Cd = "Destra", wd = "Basso", Td = "Sinistra", Ed = "Sfondo", Dd = "Schede", Od = {
+		Active: Zu,
+		Area: Qu,
+		"Area Count": "Conteggio area",
+		Color: $u,
+		Content: ed,
+		Custom: td,
+		"Device class": "Classe dispositivo",
+		"Displayed elements": "Elementi visualizzati",
+		Domain: nd,
+		"Double tap behavior": "Comportamento al doppio tocco",
+		Entity: rd,
+		"Hold behavior": "Comportamento alla pressione prolungata",
+		Icon: id,
+		Inactive: ad,
+		Interactions: od,
+		Name: sd,
+		State: cd,
+		"State content": "Contenuto dello stato",
+		"State type": "Tipo di stato",
+		"Tap behavior": "Comportamento al tocco",
+		Type: ld,
+		"Visible if selected in state content": "Visibile se selezionato nel contenuto dello stato",
 		"Accent color": "Colore accento",
 		"Action button": "Pulsante azione",
 		"Actions per row": "Azioni per riga",
 		"Add a card to start.": "Aggiungi una scheda per iniziare.",
 		"Battery entity {index}": "Entità batteria {index}",
 		"Button {index}": "Pulsante {index}",
-		Cards: Hl,
+		Cards: ud,
 		"Choose color": "Scegli colore",
 		"Choose icon": "Scegli icona",
 		"Curve buttons": "Pulsanti curvi",
-		Dynamic: Ul,
+		Dynamic: dd,
 		"ETA entity": "Entità ETA",
-		Equal: Wl,
-		Files: Gl,
+		Equal: fd,
+		Files: pd,
 		"Icon only": "Solo icona",
 		"Items per row": "Elementi per riga",
 		"Label template": "Template etichetta",
@@ -5866,14 +6011,17 @@ select {
 		"Move left": "Sposta a sinistra",
 		"Move right": "Sposta a destra",
 		"Navigation path": "Percorso navigazione",
+		"Native active state color": "Colore nativo dello stato attivo",
+		"Native inactive state color": "Colore nativo dello stato inattivo",
 		"No matching colors": "Nessun colore corrispondente",
 		"No matching actions": "Nessuna azione corrispondente",
 		"No matching files": "Nessun file corrispondente",
 		"Person entity": "Entità persona",
 		"Separate cards": "Schede separate",
-		Separator: Kl,
+		Separator: md,
 		"State light color": "Colore stato luce",
 		"State color (default)": "Colore stato (predefinito)",
+		"State color": "Colore stato",
 		"State template": "Template stato",
 		"Status {index}": "Stato {index}",
 		"Status color": "Colore stato",
@@ -5881,48 +6029,71 @@ select {
 		"Status sensors": "Sensori stato",
 		"Card background": "Sfondo scheda",
 		"Force padding": "Forza padding",
-		Main: ql,
-		Overlay: Jl,
-		Crop: Yl,
-		Resize: Xl,
-		Position: Zl,
-		Width: Ql,
-		Height: $l,
-		Top: eu,
+		Main: hd,
+		Overlay: gd,
+		Crop: _d,
+		Resize: vd,
+		Position: yd,
+		Width: bd,
+		Height: xd,
+		Top: Sd,
 		"Transparent background": "Sfondo trasparente",
-		Right: tu,
-		Bottom: nu,
-		Left: ru,
+		Right: Cd,
+		Bottom: wd,
+		Left: Td,
 		"Primary text color": "Colore testo primario",
 		"Secondary background color": "Colore sfondo secondario",
-		Background: iu,
+		Background: Ed,
 		"Tab font size": "Dimensione font scheda",
 		"Tab width": "Larghezza scheda",
-		Tabs: au,
+		Tabs: Dd,
 		"Tracker entity": "Entità tracker",
 		"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "Nessun file trovato. Aggiungi un manifesto icone locale in /local/icons/manifest.json oppure digita manualmente il nome del file.",
 		"Orbit Action Card v{version}": "Orbit Action Card v{version}",
 		"Orbit Icons": "Icone Orbit",
 		"Orbit Area Card v{version}": "Orbit Area Card v{version}",
 		"Orbit Deck Card v{version}": "Orbit Deck Card v{version}",
-		"Orbit Status Card v{version}": "Orbit Status Card v{version}"
+		"Orbit Status Card v{version}": "Orbit Status Card v{version}",
+		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 	};
-})), cu, lu, uu, du, fu, pu, mu, hu, gu, _u, vu, yu, bu, xu, Su, Cu, wu, Tu, Eu, Du = e((() => {
-	cu = "Kaarten", lu = "Dynamisch", uu = "Gelijk", du = "Bestanden", fu = "Scheidingsteken", pu = "Hoofdkaart", mu = "Overlay", hu = "Bijsnijden", gu = "Formaat wijzigen", _u = "Positie", vu = "Breedte", yu = "Hoogte", bu = "Boven", xu = "Rechts", Su = "Onder", Cu = "Links", wu = "Achtergrond", Tu = "Tabbladen", Eu = {
+})), Ad, jd, Md, Nd, Pd, Fd, Id, Ld, Rd, zd, Bd, Vd, Hd, Ud, Wd, Gd, Kd, qd, Jd, Yd, Xd, Zd, Qd, $d, ef, tf, nf, rf, af, of, sf, cf, lf = e((() => {
+	Ad = "Actief", jd = "Gebied", Md = "Kleur", Nd = "Inhoud", Pd = "Aangepast", Fd = "Domein", Id = "Entiteit", Ld = "Icoon", Rd = "Inactief", zd = "Interacties", Bd = "Naam", Vd = "Status", Hd = "Type", Ud = "Kaarten", Wd = "Dynamisch", Gd = "Gelijk", Kd = "Bestanden", qd = "Scheidingsteken", Jd = "Hoofdkaart", Yd = "Overlay", Xd = "Bijsnijden", Zd = "Formaat wijzigen", Qd = "Positie", $d = "Breedte", ef = "Hoogte", tf = "Boven", nf = "Rechts", rf = "Onder", af = "Links", of = "Achtergrond", sf = "Tabbladen", cf = {
+		Active: Ad,
+		Area: jd,
+		"Area Count": "Gebiedstelling",
+		Color: Md,
+		Content: Nd,
+		Custom: Pd,
+		"Device class": "Apparaatklasse",
+		"Displayed elements": "Weergegeven elementen",
+		Domain: Fd,
+		"Double tap behavior": "Gedrag bij dubbel tikken",
+		Entity: Id,
+		"Hold behavior": "Gedrag bij lang indrukken",
+		Icon: Ld,
+		Inactive: Rd,
+		Interactions: zd,
+		Name: Bd,
+		State: Vd,
+		"State content": "Statusinhoud",
+		"State type": "Statustype",
+		"Tap behavior": "Gedrag bij tikken",
+		Type: Hd,
+		"Visible if selected in state content": "Zichtbaar indien geselecteerd in statusinhoud",
 		"Accent color": "Accentkleur",
 		"Action button": "Actieknop",
 		"Actions per row": "Acties per rij",
 		"Add a card to start.": "Voeg een kaart toe om te beginnen.",
 		"Battery entity {index}": "Batterij-entiteit {index}",
 		"Button {index}": "Knop {index}",
-		Cards: cu,
+		Cards: Ud,
 		"Choose color": "Kleur kiezen",
 		"Choose icon": "Icoon kiezen",
 		"Curve buttons": "Gebogen knoppen",
-		Dynamic: lu,
+		Dynamic: Wd,
 		"ETA entity": "ETA-entiteit",
-		Equal: uu,
-		Files: du,
+		Equal: Gd,
+		Files: Kd,
 		"Icon only": "Alleen icoon",
 		"Items per row": "Items per rij",
 		"Label template": "Labelsjabloon",
@@ -5933,14 +6104,17 @@ select {
 		"Move left": "Naar links verplaatsen",
 		"Move right": "Naar rechts verplaatsen",
 		"Navigation path": "Navigatiepad",
+		"Native active state color": "Systeemeigen kleur voor actieve status",
+		"Native inactive state color": "Systeemeigen kleur voor inactieve status",
 		"No matching colors": "Geen overeenkomende kleuren",
 		"No matching actions": "Geen overeenkomende acties",
 		"No matching files": "Geen overeenkomende bestanden",
 		"Person entity": "Persoon-entiteit",
 		"Separate cards": "Aparte kaarten",
-		Separator: fu,
+		Separator: qd,
 		"State light color": "Statuskleur licht",
 		"State color (default)": "Statuskleur (standaard)",
+		"State color": "Statuskleur",
 		"State template": "Statussjabloon",
 		"Status {index}": "Status {index}",
 		"Status color": "Statuskleur",
@@ -5948,48 +6122,71 @@ select {
 		"Status sensors": "Statussensoren",
 		"Card background": "Kaartachtergrond",
 		"Force padding": "Padding afdwingen",
-		Main: pu,
-		Overlay: mu,
-		Crop: hu,
-		Resize: gu,
-		Position: _u,
-		Width: vu,
-		Height: yu,
-		Top: bu,
+		Main: Jd,
+		Overlay: Yd,
+		Crop: Xd,
+		Resize: Zd,
+		Position: Qd,
+		Width: $d,
+		Height: ef,
+		Top: tf,
 		"Transparent background": "Transparante achtergrond",
-		Right: xu,
-		Bottom: Su,
-		Left: Cu,
+		Right: nf,
+		Bottom: rf,
+		Left: af,
 		"Primary text color": "Primaire tekstkleur",
 		"Secondary background color": "Secundaire achtergrondkleur",
-		Background: wu,
+		Background: of,
 		"Tab font size": "Tabblad lettergrootte",
 		"Tab width": "Tabbladbreedte",
-		Tabs: Tu,
+		Tabs: sf,
 		"Tracker entity": "Tracker-entiteit",
 		"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "Geen bestanden gevonden. Voeg een lokaal iconenmanifest toe op /local/icons/manifest.json of typ de bestandsnaam handmatig.",
 		"Orbit Action Card v{version}": "Orbit Action Card v{version}",
 		"Orbit Icons": "Orbit-iconen",
 		"Orbit Area Card v{version}": "Orbit Area Card v{version}",
 		"Orbit Deck Card v{version}": "Orbit Deck Card v{version}",
-		"Orbit Status Card v{version}": "Orbit Status Card v{version}"
+		"Orbit Status Card v{version}": "Orbit Status Card v{version}",
+		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 	};
-})), Ou, ku, Au, ju, Mu, Nu, Pu, Fu, Iu, Lu, Ru, zu, Bu, Vu, Hu, Uu, Wu, Gu, Ku, qu = e((() => {
-	Ou = "Cartões", ku = "Dinâmico", Au = "Igual", ju = "Arquivos", Mu = "Separador", Nu = "Principal", Pu = "Sobreposição", Fu = "Recortar", Iu = "Redimensionar", Lu = "Posição", Ru = "Largura", zu = "Altura", Bu = "Superior", Vu = "Direita", Hu = "Inferior", Uu = "Esquerda", Wu = "Fundo", Gu = "Abas", Ku = {
+})), uf, df, ff, pf, mf, hf, gf, _f, vf, yf, bf, xf, Sf, Cf, wf, Tf, Ef, Df, Of, kf, Af, jf, Mf, Nf, Pf, Ff, If, Lf, Rf, zf, Bf, Vf = e((() => {
+	uf = "Ativo", df = "Área", ff = "Conteúdo", pf = "Personalizado", mf = "Domínio", hf = "Entidade", gf = "Ícone", _f = "Inativo", vf = "Interações", yf = "Nome", bf = "Estado", xf = "Tipo", Sf = "Cartões", Cf = "Dinâmico", wf = "Igual", Tf = "Arquivos", Ef = "Separador", Df = "Principal", Of = "Sobreposição", kf = "Recortar", Af = "Redimensionar", jf = "Posição", Mf = "Largura", Nf = "Altura", Pf = "Superior", Ff = "Direita", If = "Inferior", Lf = "Esquerda", Rf = "Fundo", zf = "Abas", Bf = {
+		Active: uf,
+		Area: df,
+		"Area Count": "Contagem da área",
+		Color: "Cor",
+		Content: ff,
+		Custom: pf,
+		"Device class": "Classe do dispositivo",
+		"Displayed elements": "Elementos exibidos",
+		Domain: mf,
+		"Double tap behavior": "Comportamento ao tocar duas vezes",
+		Entity: hf,
+		"Hold behavior": "Comportamento ao manter pressionado",
+		Icon: gf,
+		Inactive: _f,
+		Interactions: vf,
+		Name: yf,
+		State: bf,
+		"State content": "Conteúdo do estado",
+		"State type": "Tipo de estado",
+		"Tap behavior": "Comportamento ao tocar",
+		Type: xf,
+		"Visible if selected in state content": "Visível se selecionado no conteúdo do estado",
 		"Accent color": "Cor de destaque",
 		"Action button": "Botão de ação",
 		"Actions per row": "Ações por linha",
 		"Add a card to start.": "Adicione um cartão para começar.",
 		"Battery entity {index}": "Entidade de bateria {index}",
 		"Button {index}": "Botão {index}",
-		Cards: Ou,
+		Cards: Sf,
 		"Choose color": "Escolher cor",
 		"Choose icon": "Escolher ícone",
 		"Curve buttons": "Botões curvos",
-		Dynamic: ku,
+		Dynamic: Cf,
 		"ETA entity": "Entidade ETA",
-		Equal: Au,
-		Files: ju,
+		Equal: wf,
+		Files: Tf,
 		"Icon only": "Somente ícone",
 		"Items per row": "Itens por linha",
 		"Label template": "Modelo de rótulo",
@@ -6000,14 +6197,17 @@ select {
 		"Move left": "Mover para a esquerda",
 		"Move right": "Mover para a direita",
 		"Navigation path": "Caminho de navegação",
+		"Native active state color": "Cor nativa do estado ativo",
+		"Native inactive state color": "Cor nativa do estado inativo",
 		"No matching colors": "Nenhuma cor correspondente",
 		"No matching actions": "Nenhuma ação correspondente",
 		"No matching files": "Nenhum arquivo correspondente",
 		"Person entity": "Entidade de pessoa",
 		"Separate cards": "Cartões separados",
-		Separator: Mu,
+		Separator: Ef,
 		"State light color": "Cor de estado da luz",
 		"State color (default)": "Cor de estado (padrão)",
+		"State color": "Cor de estado",
 		"State template": "Modelo de estado",
 		"Status {index}": "Status {index}",
 		"Status color": "Cor do status",
@@ -6015,68 +6215,69 @@ select {
 		"Status sensors": "Sensores de status",
 		"Card background": "Fundo do cartão",
 		"Force padding": "Forçar preenchimento",
-		Main: Nu,
-		Overlay: Pu,
-		Crop: Fu,
-		Resize: Iu,
-		Position: Lu,
-		Width: Ru,
-		Height: zu,
-		Top: Bu,
+		Main: Df,
+		Overlay: Of,
+		Crop: kf,
+		Resize: Af,
+		Position: jf,
+		Width: Mf,
+		Height: Nf,
+		Top: Pf,
 		"Transparent background": "Fundo transparente",
-		Right: Vu,
-		Bottom: Hu,
-		Left: Uu,
+		Right: Ff,
+		Bottom: If,
+		Left: Lf,
 		"Primary text color": "Cor do texto primário",
 		"Secondary background color": "Cor de fundo secundário",
-		Background: Wu,
+		Background: Rf,
 		"Tab font size": "Tamanho da fonte da aba",
 		"Tab width": "Largura da aba",
-		Tabs: Gu,
+		Tabs: zf,
 		"Tracker entity": "Entidade de rastreamento",
 		"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "Nenhum arquivo encontrado. Adicione um manifesto de ícones local em /local/icons/manifest.json ou digite o nome do arquivo manualmente.",
 		"Orbit Action Card v{version}": "Orbit Action Card v{version}",
 		"Orbit Icons": "Ícones Orbit",
 		"Orbit Area Card v{version}": "Orbit Area Card v{version}",
 		"Orbit Deck Card v{version}": "Orbit Deck Card v{version}",
-		"Orbit Status Card v{version}": "Orbit Status Card v{version}"
+		"Orbit Status Card v{version}": "Orbit Status Card v{version}",
+		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 	};
 }));
 //#endregion
 //#region src/common/localize.js
 function X(e, t, n = {}) {
-	let r = Xu(e), i = r.replace("_", "-"), a = r.split("-")[0], o = Ju(e, t) || Yu(r, t) || Yu(i, t) || Yu(a, t) || Zu.en[t] || t;
+	let r = Wf(e), i = r.replace("_", "-"), a = r.split("-")[0], o = Hf(e, t) || Uf(r, t) || Uf(i, t) || Uf(a, t) || Gf.en[t] || t;
 	return Object.entries(n).reduce((e, [t, n]) => e.replaceAll(`{${t}}`, n ?? ""), o);
 }
-function Ju(e, t) {
+function Hf(e, t) {
 	if (!e?.localize || !t) return null;
-	let n = Qu[t] || [];
+	let n = Kf[t] || [];
 	for (let t of n) {
 		let n = e.localize(t);
 		if (n && n !== t) return n;
 	}
 	return null;
 }
-function Yu(e, t) {
-	let n = Zu[e]?.[t];
+function Uf(e, t) {
+	let n = Gf[e]?.[t];
 	return n === "" ? null : n;
 }
-function Xu(e) {
+function Wf(e) {
 	return (e?.locale?.language || e?.language || "en").toLowerCase();
 }
-var Zu, Qu, $u = e((() => {
-	_c(), Ic(), nl(), Sl(), Vl(), su(), Du(), qu(), Zu = {
-		de: tl,
-		en: gc,
-		"en-gb": Fc,
-		en_gb: Fc,
-		es: xl,
-		fr: Bl,
-		it: ou,
-		nl: Eu,
-		"pt-br": Ku,
-		pt_br: Ku
-	}, Qu = {
+var Gf, Kf, qf = e((() => {
+	Ac(), cl(), Bl(), yu(), Xu(), kd(), lf(), Vf(), Gf = {
+		de: zl,
+		en: kc,
+		"en-gb": sl,
+		en_gb: sl,
+		es: vu,
+		fr: Yu,
+		it: Od,
+		nl: cf,
+		"pt-br": Bf,
+		pt_br: Bf
+	}, Kf = {
 		Add: ["ui.common.add"],
 		All: ["ui.components.selectors.automation_behavior.trigger.options.all.label", "ui.panel.config.backup.data.apps_all"],
 		Active: [
@@ -6159,8 +6360,8 @@ var Zu, Qu, $u = e((() => {
 		deck: "0.4.1",
 		statusBadge: "0.1.0"
 	};
-})), ed = /* @__PURE__ */ t((() => {
-	M(), Io(), vs(), Cs(), Ms(), Wi(), Qs(), B(), Rt(), Pt(), $u(), Q();
+})), Jf = /* @__PURE__ */ t((() => {
+	M(), Io(), vs(), Cs(), Ms(), Wi(), Qs(), B(), Rt(), Pt(), qf(), Q();
 	var e = class extends j {
 		static svgCache = z;
 		static properties = {
@@ -6586,8 +6787,8 @@ var Zu, Qu, $u = e((() => {
 			n.has(r) || (t[r] = e[r]);
 		}), t;
 	}
-})), td = /* @__PURE__ */ t((() => {
-	M(), at(), L(), Dt(), It(), Rt(), Vt(), Dn(), jn(), Nn(), Ln(), Vn(), B(), fr(), br(), wr(), Br(), fi(), ed(), Q();
+})), Yf = /* @__PURE__ */ t((() => {
+	M(), at(), L(), Dt(), It(), Rt(), Vt(), Dn(), jn(), Nn(), Ln(), Vn(), B(), fr(), br(), wr(), Br(), fi(), Jf(), Q();
 	var e = class extends j {
 		static svgCache = z;
 		static get properties() {
@@ -6815,35 +7016,35 @@ var Zu, Qu, $u = e((() => {
 }));
 //#endregion
 //#region src/common/helpers/card-layout.js
-function nd({ config: e = {}, count: t = 1, wrapKey: n = "wrap", perRowKey: r, defaultColumns: i = 3 }) {
+function Xf({ config: e = {}, count: t = 1, wrapKey: n = "wrap", perRowKey: r, defaultColumns: i = 3 }) {
 	if (!e[n]) return Math.max(1, t);
 	let a = Number(e[r]);
 	return Math.max(1, Math.min(t, (Number.isFinite(a) ? Math.floor(a) : i) || 1));
 }
-function rd(e) {
-	let t = nd(e);
+function Zf(e) {
+	let t = Xf(e);
 	return Math.max(1, Math.ceil((e?.count || 1) / t));
 }
-var id = e((() => {}));
+var Qf = e((() => {}));
 //#endregion
 //#region src/cards/status/helpers/attributes.js
 function $(e, t) {
 	let n = e?.attributes?.[t];
 	return n == null || typeof n == "string" && n.trim() === "" ? null : n;
 }
-function ad(e) {
+function $f(e) {
 	let t = e.navigate?.navigation_path;
 	return typeof t == "string" && t.trim() || null;
 }
-function od(e, t, n) {
+function ep(e, t, n) {
 	let r = $(t, "color");
 	return n ? e.accent_on_color || r || "theme" : e.accent_off_color || r || "theme";
 }
-function sd(e, t = null, n = null) {
+function tp(e, t = null, n = null) {
 	if (!e) return !1;
 	let r = (n ?? e.state)?.toString().trim().toLowerCase(), i = Number(r);
 	if (Number.isFinite(i)) return i > 0;
-	if (ld.includes(r)) return !1;
+	if (rp.includes(r)) return !1;
 	let a = e.entity_id?.split(".")[0];
 	return [
 		"sensor",
@@ -6852,12 +7053,12 @@ function sd(e, t = null, n = null) {
 		"select"
 	].includes(a) ? !0 : typeof t == "function" ? t(e) : !0;
 }
-function cd(e, t) {
+function np(e, t) {
 	let n = $(t, "navigation"), r = typeof n == "string" ? n.trim() : n?.navigation_path;
-	return ad(e) || r || "/lovelace/home";
+	return $f(e) || r || "/lovelace/home";
 }
-var ld, ud = e((() => {
-	ld = [
+var rp, ip = e((() => {
+	rp = [
 		"",
 		"0",
 		"off",
@@ -6887,43 +7088,43 @@ var ld, ud = e((() => {
 }));
 //#endregion
 //#region src/common/helpers/zones.js
-function dd(e) {
+function ap(e) {
 	let t = e?.states;
 	if (!t) return {
 		zones: [],
 		zoneByTrackerState: /* @__PURE__ */ new Map()
 	};
-	let n = pd.get(t);
+	let n = sp.get(t);
 	if (n) return n;
 	let r = Object.values(t).filter((e) => e.entity_id?.startsWith("zone.") && !e.attributes?.passive), i = {
 		zones: r,
-		zoneByTrackerState: new Map(r.map((e) => [fd(e), e]))
+		zoneByTrackerState: new Map(r.map((e) => [op(e), e]))
 	};
-	return pd.set(t, i), i;
+	return sp.set(t, i), i;
 }
-function fd(e) {
+function op(e) {
 	return (e.attributes?.friendly_name || e.entity_id.replace(/^zone\./, "")).toLowerCase().replace(/\s+/g, "_");
 }
-var pd, md = e((() => {
-	pd = /* @__PURE__ */ new WeakMap();
+var sp, cp = e((() => {
+	sp = /* @__PURE__ */ new WeakMap();
 }));
 //#endregion
 //#region src/cards/status/helpers/lifecycle.js
-function hd(e) {
+function lp(e) {
 	if (!e.has("_config") && !e.has("hass")) return;
 	if (this._config.mode === "person") {
-		bd.call(this);
+		mp.call(this);
 		return;
 	}
 	if (this._config.mode === "icon_only") {
-		let e = gd(this._config);
-		this._statusItems = e.map((e) => _d.call(this, e, this._config)), yd.call(this, this._statusItems[0] || {});
+		let e = up(this._config);
+		this._statusItems = e.map((e) => dp.call(this, e, this._config)), pp.call(this, this._statusItems[0] || {});
 		return;
 	}
-	let t = this._config.main_entity, n = _d.call(this, { entity: t }, this._config);
-	this._statusItems = [n], yd.call(this, n);
+	let t = this._config.main_entity, n = dp.call(this, { entity: t }, this._config);
+	this._statusItems = [n], pp.call(this, n);
 }
-function gd(e = {}) {
+function up(e = {}) {
 	return Array.isArray(e.entities) && e.entities.length ? e.entities.map((e) => typeof e == "string" ? { entity: e } : e || {}) : [{
 		entity: e.main_entity,
 		accent_on_color: e.accent_on_color,
@@ -6945,12 +7146,12 @@ function gd(e = {}) {
 		main_entity_double_tap_action: e.main_entity_double_tap_action
 	}];
 }
-function _d(e, t = {}) {
+function dp(e, t = {}) {
 	let n = e.entity || t.main_entity, r = n && this.hass ? this.hass.states[n] : null, i = {
 		...t,
 		...e,
 		main_entity: n
-	}, a = i.mode !== "icon_only" && Object.prototype.hasOwnProperty.call(i, "status_name") && i.status_name !== void 0 && i.status_name !== "" ? St(i.status_name, i, this.hass) : $(r, "friendly_name") || n || X(this.hass, "Status"), o = i.state_template ? this._evaluateStateTemplate(i.state_template, n) : null, s = (i.label_template ? this._evaluateStateTemplate(i.label_template, n) : null) ?? ($(r, "label") || (r ? this.formatState(r) : "")), c = i.main_entity_icon, l = i.main_entity_icon_on, u = i.main_entity_icon_off, d = sd(r, (e) => this._getEntityActiveState(e), o), f = vd(i, n), p = f === "custom" && ((d ? l : u) || c) || "", m = p || "mdi:information-outline", h = f === "custom" && d && l ? "main_entity_icon_on" : f === "custom" && !d && u ? "main_entity_icon_off" : f === "custom" && c ? "main_entity_icon" : "", g = od(i, r, d), ee = cd(i, r), _ = this._computeFullColor(g), v = this._computeFullColor(g), te = this._computeCircleColor(g), ne = d ? this._computeFullColor(g) : this._computeIconColor(g);
+	}, a = i.mode !== "icon_only" && Object.prototype.hasOwnProperty.call(i, "status_name") && i.status_name !== void 0 && i.status_name !== "" ? St(i.status_name, i, this.hass) : $(r, "friendly_name") || n || X(this.hass, "Status"), o = i.state_template ? this._evaluateStateTemplate(i.state_template, n) : null, s = (i.label_template ? this._evaluateStateTemplate(i.label_template, n) : null) ?? ($(r, "label") || (r ? this.formatState(r) : "")), c = i.main_entity_icon, l = i.main_entity_icon_on, u = i.main_entity_icon_off, d = tp(r, (e) => this._getEntityActiveState(e), o), f = fp(i, n), p = f === "custom" && ((d ? l : u) || c) || "", m = p || "mdi:information-outline", h = f === "custom" && d && l ? "main_entity_icon_on" : f === "custom" && !d && u ? "main_entity_icon_off" : f === "custom" && c ? "main_entity_icon" : "", g = ep(i, r, d), ee = np(i, r), _ = this._computeFullColor(g), v = this._computeFullColor(g), te = this._computeCircleColor(g), ne = d ? this._computeFullColor(g) : this._computeIconColor(g);
 	return {
 		...e,
 		entityId: n,
@@ -6967,24 +7168,24 @@ function _d(e, t = {}) {
 		svgForceColor: h ? this._getSvgColorOverride(i, h) : !0
 	};
 }
-function vd(e, t) {
+function fp(e, t) {
 	let n = e.main_entity_icon_source, r = !!t, i = !!(e.main_entity_icon || e.main_entity_icon_on || e.main_entity_icon_off);
 	return n === "custom" ? "custom" : n === "entity" && r ? "entity" : i ? "custom" : "entity";
 }
-function yd(e) {
+function pp(e) {
 	this._cardName = e.cardName ?? X(this.hass, "Status"), this._statusText = e.statusText || "", this._icon = e.icon || "mdi:information-outline", this._mainStateObj = e.stateObj || null, this._useNativeMainIcon = e.useStateIcon ?? !1, this._navigationPath = e.navigationPath || "", this._nameColor = e.nameColor || this._nameColor, this._statusColor = e.statusColor || this._statusColor, this._circleColor = e.circleColor || this._circleColor, this._iconColor = e.iconColor || this._iconColor, this._iconSvgForceColor = e.svgForceColor ?? !0;
 }
-function bd() {
+function mp() {
 	let e = this._config.main_entity, t = this._config.tracker_entity, n = this._config.eta_entity, r = t && this.hass ? this.hass.states[t] : null, i = e && this.hass ? this.hass.states[e] : null, a = n && this.hass ? this.hass.states[n] : null, o = Object.prototype.hasOwnProperty.call(this._config, "status_name") && this._config.status_name !== void 0 && this._config.status_name !== "";
 	this._cardName = o ? St(this._config.status_name, this._config, this.hass) : $(i, "friendly_name") || $(r, "friendly_name") || e || t || X(this.hass, "Person");
-	let s = (this._config.label_template ? this._evaluateStateTemplate(this._config.label_template, t) : null) ?? (r ? Sd.call(this, r) : ""), c = a && r?.state !== "home" ? this.formatState(a) : "";
+	let s = (this._config.label_template ? this._evaluateStateTemplate(this._config.label_template, t) : null) ?? (r ? gp.call(this, r) : ""), c = a && r?.state !== "home" ? this.formatState(a) : "";
 	this._statusText = c ? `${s} | ${c}` : s;
-	let l = sd(r, (e) => this._getEntityActiveState(e), this._config.state_template ? this._evaluateStateTemplate(this._config.state_template, t) : null), u = od(this._config, r, l);
-	this._personPicture = $(i, "entity_picture") || $(r, "entity_picture") || "", this._personZoneIcon = xd.call(this, r, i), this._personBattery1 = Cd.call(this, this._config.battery_entity_1), this._personBattery2 = Cd.call(this, this._config.battery_entity_2), this._icon = $(i, "icon") || $(r, "icon") || "mdi:account", this._navigationPath = cd(this._config, r), this._nameColor = this._computeFullColor(u), this._statusColor = this._computeFullColor(u), this._circleColor = this._computeCircleColor(u), this._iconColor = l ? this._computeFullColor(u) : this._computeIconColor(u), this._iconSvgForceColor = !0;
+	let l = tp(r, (e) => this._getEntityActiveState(e), this._config.state_template ? this._evaluateStateTemplate(this._config.state_template, t) : null), u = ep(this._config, r, l);
+	this._personPicture = $(i, "entity_picture") || $(r, "entity_picture") || "", this._personZoneIcon = hp.call(this, r, i), this._personBattery1 = _p.call(this, this._config.battery_entity_1), this._personBattery2 = _p.call(this, this._config.battery_entity_2), this._icon = $(i, "icon") || $(r, "icon") || "mdi:account", this._navigationPath = np(this._config, r), this._nameColor = this._computeFullColor(u), this._statusColor = this._computeFullColor(u), this._circleColor = this._computeCircleColor(u), this._iconColor = l ? this._computeFullColor(u) : this._computeIconColor(u), this._iconSvgForceColor = !0;
 }
-function xd(e, t) {
+function hp(e, t) {
 	if (e?.state === "home") return "mdi:home-variant";
-	let n = dd(this.hass), r = t?.entity_id;
+	let n = ap(this.hass), r = t?.entity_id;
 	if (r) {
 		let e = n.zones.find((e) => Array.isArray(e.attributes?.persons) && e.attributes.persons.includes(r));
 		if (e?.attributes?.icon) return e.attributes.icon;
@@ -6996,11 +7197,11 @@ function xd(e, t) {
 	}
 	return "mdi:home-minus";
 }
-function Sd(e) {
+function gp(e) {
 	let t = e?.state;
 	return t ? t === "home" ? X(this.hass, "Home") : t === "not_home" ? X(this.hass, "Away") : t.replace(/_/g, " ").replace(/\b\w/g, (e) => e.toUpperCase()) : "";
 }
-function Cd(e) {
+function _p(e) {
 	let t = e && this.hass ? this.hass.states[e] : null;
 	if (!t) return null;
 	let n = Number(t.state), r = "var(--state-icon-color)";
@@ -7010,13 +7211,13 @@ function Cd(e) {
 		color: r
 	};
 }
-var wd = e((() => {
-	ud(), md(), Dt(), $u();
+var vp = e((() => {
+	ip(), cp(), Dt(), qf();
 }));
 //#endregion
 //#region src/cards/status/renders/status-card.js
-function Td() {
-	let e = this._config?.mode || "standard", t = this._statusItems || [], n = e === "icon_only" && t.length > 1, r = Math.max(t.length, 1), i = this._getStatusColumnCount(r), a = this._getStatusRowCount(r), o = jd(this._statusText), s = this._isImageIcon(this._icon) ? this._resolveIconPath(this._icon) : "", c = s ? this._getInlineSvg(s, this._iconSvgForceColor) : "";
+function yp() {
+	let e = this._config?.mode || "standard", t = this._statusItems || [], n = e === "icon_only" && t.length > 1, r = Math.max(t.length, 1), i = this._getStatusColumnCount(r), a = this._getStatusRowCount(r), o = Tp(this._statusText), s = this._isImageIcon(this._icon) ? this._resolveIconPath(this._icon) : "", c = s ? this._getInlineSvg(s, this._iconSvgForceColor) : "";
 	return D`
     <ha-card
       class="mode-${e} ${n ? "grouped" : ""} ${n && this._config?.separate_cards ? "separate-cards" : ""}"
@@ -7043,7 +7244,7 @@ function Td() {
           --status-text-color:${this._statusColor};
         "
       >
-        ${n ? Ed.call(this, t, i) : D`
+        ${n ? bp.call(this, t, i) : D`
         <div
           class="circle status-circle"
           @pointerdown=${this._handleMainIconPointerDown}
@@ -7057,7 +7258,7 @@ function Td() {
           @dblclick=${this._handleMainEntityDoubleTap}
           @contextmenu=${this._handleMainIconContextMenu}
         >
-          ${e === "person" ? Od.call(this) : this._isImageIcon(this._icon) ? D`
+          ${e === "person" ? Sp.call(this) : this._isImageIcon(this._icon) ? D`
                 <div
                   class="main-image-icon"
                 >
@@ -7101,20 +7302,20 @@ function Td() {
     </ha-card>
   `;
 }
-function Ed(e, t) {
+function bp(e, t) {
 	return D`
     <div class="status-icon-grid">
-      ${Md(e, t).map((e, n) => D`
+      ${Ep(e, t).map((e, n) => D`
         <div class="status-icon-row">
-          ${e.map((e, r) => Dd.call(this, e, n * t + r))}
-          ${Nd(e.length, t, "status-icon-spacer")}
+          ${e.map((e, r) => xp.call(this, e, n * t + r))}
+          ${Dp(e.length, t, "status-icon-spacer")}
         </div>
       `)}
     </div>
   `;
 }
-function Dd(e, t) {
-	let n = jd(e.statusText), r = this._isImageIcon(e.icon) ? this._resolveIconPath(e.icon) : "", i = r ? this._getInlineSvg(r, e.svgForceColor) : "", a = D`
+function xp(e, t) {
+	let n = Tp(e.statusText), r = this._isImageIcon(e.icon) ? this._resolveIconPath(e.icon) : "", i = r ? this._getInlineSvg(r, e.svgForceColor) : "", a = D`
     <div class="circle status-circle">
       ${this._isImageIcon(e.icon) ? D`
             <div class="main-image-icon">
@@ -7176,7 +7377,7 @@ function Dd(e, t) {
     </ha-card>
   `;
 }
-function Od() {
+function Sp() {
 	return D`
     <div class="person-main-icon">
       ${this._personPicture ? D`
@@ -7192,16 +7393,16 @@ function Od() {
           ></ha-icon>
           `}
 
-      ${kd.call(this, "zone", this._personZoneIcon || "mdi:home-minus", this._computeFullColor("blue"))}
+      ${Cp.call(this, "zone", this._personZoneIcon || "mdi:home-minus", this._computeFullColor("blue"))}
 
-      ${this._personBattery1 ? kd.call(this, "battery-1", null, this._personBattery1.color, this._personBattery1.entityId, this._personBattery1.stateObj) : ""}
+      ${this._personBattery1 ? Cp.call(this, "battery-1", null, this._personBattery1.color, this._personBattery1.entityId, this._personBattery1.stateObj) : ""}
 
-      ${this._personBattery2 ? kd.call(this, "battery-2", null, this._personBattery2.color, this._personBattery2.entityId, this._personBattery2.stateObj) : ""}
+      ${this._personBattery2 ? Cp.call(this, "battery-2", null, this._personBattery2.color, this._personBattery2.entityId, this._personBattery2.stateObj) : ""}
     </div>
   `;
 }
-function kd(e, t, n, r = null, i = null) {
-	let a = Ad(i);
+function Cp(e, t, n, r = null, i = null) {
+	let a = wp(i);
 	return D`
     <span
       class="person-badge person-badge-${e} ${r ? "clickable" : ""}"
@@ -7227,29 +7428,29 @@ function kd(e, t, n, r = null, i = null) {
     </span>
   `;
 }
-function Ad(e) {
+function wp(e) {
 	let t = e?.attributes || {};
 	return String(t.icon || "").toLowerCase().includes("battery-charging") || t.battery_charging === !0 || t.is_charging === !0 || t.charging === !0;
 }
-function jd(e) {
+function Tp(e) {
 	let t = String(e || "").match(/-?\d+(?:\.\d+)?/);
 	return (t ? Number(t[0]) : null) === 0 ? "" : t?.[0] || "";
 }
-function Md(e, t = 1) {
+function Ep(e, t = 1) {
 	let n = Math.max(1, t), r = [];
 	for (let t = 0; t < e.length; t += n) r.push(e.slice(t, t + n));
 	return r;
 }
-function Nd(e, t, n) {
+function Dp(e, t, n) {
 	let r = Math.max(0, t - e);
 	return Array.from({ length: r }, () => D`
     <div class=${n}></div>
   `);
 }
-var Pd = e((() => {
+var Op = e((() => {
 	M(), H();
-})), Fd, Id = e((() => {
-	M(), Hr(), Wr(), Kr(), Fd = [
+})), kp, Ap = e((() => {
+	M(), Hr(), Wr(), Kr(), kp = [
 		Vr,
 		Ur,
 		Gr,
@@ -7554,7 +7755,7 @@ var Pd = e((() => {
 }));
 //#endregion
 //#region src/common/editor/helpers/group-options.js
-function Ld({ config: e = {}, itemCount: t = 0, wrapEnabled: n = !!e?.wrap, perRowKey: r = "items_per_row", defaultPerRow: i = 3, scrollThreshold: a = 6 } = {}) {
+function jp({ config: e = {}, itemCount: t = 0, wrapEnabled: n = !!e?.wrap, perRowKey: r = "items_per_row", defaultPerRow: i = 3, scrollThreshold: a = 6 } = {}) {
 	let o = Math.max(1, Number(e?.[r]) || i), s = !!n && t > o;
 	return {
 		itemsPerRow: o,
@@ -7562,7 +7763,7 @@ function Ld({ config: e = {}, itemCount: t = 0, wrapEnabled: n = !!e?.wrap, perR
 		showTabScrollHint: !s && t > a || s && o > a
 	};
 }
-function Rd({ itemCount: e = 0, classPrefix: t, wrapKey: n = "wrap", wrapEnabled: r = !!this._config?.[n], showWrapToggle: i = !0, showSeparateToggle: a = e > 1, separateKey: o = "separate_cards", perRowKey: s = "items_per_row", perRowLabel: c = "Items per row", defaultPerRow: l = 3 } = {}) {
+function Mp({ itemCount: e = 0, classPrefix: t, wrapKey: n = "wrap", wrapEnabled: r = !!this._config?.[n], showWrapToggle: i = !0, showSeparateToggle: a = e > 1, separateKey: o = "separate_cards", perRowKey: s = "items_per_row", perRowLabel: c = "Items per row", defaultPerRow: l = 3 } = {}) {
 	let u = t || "action";
 	return D`
     <div class="${u}-group-options">
@@ -7602,12 +7803,12 @@ function Rd({ itemCount: e = 0, classPrefix: t, wrapKey: n = "wrap", wrapEnabled
     </div>
   `;
 }
-var zd = e((() => {
+var Np = e((() => {
 	M();
 }));
 //#endregion
 //#region src/editors/status/sections/status.js
-function Bd() {
+function Pp() {
 	let e = this._config?.mode || "standard", t = e === "icon_only", n = e === "person", r = t || n ? "more-info" : "navigate", i = this._config?.tap_action?.action || r, a = t || n ? i : "more-info";
 	return D`
     <div class="section">
@@ -7618,7 +7819,7 @@ function Bd() {
           <ha-selector
             class="editor-header-button-toggle status-mode-selector"
             .hass=${this.hass}
-            .selector=${{ button_toggle: { options: qd.call(this) } }}
+            .selector=${{ button_toggle: { options: Vp.call(this) } }}
             .value=${e}
             @value-changed=${(e) => this._updateConfig({ mode: e.detail.value || "standard" })}
           ></ha-selector>
@@ -7626,12 +7827,12 @@ function Bd() {
       </div>
     </div>
 
-    ${t ? Hd.call(this, {
+    ${t ? Ip.call(this, {
 		cardActionDefault: r,
 		mainEntityActionDefault: a
 	}) : D`
           <div class="section">
-            ${Vd.call(this)}
+            ${Fp.call(this)}
 
             ${n ? D`
                   ${this._renderEntity("Person entity", "main_entity")}
@@ -7657,7 +7858,7 @@ function Bd() {
 
                     ${qa.call(this, {
 		value: this._config?.main_entity || "",
-		filterOptions: Jd,
+		filterOptions: Hp,
 		onValueChanged: (e) => this._handleEntityUpdate ? this._handleEntityUpdate("main_entity", e) : this._handleConfigUpdate("main_entity", e)
 	})}
                   </div>
@@ -7673,7 +7874,7 @@ function Bd() {
 		"Color"
 	], "accent_off_color")}
                   </div>
-                  ${Gd.call(this)}
+                  ${zp.call(this)}
                   ${this._renderTemplateInput("State template", "state_template")}
                   ${this._renderTemplateInput("Label template", "label_template")}
                 `}
@@ -7728,7 +7929,7 @@ function Bd() {
         `}
   `;
 }
-function Vd() {
+function Fp() {
 	return Lo.call(this, {
 		label: "Status name",
 		valueKey: "status_name",
@@ -7736,15 +7937,15 @@ function Vd() {
 		defaultType: "entity"
 	});
 }
-function Hd({ cardActionDefault: e, mainEntityActionDefault: t }) {
-	let n = this._getStatusItems(), r = Math.min(this._selectedStatusIndex || 0, n.length - 1), i = n[r] || {}, { itemsPerRow: a, shouldWrapTabs: o, showTabScrollHint: s } = Ld({
+function Ip({ cardActionDefault: e, mainEntityActionDefault: t }) {
+	let n = this._getStatusItems(), r = Math.min(this._selectedStatusIndex || 0, n.length - 1), i = n[r] || {}, { itemsPerRow: a, shouldWrapTabs: o, showTabScrollHint: s } = jp({
 		config: this._config,
 		itemCount: n.length,
 		defaultPerRow: 3
 	});
 	return D`
     <div class="section">
-      ${Rd.call(this, {
+      ${Mp.call(this, {
 		itemCount: n.length,
 		classPrefix: "status",
 		defaultPerRow: 3
@@ -7829,43 +8030,43 @@ function Hd({ cardActionDefault: e, mainEntityActionDefault: t }) {
 
         ${qa.call(this, {
 		value: i.entity || "",
-		filterOptions: Jd,
+		filterOptions: Hp,
 		onValueChanged: (e) => this._updateStatusItem(r, { entity: e })
 	})}
       </div>
 
       <div class="color-pair">
-        ${Wd.call(this, [
+        ${Rp.call(this, [
 		"Accent",
 		"Active",
 		"Color"
 	], "accent_on_color", r, i)}
-        ${Wd.call(this, [
+        ${Rp.call(this, [
 		"Accent",
 		"Inactive",
 		"Color"
 	], "accent_off_color", r, i)}
       </div>
 
-      ${Kd.call(this, r, i)}
+      ${Bp.call(this, r, i)}
 
-      ${Ud.call(this, "State template", "state_template", r, i)}
-      ${Ud.call(this, "Label template", "label_template", r, i)}
+      ${Lp.call(this, "State template", "state_template", r, i)}
+      ${Lp.call(this, "Label template", "label_template", r, i)}
 
       ${i.entity ? this._renderStatusItemInteractions(r, i, e, t) : ""}
     </div>
   `;
 }
-function Ud(e, t, n, r) {
+function Lp(e, t, n, r) {
 	return this._renderTemplateInput(e, t, {
 		value: r[t] || "",
 		onValueChanged: (e) => this._updateStatusItem(n, { [t]: e })
 	});
 }
-function Wd(e, t, n, r) {
+function Rp(e, t, n, r) {
 	return this._renderColorControl(e, `status-${n}-${t}`, r[t] || "", (e) => this._updateStatusItem(n, { [t]: e }));
 }
-function Gd() {
+function zp() {
 	return vi.call(this, {
 		label: "Icon",
 		sourceKey: "main_entity_icon_source",
@@ -7886,7 +8087,7 @@ function Gd() {
 		}
 	});
 }
-function Kd(e, t) {
+function Bp(e, t) {
 	let n = this, r = {
 		hass: this.hass,
 		_config: t,
@@ -7914,7 +8115,7 @@ function Kd(e, t) {
 		}
 	});
 }
-function qd() {
+function Vp() {
 	return [
 		{
 			label: this._t("Standard"),
@@ -7930,8 +8131,8 @@ function qd() {
 		}
 	];
 }
-var Jd, Yd = e((() => {
-	M(), ps(), Y(), Wi(), zd(), Jd = [
+var Hp, Up = e((() => {
+	M(), ps(), Y(), Wi(), Np(), Hp = [
 		{
 			label: "All",
 			value: "all",
@@ -7950,8 +8151,8 @@ var Jd, Yd = e((() => {
 			domains: ["sensor"]
 		}
 	];
-})), Xd, Zd = e((() => {
-	M(), Xd = c`
+})), Wp, Gp = e((() => {
+	M(), Wp = c`
 .status-wrap-toggle {
   display: flex;
   align-items: center;
@@ -8117,8 +8318,8 @@ var Jd, Yd = e((() => {
   --mdc-icon-size: 20px;
 }
 `;
-})), Qd = /* @__PURE__ */ t((() => {
-	M(), Io(), Yd(), Qs(), Zd(), B(), $u(), Q(), Pt();
+})), Kp = /* @__PURE__ */ t((() => {
+	M(), Io(), Up(), Qs(), Gp(), B(), qf(), Q(), Pt();
 	var e = class extends j {
 		static svgCache = z;
 		static properties = {
@@ -8418,7 +8619,7 @@ var Jd, Yd = e((() => {
 			return R.call(this, e, { forceColor: !0 });
 		}
 		_renderStatusSection() {
-			return Bd.call(this);
+			return Pp.call(this);
 		}
 		render() {
 			return D`
@@ -8430,7 +8631,7 @@ var Jd, Yd = e((() => {
       </div>
     `;
 		}
-		static styles = [Zs, Xd];
+		static styles = [Zs, Wp];
 	};
 	customElements.define("orbit-status-card-editor", e);
 	function t(e) {
@@ -8503,8 +8704,8 @@ var Jd, Yd = e((() => {
 			r.has(t) || (n[t] = e[t]);
 		}), n;
 	}
-})), $d = /* @__PURE__ */ t((() => {
-	M(), at(), L(), id(), It(), Vt(), Dn(), jn(), Nn(), Ln(), Vn(), B(), $u(), wd(), Pd(), Id(), Qd(), Q();
+})), qp = /* @__PURE__ */ t((() => {
+	M(), at(), L(), Qf(), It(), Vt(), Dn(), jn(), Nn(), Ln(), Vn(), B(), qf(), vp(), Op(), Ap(), Kp(), Q();
 	var e = class extends j {
 		static svgCache = z;
 		static get properties() {
@@ -8538,7 +8739,7 @@ var Jd, Yd = e((() => {
 		}
 		getLayoutOptions() {
 			if (this._config?.mode === "icon_only") {
-				let e = gd(this._config).length, n = t(this._config, e);
+				let e = up(this._config).length, n = t(this._config, e);
 				return {
 					grid_columns: Math.max(1, n),
 					grid_min_columns: .5,
@@ -8556,7 +8757,7 @@ var Jd, Yd = e((() => {
 			this._nameColor = this._computeFullColor(t), this._statusColor = this._computeFullColor(t), this._iconColor = this._computeIconColor(t), this._circleColor = this._computeCircleColor(t), this._statusItems = [];
 		}
 		willUpdate(e) {
-			return hd.call(this, e);
+			return lp.call(this, e);
 		}
 		shouldUpdate(e) {
 			return Pn.call(this, e, this._getRelevantEntities(), {
@@ -8730,7 +8931,7 @@ var Jd, Yd = e((() => {
 			return Mn.call(this, e, t);
 		}
 		_getRelevantEntities() {
-			return this._config?.mode === "icon_only" ? gd(this._config).map((e) => e.entity || e.main_entity) : [
+			return this._config?.mode === "icon_only" ? up(this._config).map((e) => e.entity || e.main_entity) : [
 				this._config?.main_entity,
 				this._config?.tracker_entity,
 				this._config?.eta_entity,
@@ -8872,19 +9073,19 @@ var Jd, Yd = e((() => {
 			e.preventDefault(), e.stopPropagation(), e.stopImmediatePropagation && e.stopImmediatePropagation();
 		}
 		render() {
-			return Td.call(this);
+			return yp.call(this);
 		}
-		static styles = Fd;
+		static styles = kp;
 	};
 	function t(e = {}, t = 1) {
-		return nd({
+		return Xf({
 			config: e,
 			count: t,
 			perRowKey: "items_per_row"
 		});
 	}
 	function n(e = {}, t = 1) {
-		return rd({
+		return Zf({
 			config: e,
 			count: t,
 			perRowKey: "items_per_row"
@@ -8933,10 +9134,10 @@ var Jd, Yd = e((() => {
 }));
 //#endregion
 //#region src/cards/action/helpers/lifecycle.js
-function ef(e) {
-	!e.has("_config") && !e.has("hass") || (this._actions = tf(this._config).map((e) => nf.call(this, e)));
+function Jp(e) {
+	!e.has("_config") && !e.has("hass") || (this._actions = Yp(this._config).map((e) => Xp.call(this, e)));
 }
-function tf(e = {}) {
+function Yp(e = {}) {
 	return Array.isArray(e.entities) && e.entities.length ? e.entities.map((e) => typeof e == "string" ? { entity: e } : e || {}) : [{
 		entity: e.main_entity,
 		accent_color: e.accent_color,
@@ -8948,8 +9149,8 @@ function tf(e = {}) {
 		double_tap_action: e.double_tap_action
 	}];
 }
-function nf(e) {
-	let t = e.entity || e.main_entity, n = t && this.hass ? this.hass.states[t] : null, r = e.accent_color || this._config.accent_color || "theme", i = af(n), a = this._computeCircleColor(r), o = i ? this._computeFullColor(r) : this._computeIconColor(r), s = rf(e, t), c = s === "custom" && (e.main_entity_icon || e.icon) || "", l = s === "custom" && e.main_entity_icon ? "main_entity_icon" : s === "custom" && e.icon ? "icon" : "", u = c || "mdi:play-circle";
+function Xp(e) {
+	let t = e.entity || e.main_entity, n = t && this.hass ? this.hass.states[t] : null, r = e.accent_color || this._config.accent_color || "theme", i = Qp(n), a = this._computeCircleColor(r), o = i ? this._computeFullColor(r) : this._computeIconColor(r), s = Zp(e, t), c = s === "custom" && (e.main_entity_icon || e.icon) || "", l = s === "custom" && e.main_entity_icon ? "main_entity_icon" : s === "custom" && e.icon ? "icon" : "", u = c || "mdi:play-circle";
 	return {
 		...e,
 		entityId: t,
@@ -8962,20 +9163,20 @@ function nf(e) {
 		svgForceColor: l ? this._getSvgColorOverride(e, l) : !0
 	};
 }
-function rf(e, t) {
+function Zp(e, t) {
 	let n = e.main_entity_icon_source, r = !!t, i = !!(e.main_entity_icon || e.icon);
 	return n === "custom" ? "custom" : n === "entity" && r ? "entity" : i ? "custom" : "entity";
 }
-function af(e) {
+function Qp(e) {
 	if (!e) return !1;
 	let t = e.entity_id?.split(".")[0], n = Number(e.attributes?.current);
 	return Number.isFinite(n) && n > 0 ? !0 : t === "script" && e.state === "on";
 }
-var of = e((() => {}));
+var $p = e((() => {}));
 //#endregion
 //#region src/cards/action/renders/action-card.js
-function sf() {
-	let e = this._actions || [], t = Math.max(e.length, 1), n = this._getActionColumnCount(t), r = this._getActionRowCount(t), i = lf(e, n);
+function em() {
+	let e = this._actions || [], t = Math.max(e.length, 1), n = this._getActionColumnCount(t), r = this._getActionRowCount(t), i = nm(e, n);
 	return D`
     <ha-card
       class="${t > 1 ? "grouped" : ""} ${t > 1 && this._config?.separate_cards ? "separate-cards" : ""}"
@@ -8989,15 +9190,15 @@ function sf() {
       <div class="container action-container">
         ${i.map((e, t) => D`
           <div class="action-row">
-            ${e.map((e, r) => cf.call(this, e, t * n + r))}
-            ${uf(e.length, n, "action-spacer")}
+            ${e.map((e, r) => tm.call(this, e, t * n + r))}
+            ${rm(e.length, n, "action-spacer")}
           </div>
         `)}
       </div>
     </ha-card>
   `;
 }
-function cf(e, t) {
+function tm(e, t) {
 	let n = this._isImageIcon(e.icon) ? this._resolveIconPath(e.icon) : "", r = n ? this._getInlineSvg(n, e.svgForceColor) : "", i = D`
     <div class="circle action-circle">
       ${this._isImageIcon(e.icon) ? D`
@@ -9057,21 +9258,21 @@ function cf(e, t) {
     </ha-card>
   `;
 }
-function lf(e, t = 1) {
+function nm(e, t = 1) {
 	let n = Math.max(1, t), r = [];
 	for (let t = 0; t < e.length; t += n) r.push(e.slice(t, t + n));
 	return r;
 }
-function uf(e, t, n) {
+function rm(e, t, n) {
 	let r = Math.max(0, t - e);
 	return Array.from({ length: r }, () => D`
     <div class=${n}></div>
   `);
 }
-var df = e((() => {
+var im = e((() => {
 	M(), H();
-})), ff, pf = e((() => {
-	M(), Wr(), Kr(), ff = [
+})), am, om = e((() => {
+	M(), Wr(), Kr(), am = [
 		Ur,
 		Gr,
 		c`
@@ -9203,8 +9404,8 @@ var df = e((() => {
 }));
 //#endregion
 //#region src/editors/action/sections/action.js
-function mf() {
-	let e = this._getActionItems(), t = Math.min(this._selectedActionIndex || 0, e.length - 1), n = e[t] || {}, r = this._actionEntityDomainFilter || "all", { itemsPerRow: i, shouldWrapTabs: a, showTabScrollHint: o } = Ld({
+function sm() {
+	let e = this._getActionItems(), t = Math.min(this._selectedActionIndex || 0, e.length - 1), n = e[t] || {}, r = this._actionEntityDomainFilter || "all", { itemsPerRow: i, shouldWrapTabs: a, showTabScrollHint: o } = jp({
 		config: this._config,
 		itemCount: e.length,
 		perRowKey: "actions_per_row",
@@ -9212,7 +9413,7 @@ function mf() {
 	});
 	return D`
     <div class="section">
-      ${Rd.call(this, {
+      ${Mp.call(this, {
 		itemCount: e.length,
 		classPrefix: "action",
 		perRowKey: "actions_per_row",
@@ -9290,7 +9491,7 @@ function mf() {
 
         ${qa.call(this, {
 		value: n.entity || "",
-		filterOptions: gf,
+		filterOptions: lm,
 		activeFilter: r,
 		onValueChanged: (e) => this._updateActionItem(t, { entity: e })
 	})}
@@ -9298,13 +9499,13 @@ function mf() {
 
       ${this._renderColorControl(["Accent", "Color"], `action-${t}-accent_color`, n.accent_color || "", (e) => this._updateActionItem(t, { accent_color: e }), this._config?.accent_color || "theme")}
 
-      ${hf.call(this, t, n)}
+      ${cm.call(this, t, n)}
 
       ${n.entity ? this._renderActionItemInteractions(t, n) : ""}
     </div>
   `;
 }
-function hf(e, t) {
+function cm(e, t) {
 	let n = this, r = {
 		hass: this.hass,
 		_config: t,
@@ -9322,8 +9523,8 @@ function hf(e, t) {
 		}
 	});
 }
-var gf, _f = e((() => {
-	M(), Y(), Wi(), zd(), gf = [
+var lm, um = e((() => {
+	M(), Y(), Wi(), Np(), lm = [
 		{
 			label: "All",
 			value: "all",
@@ -9364,8 +9565,8 @@ var gf, _f = e((() => {
 			domains: ["script"]
 		}
 	];
-})), vf, yf = e((() => {
-	M(), vf = c`
+})), dm, fm = e((() => {
+	M(), dm = c`
 .action-tabs {
   display: flex;
   align-items: end;
@@ -9531,8 +9732,8 @@ var gf, _f = e((() => {
   --mdc-icon-size: 20px;
 }
 `;
-})), bf = /* @__PURE__ */ t((() => {
-	M(), Io(), _f(), Qs(), yf(), B(), Gn(), $u(), Q(), Pt();
+})), pm = /* @__PURE__ */ t((() => {
+	M(), Io(), um(), Qs(), fm(), B(), Gn(), qf(), Q(), Pt();
 	var e = class extends j {
 		static svgCache = z;
 		static properties = {
@@ -9755,7 +9956,7 @@ var gf, _f = e((() => {
 			return R.call(this, e, { forceColor: !0 });
 		}
 		_renderActionSection() {
-			return mf.call(this);
+			return sm.call(this);
 		}
 		render() {
 			return D`
@@ -9767,7 +9968,7 @@ var gf, _f = e((() => {
       </div>
     `;
 		}
-		static styles = [Zs, vf];
+		static styles = [Zs, dm];
 	};
 	customElements.define("orbit-action-card-editor", e);
 	function t(e) {
@@ -9825,8 +10026,8 @@ var gf, _f = e((() => {
 			r.has(t) || (n[t] = e[t]);
 		}), n;
 	}
-})), xf = /* @__PURE__ */ t((() => {
-	M(), at(), Gn(), L(), id(), It(), Dn(), Ln(), Vn(), B(), of(), df(), pf(), bf(), Q();
+})), mm = /* @__PURE__ */ t((() => {
+	M(), at(), Gn(), L(), Qf(), It(), Dn(), Ln(), Vn(), B(), $p(), im(), om(), pm(), Q();
 	var e = class extends j {
 		static svgCache = z;
 		static get properties() {
@@ -9851,7 +10052,7 @@ var gf, _f = e((() => {
 			};
 		}
 		getLayoutOptions() {
-			let e = tf(this._config).length, n = t(this._config, e);
+			let e = Yp(this._config).length, n = t(this._config, e);
 			return {
 				grid_columns: Math.max(1, n * 1),
 				grid_min_columns: .5,
@@ -9864,10 +10065,10 @@ var gf, _f = e((() => {
 			this._iconColor = this._computeIconColor(t), this._cardBackground = this._computeCircleColor(t), this._isRunning = !1, this._actions = [];
 		}
 		willUpdate(e) {
-			return ef.call(this, e);
+			return Jp.call(this, e);
 		}
 		shouldUpdate(e) {
-			return Pn.call(this, e, tf(this._config).map((e) => e.entity || e.main_entity), { hasTemplates: Fn(this._config) });
+			return Pn.call(this, e, Yp(this._config).map((e) => e.entity || e.main_entity), { hasTemplates: Fn(this._config) });
 		}
 		_handleTap(e, t = 0) {
 			if (this._longPressTriggered) {
@@ -9916,7 +10117,7 @@ var gf, _f = e((() => {
 			return t(this._config, e);
 		}
 		_getActionRowCount(e = this._actions?.length || 1) {
-			return rd({
+			return Zf({
 				config: this._config,
 				count: e,
 				perRowKey: "actions_per_row"
@@ -9953,12 +10154,12 @@ var gf, _f = e((() => {
 			e.preventDefault(), e.stopPropagation(), e.stopImmediatePropagation && e.stopImmediatePropagation();
 		}
 		render() {
-			return sf.call(this);
+			return em.call(this);
 		}
-		static styles = ff;
+		static styles = am;
 	};
 	function t(e = {}, t = 1) {
-		return nd({
+		return Xf({
 			config: e,
 			count: t,
 			perRowKey: "actions_per_row"
@@ -9988,37 +10189,37 @@ var gf, _f = e((() => {
 }));
 //#endregion
 //#region src/common/helpers/deck-padding.js
-function Sf(e = {}) {
+function hm(e = {}) {
 	let t = e?.attributes || {};
 	return {
-		top: Of(t.padding_top),
-		right: Of(t.padding_right),
-		bottom: Of(t.padding_bottom),
-		left: Of(t.padding_left)
+		top: xm(t.padding_top),
+		right: xm(t.padding_right),
+		bottom: xm(t.padding_bottom),
+		left: xm(t.padding_left)
 	};
 }
-function Cf(e = {}) {
-	return Object.values(Sf(e)).some(Boolean);
+function gm(e = {}) {
+	return Object.values(hm(e)).some(Boolean);
 }
-function wf(e = {}) {
+function _m(e = {}) {
 	return e?.attributes?.force_padding === !0;
 }
-function Tf(e = {}) {
-	return Cf(e) && (wf(e) || !Df(e?.card));
+function vm(e = {}) {
+	return gm(e) && (_m(e) || !bm(e?.card));
 }
-function Ef(e = {}) {
-	return wf(e) && Cf(e);
+function ym(e = {}) {
+	return _m(e) && gm(e);
 }
-function Df(e) {
-	return Array.isArray(e) ? e.some((e) => Df(e)) : !e || typeof e != "object" ? typeof e == "string" ? /\bpadding(?:-(?:top|right|bottom|left))?\b/i.test(e) : !1 : Object.entries(e).some(([e, t]) => e.toLowerCase().includes("padding") || Df(t));
+function bm(e) {
+	return Array.isArray(e) ? e.some((e) => bm(e)) : !e || typeof e != "object" ? typeof e == "string" ? /\bpadding(?:-(?:top|right|bottom|left))?\b/i.test(e) : !1 : Object.entries(e).some(([e, t]) => e.toLowerCase().includes("padding") || bm(t));
 }
-function Of(e) {
+function xm(e) {
 	if (e == null || e === "") return "";
 	let t = e.toString().trim();
 	return t ? /^-?\d+(\.\d+)?$/.test(t) ? `${t}px` : t : "";
 }
-var kf = e((() => {})), Af, jf = e((() => {
-	M(), Af = c`
+var Sm = e((() => {})), Cm, wm = e((() => {
+	M(), Cm = c`
   ha-card.deck-card {
     border-radius: var(--ha-card-border-radius, 15px);
     overflow: visible;
@@ -10234,15 +10435,15 @@ var kf = e((() => {})), Af, jf = e((() => {
 }));
 //#endregion
 //#region src/editors/deck-card-editor.js
-function Mf(e) {
+function Tm(e) {
 	let t = {}, n = /* @__PURE__ */ new Set();
-	return Uf.forEach((r) => {
-		Object.prototype.hasOwnProperty.call(e, r) && (t[r] = r === "decks" && Array.isArray(e[r]) ? e[r].map(Pf) : e[r], n.add(r));
+	return Im.forEach((r) => {
+		Object.prototype.hasOwnProperty.call(e, r) && (t[r] = r === "decks" && Array.isArray(e[r]) ? e[r].map(Dm) : e[r], n.add(r));
 	}), Object.keys(e).forEach((r) => {
 		n.has(r) || (t[r] = e[r]);
 	}), t;
 }
-function Nf(e) {
+function Em(e) {
 	if (!Array.isArray(e?.decks)) return {
 		config: e,
 		changed: !1
@@ -10271,26 +10472,26 @@ function Nf(e) {
 		changed: t
 	};
 }
-function Pf(e) {
+function Dm(e) {
 	if (!e || typeof e != "object" || Array.isArray(e)) return e;
 	let t = {}, n = /* @__PURE__ */ new Set(), r = {
 		...e,
-		attributes: Ff(e.attributes || {})
+		attributes: Om(e.attributes || {})
 	};
-	return e.badge?.type ? (r.badge = e.badge, delete r.card) : e.card?.type ? (r.card = e.card, delete r.badge) : (delete r.badge, delete r.card), Wf.forEach((e) => {
+	return e.badge?.type ? (r.badge = e.badge, delete r.card) : e.card?.type ? (r.card = e.card, delete r.badge) : (delete r.badge, delete r.card), Lm.forEach((e) => {
 		Object.prototype.hasOwnProperty.call(r, e) && (t[e] = r[e], n.add(e));
 	}), Object.keys(r).forEach((e) => {
 		n.has(e) || (t[e] = r[e]);
 	}), t;
 }
-function Ff(e = {}) {
+function Om(e = {}) {
 	return Object.entries(e).reduce((e, [t, n]) => (n !== void 0 && n !== "" && (e[t] = n), e), {});
 }
-function If(e = {}, t) {
-	let n = Rf(e);
+function km(e = {}, t) {
+	let n = jm(e);
 	return n?.[t]?.action ? n[t] : t === "tap_action" && n?.entity ? "more-info" : "none";
 }
-function Lf(e = {}) {
+function Am(e = {}) {
 	return e?.badge ? {
 		attributes: e.attributes || {},
 		badge: e.badge || {}
@@ -10299,17 +10500,17 @@ function Lf(e = {}) {
 		card: e?.card || {}
 	};
 }
-function Rf(e = {}) {
+function jm(e = {}) {
 	return e?.badge || e?.card || {};
 }
-function zf(e) {
-	return Bf(e) !== "none";
+function Mm(e) {
+	return Nm(e) !== "none";
 }
-function Bf(e) {
+function Nm(e) {
 	return typeof e == "string" ? e : e?.action || "none";
 }
-var Vf, Hf, Uf, Wf, Gf = e((() => {
-	M(), Io(), zd(), Y(), Qs(), yf(), $u(), Q(), Pt(), Vf = Symbol.for("orbit-deck-card-preview-selected-index"), Hf = class extends j {
+var Pm, Fm, Im, Lm, Rm = e((() => {
+	M(), Io(), Np(), Y(), Qs(), fm(), qf(), Q(), Pt(), Pm = Symbol.for("orbit-deck-card-preview-selected-index"), Fm = class extends j {
 		static properties = {
 			hass: { attribute: !1 },
 			lovelace: { attribute: !1 },
@@ -10332,7 +10533,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
 			To(this), super.disconnectedCallback();
 		}
 		setConfig(e) {
-			let t = Nf(e || {});
+			let t = Em(e || {});
 			this._config = {
 				...t.config,
 				layout: ["tabs", "overlay"].includes(e?.layout) ? e.layout : "wrap"
@@ -10350,7 +10551,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
 			return Do(e);
 		}
 		_updateConfig(e) {
-			this._config = Mf(Qi(this._config, e)), this._dispatchConfigChanged();
+			this._config = Tm(Qi(this._config, e)), this._dispatchConfigChanged();
 		}
 		_dispatchConfigChanged() {
 			this.dispatchEvent(new CustomEvent("config-changed", {
@@ -10362,11 +10563,11 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
 		_getPreviewConfig() {
 			return {
 				...this._config,
-				[Vf]: this._selectedDeckIndex || 0
+				[Pm]: this._selectedDeckIndex || 0
 			};
 		}
 		_getDeckItems(e = this._config) {
-			return Array.isArray(e?.decks) ? e.decks.map(Lf) : [];
+			return Array.isArray(e?.decks) ? e.decks.map(Am) : [];
 		}
 		_selectDeckItem(e) {
 			let t = this._getDeckItems()[e];
@@ -10376,7 +10577,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
 			this.dispatchEvent(new CustomEvent("config-changed", {
 				detail: { config: {
 					...this._getPreviewConfig(),
-					[Vf]: e
+					[Pm]: e
 				} },
 				bubbles: !0,
 				composed: !0
@@ -10503,7 +10704,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
 			let e = this._getDeckItems();
 			return D`
       <div class="section deck-card-tab-section">
-        ${this._config?.layout === "wrap" ? Rd.call(this, {
+        ${this._config?.layout === "wrap" ? Mp.call(this, {
 				itemCount: e.length,
 				classPrefix: "action",
 				wrapEnabled: !0,
@@ -10564,7 +10765,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
     `;
 		}
 		_renderDeckTabs(e, t) {
-			let { itemsPerRow: n, shouldWrapTabs: r } = Ld({
+			let { itemsPerRow: n, shouldWrapTabs: r } = jp({
 				config: this._config,
 				itemCount: e.length,
 				wrapEnabled: this._config?.layout === "wrap",
@@ -10899,7 +11100,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
     `;
 		}
 		_renderDeckInteractions(e, t) {
-			let n = t?.attributes || {}, r = If(t, "tap_action"), i = If(t, "hold_action"), a = If(t, "double_tap_action");
+			let n = t?.attributes || {}, r = km(t, "tap_action"), i = km(t, "hold_action"), a = km(t, "double_tap_action");
 			return J.call(this, {
 				expanded: !1,
 				config: n,
@@ -10910,27 +11111,27 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
 						formKey: "tap_action",
 						label: "Tap behavior",
 						defaultAction: r,
-						defaultVisible: zf(r),
-						displayDefaultValue: zf(r)
+						defaultVisible: Mm(r),
+						displayDefaultValue: Mm(r)
 					},
 					{
 						key: "hold_action",
 						formKey: "hold_action",
 						label: "Hold behavior",
 						defaultAction: i,
-						defaultVisible: zf(i),
-						displayDefaultValue: zf(i)
+						defaultVisible: Mm(i),
+						displayDefaultValue: Mm(i)
 					},
 					{
 						key: "double_tap_action",
 						formKey: "double_tap_action",
 						label: "Double tap behavior",
 						defaultAction: a,
-						defaultVisible: zf(a),
-						displayDefaultValue: zf(a)
+						defaultVisible: Mm(a),
+						displayDefaultValue: Mm(a)
 					}
 				],
-				context: { entity_id: n.entity || Rf(t)?.entity }
+				context: { entity_id: n.entity || jm(t)?.entity }
 			});
 		}
 		async _ensureNativeBadgePicker() {
@@ -11057,7 +11258,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
 		}
 		static styles = [
 			Zs,
-			vf,
+			dm,
 			c`
       .deck-subtabs-row {
         display: flex;
@@ -11215,7 +11416,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
       }
     `
 		];
-	}, customElements.define("orbit-deck-card-editor", Hf), Uf = [
+	}, customElements.define("orbit-deck-card-editor", Fm), Im = [
 		"type",
 		"layout",
 		"items_per_row",
@@ -11229,13 +11430,13 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
 		"decks",
 		"grid_options",
 		"view_layout"
-	], Wf = [
+	], Lm = [
 		"attributes",
 		"badge",
 		"card"
 	];
-})), Kf = /* @__PURE__ */ t((() => {
-	M(), It(), Q(), L(), kf(), at(), jn(), jf(), Gf();
+})), zm = /* @__PURE__ */ t((() => {
+	M(), It(), Q(), L(), Sm(), at(), jn(), wm(), Rm();
 	var e = class extends j {
 		static get properties() {
 			return {
@@ -11276,7 +11477,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
 				layout: n
 			};
 			let r = t(this._config), i = g(r), a = h(r);
-			Number.isInteger(e?.[Vf]) ? this._selectedIndex = Math.min(Math.max(0, e[Vf]), Math.max(0, r.length - 1)) : i === this._defaultSelectionKey ? this._selectedIndex = Math.min(this._selectedIndex || 0, Math.max(0, r.length - 1)) : (this._selectedIndex = a, this._defaultSelectionKey = i), this._scheduleCardBuild();
+			Number.isInteger(e?.[Pm]) ? this._selectedIndex = Math.min(Math.max(0, e[Pm]), Math.max(0, r.length - 1)) : i === this._defaultSelectionKey ? this._selectedIndex = Math.min(this._selectedIndex || 0, Math.max(0, r.length - 1)) : (this._selectedIndex = a, this._defaultSelectionKey = i), this._scheduleCardBuild();
 		}
 		updated(e) {
 			e.has("hass") && this._deckCards.forEach((e) => {
@@ -11462,7 +11663,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
 		_applyDeckCardPadding(e, t = 0) {
 			let n = e?.element;
 			if (!n) return;
-			let r = Sf(e.item), i = Tf(e.item);
+			let r = hm(e.item), i = vm(e.item);
 			(n.updateComplete instanceof Promise ? n.updateComplete : Promise.resolve()).then(() => new Promise((e) => requestAnimationFrame(e))).then(() => {
 				let a = ce(n), o = a[0] || null, s = ie(this.renderRoot, e.index), c = y(this._config, e.item, e.index);
 				if (!(!o && !s)) {
@@ -11558,7 +11759,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
         </ha-card>
       `;
 		}
-		static styles = Af;
+		static styles = Cm;
 	};
 	function t(e = {}) {
 		return Array.isArray(e?.decks) ? e.decks.map((e) => e?.badge ? {
@@ -11643,7 +11844,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
 		return e?.attributes?.entity || m(e?.attributes?.tap_action) || m(e?.attributes?.hold_action) || m(e?.attributes?.double_tap_action) || m(t?.tap_action) || m(t?.hold_action) || m(t?.double_tap_action) || t?.entity || null;
 	}
 	function u(e = {}, t = !1) {
-		let n = f(e), r = Ef(e) ? p(n) : n, i = r;
+		let n = f(e), r = ym(e) ? p(n) : n, i = r;
 		if (s(e)) {
 			let { tap_action: e, hold_action: t, double_tap_action: n, ...a } = r;
 			i = a;
@@ -11702,7 +11903,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
 	function re(e = []) {
 		return e.map((e) => {
 			if (!e?.element) return `${e?.index ?? ""}:none`;
-			let t = Sf(e.item), n = wf(e.item), r = Tf(e.item);
+			let t = hm(e.item), n = _m(e.item), r = vm(e.item);
 			return [
 				e.index,
 				e.kind || d(e.item),
@@ -11807,7 +12008,7 @@ var Vf, Hf, Uf, Wf, Gf = e((() => {
 }));
 //#endregion
 //#region src/common/helpers/badge-registration.js
-function qf({ tag: e, badgeClass: t, name: n, description: r, version: i, documentationURL: a }) {
+function Bm({ tag: e, badgeClass: t, name: n, description: r, version: i, documentationURL: a }) {
 	customElements.get(e) || customElements.define(e, t), window.customBadges = window.customBadges || [];
 	for (let t = window.customBadges.length - 1; t >= 0; --t) window.customBadges[t].type === e && window.customBadges.splice(t, 1);
 	window.customBadges.push({
@@ -11818,30 +12019,30 @@ function qf({ tag: e, badgeClass: t, name: n, description: r, version: i, docume
 		documentationURL: a || kt(e)
 	}), console.info(`%c ${n} %c v${i} `, "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;", "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;");
 }
-var Jf = e((() => {
+var Vm = e((() => {
 	Pt();
 }));
 //#endregion
 //#region src/common/helpers/status-badge.js
-function Yf(e = "") {
-	return ap.get(e) || {
+function Hm(e = "") {
+	return Qm.get(e) || {
 		value: e,
 		label: e ? e.replaceAll("_", " ") : "Status",
 		icon: "mdi:shape"
 	};
 }
-function Xf(e = {}) {
+function Um(e = {}) {
 	let t = !e.entity && (e.area || e.domain || e.device_class) ? "area_count" : "entity", n = e.state_source || t;
 	if (["entity", "area_count"].includes(n)) return n;
 	throw Error(`Invalid state_source "${n}". Expected "entity" or "area_count".`);
 }
-function Zf(e = {}) {
-	let t = Xf(e), n = e.domain ? Yf(e.domain) : void 0;
+function Wm(e = {}) {
+	let t = Um(e), n = e.domain ? Hm(e.domain) : void 0;
 	if (t === "area_count" && n?.requiresDeviceClass && !e.device_class) throw Error(`Orbit Status Badge requires "device_class" for domain "${e.domain}".`);
 	return t;
 }
-function Qf(e = {}) {
-	let t = Xf(e), n = e.accent_on_color === "amber" && e.accent_off_color === "grey", r = e.color_mode === "native" || n, i = { ...e };
+function Gm(e = {}) {
+	let t = Um(e), n = e.accent_on_color === "amber" && e.accent_off_color === "grey", r = e.color_mode === "native" || n, i = { ...e };
 	return Object.keys(i).forEach((e) => {
 		(i[e] === "" || i[e] === void 0) && delete i[e];
 	}), i.show_state === !0 && delete i.show_state, i.show_icon === !0 && delete i.show_icon, i.show_name === !1 && delete i.show_name, i.show_entity_picture === !1 && delete i.show_entity_picture, t === "entity" ? (delete i.state_source, delete i.area, delete i.domain, delete i.device_class, i.state_content === "state" && delete i.state_content, i.tap_action?.action === "more-info" && delete i.tap_action) : (i.state_source = "area_count", delete i.entity, i.state_content === "count" && delete i.state_content, i.tap_action?.action === "none" && delete i.tap_action), i.hold_action?.action === "none" && delete i.hold_action, i.double_tap_action?.action === "none" && delete i.double_tap_action, i.icon_source === "domain" && (delete i.icon_source, delete i.icon, delete i.icon_on, delete i.icon_off), (r || [
@@ -11856,11 +12057,11 @@ function Qf(e = {}) {
 		"state-inactive"
 	].includes(i.accent_off_color)) && delete i.accent_off_color, delete i.color_mode, i;
 }
-function $f(e, t = !1) {
+function Km(e, t = !1) {
 	if (e.state === "unavailable") return "var(--state-unavailable-color)";
 	let n = e.entity_id.split(".")[0], r = e.attributes || {};
-	if (n === "light" && t && Array.isArray(r.rgb_color)) return tp(r.rgb_color);
-	let i = ep(e.state), a = t ? "active" : "inactive";
+	if (n === "light" && t && Array.isArray(r.rgb_color)) return Jm(r.rgb_color);
+	let i = qm(e.state), a = t ? "active" : "inactive";
 	return [
 		r.device_class ? `--state-${n}-${r.device_class}-${i}-color` : "",
 		`--state-${n}-${i}-color`,
@@ -11868,14 +12069,14 @@ function $f(e, t = !1) {
 		`--state-${a}-color`
 	].filter(Boolean).reduceRight((e, t) => `var(${t}, ${e})`, "var(--state-icon-color, var(--secondary-text-color))");
 }
-function ep(e = "") {
+function qm(e = "") {
 	return e.toString().trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
 }
-function tp(e) {
-	let [t, n, r] = np(e);
-	return n < .4 && (n < .1 ? r = 225 : n = .4), `#${rp(t, n, r).map((e) => e.toString(16).padStart(2, "0")).join("")}`;
+function Jm(e) {
+	let [t, n, r] = Ym(e);
+	return n < .4 && (n < .1 ? r = 225 : n = .4), `#${Xm(t, n, r).map((e) => e.toString(16).padStart(2, "0")).join("")}`;
 }
-function np([e, t, n]) {
+function Ym([e, t, n]) {
 	let [r, i, a] = [
 		e,
 		t,
@@ -11887,7 +12088,7 @@ function np([e, t, n]) {
 		o * 255
 	];
 }
-function rp(e, t, n) {
+function Xm(e, t, n) {
 	let r = n / 255 * t, i = e / 60, a = r * (1 - Math.abs(i % 2 - 1)), [o, s, c] = i < 1 ? [
 		r,
 		a,
@@ -11919,8 +12120,8 @@ function rp(e, t, n) {
 		c
 	].map((e) => Math.round((e + l) * 255));
 }
-var ip, ap, op = e((() => {
-	ip = [
+var Zm, Qm, $m = e((() => {
+	Zm = [
 		{
 			value: "light",
 			label: "Lights",
@@ -11963,9 +12164,9 @@ var ip, ap, op = e((() => {
 			icon: "mdi:radiobox-marked",
 			requiresDeviceClass: !0
 		}
-	], ap = new Map(ip.map((e) => [e.value, e]));
-})), sp = /* @__PURE__ */ t((() => {
-	M(), Io(), Qs(), Pt(), B(), $u(), op(), Q();
+	], Qm = new Map(Zm.map((e) => [e.value, e]));
+})), eh = /* @__PURE__ */ t((() => {
+	M(), Io(), Qs(), Pt(), B(), qf(), $m(), Q();
 	var e = "sensor.orbit_status_badge_preview", t = class extends j {
 		static svgCache = z;
 		static properties = {
@@ -11992,7 +12193,7 @@ var ip, ap, op = e((() => {
 			To(this), super.disconnectedCallback();
 		}
 		setConfig(e) {
-			let t = e || {}, n = Qf(t), r = JSON.stringify(t) !== JSON.stringify(n);
+			let t = e || {}, n = Gm(t), r = JSON.stringify(t) !== JSON.stringify(n);
 			if (this._config = n, r) {
 				let e = n;
 				this.updateComplete.then(() => {
@@ -12004,7 +12205,7 @@ var ip, ap, op = e((() => {
 			return X(this.hass, e, t);
 		}
 		_updateConfig(e) {
-			this._config = Qf(Qi(this._config, e)), this._dispatchConfigChanged(this._config);
+			this._config = Gm(Qi(this._config, e)), this._dispatchConfigChanged(this._config);
 		}
 		_dispatchConfigChanged(e) {
 			this.dispatchEvent(new CustomEvent("config-changed", {
@@ -12086,7 +12287,7 @@ var ip, ap, op = e((() => {
 			};
 		}
 		render() {
-			let t = this._getDeviceClassOptions(), i = ip.find((e) => e.value === this._config?.domain), a = [...this._config?.show_state === !1 ? [] : ["state"], ...this._config?.show_icon === !1 ? [] : ["icon"]], o = Xf(this._config), s = this._config?.entity || "", c = o === "entity" && s ? this.hass : this._getStateContentHass(), l = o === "entity" && s ? s : e;
+			let t = this._getDeviceClassOptions(), i = Zm.find((e) => e.value === this._config?.domain), a = [...this._config?.show_state === !1 ? [] : ["state"], ...this._config?.show_icon === !1 ? [] : ["icon"]], o = Um(this._config), s = this._config?.entity || "", c = o === "entity" && s ? this.hass : this._getStateContentHass(), l = o === "entity" && s ? s : e;
 			return D`
       <div class="wrapper">
         <div class="section">
@@ -12386,7 +12587,7 @@ var ip, ap, op = e((() => {
   `;
 	}
 	function i() {
-		return ip.map((e) => ({
+		return Zm.map((e) => ({
 			id: e.value,
 			primary: this._t(e.label),
 			sorting_label: this._t(e.label),
@@ -12394,7 +12595,7 @@ var ip, ap, op = e((() => {
 		}));
 	}
 	function a(e) {
-		let t = ip.find((t) => t.value === e);
+		let t = Zm.find((t) => t.value === e);
 		return t ? D`
     <ha-icon slot="start" .icon=${t.icon}></ha-icon>
     <span slot="headline">${this._t(t.label)}</span>
@@ -12443,8 +12644,8 @@ var ip, ap, op = e((() => {
 	function f(e = "") {
 		return e.replaceAll("_", " ").replace(/\b\w/g, (e) => e.toUpperCase());
 	}
-})), cp = /* @__PURE__ */ t((() => {
-	M(), H(), at(), Jf(), L(), Vt(), Dn(), jn(), Vn(), op(), B(), Q(), sp();
+})), th = /* @__PURE__ */ t((() => {
+	M(), H(), at(), Vm(), L(), Vt(), Dn(), jn(), Vn(), $m(), B(), Q(), eh();
 	var e = class extends j {
 		static svgCache = z;
 		static properties = {
@@ -12459,7 +12660,7 @@ var ip, ap, op = e((() => {
 			return {};
 		}
 		setConfig(e) {
-			Zf(e || {}), this._config = Qf(e || {});
+			Wm(e || {}), this._config = Gm(e || {});
 		}
 		connectedCallback() {
 			super.connectedCallback(), this._isHeadingBadge = !!this.closest("hui-heading-badge"), this.toggleAttribute("heading-badge", this._isHeadingBadge);
@@ -12468,15 +12669,15 @@ var ip, ap, op = e((() => {
 			this._clearDoubleTapTimer(), this._cancelLongPress(), super.disconnectedCallback();
 		}
 		_getEntities() {
-			if (Xf(this._config) === "entity") {
+			if (Um(this._config) === "entity") {
 				let e = this.hass?.states?.[this._config?.entity];
 				return e ? [e] : [];
 			}
-			let e = this._config?.domain || "", t = this._config?.area, n = this._config?.device_class || "", r = Yf(e);
+			let e = this._config?.domain || "", t = this._config?.area, n = this._config?.device_class || "", r = Hm(e);
 			return !this.hass || !t || !e || r.requiresDeviceClass && !n ? [] : Object.values(this.hass.states || {}).filter((i) => i.entity_id.startsWith(`${e}.`) && zn(this.hass, i.entity_id) === t && (!r.requiresDeviceClass || i.attributes?.device_class === n));
 		}
 		_getModel() {
-			let e = Xf(this._config), n = this._getEntities(), r = n.filter((e) => Bt(e)), i = r.length > 0, a = e === "entity" ? n[0] : void 0, o = a?.entity_id.split(".")[0] || this._config?.domain || "", s = Yf(o), c = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), l = this._config?.icon || "", u = i ? this._config?.icon_on || l : this._config?.icon_off || l, d = c === "custom" && u || s.icon, f = i ? this._config?.accent_on_color ?? this._config?.color : this._config?.accent_off_color, p = !f || [
+			let e = Um(this._config), n = this._getEntities(), r = n.filter((e) => Bt(e)), i = r.length > 0, a = e === "entity" ? n[0] : void 0, o = a?.entity_id.split(".")[0] || this._config?.domain || "", s = Hm(o), c = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), l = this._config?.icon || "", u = i ? this._config?.icon_on || l : this._config?.icon_off || l, d = c === "custom" && u || s.icon, f = i ? this._config?.accent_on_color ?? this._config?.color : this._config?.accent_off_color, p = !f || [
 				"theme",
 				"state",
 				"state-active",
@@ -12515,7 +12716,7 @@ var ip, ap, op = e((() => {
 					context: m.context
 				},
 				defaultStateContent: e === "entity" ? "state" : "count",
-				iconColor: p === "theme" ? $f(m, i) : ot(p)
+				iconColor: p === "theme" ? Km(m, i) : ot(p)
 			};
 		}
 		_handleAction(e, t = null) {
@@ -12544,7 +12745,7 @@ var ip, ap, op = e((() => {
 				this._longPressTriggered = !1;
 				return;
 			}
-			let n = Xf(this._config) === "entity" ? { action: "more-info" } : { action: "none" };
+			let n = Um(this._config) === "entity" ? { action: "more-info" } : { action: "none" };
 			return F.call(this, e, t, this._config?.tap_action || n, this._config?.double_tap_action);
 		}
 		_handleDoubleTap(e, t) {
@@ -12654,15 +12855,15 @@ var ip, ap, op = e((() => {
 	function t(e = "") {
 		return e.replaceAll("_", " ").replace(/\b\w/g, (e) => e.toUpperCase());
 	}
-	qf({
+	Bm({
 		tag: "orbit-status-badge",
 		badgeClass: e,
 		name: "Orbit Status Badge",
 		description: "Counts active entities in an area",
 		version: Z.statusBadge
 	});
-})), lp = /* @__PURE__ */ t((() => {
-	td(), $d(), xf(), Kf(), cp();
+})), nh = /* @__PURE__ */ t((() => {
+	Yf(), qp(), mm(), zm(), th();
 }));
 //#endregion
-export default lp();
+export default nh();
