@@ -12104,20 +12104,20 @@ var Kh, qh, Jh, Yh, Xh = e((() => {
 		].some(F);
 	}
 	function c(e = {}, t) {
-		let n = f(e), r = e?.attributes?.[t] || n?.[t];
-		return r?.action ? r : null;
+		let n = e?.attributes?.[t];
+		return n?.action ? n : null;
 	}
 	function l(e = {}) {
 		let t = f(e);
 		return e?.attributes?.entity || m(e?.attributes?.tap_action) || m(e?.attributes?.hold_action) || m(e?.attributes?.double_tap_action) || m(t?.tap_action) || m(t?.hold_action) || m(t?.double_tap_action) || t?.entity || null;
 	}
 	function u(e = {}, t = !1) {
-		let n = f(e), r = jh(e) ? p(n) : n, i = r;
-		if (s(e)) {
-			let { tap_action: e, hold_action: t, double_tap_action: n, ...a } = r;
-			i = a;
-		}
-		return t ? {
+		let n = f(e), r = jh(e) ? p(n) : n, i = r, a = [
+			"tap_action",
+			"hold_action",
+			"double_tap_action"
+		].filter((t) => F(c(e, t)));
+		return a.length && (i = { ...r }, a.forEach((e) => delete i[e])), t ? {
 			...i,
 			hide_background: !0
 		} : i;

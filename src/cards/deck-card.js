@@ -829,10 +829,7 @@ function hasDeckItemActions(item = {}) {
 }
 
 function getDeckItemAction(item = {}, key) {
-  const child = getDeckItemConfig(item);
-  const action =
-    item?.attributes?.[key] ||
-    child?.[key];
+  const action = item?.attributes?.[key];
 
   return action?.action ? action : null;
 }
@@ -860,15 +857,15 @@ function getDeckItemRenderConfig(item = {}, flattenSurface = false) {
     : child;
   let renderConfig = renderChild;
 
-  if (hasDeckItemActions(item)) {
-    const {
-      tap_action,
-      hold_action,
-      double_tap_action,
-      ...actionlessConfig
-    } = renderChild;
+  const overriddenActionKeys = [
+    "tap_action",
+    "hold_action",
+    "double_tap_action",
+  ].filter((key) => isActionEnabled(getDeckItemAction(item, key)));
 
-    renderConfig = actionlessConfig;
+  if (overriddenActionKeys.length) {
+    renderConfig = { ...renderChild };
+    overriddenActionKeys.forEach((key) => delete renderConfig[key]);
   }
 
   // Some custom cards paint their surface through their own configuration
