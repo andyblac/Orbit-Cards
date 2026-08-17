@@ -5,5 +5,5 @@ export const CARD_VERSIONS = {
   status: "0.13.6",
   action: "0.6.5",
   deck: "0.4.1",
-  statusBadge: "0.1.0",
+  statusBadge: "0.2.0",
 };

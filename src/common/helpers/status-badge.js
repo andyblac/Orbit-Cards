@@ -33,15 +33,19 @@ export function getStatusBadgeDomainConfig(domain = "") {
 
 export function getStatusBadgeStateSource(config = {}) {
   const inferredStateSource =
-    !config.entity && (config.area || config.domain || config.device_class)
-      ? "area_count"
-      : "entity";
+    config.state_template
+      ? "template"
+      : !config.entity && (config.area || config.domain || config.device_class)
+        ? "area_count"
+        : "entity";
   const stateSource = config.state_source || inferredStateSource;
 
-  if (["entity", "area_count"].includes(stateSource)) return stateSource;
+  if (["entity", "area_count", "template"].includes(stateSource)) {
+    return stateSource;
+  }
 
   throw new Error(
-    `Invalid state_source "${stateSource}". Expected "entity" or "area_count".`
+    `Invalid state_source "${stateSource}". Expected "entity", "area_count", or "template".`
   );
 }
 
@@ -94,16 +98,30 @@ export function normalizeStatusBadgeColors(config = {}) {
     delete normalized.area;
     delete normalized.domain;
     delete normalized.device_class;
+    delete normalized.state_template;
     if (normalized.state_content === "state") {
       delete normalized.state_content;
     }
     if (normalized.tap_action?.action === "more-info") {
       delete normalized.tap_action;
     }
-  } else {
+  } else if (stateSource === "area_count") {
     normalized.state_source = "area_count";
     delete normalized.entity;
+    delete normalized.state_template;
     if (normalized.state_content === "count") {
+      delete normalized.state_content;
+    }
+    if (normalized.tap_action?.action === "none") {
+      delete normalized.tap_action;
+    }
+  } else {
+    normalized.state_source = "template";
+    delete normalized.entity;
+    delete normalized.area;
+    delete normalized.domain;
+    delete normalized.device_class;
+    if (normalized.state_content === "state") {
       delete normalized.state_content;
     }
     if (normalized.tap_action?.action === "none") {
@@ -148,6 +166,31 @@ export function normalizeStatusBadgeColors(config = {}) {
   delete normalized.color_mode;
 
   return normalized;
+}
+
+export function getTemplateResultActiveState(result) {
+  const value = String(result ?? "").trim();
+  const normalizedValue = value.toLowerCase();
+
+  if (
+    !value ||
+    [
+      "false",
+      "off",
+      "no",
+      "none",
+      "null",
+      "unknown",
+      "unavailable",
+    ].includes(normalizedValue)
+  ) {
+    return false;
+  }
+
+  const numericValue = Number(value);
+  if (Number.isFinite(numericValue)) return numericValue !== 0;
+
+  return true;
 }
 
 export function getNativeEntityBadgeColor(stateObj, isActive = false) {

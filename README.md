@@ -65,8 +65,9 @@ Orbit Cards is available directly from the default HACS repository. Search for `
 - Dynamic entity state updates scoped to only the entities used by each card.
 - Grouped compact layouts for Status Icon only and Action Card.
 - Deck Card layouts for wrapping Lovelace cards into rows, showing them as tabs, or overlaying compact controls on a main card.
-- Entity-compatible status badges plus area/domain active counts, native state
-  content, basic/on/off custom icons, and separate active/inactive colours.
+- Entity-compatible status badges plus area/domain active counts, live Home
+  Assistant Jinja templates, native state content, basic/on/off custom icons,
+  and separate active/inactive colours.
 
 ## Status Badge
 
@@ -111,6 +112,23 @@ device_class: motion
 ```
 
 Lights use `domain: light` without a device-class filter. Both Orbit colour pickers are pre-populated with the shared `State colour (default)` palette option; inside the badge, that option resolves from the representative entity's domain, device class, and exact state, followed by Home Assistant's domain and global active/inactive fallbacks. The editor also provides basic, active, and inactive custom icons.
+
+Template is the third state type and accepts any Home Assistant Jinja template.
+The rendered value updates automatically when an entity referenced by the
+template changes:
+
+```yaml
+type: custom:orbit-status-badge
+state_source: template
+name: Net power
+state_template: >-
+  {{ (states('sensor.consumer_unit_power') | float(0)
+      - states('sensor.boiler_power') | float(0)) | round(2) }} kW
+```
+
+Rendered numeric zero and common off values are treated as inactive for the
+badge colour and active/inactive icon selection. Non-zero numbers and other
+rendered values are treated as active.
 
 ## Installation
 

@@ -33,6 +33,7 @@ import {
   getNativeEntityBadgeColor,
   getStatusBadgeDomainConfig,
   getStatusBadgeStateSource,
+  getTemplateResultActiveState,
   normalizeStatusBadgeColors,
   validateStatusBadgeConfig,
 } from "../common/helpers/status-badge.js";
@@ -41,6 +42,9 @@ import { CARD_VERSIONS } from "../version.js";
 
 import "../editors/status-badge-editor.js";
 
+const TEMPLATE_RESULT_PREFIX = "__ORBIT_TEMPLATE_RESULT_START_8C4F2A__";
+const TEMPLATE_RESULT_SUFFIX = "__ORBIT_TEMPLATE_RESULT_END_8C4F2A__";
+
 class OrbitStatusBadge extends LitElement {
   static svgCache = sharedSvgCache;
 
@@ -48,7 +52,18 @@ class OrbitStatusBadge extends LitElement {
     hass: { attribute: false },
     _config: { state: true },
     _isHeadingBadge: { state: true },
+    _templateError: { state: true },
+    _templateResult: { state: true },
   };
+
+  constructor() {
+    super();
+    this._templateError = "";
+    this._templateResult = "unavailable";
+    this._templateSubscription = undefined;
+    this._templateSubscriptionGeneration = 0;
+    this._templateSubscriptionKey = "";
+  }
 
   static getConfigElement() {
     return document.createElement("orbit-status-badge-editor");
@@ -67,12 +82,111 @@ class OrbitStatusBadge extends LitElement {
     super.connectedCallback();
     this._isHeadingBadge = Boolean(this.closest("hui-heading-badge"));
     this.toggleAttribute("heading-badge", this._isHeadingBadge);
+    queueMicrotask(() => this._syncTemplateSubscription());
   }
 
   disconnectedCallback() {
+    this._disconnectTemplateSubscription();
     this._clearDoubleTapTimer();
     this._cancelLongPress();
     super.disconnectedCallback();
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has("hass") || changedProperties.has("_config")) {
+      this._syncTemplateSubscription();
+    }
+  }
+
+  _disconnectTemplateSubscription() {
+    this._templateSubscriptionGeneration += 1;
+    this._templateSubscriptionKey = "";
+
+    const subscription = this._templateSubscription;
+    this._templateSubscription = undefined;
+
+    subscription?.then((unsubscribe) => unsubscribe()).catch(() => {});
+  }
+
+  _syncTemplateSubscription() {
+    const stateSource = getStatusBadgeStateSource(this._config);
+    const template = this._config?.state_template?.trim() || "";
+    const connection = this.hass?.connection;
+
+    if (
+      !this.isConnected ||
+      stateSource !== "template" ||
+      !template ||
+      !connection?.subscribeMessage
+    ) {
+      if (this._templateSubscription || this._templateSubscriptionKey) {
+        this._disconnectTemplateSubscription();
+      }
+      return;
+    }
+
+    const subscriptionKey = JSON.stringify({
+      template,
+      config: this._config,
+    });
+    if (subscriptionKey === this._templateSubscriptionKey) return;
+
+    this._disconnectTemplateSubscription();
+    this._templateSubscriptionKey = subscriptionKey;
+    this._templateError = "";
+    this._templateResult = "unavailable";
+
+    const generation = this._templateSubscriptionGeneration;
+    const subscribedTemplate =
+      `${TEMPLATE_RESULT_PREFIX}${template}${TEMPLATE_RESULT_SUFFIX}`;
+    const subscription = connection.subscribeMessage(
+      (result) => {
+        if (
+          generation !== this._templateSubscriptionGeneration ||
+          subscriptionKey !== this._templateSubscriptionKey
+        ) {
+          return;
+        }
+
+        if ("error" in result) {
+          this._templateError = result.error || "Template rendering failed";
+          this._templateResult = "unavailable";
+          return;
+        }
+
+        this._templateError = "";
+        const renderedResult = String(result.result ?? "");
+        const resultStart = renderedResult.indexOf(TEMPLATE_RESULT_PREFIX);
+        const resultEnd = renderedResult.lastIndexOf(TEMPLATE_RESULT_SUFFIX);
+        this._templateResult = resultStart !== -1 && resultEnd > resultStart
+          ? renderedResult.slice(
+              resultStart + TEMPLATE_RESULT_PREFIX.length,
+              resultEnd
+            ).trim()
+          : renderedResult.trim();
+      },
+      {
+        type: "render_template",
+        template: subscribedTemplate,
+        variables: { config: this._config },
+        strict: true,
+        report_errors: true,
+      }
+    );
+
+    this._templateSubscription = subscription;
+    subscription.catch((error) => {
+      if (
+        generation !== this._templateSubscriptionGeneration ||
+        subscriptionKey !== this._templateSubscriptionKey
+      ) {
+        return;
+      }
+
+      this._templateSubscription = undefined;
+      this._templateError = error?.message || String(error);
+      this._templateResult = "unavailable";
+    });
   }
 
   _getEntities() {
@@ -104,7 +218,12 @@ class OrbitStatusBadge extends LitElement {
     const activeEntities = entities.filter((stateObj) =>
       getEntityActiveState(stateObj)
     );
-    const isOn = activeEntities.length > 0;
+    const templateResult = stateSource === "template"
+      ? this._templateResult
+      : "";
+    const isOn = stateSource === "template"
+      ? getTemplateResultActiveState(templateResult)
+      : activeEntities.length > 0;
     const selectedEntity = stateSource === "entity" ? entities[0] : undefined;
     const domain = selectedEntity?.entity_id.split(".")[0] ||
       this._config?.domain || "";
@@ -129,14 +248,22 @@ class OrbitStatusBadge extends LitElement {
     ].includes(configuredColor)
       ? "theme"
       : configuredColor;
-    const representativeStateObj = activeEntities[0] || entities[0] || {
-      entity_id: `${domain}.orbit_status_badge`,
-      state: isOn ? "on" : "off",
-      attributes: this._config?.device_class
-        ? { device_class: this._config.device_class }
-        : {},
-    };
-    const iconStateObj = stateSource === "entity"
+    const representativeStateObj = stateSource === "template"
+      ? {
+          entity_id: "sensor.orbit_status_badge_template",
+          state: templateResult || "unavailable",
+          attributes: {
+            friendly_name: this._config?.name || "Template",
+          },
+        }
+      : activeEntities[0] || entities[0] || {
+          entity_id: `${domain || "sensor"}.orbit_status_badge`,
+          state: isOn ? "on" : "off",
+          attributes: this._config?.device_class
+            ? { device_class: this._config.device_class }
+            : {},
+        };
+    const iconStateObj = ["entity", "template"].includes(stateSource)
       ? representativeStateObj
       : {
           entity_id: `${domain}.orbit_status_badge`,
@@ -153,8 +280,9 @@ class OrbitStatusBadge extends LitElement {
     const entityLabel = selectedEntity && this.hass?.formatEntityName
       ? this.hass.formatEntityName(selectedEntity)
       : "";
-    const defaultLabel = entityLabel || areaName || deviceClassLabel ||
-      domainConfig.label;
+    const defaultLabel = stateSource === "template"
+      ? "Template"
+      : entityLabel || areaName || deviceClassLabel || domainConfig.label;
     const label = configuredName && this.hass?.formatEntityName
       ? this.hass.formatEntityName(representativeStateObj, configuredName) ||
         defaultLabel
@@ -174,9 +302,11 @@ class OrbitStatusBadge extends LitElement {
       activeEntities,
       isOn,
       count: activeEntities.length,
-      displayValue: stateSource === "entity"
-        ? representativeStateObj.state
-        : activeEntities.length,
+      displayValue: stateSource === "template"
+        ? templateResult
+        : stateSource === "entity"
+          ? representativeStateObj.state
+          : activeEntities.length,
       label,
       icon,
       iconKey,
@@ -184,7 +314,7 @@ class OrbitStatusBadge extends LitElement {
       stateSource,
       representativeStateObj,
       iconStateObj,
-      displayStateObj: stateSource === "entity"
+      displayStateObj: ["entity", "template"].includes(stateSource)
         ? representativeStateObj
         : {
             entity_id: "sensor.orbit_status_badge_count",
@@ -197,7 +327,7 @@ class OrbitStatusBadge extends LitElement {
             last_updated: representativeStateObj.last_updated,
             context: representativeStateObj.context,
           },
-      defaultStateContent: stateSource === "entity" ? "state" : "count",
+      defaultStateContent: stateSource === "area_count" ? "count" : "state",
       iconColor: colorInput === "theme"
         ? getNativeEntityBadgeColor(representativeStateObj, isOn)
         : computeFullColor(colorInput),
@@ -332,17 +462,19 @@ class OrbitStatusBadge extends LitElement {
     const content = html`
       ${showIcon ? this._renderIcon(model) : ""}
       ${showState
-        ? html`
-            <state-display
-              .hass=${this.hass}
-              .stateObj=${model.displayStateObj}
-              .content=${this._config?.state_content ||
-                model.defaultStateContent}
-              .timeFormat=${this._config?.time_format}
-              .name=${model.label}
-              dash-unavailable
-            ></state-display>
-          `
+        ? model.stateSource === "template"
+          ? html`<span class="template-state">${model.displayValue}</span>`
+          : html`
+              <state-display
+                .hass=${this.hass}
+                .stateObj=${model.displayStateObj}
+                .content=${this._config?.state_content ||
+                  model.defaultStateContent}
+                .timeFormat=${this._config?.time_format}
+                .name=${model.label}
+                dash-unavailable
+              ></state-display>
+            `
         : ""}
     `;
 
@@ -416,6 +548,10 @@ class OrbitStatusBadge extends LitElement {
       width: 100%;
       height: 100%;
     }
+
+    .template-state {
+      white-space: pre-line;
+    }
   `;
 }
 
@@ -429,6 +565,6 @@ registerOrbitBadge({
   tag: "orbit-status-badge",
   badgeClass: OrbitStatusBadge,
   name: "Orbit Status Badge",
-  description: "Counts active entities in an area",
+  description: "Displays an entity, area count, or template state",
   version: CARD_VERSIONS.statusBadge,
 });

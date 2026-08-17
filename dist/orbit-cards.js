@@ -31,8 +31,8 @@ var e = (e, t) => () => (e && (t = e(e = 0)), t), t = (e, t) => () => (t || (e((
 		for (let n of e.cssRules) t += n.cssText;
 		return s(t);
 	})(e) : e;
-})), f, p, m, h, g, ee, _, v, te, ne, re, ie, y, ae, b, oe = e((() => {
-	d(), {is: f, defineProperty: p, getOwnPropertyDescriptor: m, getOwnPropertyNames: h, getOwnPropertySymbols: g, getPrototypeOf: ee} = Object, _ = globalThis, v = _.trustedTypes, te = v ? v.emptyScript : "", ne = _.reactiveElementPolyfillSupport, re = (e, t) => e, ie = {
+})), f, p, m, h, g, ee, _, v, te, ne, y, re, ie, ae, b, oe = e((() => {
+	d(), {is: f, defineProperty: p, getOwnPropertyDescriptor: m, getOwnPropertyNames: h, getOwnPropertySymbols: g, getPrototypeOf: ee} = Object, _ = globalThis, v = _.trustedTypes, te = v ? v.emptyScript : "", ne = _.reactiveElementPolyfillSupport, y = (e, t) => e, re = {
 		toAttribute(e, t) {
 			switch (t) {
 				case Boolean:
@@ -61,13 +61,13 @@ var e = (e, t) => () => (e && (t = e(e = 0)), t), t = (e, t) => () => (t || (e((
 			}
 			return n;
 		}
-	}, y = (e, t) => !f(e, t), ae = {
+	}, ie = (e, t) => !f(e, t), ae = {
 		attribute: !0,
 		type: String,
-		converter: ie,
+		converter: re,
 		reflect: !1,
 		useDefault: !1,
-		hasChanged: y
+		hasChanged: ie
 	}, Symbol.metadata ??= Symbol("metadata"), _.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap(), b = class extends HTMLElement {
 		static addInitializer(e) {
 			this._$Ei(), (this.l ??= []).push(e);
@@ -104,13 +104,13 @@ var e = (e, t) => () => (e && (t = e(e = 0)), t), t = (e, t) => () => (t || (e((
 			return this.elementProperties.get(e) ?? ae;
 		}
 		static _$Ei() {
-			if (this.hasOwnProperty(re("elementProperties"))) return;
+			if (this.hasOwnProperty(y("elementProperties"))) return;
 			let e = ee(this);
 			e.finalize(), e.l !== void 0 && (this.l = [...e.l]), this.elementProperties = new Map(e.elementProperties);
 		}
 		static finalize() {
-			if (this.hasOwnProperty(re("finalized"))) return;
-			if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(re("properties"))) {
+			if (this.hasOwnProperty(y("finalized"))) return;
+			if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(y("properties"))) {
 				let e = this.properties, t = [...h(e), ...g(e)];
 				for (let n of t) this.createProperty(n, e[n]);
 			}
@@ -172,14 +172,14 @@ var e = (e, t) => () => (e && (t = e(e = 0)), t), t = (e, t) => () => (t || (e((
 		_$ET(e, t) {
 			let n = this.constructor.elementProperties.get(e), r = this.constructor._$Eu(e, n);
 			if (r !== void 0 && !0 === n.reflect) {
-				let i = (n.converter?.toAttribute === void 0 ? ie : n.converter).toAttribute(t, n.type);
+				let i = (n.converter?.toAttribute === void 0 ? re : n.converter).toAttribute(t, n.type);
 				this._$Em = e, i == null ? this.removeAttribute(r) : this.setAttribute(r, i), this._$Em = null;
 			}
 		}
 		_$AK(e, t) {
 			let n = this.constructor, r = n._$Eh.get(e);
 			if (r !== void 0 && this._$Em !== r) {
-				let e = n.getPropertyOptions(r), i = typeof e.converter == "function" ? { fromAttribute: e.converter } : e.converter?.fromAttribute === void 0 ? ie : e.converter;
+				let e = n.getPropertyOptions(r), i = typeof e.converter == "function" ? { fromAttribute: e.converter } : e.converter?.fromAttribute === void 0 ? re : e.converter;
 				this._$Em = r;
 				let a = i.fromAttribute(t, e.type);
 				this[r] = a ?? this._$Ej?.get(r) ?? a, this._$Em = null;
@@ -188,7 +188,7 @@ var e = (e, t) => () => (e && (t = e(e = 0)), t), t = (e, t) => () => (t || (e((
 		requestUpdate(e, t, n, r = !1, i) {
 			if (e !== void 0) {
 				let a = this.constructor;
-				if (!1 === r && (i = this[e]), n ??= a.getPropertyOptions(e), !((n.hasChanged ?? y)(i, t) || n.useDefault && n.reflect && i === this._$Ej?.get(e) && !this.hasAttribute(a._$Eu(e, n)))) return;
+				if (!1 === r && (i = this[e]), n ??= a.getPropertyOptions(e), !((n.hasChanged ?? ie)(i, t) || n.useDefault && n.reflect && i === this._$Ej?.get(e) && !this.hasAttribute(a._$Eu(e, n)))) return;
 				this.C(e, t, n);
 			}
 			!1 === this.isUpdatePending && (this._$ES = this._$EP());
@@ -251,7 +251,7 @@ var e = (e, t) => () => (e && (t = e(e = 0)), t), t = (e, t) => () => (t || (e((
 		}
 		updated(e) {}
 		firstUpdated(e) {}
-	}, b.elementStyles = [], b.shadowRootOptions = { mode: "open" }, b[re("elementProperties")] = /* @__PURE__ */ new Map(), b[re("finalized")] = /* @__PURE__ */ new Map(), ne?.({ ReactiveElement: b }), (_.reactiveElementVersions ??= []).push("2.1.2");
+	}, b.elementStyles = [], b.shadowRootOptions = { mode: "open" }, b[y("elementProperties")] = /* @__PURE__ */ new Map(), b[y("finalized")] = /* @__PURE__ */ new Map(), ne?.({ ReactiveElement: b }), (_.reactiveElementVersions ??= []).push("2.1.2");
 }));
 //#endregion
 //#region node_modules/lit-html/lit-html.js
@@ -3336,7 +3336,7 @@ function bo(e, t) {
     </div>
   `;
 }
-var xo, So, Co, Y = e((() => {
+var xo, So, Co, wo = e((() => {
 	M(), L(), xo = {
 		bluegrey: "blue-grey",
 		darkgrey: "dark-grey",
@@ -3408,49 +3408,49 @@ var xo, So, Co, Y = e((() => {
 }));
 //#endregion
 //#region src/common/editor/helpers/helpers.js
-function wo(e) {
+function To(e) {
 	e._editorPopoverCloseHandler || (e._editorPopoverCloseHandler = (t) => {
-		!e._iconPickerKey && !e._colorPickerKey || Eo(t.composedPath?.() || []) || (e._iconPickerKey = "", e._colorPickerKey = "", e._iconFilePickerOpen = !1, e._iconFileSearch = "", e._themeColorPickerOpen = !1, e._themeColorSearch = "", e.requestUpdate?.());
+		!e._iconPickerKey && !e._colorPickerKey || Do(t.composedPath?.() || []) || (e._iconPickerKey = "", e._colorPickerKey = "", e._iconFilePickerOpen = !1, e._iconFileSearch = "", e._themeColorPickerOpen = !1, e._themeColorSearch = "", e.requestUpdate?.());
 	}, document.addEventListener("pointerdown", e._editorPopoverCloseHandler, !0), e.addEventListener("pointerdown", e._editorPopoverCloseHandler, !0));
 }
-function To(e) {
+function Eo(e) {
 	e._editorPopoverCloseHandler &&= (document.removeEventListener("pointerdown", e._editorPopoverCloseHandler, !0), e.removeEventListener("pointerdown", e._editorPopoverCloseHandler, !0), null);
 }
-function Eo(e) {
+function Do(e) {
 	return e.some((e) => {
 		let t = e?.classList, n = e?.tagName?.toLowerCase?.();
 		return t?.contains("icon-popover") || t?.contains("color-popover") || t?.contains("icon-preview") || t?.contains("color-preview") || t?.contains("color-control-button") || t?.contains("mdc-menu-surface") || n === "ha-generic-picker" || n === "ha-icon-picker" || n === "ha-combo-box" || n === "ha-combo-box-item" || n === "mwc-list" || n === "mwc-list-item";
 	});
 }
-function Do(e) {
+function Oo(e) {
 	if (!e) return "background-color: rgb(var(--color-theme));";
 	let t = e.toString().trim().toLowerCase();
 	if (t.startsWith("#") || t.startsWith("rgb(") || t.startsWith("hsl(")) return `background-color:${t};`;
 	let n = t.replace(/[^a-z0-9-_]/g, "");
 	return n ? `background-color: ${ut(n)};` : "background-color: rgb(var(--color-theme));";
 }
-function Oo(e) {
+function ko(e) {
 	let t = e?.toString().trim();
-	return t && (Mo(t) || No(t) || ko(t)) || "#ffffff";
+	return t && (No(t) || Po(t) || Ao(t)) || "#ffffff";
 }
-function ko(e, t = /* @__PURE__ */ new Set()) {
+function Ao(e, t = /* @__PURE__ */ new Set()) {
 	let n = e?.toString().trim().toLowerCase().replace(/[^a-z0-9-_]/g, "");
 	if (!n || t.has(n)) return "";
 	t.add(n);
-	let r = pt(n), i = ft(n) ? jo(r) : "", a = dt(n) ? jo(`${n}-color`) : "", o = jo(n), s = n.startsWith("color-") ? "" : jo(`color-${n}`);
-	return Ao(i, t) || Ao(a, t) || Ao(o, t) || Ao(s, t) || "";
+	let r = pt(n), i = ft(n) ? Mo(r) : "", a = dt(n) ? Mo(`${n}-color`) : "", o = Mo(n), s = n.startsWith("color-") ? "" : Mo(`color-${n}`);
+	return jo(i, t) || jo(a, t) || jo(o, t) || jo(s, t) || "";
 }
-function Ao(e, t) {
+function jo(e, t) {
 	let n = e?.trim();
 	if (!n) return "";
-	let r = Mo(n);
+	let r = No(n);
 	if (r) return r;
-	let i = No(n);
+	let i = Po(n);
 	if (i) return i;
 	let a = n.match(/^var\(\s*--([^),\s]+)\s*\)$/i);
-	return a ? ko(a[1], t) : "";
+	return a ? Ao(a[1], t) : "";
 }
-function jo(e) {
+function Mo(e) {
 	let t = `--${e}`, n = [document.documentElement, document.body].filter(Boolean);
 	for (let e of n) {
 		let n = getComputedStyle(e).getPropertyValue(t).trim();
@@ -3458,37 +3458,37 @@ function jo(e) {
 	}
 	return "";
 }
-function Mo(e) {
+function No(e) {
 	return /^#[0-9a-f]{6}$/i.test(e) ? e : /^#[0-9a-f]{3}$/i.test(e) ? `#${e[1]}${e[1]}${e[2]}${e[2]}${e[3]}${e[3]}` : "";
 }
-function No(e) {
+function Po(e) {
 	let t = e.match(/^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/i);
-	if (t) return Po(Number(t[1]), Number(t[2]), Number(t[3]));
+	if (t) return Fo(Number(t[1]), Number(t[2]), Number(t[3]));
 	let n = e.match(/^\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*$/i);
-	return n ? Po(Number(n[1]), Number(n[2]), Number(n[3])) : "";
+	return n ? Fo(Number(n[1]), Number(n[2]), Number(n[3])) : "";
 }
-function Po(e, t, n) {
-	return `#${Fo(e)}${Fo(t)}${Fo(n)}`;
+function Fo(e, t, n) {
+	return `#${Io(e)}${Io(t)}${Io(n)}`;
 }
-function Fo(e) {
+function Io(e) {
 	return Math.max(0, Math.min(255, e || 0)).toString(16).padStart(2, "0");
 }
-var Io = e((() => {
-	M(), Wi(), Dn(), L(), Zi(), ea(), Y();
+var Lo = e((() => {
+	M(), Wi(), Dn(), L(), Zi(), ea(), wo();
 }));
 //#endregion
 //#region src/common/editor/helpers/name-picker.js
-function Lo({ label: e = "Name", valueKey: t, legacyValueKey: n = "", entityKey: r = "main_entity", areaKey: i = "area", defaultType: a = "", modeKey: o = t } = {}) {
-	return Ro.call(this), customElements.get("ha-entity-name-picker") ? D`
+function Ro({ label: e = "Name", valueKey: t, legacyValueKey: n = "", entityKey: r = "main_entity", areaKey: i = "area", defaultType: a = "", modeKey: o = t } = {}) {
+	return zo.call(this), customElements.get("ha-entity-name-picker") ? D`
     <div class="field name-picker-field">
       <ha-entity-name-picker
         .hass=${this.hass}
         .label=${this._t(e)}
-        .entityId=${is.call(this, {
+        .entityId=${as.call(this, {
 		entityKey: r,
 		areaKey: i
 	})}
-        .value=${Zo(this._config, {
+        .value=${Qo(this._config, {
 		valueKey: t,
 		legacyValueKey: n,
 		entityKey: r,
@@ -3496,10 +3496,10 @@ function Lo({ label: e = "Name", valueKey: t, legacyValueKey: n = "", entityKey:
 		defaultType: a
 	})}
         @value-changed=${(e) => {
-		e.stopPropagation(), es.call(this, {
+		e.stopPropagation(), ts.call(this, {
 			valueKey: t,
 			legacyValueKey: n,
-			value: ts(e.detail.value, this._config, {
+			value: ns(e.detail.value, this._config, {
 				entityKey: r,
 				areaKey: i,
 				defaultType: a
@@ -3508,7 +3508,7 @@ function Lo({ label: e = "Name", valueKey: t, legacyValueKey: n = "", entityKey:
 	}}
       ></ha-entity-name-picker>
     </div>
-  ` : zo.call(this, {
+  ` : Bo.call(this, {
 		label: e,
 		valueKey: t,
 		entityKey: r,
@@ -3517,13 +3517,13 @@ function Lo({ label: e = "Name", valueKey: t, legacyValueKey: n = "", entityKey:
 		modeKey: o
 	});
 }
-function Ro() {
+function zo() {
 	customElements.get("ha-entity-name-picker") || this._namePickerRenderQueued || (this._namePickerRenderQueued = !0, customElements.whenDefined("ha-entity-name-picker").then(() => {
 		this._namePickerRenderQueued = !1, this.requestUpdate?.();
 	}));
 }
-function zo(e) {
-	let t = Wo(this._config, Go(this, e.modeKey), e);
+function Bo(e) {
+	let t = Go(this._config, Ko(this, e.modeKey), e);
 	return D`
     <div class="field name-picker-field name-picker-fallback">
       <div class="field-header">
@@ -3533,26 +3533,26 @@ function zo(e) {
           class="editor-header-button-toggle name-picker-mode-selector"
           .hass=${this.hass}
           .selector=${{ button_toggle: { options: [{
-		label: cs(this, "composed"),
+		label: ls(this, "composed"),
 		value: "composed"
 	}, {
-		label: cs(this, "custom"),
+		label: ls(this, "custom"),
 		value: "custom"
 	}] } }}
           .value=${t}
           @value-changed=${(t) => {
 		t.stopPropagation();
 		let n = t.detail.value || "composed";
-		if (Ko(this, e.modeKey, n), n === "composed") {
-			es.call(this, {
+		if (qo(this, e.modeKey, n), n === "composed") {
+			ts.call(this, {
 				valueKey: e.valueKey,
 				legacyValueKey: e.legacyValueKey,
 				value: void 0
 			});
 			return;
 		}
-		if (typeof $o(this._config, e) != "string") {
-			es.call(this, {
+		if (typeof es(this._config, e) != "string") {
+			ts.call(this, {
 				valueKey: e.valueKey,
 				legacyValueKey: e.legacyValueKey,
 				value: void 0
@@ -3564,19 +3564,19 @@ function zo(e) {
         ></ha-selector>
       </div>
 
-      ${t === "custom" ? Bo.call(this, e) : Vo.call(this, e)}
+      ${t === "custom" ? Vo.call(this, e) : Ho.call(this, e)}
     </div>
   `;
 }
-function Bo(e) {
+function Vo(e) {
 	return D`
     <ha-selector
       class="name-picker-custom-input"
       .hass=${this.hass}
       .selector=${{ text: {} }}
-      .value=${typeof $o(this._config, e) == "string" ? $o(this._config, e) : ""}
+      .value=${typeof es(this._config, e) == "string" ? es(this._config, e) : ""}
       @value-changed=${(t) => {
-		t.stopPropagation(), es.call(this, {
+		t.stopPropagation(), ts.call(this, {
 			valueKey: e.valueKey,
 			legacyValueKey: e.legacyValueKey,
 			value: t.detail.value || void 0
@@ -3585,8 +3585,8 @@ function Bo(e) {
     ></ha-selector>
   `;
 }
-function Vo(e) {
-	let t = qo(this._config, e), n = Yo.call(this, t, e);
+function Ho(e) {
+	let t = Jo(this._config, e), n = Xo.call(this, t, e);
 	return D`
     <ha-generic-picker
       class="name-picker-composed-picker"
@@ -3595,7 +3595,7 @@ function Vo(e) {
       .placeholder=${this._t(e.label)}
       .getItems=${() => n}
       allow-custom-value
-      .customValueLabel=${ds(this)}
+      .customValueLabel=${fs(this)}
       .rowRenderer=${(e) => D`
         <ha-combo-box-item type="button" compact>
           <span slot="headline">${e.primary}</span>
@@ -3603,89 +3603,89 @@ function Vo(e) {
         </ha-combo-box-item>
       `}
       .noSort=${!0}
-      .searchLabel=${us(this)}
+      .searchLabel=${ds(this)}
       @value-changed=${(n) => {
 		n.stopPropagation();
-		let r = Xo(n.detail.value);
-		r && (Ko(this, e.modeKey, "composed"), es.call(this, {
+		let r = Zo(n.detail.value);
+		r && (qo(this, e.modeKey, "composed"), ts.call(this, {
 			valueKey: e.valueKey,
 			legacyValueKey: e.legacyValueKey,
-			value: ts([...t, r], this._config, e)
+			value: ns([...t, r], this._config, e)
 		}));
 	}}
     >
       <div slot="field" class="name-picker-composed-field">
-        ${t.map((n, r) => Ho.call(this, n, r, t, e))}
+        ${t.map((n, r) => Uo.call(this, n, r, t, e))}
 
         <button
           type="button"
           class="name-picker-add-chip"
-          @click=${(e) => Uo(e)}
+          @click=${(e) => Wo(e)}
         >
           <ha-icon icon="mdi:plus"></ha-icon>
-          <span>${ls(this)}</span>
+          <span>${us(this)}</span>
         </button>
       </div>
     </ha-generic-picker>
   `;
 }
-function Ho(e, t, n, r) {
+function Uo(e, t, n, r) {
 	return D`
     <button
       type="button"
       class="name-picker-chip"
-      @click=${(e) => Uo(e)}
+      @click=${(e) => Wo(e)}
     >
       <ha-icon icon="mdi:drag-horizontal-variant"></ha-icon>
-      <span>${Jo.call(this, e)}</span>
+      <span>${Yo.call(this, e)}</span>
       <ha-icon
         class="name-picker-chip-remove"
         icon="mdi:close"
         @click=${(e) => {
 		e.preventDefault(), e.stopPropagation();
 		let i = n.filter((e, n) => n !== t);
-		es.call(this, {
+		ts.call(this, {
 			valueKey: r.valueKey,
 			legacyValueKey: r.legacyValueKey,
-			value: ts(i, this._config, r)
+			value: ns(i, this._config, r)
 		});
 	}}
       ></ha-icon>
     </button>
   `;
 }
-function Uo(e) {
+function Wo(e) {
 	e.preventDefault(), e.stopPropagation(), e.currentTarget?.closest("ha-generic-picker")?.open?.();
 }
-function Wo(e = {}, t, n) {
-	let r = $o(e, n);
+function Go(e = {}, t, n) {
+	let r = es(e, n);
 	return typeof r == "string" ? "custom" : r ? "composed" : t || "composed";
 }
-function Go(e, t) {
+function Ko(e, t) {
 	return e._namePickerModes?.[t];
 }
-function Ko(e, t, n) {
+function qo(e, t, n) {
 	e._namePickerModes = {
 		...e._namePickerModes,
 		[t]: n
 	};
 }
-function qo(e = {}, t) {
-	let n = Zo(e, t);
+function Jo(e = {}, t) {
+	let n = Qo(e, t);
 	return !n || typeof n == "string" ? [] : Array.isArray(n) ? n : [n];
 }
-function Jo(e) {
-	return e ? e.type === "text" ? `"${e.text || ""}"` : e.type === "area" ? this._t("Area") : e.type === "entity" ? this._t("Entity") : fs(this, e.type) : "";
+function Yo(e) {
+	return e ? e.type === "text" ? `"${e.text || ""}"` : e.type === "area" ? this._t("Area") : e.type === "entity" ? this._t("Entity") : ps(this, e.type) : "";
 }
-function Yo(e = [], t) {
-	let n = [], r = new Set(e.filter((e) => e?.type && e.type !== "text").map((e) => e.type)), i = t.areaKey && this._config?.[t.areaKey] ? this.hass?.areas?.[this._config[t.areaKey]] : null, a = is.call(this, t), o = a ? this.hass?.states?.[a] : null;
+function Xo(e = [], t) {
+	let n = [], r = new Set(e.filter((e) => e?.type && e.type !== "text").map((e) => e.type)), i = t.areaKey && this._config?.[t.areaKey] ? this.hass?.areas?.[this._config[t.areaKey]] : null, a = as.call(this, t), o = a ? this.hass?.states?.[a] : null;
 	if (i && !r.has("area")) n.push({
 		id: "area",
 		primary: this._t("Area"),
 		secondary: i.name || ""
 	});
 	else if (o && !r.has("area")) {
-		let e = os(this.hass, o, "area");
+		let e = ss(this.hass, o, "area");
 		e && n.push({
 			id: "area",
 			primary: this._t("Area"),
@@ -3696,24 +3696,24 @@ function Yo(e = [], t) {
 		r.has("entity") || n.push({
 			id: "entity",
 			primary: this._t("Entity"),
-			secondary: os(this.hass, o, "entity")
+			secondary: ss(this.hass, o, "entity")
 		});
-		let e = os(this.hass, o, "device");
+		let e = ss(this.hass, o, "device");
 		e && !r.has("device") && n.push({
 			id: "device",
-			primary: fs(this, "device"),
+			primary: ps(this, "device"),
 			secondary: e
 		});
-		let i = ss(this.hass, this._config?.[t.areaKey]) || os(this.hass, o, "floor");
+		let i = cs(this.hass, this._config?.[t.areaKey]) || ss(this.hass, o, "floor");
 		i && !r.has("floor") && n.push({
 			id: "floor",
-			primary: fs(this, "floor"),
+			primary: ps(this, "floor"),
 			secondary: i
 		});
 	}
 	return n;
 }
-function Xo(e) {
+function Zo(e) {
 	if (e) return [
 		"area",
 		"device",
@@ -3724,20 +3724,20 @@ function Xo(e) {
 		text: e
 	};
 }
-function Zo(e = {}, t) {
-	let n = $o(e, t);
+function Qo(e = {}, t) {
+	let n = es(e, t);
 	if (n !== void 0) return n;
 	if (t.defaultType === "area" && e[t.areaKey]) return { type: "area" };
 	if (t.defaultType === "entity" && (e[t.entityKey] || e.entity)) return { type: "entity" };
 }
-function Qo(e = {}, t) {
+function $o(e = {}, t) {
 	return Object.prototype.hasOwnProperty.call(e, t) && e[t] !== void 0 && e[t] !== "";
 }
-function $o(e = {}, t) {
-	if (Qo(e, t.valueKey)) return e[t.valueKey];
-	if (t.legacyValueKey && Qo(e, t.legacyValueKey)) return e[t.legacyValueKey];
+function es(e = {}, t) {
+	if ($o(e, t.valueKey)) return e[t.valueKey];
+	if (t.legacyValueKey && $o(e, t.legacyValueKey)) return e[t.legacyValueKey];
 }
-function es({ valueKey: e, legacyValueKey: t, value: n }) {
+function ts({ valueKey: e, legacyValueKey: t, value: n }) {
 	if (t && typeof this._updateConfig == "function") {
 		this._updateConfig({
 			[e]: n,
@@ -3747,20 +3747,20 @@ function es({ valueKey: e, legacyValueKey: t, value: n }) {
 	}
 	this._handleConfigUpdate(e, n);
 }
-function ts(e, t = {}, n) {
-	if (!(!e || Array.isArray(e) && e.length === 0) && !(n.defaultType && ns(t, n) && rs(e, n.defaultType))) return e;
+function ns(e, t = {}, n) {
+	if (!(!e || Array.isArray(e) && e.length === 0) && !(n.defaultType && rs(t, n) && is(e, n.defaultType))) return e;
 }
-function ns(e = {}, t) {
+function rs(e = {}, t) {
 	return t.defaultType === "area" ? !!e[t.areaKey] : t.defaultType === "entity" ? !!(e[t.entityKey] || e.entity) : !1;
 }
-function rs(e, t) {
+function is(e, t) {
 	let n = Array.isArray(e) ? e : [e];
 	return n.length === 1 && n[0] && typeof n[0] == "object" && n[0].type === t;
 }
-function is(e) {
-	return this._config?.[e.entityKey] || this._config?.entity || as(this.hass, this._config?.[e.areaKey]);
+function as(e) {
+	return this._config?.[e.entityKey] || this._config?.entity || os(this.hass, this._config?.[e.areaKey]);
 }
-function as(e, t) {
+function os(e, t) {
 	if (!e || !t) return "";
 	let n = e.entities || {}, r = e.devices || {};
 	for (let i of Object.keys(e.states || {})) {
@@ -3769,49 +3769,49 @@ function as(e, t) {
 	}
 	return "";
 }
-function os(e, t, n) {
+function ss(e, t, n) {
 	return !t || typeof e?.formatEntityName != "function" ? n === "entity" && (t?.attributes?.friendly_name || t?.entity_id) || "" : e.formatEntityName(t, { type: n }) || "";
 }
-function ss(e, t) {
+function cs(e, t) {
 	let n = t && e?.areas?.[t] ? e.areas[t].floor_id : "";
 	return n && e?.floors?.[n] && e.floors[n].name || "";
 }
-function cs(e, t) {
+function ls(e, t) {
 	let n = `ui.components.entity.entity-name-picker.mode_${t}`, r = e.hass?.localize?.(n);
 	return r && r !== n ? r : t === "custom" ? e._t("Custom") : "Composed";
 }
-function ls(e) {
+function us(e) {
 	let t = "ui.components.entity.entity-name-picker.add", n = e.hass?.localize?.(t);
 	return n && n !== t ? n : e._t("Add");
 }
-function us(e) {
+function ds(e) {
 	let t = "ui.components.entity.entity-name-picker.search", n = e.hass?.localize?.(t);
 	return n && n !== t ? n : e._t("Search");
 }
-function ds(e) {
+function fs(e) {
 	let t = "ui.components.entity.entity-name-picker.custom_name", n = e.hass?.localize?.(t);
 	return n && n !== t ? n : e._t("Name");
 }
-function fs(e, t) {
+function ps(e, t) {
 	let n = `ui.components.entity.entity-name-picker.types.${t}`, r = e.hass?.localize?.(n);
 	return r && r !== n ? r : t;
 }
-var ps = e((() => {
+var ms = e((() => {
 	M();
 }));
 //#endregion
 //#region src/editors/area/sections/area.js
-function ms() {
+function hs() {
 	return D`
     <div class="section">
-      ${gs.call(this)}
+      ${_s.call(this)}
 
       ${this._renderArea("Area", "area")}
 
       ${this._renderColor(["Accent", "Color"], "accent_color")}
 
       ${this._renderEntity("Main entity", "main_entity")}
-      ${_s.call(this)}
+      ${vs.call(this)}
 
       ${J.call(this, {
 		interactions: [
@@ -3819,7 +3819,7 @@ function ms() {
 				key: "tap_action",
 				formKey: "tap_action",
 				label: "Tap behavior",
-				defaultAction: hs(this._config),
+				defaultAction: gs(this._config),
 				defaultVisible: !0,
 				displayDefaultValue: !0
 			},
@@ -3863,14 +3863,14 @@ function ms() {
     </div>
   `;
 }
-function hs(e = {}) {
+function gs(e = {}) {
 	return {
 		action: "navigate",
 		navigation_path: e.tap_action?.navigation_path || e.navigate?.navigation_path || e.navigation_path || "/lovelace/home"
 	};
 }
-function gs() {
-	return Lo.call(this, {
+function _s() {
+	return Ro.call(this, {
 		label: "Name",
 		valueKey: "area_name",
 		legacyValueKey: "room_name",
@@ -3879,7 +3879,7 @@ function gs() {
 		defaultType: "area"
 	});
 }
-function _s() {
+function vs() {
 	return vi.call(this, {
 		label: "Icon",
 		sourceKey: "main_entity_icon_source",
@@ -3903,16 +3903,16 @@ function _s() {
 		}
 	});
 }
-var vs = e((() => {
-	M(), ps(), Y(), Wi();
+var ys = e((() => {
+	M(), ms(), wo(), Wi();
 }));
 //#endregion
 //#region src/editors/area/sections/buttons.js
-function ys() {
+function bs() {
 	let e = this._selectedButtonIndex || 1;
 	return D`
     <div class="section">
-      ${bs.call(this, [
+      ${xs.call(this, [
 		1,
 		2,
 		3,
@@ -3921,11 +3921,11 @@ function ys() {
 		this._selectedButtonIndex = e;
 	})}
 
-      ${xs.call(this, e)}
+      ${Ss.call(this, e)}
     </div>
   `;
 }
-function bs(e, t, n) {
+function xs(e, t, n) {
 	return D`
     <div
       class="editor-segment-menu"
@@ -3943,7 +3943,7 @@ function bs(e, t, n) {
     </div>
   `;
 }
-function xs(e) {
+function Ss(e) {
 	let t = `button${e}`, n = this._areaButtonDomainFilter || "all";
 	return D`
     <div class="sub-section selected-button-section">
@@ -3952,7 +3952,7 @@ function xs(e) {
 
         ${qa.call(this, {
 		value: this._config?.[t] || "",
-		filterOptions: Ss,
+		filterOptions: Cs,
 		activeFilter: n,
 		onValueChanged: (e) => this._handleEntityUpdate ? this._handleEntityUpdate(t, e) : this._handleConfigUpdate(t, e)
 	})}
@@ -4015,8 +4015,8 @@ function xs(e) {
     </div>
   `;
 }
-var Ss, Cs = e((() => {
-	M(), Y(), Wi(), Ss = [
+var Cs, ws = e((() => {
+	M(), wo(), Wi(), Cs = [
 		{
 			label: "All",
 			value: "all",
@@ -4038,7 +4038,7 @@ var Ss, Cs = e((() => {
 }));
 //#endregion
 //#region src/editors/area/sections/curve-buttons.js
-function ws() {
+function Ts() {
 	let e = this._selectedCurveButtonIndex || 1;
 	return D`
     <div class="section">
@@ -4052,7 +4052,7 @@ function ws() {
 
       <div class="curve-divider"></div>
 
-      ${Es.call(this, [
+      ${Ds.call(this, [
 		1,
 		2,
 		3,
@@ -4063,27 +4063,27 @@ function ws() {
 		this._selectedCurveButtonIndex = e;
 	})}
 
-      ${Ds.call(this, `curve_button${e}`, "", "more-info", { index: e }, {
+      ${Os.call(this, `curve_button${e}`, "", "more-info", { index: e }, {
 		showColors: !0,
 		filteredEntity: !0,
 		filterKey: "_areaCurveButtonDomainFilter",
-		filters: js
+		filters: Ms
 	})}
     </div>
   `;
 }
-function Ts() {
+function Es() {
 	let e = Hn(this._config?.action_button);
 	return D`
     <div class="section">
-      ${Ds.call(this, "action_button", "", e, {}, {
+      ${Os.call(this, "action_button", "", e, {}, {
 		showColors: !0,
 		filteredEntity: !0
 	})}
     </div>
   `;
 }
-function Es(e, t, n) {
+function Ds(e, t, n) {
 	return D`
     <div class="editor-segment-menu">
       ${e.map((e) => D`
@@ -4098,7 +4098,7 @@ function Es(e, t, n) {
     </div>
   `;
 }
-function Ds(e, t, n, r = {}, i = {}) {
+function Os(e, t, n, r = {}, i = {}) {
 	let a = this._config?.[e];
 	return D`
     <div class="sub-section selected-button-section">
@@ -4108,12 +4108,12 @@ function Ds(e, t, n, r = {}, i = {}) {
             </div>
           ` : ""}
 
-      ${i.filteredEntity ? Os.call(this, "Entity", e, i) : this._renderEntity("Entity", e)}
+      ${i.filteredEntity ? ks.call(this, "Entity", e, i) : this._renderEntity("Entity", e)}
 
       ${i.showColors ? D`
             <div class="color-pair">
-              ${ks.call(this, ["Active", "Color"], `${e}_on_color`)}
-              ${ks.call(this, ["Inactive", "Color"], `${e}_off_color`)}
+              ${As.call(this, ["Active", "Color"], `${e}_on_color`)}
+              ${As.call(this, ["Inactive", "Color"], `${e}_off_color`)}
             </div>
           ` : ""}
 
@@ -4169,8 +4169,8 @@ function Ds(e, t, n, r = {}, i = {}) {
     </div>
   `;
 }
-function Os(e, t, n = {}) {
-	let r = this[n.filterKey || "_areaActionButtonDomainFilter"] || "all", i = n.filters || As;
+function ks(e, t, n = {}) {
+	let r = this[n.filterKey || "_areaActionButtonDomainFilter"] || "all", i = n.filters || js;
 	return D`
     <div class="field">
       <label>${this._t(e)}</label>
@@ -4184,12 +4184,12 @@ function Os(e, t, n = {}) {
     </div>
   `;
 }
-function ks(e, t) {
+function As(e, t) {
 	let n = this._config?.[t] || "", r = n === "theme" ? "" : n, i = r || this._config?.accent_color || "theme";
 	return this._renderColorControl(e, t, r, (e) => this._handleConfigUpdate(t, e), i);
 }
-var As, js, Ms = e((() => {
-	M(), Y(), Wi(), Gn(), As = [
+var js, Ms, Ns = e((() => {
+	M(), wo(), Wi(), Gn(), js = [
 		{
 			label: "All",
 			value: "all",
@@ -4229,7 +4229,7 @@ var As, js, Ms = e((() => {
 			value: "script",
 			domains: ["script"]
 		}
-	], js = [
+	], Ms = [
 		{
 			label: "All",
 			value: "all",
@@ -4260,8 +4260,8 @@ var As, js, Ms = e((() => {
 			domains: ["switch"]
 		}
 	];
-})), Ns, Ps = e((() => {
-	M(), Ns = c`
+})), Ps, Fs = e((() => {
+	M(), Ps = c`
 :host {
   display: block;
   font-family: var(--ha-font-family-body, var(--mdc-typography-font-family, Roboto, Noto, sans-serif));
@@ -4310,8 +4310,8 @@ var As, js, Ms = e((() => {
   gap: 12px;
 }
 `;
-})), Fs, Is = e((() => {
-	M(), Fs = c`
+})), Is, Ls = e((() => {
+	M(), Is = c`
 .section {
   display: flex;
   flex-direction: column;
@@ -4350,8 +4350,8 @@ var As, js, Ms = e((() => {
   background: var(--orbit-editor-border);
 }
 `;
-})), Ls, Rs = e((() => {
-	M(), Ls = c`
+})), Rs, zs = e((() => {
+	M(), Rs = c`
 .section-header {
   display: flex;
   align-items: center;
@@ -4403,8 +4403,8 @@ var As, js, Ms = e((() => {
   line-height: 1;
 }
 `;
-})), zs, Bs = e((() => {
-	M(), zs = c`
+})), Bs, Vs = e((() => {
+	M(), Bs = c`
 .field {
   display: flex;
   flex-direction: column;
@@ -4615,8 +4615,8 @@ select {
 }
 
 `;
-})), Vs, Hs = e((() => {
-	M(), Vs = c`
+})), Hs, Us = e((() => {
+	M(), Hs = c`
 .entity-picker {
   width: 100%;
   display: block;
@@ -4628,8 +4628,8 @@ select {
 }
 
 `;
-})), Us, Ws = e((() => {
-	M(), Us = c`
+})), Ws, Gs = e((() => {
+	M(), Ws = c`
 .color-row {
   position: relative;
 }
@@ -5314,8 +5314,8 @@ select {
   overflow-wrap: anywhere;
 }
 `;
-})), Gs, Ks = e((() => {
-	M(), Gs = c`
+})), Ks, qs = e((() => {
+	M(), Ks = c`
 .action-field {
   display: flex;
   flex-direction: column;
@@ -5390,8 +5390,8 @@ select {
   min-height: 56px;
 }
 `;
-})), qs, Js = e((() => {
-	M(), qs = c`
+})), Js, Ys = e((() => {
+	M(), Js = c`
 .editor-version {
   padding: 0 14px;
   font-size: var(--ha-font-size-xs, 11px);
@@ -5401,8 +5401,8 @@ select {
   text-align: right;
 }
 `;
-})), Ys, Xs = e((() => {
-	M(), Ys = c`
+})), Xs, Zs = e((() => {
+	M(), Xs = c`
 .editor-tabs {
   display: flex;
   align-items: end;
@@ -5486,41 +5486,43 @@ select {
   opacity: 0.62;
 }
 `;
-})), Zs, Qs = e((() => {
-	Ps(), Is(), Rs(), Bs(), Hs(), Ws(), Ks(), Js(), Xs(), Zs = [
-		Ns,
-		Fs,
-		Ls,
-		zs,
-		Vs,
-		Us,
-		Gs,
-		qs,
-		Ys
+})), Qs, $s = e((() => {
+	Fs(), Ls(), zs(), Vs(), Us(), Gs(), qs(), Ys(), Zs(), Qs = [
+		Ps,
+		Is,
+		Rs,
+		Bs,
+		Hs,
+		Ws,
+		Ks,
+		Js,
+		Xs
 	];
-})), $s, ec, tc, nc, rc, ic, ac, oc, sc, cc, lc, uc, dc, fc, pc, mc, hc, gc, _c, vc, yc, bc, xc, Sc, Cc, wc, Tc, Ec, Dc, Oc, kc, Ac = e((() => {
-	$s = "Active", ec = "Area", tc = "Color", nc = "Content", rc = "Custom", ic = "Domain", ac = "Entity", oc = "Icon", sc = "Inactive", cc = "Interactions", lc = "Name", uc = "State", dc = "Type", fc = "Cards", pc = "Dynamic", mc = "Equal", hc = "Files", gc = "Separator", _c = "Main", vc = "Overlay", yc = "Crop", bc = "Resize", xc = "Position", Sc = "Width", Cc = "Height", wc = "Right", Tc = "Bottom", Ec = "Left", Dc = "Background", Oc = "Tabs", kc = {
-		Active: $s,
-		Area: ec,
+})), ec, tc, nc, rc, ic, ac, oc, sc, cc, lc, uc, dc, fc, pc, mc, hc, gc, _c, vc, yc, bc, xc, Sc, Cc, wc, Tc, Ec, Dc, Oc, kc, Ac, jc, Mc, Nc = e((() => {
+	ec = "Active", tc = "Area", nc = "Color", rc = "Content", ic = "Custom", ac = "Default", oc = "Domain", sc = "Entity", cc = "Icon", lc = "Inactive", uc = "Interactions", dc = "Name", fc = "State", pc = "Template", mc = "Type", hc = "Cards", gc = "Dynamic", _c = "Equal", vc = "Files", yc = "Separator", bc = "Main", xc = "Overlay", Sc = "Crop", Cc = "Resize", wc = "Position", Tc = "Width", Ec = "Height", Dc = "Right", Oc = "Bottom", kc = "Left", Ac = "Background", jc = "Tabs", Mc = {
+		Active: ec,
+		Area: tc,
 		"Area Count": "Area Count",
-		Color: tc,
-		Content: nc,
-		Custom: rc,
+		Color: nc,
+		Content: rc,
+		Custom: ic,
+		Default: ac,
 		"Device class": "Device class",
 		"Displayed elements": "Displayed elements",
-		Domain: ic,
+		Domain: oc,
 		"Double tap behavior": "Double tap behavior",
-		Entity: ac,
+		Entity: sc,
 		"Hold behavior": "Hold behavior",
-		Icon: oc,
-		Inactive: sc,
-		Interactions: cc,
-		Name: lc,
-		State: uc,
+		Icon: cc,
+		Inactive: lc,
+		Interactions: uc,
+		Name: dc,
+		State: fc,
 		"State content": "State content",
 		"State type": "State type",
 		"Tap behavior": "Tap behavior",
-		Type: dc,
+		Template: pc,
+		Type: mc,
 		"Visible if selected in state content": "Visible if selected in state content",
 		"Accent color": "Accent color",
 		"Action button": "Action button",
@@ -5528,14 +5530,14 @@ select {
 		"Add a card to start.": "Add a card to start.",
 		"Battery entity {index}": "Battery entity {index}",
 		"Button {index}": "Button {index}",
-		Cards: fc,
+		Cards: hc,
 		"Choose color": "Choose color",
 		"Choose icon": "Choose icon",
 		"Curve buttons": "Curve buttons",
-		Dynamic: pc,
+		Dynamic: gc,
 		"ETA entity": "ETA entity",
-		Equal: mc,
-		Files: hc,
+		Equal: _c,
+		Files: vc,
 		"Icon only": "Icon only",
 		"Items per row": "Items per row",
 		"Label template": "Label template",
@@ -5560,7 +5562,7 @@ select {
 		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}",
 		"Person entity": "Person entity",
 		"Separate cards": "Separate cards",
-		Separator: gc,
+		Separator: yc,
 		"State light color": "State light color",
 		"State color (default)": "State color (default)",
 		"State color": "State color",
@@ -5571,49 +5573,51 @@ select {
 		"Status sensors": "Status sensors",
 		"Card background": "Card background",
 		"Force padding": "Force padding",
-		Main: _c,
-		Overlay: vc,
-		Crop: yc,
-		Resize: bc,
-		Position: xc,
-		Width: Sc,
-		Height: Cc,
+		Main: bc,
+		Overlay: xc,
+		Crop: Sc,
+		Resize: Cc,
+		Position: wc,
+		Width: Tc,
+		Height: Ec,
 		Top: "Top",
 		"Transparent background": "Transparent background",
-		Right: wc,
-		Bottom: Tc,
-		Left: Ec,
+		Right: Dc,
+		Bottom: Oc,
+		Left: kc,
 		"Primary text color": "Primary text color",
 		"Secondary background color": "Secondary background color",
-		Background: Dc,
+		Background: Ac,
 		"Tab font size": "Tab font size",
 		"Tab width": "Tab width",
-		Tabs: Oc,
+		Tabs: jc,
 		"Tracker entity": "Tracker entity"
 	};
-})), jc, Mc, Nc, Pc, Fc, Ic, Lc, Rc, zc, Bc, Vc, Hc, Uc, Wc, Gc, Kc, qc, Jc, Yc, Xc, Zc, Qc, $c, el, tl, nl, rl, il, al, ol, sl, cl = e((() => {
-	jc = "Active", Mc = "Area", Nc = "Colour", Pc = "Content", Fc = "Custom", Ic = "Domain", Lc = "Entity", Rc = "Icon", zc = "Inactive", Bc = "Interactions", Vc = "Name", Hc = "State", Uc = "Type", Wc = "Cards", Gc = "Dynamic", Kc = "Equal", qc = "Files", Jc = "Separator", Yc = "Main", Xc = "Overlay", Zc = "Crop", Qc = "Resize", $c = "Position", el = "Width", tl = "Height", nl = "Right", rl = "Bottom", il = "Left", al = "Background", ol = "Tabs", sl = {
-		Active: jc,
-		Area: Mc,
+})), Pc, Fc, Ic, Lc, Rc, zc, Bc, Vc, Hc, Uc, Wc, Gc, Kc, qc, Jc, Yc, Xc, Zc, Qc, $c, el, tl, nl, rl, il, al, ol, sl, cl, ll, ul, dl, fl, pl = e((() => {
+	Pc = "Active", Fc = "Area", Ic = "Colour", Lc = "Content", Rc = "Custom", zc = "Default", Bc = "Domain", Vc = "Entity", Hc = "Icon", Uc = "Inactive", Wc = "Interactions", Gc = "Name", Kc = "State", qc = "Template", Jc = "Type", Yc = "Cards", Xc = "Dynamic", Zc = "Equal", Qc = "Files", $c = "Separator", el = "Main", tl = "Overlay", nl = "Crop", rl = "Resize", il = "Position", al = "Width", ol = "Height", sl = "Right", cl = "Bottom", ll = "Left", ul = "Background", dl = "Tabs", fl = {
+		Active: Pc,
+		Area: Fc,
 		"Area Count": "Area Count",
-		Color: Nc,
-		Content: Pc,
-		Custom: Fc,
+		Color: Ic,
+		Content: Lc,
+		Custom: Rc,
+		Default: zc,
 		"Device class": "Device class",
 		"Displayed elements": "Displayed elements",
-		Domain: Ic,
+		Domain: Bc,
 		"Double tap behavior": "Double tap behaviour",
-		Entity: Lc,
+		Entity: Vc,
 		"Hold behavior": "Hold behaviour",
-		Icon: Rc,
-		Inactive: zc,
-		Interactions: Bc,
-		Name: Vc,
-		State: Hc,
+		Icon: Hc,
+		Inactive: Uc,
+		Interactions: Wc,
+		Name: Gc,
+		State: Kc,
 		"State content": "State content",
 		"State type": "State type",
 		"Tap behavior": "Tap behaviour",
-		Type: Uc,
+		Template: qc,
+		Type: Jc,
 		"Visible if selected in state content": "Visible if selected in state content",
 		"Accent color": "Accent colour",
 		"Action button": "Action button",
@@ -5621,14 +5625,14 @@ select {
 		"Add a card to start.": "Add a card to start.",
 		"Battery entity {index}": "Battery entity {index}",
 		"Button {index}": "Button {index}",
-		Cards: Wc,
+		Cards: Yc,
 		"Choose color": "Choose colour",
 		"Choose icon": "Choose icon",
 		"Curve buttons": "Curve buttons",
-		Dynamic: Gc,
+		Dynamic: Xc,
 		"ETA entity": "ETA entity",
-		Equal: Kc,
-		Files: qc,
+		Equal: Zc,
+		Files: Qc,
 		"Icon only": "Icon only",
 		"Items per row": "Items per row",
 		"Label template": "Label template",
@@ -5653,7 +5657,7 @@ select {
 		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}",
 		"Person entity": "Person entity",
 		"Separate cards": "Separate cards",
-		Separator: Jc,
+		Separator: $c,
 		"State light color": "State light colour",
 		"State color (default)": "State colour (default)",
 		"State color": "State colour",
@@ -5664,48 +5668,50 @@ select {
 		"Status sensors": "Status sensors",
 		"Card background": "Card background",
 		"Force padding": "Force padding",
-		Main: Yc,
-		Overlay: Xc,
-		Crop: Zc,
-		Resize: Qc,
-		Position: $c,
-		Width: el,
-		Height: tl,
+		Main: el,
+		Overlay: tl,
+		Crop: nl,
+		Resize: rl,
+		Position: il,
+		Width: al,
+		Height: ol,
 		Top: "Top",
 		"Transparent background": "Transparent background",
-		Right: nl,
-		Bottom: rl,
-		Left: il,
+		Right: sl,
+		Bottom: cl,
+		Left: ll,
 		"Primary text color": "Primary text colour",
 		"Secondary background color": "Secondary background colour",
-		Background: al,
+		Background: ul,
 		"Tab font size": "Tab font size",
 		"Tab width": "Tab width",
-		Tabs: ol,
+		Tabs: dl,
 		"Tracker entity": "Tracker entity"
 	};
-})), ll, ul, dl, fl, pl, ml, hl, gl, _l, vl, yl, bl, xl, Sl, Cl, wl, Tl, El, Dl, Ol, kl, Al, jl, Ml, Nl, Pl, Fl, Il, Ll, Rl, zl, Bl = e((() => {
-	ll = "Aktiv", ul = "Bereich", dl = "Farbe", fl = "Inhalt", pl = "Benutzerdefiniert", ml = "Domäne", hl = "Entität", gl = "Symbol", _l = "Inaktiv", vl = "Interaktionen", yl = "Name", bl = "Zustand", xl = "Karten", Sl = "Dynamisch", Cl = "Gleich", wl = "Dateien", Tl = "Trennzeichen", El = "Hauptkarte", Dl = "Überlagerung", Ol = "Zuschneiden", kl = "Größe ändern", Al = "Position", jl = "Breite", Ml = "Höhe", Nl = "Oben", Pl = "Rechts", Fl = "Unten", Il = "Links", Ll = "Hintergrund", Rl = "Tabs", zl = {
-		Active: ll,
-		Area: ul,
+})), ml, hl, gl, _l, vl, yl, bl, xl, Sl, Cl, wl, Tl, El, Dl, Ol, kl, Al, jl, Ml, Nl, Pl, Fl, Il, Ll, Rl, zl, Bl, Vl, Hl, Ul, Wl, Gl, Kl, ql = e((() => {
+	ml = "Aktiv", hl = "Bereich", gl = "Farbe", _l = "Inhalt", vl = "Benutzerdefiniert", yl = "Standard", bl = "Domäne", xl = "Entität", Sl = "Symbol", Cl = "Inaktiv", wl = "Interaktionen", Tl = "Name", El = "Zustand", Dl = "Vorlage", Ol = "Karten", kl = "Dynamisch", Al = "Gleich", jl = "Dateien", Ml = "Trennzeichen", Nl = "Hauptkarte", Pl = "Überlagerung", Fl = "Zuschneiden", Il = "Größe ändern", Ll = "Position", Rl = "Breite", zl = "Höhe", Bl = "Oben", Vl = "Rechts", Hl = "Unten", Ul = "Links", Wl = "Hintergrund", Gl = "Tabs", Kl = {
+		Active: ml,
+		Area: hl,
 		"Area Count": "Bereichszähler",
-		Color: dl,
-		Content: fl,
-		Custom: pl,
+		Color: gl,
+		Content: _l,
+		Custom: vl,
+		Default: yl,
 		"Device class": "Geräteklasse",
 		"Displayed elements": "Angezeigte Elemente",
-		Domain: ml,
+		Domain: bl,
 		"Double tap behavior": "Doppeltippverhalten",
-		Entity: hl,
+		Entity: xl,
 		"Hold behavior": "Halteverhalten",
-		Icon: gl,
-		Inactive: _l,
-		Interactions: vl,
-		Name: yl,
-		State: bl,
+		Icon: Sl,
+		Inactive: Cl,
+		Interactions: wl,
+		Name: Tl,
+		State: El,
 		"State content": "Zustandsinhalt",
 		"State type": "Zustandstyp",
 		"Tap behavior": "Tippverhalten",
+		Template: Dl,
 		Type: "Typ",
 		"Visible if selected in state content": "Sichtbar, wenn im Zustandsinhalt ausgewählt",
 		"Accent color": "Akzentfarbe",
@@ -5714,14 +5720,14 @@ select {
 		"Add a card to start.": "Füge eine Karte hinzu, um zu beginnen.",
 		"Battery entity {index}": "Batterie-Entität {index}",
 		"Button {index}": "Taste {index}",
-		Cards: xl,
+		Cards: Ol,
 		"Choose color": "Farbe auswählen",
 		"Choose icon": "Symbol auswählen",
 		"Curve buttons": "Bogen-Tasten",
-		Dynamic: Sl,
+		Dynamic: kl,
 		"ETA entity": "ETA-Entität",
-		Equal: Cl,
-		Files: wl,
+		Equal: Al,
+		Files: jl,
 		"Icon only": "Nur Symbol",
 		"Items per row": "Elemente pro Zeile",
 		"Label template": "Beschriftungsvorlage",
@@ -5739,7 +5745,7 @@ select {
 		"No matching files": "Keine passenden Dateien",
 		"Person entity": "Personen-Entität",
 		"Separate cards": "Separate Karten",
-		Separator: Tl,
+		Separator: Ml,
 		"State light color": "Lichtstatusfarbe",
 		"State color (default)": "Statusfarbe (Standard)",
 		"State color": "Statusfarbe",
@@ -5750,24 +5756,24 @@ select {
 		"Status sensors": "Statussensoren",
 		"Card background": "Kartenhintergrund",
 		"Force padding": "Padding erzwingen",
-		Main: El,
-		Overlay: Dl,
-		Crop: Ol,
-		Resize: kl,
-		Position: Al,
-		Width: jl,
-		Height: Ml,
-		Top: Nl,
+		Main: Nl,
+		Overlay: Pl,
+		Crop: Fl,
+		Resize: Il,
+		Position: Ll,
+		Width: Rl,
+		Height: zl,
+		Top: Bl,
 		"Transparent background": "Transparenter Hintergrund",
-		Right: Pl,
-		Bottom: Fl,
-		Left: Il,
+		Right: Vl,
+		Bottom: Hl,
+		Left: Ul,
 		"Primary text color": "Primäre Textfarbe",
 		"Secondary background color": "Sekundäre Hintergrundfarbe",
-		Background: Ll,
+		Background: Wl,
 		"Tab font size": "Tab-Schriftgröße",
 		"Tab width": "Tab-Breite",
-		Tabs: Rl,
+		Tabs: Gl,
 		"Tracker entity": "Tracker-Entität",
 		"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "Keine Dateien gefunden. Füge ein lokales Symbolmanifest unter /local/icons/manifest.json hinzu oder gib den Dateinamen manuell ein.",
 		"Orbit Action Card v{version}": "Orbit Action Card v{version}",
@@ -5777,29 +5783,31 @@ select {
 		"Orbit Status Card v{version}": "Orbit Status Card v{version}",
 		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 	};
-})), Vl, Hl, Ul, Wl, Gl, Kl, ql, Jl, Yl, Xl, Zl, Ql, $l, eu, tu, nu, ru, iu, au, ou, su, cu, lu, uu, du, fu, pu, mu, hu, gu, _u, vu, yu = e((() => {
-	Vl = "Activo", Hl = "Área", Ul = "Color", Wl = "Contenido", Gl = "Personalizado", Kl = "Dominio", ql = "Entidad", Jl = "Icono", Yl = "Inactivo", Xl = "Interacciones", Zl = "Nombre", Ql = "Estado", $l = "Tipo", eu = "Tarjetas", tu = "Dinámico", nu = "Igual", ru = "Archivos", iu = "Separador", au = "Principal", ou = "Superposición", su = "Recortar", cu = "Redimensionar", lu = "Posición", uu = "Ancho", du = "Alto", fu = "Arriba", pu = "Derecha", mu = "Abajo", hu = "Izquierda", gu = "Fondo", _u = "Pestañas", vu = {
-		Active: Vl,
-		Area: Hl,
+})), Jl, Yl, Xl, Zl, Ql, $l, eu, tu, nu, ru, iu, au, ou, su, cu, lu, uu, du, fu, pu, mu, hu, gu, _u, vu, yu, bu, xu, Su, Cu, wu, Tu, Eu, Du, Ou = e((() => {
+	Jl = "Activo", Yl = "Área", Xl = "Color", Zl = "Contenido", Ql = "Personalizado", $l = "Predeterminado", eu = "Dominio", tu = "Entidad", nu = "Icono", ru = "Inactivo", iu = "Interacciones", au = "Nombre", ou = "Estado", su = "Plantilla", cu = "Tipo", lu = "Tarjetas", uu = "Dinámico", du = "Igual", fu = "Archivos", pu = "Separador", mu = "Principal", hu = "Superposición", gu = "Recortar", _u = "Redimensionar", vu = "Posición", yu = "Ancho", bu = "Alto", xu = "Arriba", Su = "Derecha", Cu = "Abajo", wu = "Izquierda", Tu = "Fondo", Eu = "Pestañas", Du = {
+		Active: Jl,
+		Area: Yl,
 		"Area Count": "Recuento de área",
-		Color: Ul,
-		Content: Wl,
-		Custom: Gl,
+		Color: Xl,
+		Content: Zl,
+		Custom: Ql,
+		Default: $l,
 		"Device class": "Clase de dispositivo",
 		"Displayed elements": "Elementos mostrados",
-		Domain: Kl,
+		Domain: eu,
 		"Double tap behavior": "Comportamiento al tocar dos veces",
-		Entity: ql,
+		Entity: tu,
 		"Hold behavior": "Comportamiento al mantener pulsado",
-		Icon: Jl,
-		Inactive: Yl,
-		Interactions: Xl,
-		Name: Zl,
-		State: Ql,
+		Icon: nu,
+		Inactive: ru,
+		Interactions: iu,
+		Name: au,
+		State: ou,
 		"State content": "Contenido del estado",
 		"State type": "Tipo de estado",
 		"Tap behavior": "Comportamiento al tocar",
-		Type: $l,
+		Template: su,
+		Type: cu,
 		"Visible if selected in state content": "Visible si se selecciona en el contenido del estado",
 		"Accent color": "Color de acento",
 		"Action button": "Botón de acción",
@@ -5807,14 +5815,14 @@ select {
 		"Add a card to start.": "Añade una tarjeta para empezar.",
 		"Battery entity {index}": "Entidad de batería {index}",
 		"Button {index}": "Botón {index}",
-		Cards: eu,
+		Cards: lu,
 		"Choose color": "Elegir color",
 		"Choose icon": "Elegir icono",
 		"Curve buttons": "Botones curvos",
-		Dynamic: tu,
+		Dynamic: uu,
 		"ETA entity": "Entidad ETA",
-		Equal: nu,
-		Files: ru,
+		Equal: du,
+		Files: fu,
 		"Icon only": "Solo icono",
 		"Items per row": "Elementos por fila",
 		"Label template": "Plantilla de etiqueta",
@@ -5832,7 +5840,7 @@ select {
 		"No matching files": "No hay archivos coincidentes",
 		"Person entity": "Entidad de persona",
 		"Separate cards": "Tarjetas separadas",
-		Separator: iu,
+		Separator: pu,
 		"State light color": "Color de luz de estado",
 		"State color (default)": "Color de estado (predeterminado)",
 		"State color": "Color de estado",
@@ -5843,24 +5851,24 @@ select {
 		"Status sensors": "Sensores de estado",
 		"Card background": "Fondo de tarjeta",
 		"Force padding": "Forzar relleno",
-		Main: au,
-		Overlay: ou,
-		Crop: su,
-		Resize: cu,
-		Position: lu,
-		Width: uu,
-		Height: du,
-		Top: fu,
+		Main: mu,
+		Overlay: hu,
+		Crop: gu,
+		Resize: _u,
+		Position: vu,
+		Width: yu,
+		Height: bu,
+		Top: xu,
 		"Transparent background": "Fondo transparente",
-		Right: pu,
-		Bottom: mu,
-		Left: hu,
+		Right: Su,
+		Bottom: Cu,
+		Left: wu,
 		"Primary text color": "Color de texto primario",
 		"Secondary background color": "Color de fondo secundario",
-		Background: gu,
+		Background: Tu,
 		"Tab font size": "Tamaño de fuente de pestaña",
 		"Tab width": "Ancho de pestaña",
-		Tabs: _u,
+		Tabs: Eu,
 		"Tracker entity": "Entidad de seguimiento",
 		"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "No se encontraron archivos. Añade un manifiesto de iconos local en /local/icons/manifest.json o escribe el nombre del archivo manualmente.",
 		"Orbit Action Card v{version}": "Orbit Action Card v{version}",
@@ -5870,29 +5878,31 @@ select {
 		"Orbit Status Card v{version}": "Orbit Status Card v{version}",
 		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 	};
-})), bu, xu, Su, Cu, wu, Tu, Eu, Du, Ou, ku, Au, ju, Mu, Nu, Pu, Fu, Iu, Lu, Ru, zu, Bu, Vu, Hu, Uu, Wu, Gu, Ku, qu, Ju, Yu, Xu = e((() => {
-	bu = "Actif", xu = "Zone", Su = "Couleur", Cu = "Contenu", wu = "Personnalisé", Tu = "Domaine", Eu = "Entité", Du = "Icône", Ou = "Inactif", ku = "Interactions", Au = "État", ju = "Type", Mu = "Cartes", Nu = "Dynamique", Pu = "Égal", Fu = "Fichiers", Iu = "Séparateur", Lu = "Principal", Ru = "Superposition", zu = "Recadrer", Bu = "Redimensionner", Vu = "Position", Hu = "Largeur", Uu = "Hauteur", Wu = "Haut", Gu = "Droite", Ku = "Gauche", qu = "Arrière-plan", Ju = "Onglets", Yu = {
-		Active: bu,
-		Area: xu,
+})), ku, Au, ju, Mu, Nu, Pu, Fu, Iu, Lu, Ru, zu, Bu, Vu, Hu, Uu, Wu, Gu, Ku, qu, Ju, Yu, Xu, Zu, Qu, $u, ed, td, nd, rd, id, ad, od, sd = e((() => {
+	ku = "Actif", Au = "Zone", ju = "Couleur", Mu = "Contenu", Nu = "Personnalisé", Pu = "Par défaut", Fu = "Domaine", Iu = "Entité", Lu = "Icône", Ru = "Inactif", zu = "Interactions", Bu = "État", Vu = "Modèle", Hu = "Type", Uu = "Cartes", Wu = "Dynamique", Gu = "Égal", Ku = "Fichiers", qu = "Séparateur", Ju = "Principal", Yu = "Superposition", Xu = "Recadrer", Zu = "Redimensionner", Qu = "Position", $u = "Largeur", ed = "Hauteur", td = "Haut", nd = "Droite", rd = "Gauche", id = "Arrière-plan", ad = "Onglets", od = {
+		Active: ku,
+		Area: Au,
 		"Area Count": "Comptage de zone",
-		Color: Su,
-		Content: Cu,
-		Custom: wu,
+		Color: ju,
+		Content: Mu,
+		Custom: Nu,
+		Default: Pu,
 		"Device class": "Classe d’appareil",
 		"Displayed elements": "Éléments affichés",
-		Domain: Tu,
+		Domain: Fu,
 		"Double tap behavior": "Comportement lors du double appui",
-		Entity: Eu,
+		Entity: Iu,
 		"Hold behavior": "Comportement lors de l’appui prolongé",
-		Icon: Du,
-		Inactive: Ou,
-		Interactions: ku,
+		Icon: Lu,
+		Inactive: Ru,
+		Interactions: zu,
 		Name: "Nom",
-		State: Au,
+		State: Bu,
 		"State content": "Contenu de l’état",
 		"State type": "Type d’état",
 		"Tap behavior": "Comportement lors de l’appui",
-		Type: ju,
+		Template: Vu,
+		Type: Hu,
 		"Visible if selected in state content": "Visible si sélectionné dans le contenu de l’état",
 		"Accent color": "Couleur d'accent",
 		"Action button": "Bouton d'action",
@@ -5900,14 +5910,14 @@ select {
 		"Add a card to start.": "Ajoutez une carte pour commencer.",
 		"Battery entity {index}": "Entité batterie {index}",
 		"Button {index}": "Bouton {index}",
-		Cards: Mu,
+		Cards: Uu,
 		"Choose color": "Choisir une couleur",
 		"Choose icon": "Choisir une icône",
 		"Curve buttons": "Boutons courbes",
-		Dynamic: Nu,
+		Dynamic: Wu,
 		"ETA entity": "Entité ETA",
-		Equal: Pu,
-		Files: Fu,
+		Equal: Gu,
+		Files: Ku,
 		"Icon only": "Icône seule",
 		"Items per row": "Éléments par ligne",
 		"Label template": "Modèle de libellé",
@@ -5925,7 +5935,7 @@ select {
 		"No matching files": "Aucun fichier correspondant",
 		"Person entity": "Entité personne",
 		"Separate cards": "Cartes séparées",
-		Separator: Iu,
+		Separator: qu,
 		"State light color": "Couleur d’état de lumière",
 		"State color (default)": "Couleur d’état (par défaut)",
 		"State color": "Couleur d’état",
@@ -5936,24 +5946,24 @@ select {
 		"Status sensors": "Capteurs de statut",
 		"Card background": "Arrière-plan de la carte",
 		"Force padding": "Forcer le remplissage",
-		Main: Lu,
-		Overlay: Ru,
-		Crop: zu,
-		Resize: Bu,
-		Position: Vu,
-		Width: Hu,
-		Height: Uu,
-		Top: Wu,
+		Main: Ju,
+		Overlay: Yu,
+		Crop: Xu,
+		Resize: Zu,
+		Position: Qu,
+		Width: $u,
+		Height: ed,
+		Top: td,
 		"Transparent background": "Arrière-plan transparent",
-		Right: Gu,
+		Right: nd,
 		Bottom: "Bas",
-		Left: Ku,
+		Left: rd,
 		"Primary text color": "Couleur du texte principal",
 		"Secondary background color": "Couleur d’arrière-plan secondaire",
-		Background: qu,
+		Background: id,
 		"Tab font size": "Taille de police de l’onglet",
 		"Tab width": "Largeur de l’onglet",
-		Tabs: Ju,
+		Tabs: ad,
 		"Tracker entity": "Entité de suivi",
 		"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "Aucun fichier trouvé. Ajoutez un manifeste d’icônes local dans /local/icons/manifest.json ou saisissez le nom du fichier manuellement.",
 		"Orbit Action Card v{version}": "Orbit Action Card v{version}",
@@ -5963,29 +5973,31 @@ select {
 		"Orbit Status Card v{version}": "Orbit Status Card v{version}",
 		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 	};
-})), Zu, Qu, $u, ed, td, nd, rd, id, ad, od, sd, cd, ld, ud, dd, fd, pd, md, hd, gd, _d, vd, yd, bd, xd, Sd, Cd, wd, Td, Ed, Dd, Od, kd = e((() => {
-	Zu = "Attivo", Qu = "Area", $u = "Colore", ed = "Contenuto", td = "Personalizzato", nd = "Dominio", rd = "Entità", id = "Icona", ad = "Inattivo", od = "Interazioni", sd = "Nome", cd = "Stato", ld = "Tipo", ud = "Schede", dd = "Dinamico", fd = "Uguale", pd = "File", md = "Separatore", hd = "Principale", gd = "Sovrapposizione", _d = "Ritaglia", vd = "Ridimensiona", yd = "Posizione", bd = "Larghezza", xd = "Altezza", Sd = "Alto", Cd = "Destra", wd = "Basso", Td = "Sinistra", Ed = "Sfondo", Dd = "Schede", Od = {
-		Active: Zu,
-		Area: Qu,
+})), cd, ld, ud, dd, fd, pd, md, hd, gd, _d, vd, yd, bd, xd, Sd, Cd, wd, Td, Ed, Dd, Od, kd, Ad, jd, Md, Nd, Pd, Fd, Id, Ld, Rd, zd, Bd, Vd, Hd = e((() => {
+	cd = "Attivo", ld = "Area", ud = "Colore", dd = "Contenuto", fd = "Personalizzato", pd = "Predefinito", md = "Dominio", hd = "Entità", gd = "Icona", _d = "Inattivo", vd = "Interazioni", yd = "Nome", bd = "Stato", xd = "Modello", Sd = "Tipo", Cd = "Schede", wd = "Dinamico", Td = "Uguale", Ed = "File", Dd = "Separatore", Od = "Principale", kd = "Sovrapposizione", Ad = "Ritaglia", jd = "Ridimensiona", Md = "Posizione", Nd = "Larghezza", Pd = "Altezza", Fd = "Alto", Id = "Destra", Ld = "Basso", Rd = "Sinistra", zd = "Sfondo", Bd = "Schede", Vd = {
+		Active: cd,
+		Area: ld,
 		"Area Count": "Conteggio area",
-		Color: $u,
-		Content: ed,
-		Custom: td,
+		Color: ud,
+		Content: dd,
+		Custom: fd,
+		Default: pd,
 		"Device class": "Classe dispositivo",
 		"Displayed elements": "Elementi visualizzati",
-		Domain: nd,
+		Domain: md,
 		"Double tap behavior": "Comportamento al doppio tocco",
-		Entity: rd,
+		Entity: hd,
 		"Hold behavior": "Comportamento alla pressione prolungata",
-		Icon: id,
-		Inactive: ad,
-		Interactions: od,
-		Name: sd,
-		State: cd,
+		Icon: gd,
+		Inactive: _d,
+		Interactions: vd,
+		Name: yd,
+		State: bd,
 		"State content": "Contenuto dello stato",
 		"State type": "Tipo di stato",
 		"Tap behavior": "Comportamento al tocco",
-		Type: ld,
+		Template: xd,
+		Type: Sd,
 		"Visible if selected in state content": "Visibile se selezionato nel contenuto dello stato",
 		"Accent color": "Colore accento",
 		"Action button": "Pulsante azione",
@@ -5993,14 +6005,14 @@ select {
 		"Add a card to start.": "Aggiungi una scheda per iniziare.",
 		"Battery entity {index}": "Entità batteria {index}",
 		"Button {index}": "Pulsante {index}",
-		Cards: ud,
+		Cards: Cd,
 		"Choose color": "Scegli colore",
 		"Choose icon": "Scegli icona",
 		"Curve buttons": "Pulsanti curvi",
-		Dynamic: dd,
+		Dynamic: wd,
 		"ETA entity": "Entità ETA",
-		Equal: fd,
-		Files: pd,
+		Equal: Td,
+		Files: Ed,
 		"Icon only": "Solo icona",
 		"Items per row": "Elementi per riga",
 		"Label template": "Template etichetta",
@@ -6018,7 +6030,7 @@ select {
 		"No matching files": "Nessun file corrispondente",
 		"Person entity": "Entità persona",
 		"Separate cards": "Schede separate",
-		Separator: md,
+		Separator: Dd,
 		"State light color": "Colore stato luce",
 		"State color (default)": "Colore stato (predefinito)",
 		"State color": "Colore stato",
@@ -6029,24 +6041,24 @@ select {
 		"Status sensors": "Sensori stato",
 		"Card background": "Sfondo scheda",
 		"Force padding": "Forza padding",
-		Main: hd,
-		Overlay: gd,
-		Crop: _d,
-		Resize: vd,
-		Position: yd,
-		Width: bd,
-		Height: xd,
-		Top: Sd,
+		Main: Od,
+		Overlay: kd,
+		Crop: Ad,
+		Resize: jd,
+		Position: Md,
+		Width: Nd,
+		Height: Pd,
+		Top: Fd,
 		"Transparent background": "Sfondo trasparente",
-		Right: Cd,
-		Bottom: wd,
-		Left: Td,
+		Right: Id,
+		Bottom: Ld,
+		Left: Rd,
 		"Primary text color": "Colore testo primario",
 		"Secondary background color": "Colore sfondo secondario",
-		Background: Ed,
+		Background: zd,
 		"Tab font size": "Dimensione font scheda",
 		"Tab width": "Larghezza scheda",
-		Tabs: Dd,
+		Tabs: Bd,
 		"Tracker entity": "Entità tracker",
 		"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "Nessun file trovato. Aggiungi un manifesto icone locale in /local/icons/manifest.json oppure digita manualmente il nome del file.",
 		"Orbit Action Card v{version}": "Orbit Action Card v{version}",
@@ -6056,29 +6068,31 @@ select {
 		"Orbit Status Card v{version}": "Orbit Status Card v{version}",
 		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 	};
-})), Ad, jd, Md, Nd, Pd, Fd, Id, Ld, Rd, zd, Bd, Vd, Hd, Ud, Wd, Gd, Kd, qd, Jd, Yd, Xd, Zd, Qd, $d, ef, tf, nf, rf, af, of, sf, cf, lf = e((() => {
-	Ad = "Actief", jd = "Gebied", Md = "Kleur", Nd = "Inhoud", Pd = "Aangepast", Fd = "Domein", Id = "Entiteit", Ld = "Icoon", Rd = "Inactief", zd = "Interacties", Bd = "Naam", Vd = "Status", Hd = "Type", Ud = "Kaarten", Wd = "Dynamisch", Gd = "Gelijk", Kd = "Bestanden", qd = "Scheidingsteken", Jd = "Hoofdkaart", Yd = "Overlay", Xd = "Bijsnijden", Zd = "Formaat wijzigen", Qd = "Positie", $d = "Breedte", ef = "Hoogte", tf = "Boven", nf = "Rechts", rf = "Onder", af = "Links", of = "Achtergrond", sf = "Tabbladen", cf = {
-		Active: Ad,
-		Area: jd,
+})), Ud, Wd, Gd, Kd, qd, Jd, Yd, Xd, Zd, Qd, $d, ef, tf, nf, rf, af, of, sf, cf, lf, uf, df, ff, pf, mf, hf, gf, _f, vf, yf, bf, xf, Sf, Cf, wf = e((() => {
+	Ud = "Actief", Wd = "Gebied", Gd = "Kleur", Kd = "Inhoud", qd = "Aangepast", Jd = "Standaard", Yd = "Domein", Xd = "Entiteit", Zd = "Icoon", Qd = "Inactief", $d = "Interacties", ef = "Naam", tf = "Status", nf = "Sjabloon", rf = "Type", af = "Kaarten", of = "Dynamisch", sf = "Gelijk", cf = "Bestanden", lf = "Scheidingsteken", uf = "Hoofdkaart", df = "Overlay", ff = "Bijsnijden", pf = "Formaat wijzigen", mf = "Positie", hf = "Breedte", gf = "Hoogte", _f = "Boven", vf = "Rechts", yf = "Onder", bf = "Links", xf = "Achtergrond", Sf = "Tabbladen", Cf = {
+		Active: Ud,
+		Area: Wd,
 		"Area Count": "Gebiedstelling",
-		Color: Md,
-		Content: Nd,
-		Custom: Pd,
+		Color: Gd,
+		Content: Kd,
+		Custom: qd,
+		Default: Jd,
 		"Device class": "Apparaatklasse",
 		"Displayed elements": "Weergegeven elementen",
-		Domain: Fd,
+		Domain: Yd,
 		"Double tap behavior": "Gedrag bij dubbel tikken",
-		Entity: Id,
+		Entity: Xd,
 		"Hold behavior": "Gedrag bij lang indrukken",
-		Icon: Ld,
-		Inactive: Rd,
-		Interactions: zd,
-		Name: Bd,
-		State: Vd,
+		Icon: Zd,
+		Inactive: Qd,
+		Interactions: $d,
+		Name: ef,
+		State: tf,
 		"State content": "Statusinhoud",
 		"State type": "Statustype",
 		"Tap behavior": "Gedrag bij tikken",
-		Type: Hd,
+		Template: nf,
+		Type: rf,
 		"Visible if selected in state content": "Zichtbaar indien geselecteerd in statusinhoud",
 		"Accent color": "Accentkleur",
 		"Action button": "Actieknop",
@@ -6086,14 +6100,14 @@ select {
 		"Add a card to start.": "Voeg een kaart toe om te beginnen.",
 		"Battery entity {index}": "Batterij-entiteit {index}",
 		"Button {index}": "Knop {index}",
-		Cards: Ud,
+		Cards: af,
 		"Choose color": "Kleur kiezen",
 		"Choose icon": "Icoon kiezen",
 		"Curve buttons": "Gebogen knoppen",
-		Dynamic: Wd,
+		Dynamic: of,
 		"ETA entity": "ETA-entiteit",
-		Equal: Gd,
-		Files: Kd,
+		Equal: sf,
+		Files: cf,
 		"Icon only": "Alleen icoon",
 		"Items per row": "Items per rij",
 		"Label template": "Labelsjabloon",
@@ -6111,7 +6125,7 @@ select {
 		"No matching files": "Geen overeenkomende bestanden",
 		"Person entity": "Persoon-entiteit",
 		"Separate cards": "Aparte kaarten",
-		Separator: qd,
+		Separator: lf,
 		"State light color": "Statuskleur licht",
 		"State color (default)": "Statuskleur (standaard)",
 		"State color": "Statuskleur",
@@ -6122,24 +6136,24 @@ select {
 		"Status sensors": "Statussensoren",
 		"Card background": "Kaartachtergrond",
 		"Force padding": "Padding afdwingen",
-		Main: Jd,
-		Overlay: Yd,
-		Crop: Xd,
-		Resize: Zd,
-		Position: Qd,
-		Width: $d,
-		Height: ef,
-		Top: tf,
+		Main: uf,
+		Overlay: df,
+		Crop: ff,
+		Resize: pf,
+		Position: mf,
+		Width: hf,
+		Height: gf,
+		Top: _f,
 		"Transparent background": "Transparante achtergrond",
-		Right: nf,
-		Bottom: rf,
-		Left: af,
+		Right: vf,
+		Bottom: yf,
+		Left: bf,
 		"Primary text color": "Primaire tekstkleur",
 		"Secondary background color": "Secundaire achtergrondkleur",
-		Background: of,
+		Background: xf,
 		"Tab font size": "Tabblad lettergrootte",
 		"Tab width": "Tabbladbreedte",
-		Tabs: sf,
+		Tabs: Sf,
 		"Tracker entity": "Tracker-entiteit",
 		"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "Geen bestanden gevonden. Voeg een lokaal iconenmanifest toe op /local/icons/manifest.json of typ de bestandsnaam handmatig.",
 		"Orbit Action Card v{version}": "Orbit Action Card v{version}",
@@ -6149,29 +6163,31 @@ select {
 		"Orbit Status Card v{version}": "Orbit Status Card v{version}",
 		"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 	};
-})), uf, df, ff, pf, mf, hf, gf, _f, vf, yf, bf, xf, Sf, Cf, wf, Tf, Ef, Df, Of, kf, Af, jf, Mf, Nf, Pf, Ff, If, Lf, Rf, zf, Bf, Vf = e((() => {
-	uf = "Ativo", df = "Área", ff = "Conteúdo", pf = "Personalizado", mf = "Domínio", hf = "Entidade", gf = "Ícone", _f = "Inativo", vf = "Interações", yf = "Nome", bf = "Estado", xf = "Tipo", Sf = "Cartões", Cf = "Dinâmico", wf = "Igual", Tf = "Arquivos", Ef = "Separador", Df = "Principal", Of = "Sobreposição", kf = "Recortar", Af = "Redimensionar", jf = "Posição", Mf = "Largura", Nf = "Altura", Pf = "Superior", Ff = "Direita", If = "Inferior", Lf = "Esquerda", Rf = "Fundo", zf = "Abas", Bf = {
-		Active: uf,
-		Area: df,
+})), Tf, Ef, Df, Of, kf, Af, jf, Mf, Nf, Pf, Ff, If, Lf, Rf, zf, Bf, Vf, Hf, Uf, Wf, Gf, Kf, qf, Jf, Yf, Xf, Zf, Qf, $f, ep, tp, np, rp, ip = e((() => {
+	Tf = "Ativo", Ef = "Área", Df = "Conteúdo", Of = "Personalizado", kf = "Padrão", Af = "Domínio", jf = "Entidade", Mf = "Ícone", Nf = "Inativo", Pf = "Interações", Ff = "Nome", If = "Estado", Lf = "Modelo", Rf = "Tipo", zf = "Cartões", Bf = "Dinâmico", Vf = "Igual", Hf = "Arquivos", Uf = "Separador", Wf = "Principal", Gf = "Sobreposição", Kf = "Recortar", qf = "Redimensionar", Jf = "Posição", Yf = "Largura", Xf = "Altura", Zf = "Superior", Qf = "Direita", $f = "Inferior", ep = "Esquerda", tp = "Fundo", np = "Abas", rp = {
+		Active: Tf,
+		Area: Ef,
 		"Area Count": "Contagem da área",
 		Color: "Cor",
-		Content: ff,
-		Custom: pf,
+		Content: Df,
+		Custom: Of,
+		Default: kf,
 		"Device class": "Classe do dispositivo",
 		"Displayed elements": "Elementos exibidos",
-		Domain: mf,
+		Domain: Af,
 		"Double tap behavior": "Comportamento ao tocar duas vezes",
-		Entity: hf,
+		Entity: jf,
 		"Hold behavior": "Comportamento ao manter pressionado",
-		Icon: gf,
-		Inactive: _f,
-		Interactions: vf,
-		Name: yf,
-		State: bf,
+		Icon: Mf,
+		Inactive: Nf,
+		Interactions: Pf,
+		Name: Ff,
+		State: If,
 		"State content": "Conteúdo do estado",
 		"State type": "Tipo de estado",
 		"Tap behavior": "Comportamento ao tocar",
-		Type: xf,
+		Template: Lf,
+		Type: Rf,
 		"Visible if selected in state content": "Visível se selecionado no conteúdo do estado",
 		"Accent color": "Cor de destaque",
 		"Action button": "Botão de ação",
@@ -6179,14 +6195,14 @@ select {
 		"Add a card to start.": "Adicione um cartão para começar.",
 		"Battery entity {index}": "Entidade de bateria {index}",
 		"Button {index}": "Botão {index}",
-		Cards: Sf,
+		Cards: zf,
 		"Choose color": "Escolher cor",
 		"Choose icon": "Escolher ícone",
 		"Curve buttons": "Botões curvos",
-		Dynamic: Cf,
+		Dynamic: Bf,
 		"ETA entity": "Entidade ETA",
-		Equal: wf,
-		Files: Tf,
+		Equal: Vf,
+		Files: Hf,
 		"Icon only": "Somente ícone",
 		"Items per row": "Itens por linha",
 		"Label template": "Modelo de rótulo",
@@ -6204,7 +6220,7 @@ select {
 		"No matching files": "Nenhum arquivo correspondente",
 		"Person entity": "Entidade de pessoa",
 		"Separate cards": "Cartões separados",
-		Separator: Ef,
+		Separator: Uf,
 		"State light color": "Cor de estado da luz",
 		"State color (default)": "Cor de estado (padrão)",
 		"State color": "Cor de estado",
@@ -6215,24 +6231,24 @@ select {
 		"Status sensors": "Sensores de status",
 		"Card background": "Fundo do cartão",
 		"Force padding": "Forçar preenchimento",
-		Main: Df,
-		Overlay: Of,
-		Crop: kf,
-		Resize: Af,
-		Position: jf,
-		Width: Mf,
-		Height: Nf,
-		Top: Pf,
+		Main: Wf,
+		Overlay: Gf,
+		Crop: Kf,
+		Resize: qf,
+		Position: Jf,
+		Width: Yf,
+		Height: Xf,
+		Top: Zf,
 		"Transparent background": "Fundo transparente",
-		Right: Ff,
-		Bottom: If,
-		Left: Lf,
+		Right: Qf,
+		Bottom: $f,
+		Left: ep,
 		"Primary text color": "Cor do texto primário",
 		"Secondary background color": "Cor de fundo secundário",
-		Background: Rf,
+		Background: tp,
 		"Tab font size": "Tamanho da fonte da aba",
 		"Tab width": "Largura da aba",
-		Tabs: zf,
+		Tabs: np,
 		"Tracker entity": "Entidade de rastreamento",
 		"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "Nenhum arquivo encontrado. Adicione um manifesto de ícones local em /local/icons/manifest.json ou digite o nome do arquivo manualmente.",
 		"Orbit Action Card v{version}": "Orbit Action Card v{version}",
@@ -6245,39 +6261,39 @@ select {
 }));
 //#endregion
 //#region src/common/localize.js
-function X(e, t, n = {}) {
-	let r = Wf(e), i = r.replace("_", "-"), a = r.split("-")[0], o = Hf(e, t) || Uf(r, t) || Uf(i, t) || Uf(a, t) || Gf.en[t] || t;
+function Y(e, t, n = {}) {
+	let r = sp(e), i = r.replace("_", "-"), a = r.split("-")[0], o = ap(e, t) || op(r, t) || op(i, t) || op(a, t) || cp.en[t] || t;
 	return Object.entries(n).reduce((e, [t, n]) => e.replaceAll(`{${t}}`, n ?? ""), o);
 }
-function Hf(e, t) {
+function ap(e, t) {
 	if (!e?.localize || !t) return null;
-	let n = Kf[t] || [];
+	let n = lp[t] || [];
 	for (let t of n) {
 		let n = e.localize(t);
 		if (n && n !== t) return n;
 	}
 	return null;
 }
-function Uf(e, t) {
-	let n = Gf[e]?.[t];
+function op(e, t) {
+	let n = cp[e]?.[t];
 	return n === "" ? null : n;
 }
-function Wf(e) {
+function sp(e) {
 	return (e?.locale?.language || e?.language || "en").toLowerCase();
 }
-var Gf, Kf, qf = e((() => {
-	Ac(), cl(), Bl(), yu(), Xu(), kd(), lf(), Vf(), Gf = {
-		de: zl,
-		en: kc,
-		"en-gb": sl,
-		en_gb: sl,
-		es: vu,
-		fr: Yu,
-		it: Od,
-		nl: cf,
-		"pt-br": Bf,
-		pt_br: Bf
-	}, Kf = {
+var cp, lp, up = e((() => {
+	Nc(), pl(), ql(), Ou(), sd(), Hd(), wf(), ip(), cp = {
+		de: Kl,
+		en: Mc,
+		"en-gb": fl,
+		en_gb: fl,
+		es: Du,
+		fr: od,
+		it: Vd,
+		nl: Cf,
+		"pt-br": rp,
+		pt_br: rp
+	}, lp = {
 		Add: ["ui.common.add"],
 		All: ["ui.components.selectors.automation_behavior.trigger.options.all.label", "ui.panel.config.backup.data.apps_all"],
 		Active: [
@@ -6352,16 +6368,16 @@ var Gf, Kf, qf = e((() => {
 		Width: ["ui.panel.lovelace.editor.edit_section.settings.column_span"],
 		Wrap: ["ui.panel.lovelace.editor.edit_view_header.settings.badges_wrap_options.wrap"]
 	};
-})), Z, Q = e((() => {
-	Z = {
+})), X, Z = e((() => {
+	X = {
 		area: "0.8.5",
 		status: "0.13.6",
 		action: "0.6.5",
 		deck: "0.4.1",
-		statusBadge: "0.1.0"
+		statusBadge: "0.2.0"
 	};
-})), Jf = /* @__PURE__ */ t((() => {
-	M(), Io(), vs(), Cs(), Ms(), Wi(), Qs(), B(), Rt(), Pt(), qf(), Q();
+})), dp = /* @__PURE__ */ t((() => {
+	M(), Lo(), ys(), ws(), Ns(), Wi(), $s(), B(), Rt(), Pt(), up(), Z();
 	var e = class extends j {
 		static svgCache = z;
 		static properties = {
@@ -6389,19 +6405,19 @@ var Gf, Kf, qf = e((() => {
 			super(), this._config = this._config || {}, this._activeSection = "card", this._selectedStatusIndex = 1, this._selectedButtonIndex = 1, this._selectedCurveButtonIndex = 1, this._areaButtonDomainFilter = "all", this._areaCurveButtonDomainFilter = "all", this._areaActionButtonDomainFilter = "all", this._colorPickerKey = "", this._colorPickerTab = "picker", this._iconPickerKey = "", this._iconPickerTab = "ha", this._iconFileSearch = "", this._iconFilePickerOpen = !1, this._orbitIconFiles = [], this._orbitIconFilesLoading = !1, this._localIconFiles = [], this._localIconFilesLoading = !1;
 		}
 		connectedCallback() {
-			super.connectedCallback(), wo(this), this._updateDocumentationContext();
+			super.connectedCallback(), To(this), this._updateDocumentationContext();
 		}
 		disconnectedCallback() {
-			To(this), super.disconnectedCallback();
+			Eo(this), super.disconnectedCallback();
 		}
 		_getColorStyle(e) {
-			return Do(e);
-		}
-		_getColorPickerValue(e) {
 			return Oo(e);
 		}
+		_getColorPickerValue(e) {
+			return ko(e);
+		}
 		_t(e, t) {
-			return X(this.hass, e, t);
+			return Y(this.hass, e, t);
 		}
 		setConfig(e) {
 			let { config: t, migrated: n } = Lt(e || {});
@@ -6515,7 +6531,7 @@ var Gf, Kf, qf = e((() => {
 			return bo.call(this, e, t);
 		}
 		_renderAreaSection() {
-			return ms.call(this);
+			return hs.call(this);
 		}
 		_renderStatusSection() {
 			let e = this._selectedStatusIndex || 1;
@@ -6570,13 +6586,13 @@ var Gf, Kf, qf = e((() => {
     `;
 		}
 		_renderButtonsSection() {
-			return ys.call(this);
+			return bs.call(this);
 		}
 		_renderCurvedButtonsSection() {
-			return ws.call(this);
+			return Ts.call(this);
 		}
 		_renderActionButtonSection() {
-			return Ts.call(this);
+			return Es.call(this);
 		}
 		_renderEditorTabs() {
 			return D`
@@ -6608,12 +6624,12 @@ var Gf, Kf, qf = e((() => {
         ${this._renderEditorTabs()}
         ${this._renderActiveSection()}
         <div class="editor-version">
-          ${this._t("Orbit Area Card v{version}", { version: Z.area })}
+          ${this._t("Orbit Area Card v{version}", { version: X.area })}
         </div>
       </div>
     `;
 		}
-		static styles = [Zs];
+		static styles = [Qs];
 	}, t = [
 		{
 			key: "card",
@@ -6787,8 +6803,8 @@ var Gf, Kf, qf = e((() => {
 			n.has(r) || (t[r] = e[r]);
 		}), t;
 	}
-})), Yf = /* @__PURE__ */ t((() => {
-	M(), at(), L(), Dt(), It(), Rt(), Vt(), Dn(), jn(), Nn(), Ln(), Vn(), B(), fr(), br(), wr(), Br(), fi(), Jf(), Q();
+})), fp = /* @__PURE__ */ t((() => {
+	M(), at(), L(), Dt(), It(), Rt(), Vt(), Dn(), jn(), Nn(), Ln(), Vn(), B(), fr(), br(), wr(), Br(), fi(), dp(), Z();
 	var e = class extends j {
 		static svgCache = z;
 		static get properties() {
@@ -6981,7 +6997,7 @@ var Gf, Kf, qf = e((() => {
 		cardClass: e,
 		name: "Orbit Area Card",
 		description: "Responsive area card",
-		version: Z.area,
+		version: X.area,
 		getEntitySuggestion: a,
 		aliases: [{
 			tag: "orbit-room-card",
@@ -7016,35 +7032,35 @@ var Gf, Kf, qf = e((() => {
 }));
 //#endregion
 //#region src/common/helpers/card-layout.js
-function Xf({ config: e = {}, count: t = 1, wrapKey: n = "wrap", perRowKey: r, defaultColumns: i = 3 }) {
+function pp({ config: e = {}, count: t = 1, wrapKey: n = "wrap", perRowKey: r, defaultColumns: i = 3 }) {
 	if (!e[n]) return Math.max(1, t);
 	let a = Number(e[r]);
 	return Math.max(1, Math.min(t, (Number.isFinite(a) ? Math.floor(a) : i) || 1));
 }
-function Zf(e) {
-	let t = Xf(e);
+function mp(e) {
+	let t = pp(e);
 	return Math.max(1, Math.ceil((e?.count || 1) / t));
 }
-var Qf = e((() => {}));
+var hp = e((() => {}));
 //#endregion
 //#region src/cards/status/helpers/attributes.js
-function $(e, t) {
+function Q(e, t) {
 	let n = e?.attributes?.[t];
 	return n == null || typeof n == "string" && n.trim() === "" ? null : n;
 }
-function $f(e) {
+function gp(e) {
 	let t = e.navigate?.navigation_path;
 	return typeof t == "string" && t.trim() || null;
 }
-function ep(e, t, n) {
-	let r = $(t, "color");
+function _p(e, t, n) {
+	let r = Q(t, "color");
 	return n ? e.accent_on_color || r || "theme" : e.accent_off_color || r || "theme";
 }
-function tp(e, t = null, n = null) {
+function vp(e, t = null, n = null) {
 	if (!e) return !1;
 	let r = (n ?? e.state)?.toString().trim().toLowerCase(), i = Number(r);
 	if (Number.isFinite(i)) return i > 0;
-	if (rp.includes(r)) return !1;
+	if (bp.includes(r)) return !1;
 	let a = e.entity_id?.split(".")[0];
 	return [
 		"sensor",
@@ -7053,12 +7069,12 @@ function tp(e, t = null, n = null) {
 		"select"
 	].includes(a) ? !0 : typeof t == "function" ? t(e) : !0;
 }
-function np(e, t) {
-	let n = $(t, "navigation"), r = typeof n == "string" ? n.trim() : n?.navigation_path;
-	return $f(e) || r || "/lovelace/home";
+function yp(e, t) {
+	let n = Q(t, "navigation"), r = typeof n == "string" ? n.trim() : n?.navigation_path;
+	return gp(e) || r || "/lovelace/home";
 }
-var rp, ip = e((() => {
-	rp = [
+var bp, xp = e((() => {
+	bp = [
 		"",
 		"0",
 		"off",
@@ -7088,43 +7104,43 @@ var rp, ip = e((() => {
 }));
 //#endregion
 //#region src/common/helpers/zones.js
-function ap(e) {
+function Sp(e) {
 	let t = e?.states;
 	if (!t) return {
 		zones: [],
 		zoneByTrackerState: /* @__PURE__ */ new Map()
 	};
-	let n = sp.get(t);
+	let n = wp.get(t);
 	if (n) return n;
 	let r = Object.values(t).filter((e) => e.entity_id?.startsWith("zone.") && !e.attributes?.passive), i = {
 		zones: r,
-		zoneByTrackerState: new Map(r.map((e) => [op(e), e]))
+		zoneByTrackerState: new Map(r.map((e) => [Cp(e), e]))
 	};
-	return sp.set(t, i), i;
+	return wp.set(t, i), i;
 }
-function op(e) {
+function Cp(e) {
 	return (e.attributes?.friendly_name || e.entity_id.replace(/^zone\./, "")).toLowerCase().replace(/\s+/g, "_");
 }
-var sp, cp = e((() => {
-	sp = /* @__PURE__ */ new WeakMap();
+var wp, Tp = e((() => {
+	wp = /* @__PURE__ */ new WeakMap();
 }));
 //#endregion
 //#region src/cards/status/helpers/lifecycle.js
-function lp(e) {
+function Ep(e) {
 	if (!e.has("_config") && !e.has("hass")) return;
 	if (this._config.mode === "person") {
-		mp.call(this);
+		jp.call(this);
 		return;
 	}
 	if (this._config.mode === "icon_only") {
-		let e = up(this._config);
-		this._statusItems = e.map((e) => dp.call(this, e, this._config)), pp.call(this, this._statusItems[0] || {});
+		let e = Dp(this._config);
+		this._statusItems = e.map((e) => Op.call(this, e, this._config)), Ap.call(this, this._statusItems[0] || {});
 		return;
 	}
-	let t = this._config.main_entity, n = dp.call(this, { entity: t }, this._config);
-	this._statusItems = [n], pp.call(this, n);
+	let t = this._config.main_entity, n = Op.call(this, { entity: t }, this._config);
+	this._statusItems = [n], Ap.call(this, n);
 }
-function up(e = {}) {
+function Dp(e = {}) {
 	return Array.isArray(e.entities) && e.entities.length ? e.entities.map((e) => typeof e == "string" ? { entity: e } : e || {}) : [{
 		entity: e.main_entity,
 		accent_on_color: e.accent_on_color,
@@ -7146,12 +7162,12 @@ function up(e = {}) {
 		main_entity_double_tap_action: e.main_entity_double_tap_action
 	}];
 }
-function dp(e, t = {}) {
+function Op(e, t = {}) {
 	let n = e.entity || t.main_entity, r = n && this.hass ? this.hass.states[n] : null, i = {
 		...t,
 		...e,
 		main_entity: n
-	}, a = i.mode !== "icon_only" && Object.prototype.hasOwnProperty.call(i, "status_name") && i.status_name !== void 0 && i.status_name !== "" ? St(i.status_name, i, this.hass) : $(r, "friendly_name") || n || X(this.hass, "Status"), o = i.state_template ? this._evaluateStateTemplate(i.state_template, n) : null, s = (i.label_template ? this._evaluateStateTemplate(i.label_template, n) : null) ?? ($(r, "label") || (r ? this.formatState(r) : "")), c = i.main_entity_icon, l = i.main_entity_icon_on, u = i.main_entity_icon_off, d = tp(r, (e) => this._getEntityActiveState(e), o), f = fp(i, n), p = f === "custom" && ((d ? l : u) || c) || "", m = p || "mdi:information-outline", h = f === "custom" && d && l ? "main_entity_icon_on" : f === "custom" && !d && u ? "main_entity_icon_off" : f === "custom" && c ? "main_entity_icon" : "", g = ep(i, r, d), ee = np(i, r), _ = this._computeFullColor(g), v = this._computeFullColor(g), te = this._computeCircleColor(g), ne = d ? this._computeFullColor(g) : this._computeIconColor(g);
+	}, a = i.mode !== "icon_only" && Object.prototype.hasOwnProperty.call(i, "status_name") && i.status_name !== void 0 && i.status_name !== "" ? St(i.status_name, i, this.hass) : Q(r, "friendly_name") || n || Y(this.hass, "Status"), o = i.state_template ? this._evaluateStateTemplate(i.state_template, n) : null, s = (i.label_template ? this._evaluateStateTemplate(i.label_template, n) : null) ?? (Q(r, "label") || (r ? this.formatState(r) : "")), c = i.main_entity_icon, l = i.main_entity_icon_on, u = i.main_entity_icon_off, d = vp(r, (e) => this._getEntityActiveState(e), o), f = kp(i, n), p = f === "custom" && ((d ? l : u) || c) || "", m = p || "mdi:information-outline", h = f === "custom" && d && l ? "main_entity_icon_on" : f === "custom" && !d && u ? "main_entity_icon_off" : f === "custom" && c ? "main_entity_icon" : "", g = _p(i, r, d), ee = yp(i, r), _ = this._computeFullColor(g), v = this._computeFullColor(g), te = this._computeCircleColor(g), ne = d ? this._computeFullColor(g) : this._computeIconColor(g);
 	return {
 		...e,
 		entityId: n,
@@ -7168,24 +7184,24 @@ function dp(e, t = {}) {
 		svgForceColor: h ? this._getSvgColorOverride(i, h) : !0
 	};
 }
-function fp(e, t) {
+function kp(e, t) {
 	let n = e.main_entity_icon_source, r = !!t, i = !!(e.main_entity_icon || e.main_entity_icon_on || e.main_entity_icon_off);
 	return n === "custom" ? "custom" : n === "entity" && r ? "entity" : i ? "custom" : "entity";
 }
-function pp(e) {
-	this._cardName = e.cardName ?? X(this.hass, "Status"), this._statusText = e.statusText || "", this._icon = e.icon || "mdi:information-outline", this._mainStateObj = e.stateObj || null, this._useNativeMainIcon = e.useStateIcon ?? !1, this._navigationPath = e.navigationPath || "", this._nameColor = e.nameColor || this._nameColor, this._statusColor = e.statusColor || this._statusColor, this._circleColor = e.circleColor || this._circleColor, this._iconColor = e.iconColor || this._iconColor, this._iconSvgForceColor = e.svgForceColor ?? !0;
+function Ap(e) {
+	this._cardName = e.cardName ?? Y(this.hass, "Status"), this._statusText = e.statusText || "", this._icon = e.icon || "mdi:information-outline", this._mainStateObj = e.stateObj || null, this._useNativeMainIcon = e.useStateIcon ?? !1, this._navigationPath = e.navigationPath || "", this._nameColor = e.nameColor || this._nameColor, this._statusColor = e.statusColor || this._statusColor, this._circleColor = e.circleColor || this._circleColor, this._iconColor = e.iconColor || this._iconColor, this._iconSvgForceColor = e.svgForceColor ?? !0;
 }
-function mp() {
+function jp() {
 	let e = this._config.main_entity, t = this._config.tracker_entity, n = this._config.eta_entity, r = t && this.hass ? this.hass.states[t] : null, i = e && this.hass ? this.hass.states[e] : null, a = n && this.hass ? this.hass.states[n] : null, o = Object.prototype.hasOwnProperty.call(this._config, "status_name") && this._config.status_name !== void 0 && this._config.status_name !== "";
-	this._cardName = o ? St(this._config.status_name, this._config, this.hass) : $(i, "friendly_name") || $(r, "friendly_name") || e || t || X(this.hass, "Person");
-	let s = (this._config.label_template ? this._evaluateStateTemplate(this._config.label_template, t) : null) ?? (r ? gp.call(this, r) : ""), c = a && r?.state !== "home" ? this.formatState(a) : "";
+	this._cardName = o ? St(this._config.status_name, this._config, this.hass) : Q(i, "friendly_name") || Q(r, "friendly_name") || e || t || Y(this.hass, "Person");
+	let s = (this._config.label_template ? this._evaluateStateTemplate(this._config.label_template, t) : null) ?? (r ? Np.call(this, r) : ""), c = a && r?.state !== "home" ? this.formatState(a) : "";
 	this._statusText = c ? `${s} | ${c}` : s;
-	let l = tp(r, (e) => this._getEntityActiveState(e), this._config.state_template ? this._evaluateStateTemplate(this._config.state_template, t) : null), u = ep(this._config, r, l);
-	this._personPicture = $(i, "entity_picture") || $(r, "entity_picture") || "", this._personZoneIcon = hp.call(this, r, i), this._personBattery1 = _p.call(this, this._config.battery_entity_1), this._personBattery2 = _p.call(this, this._config.battery_entity_2), this._icon = $(i, "icon") || $(r, "icon") || "mdi:account", this._navigationPath = np(this._config, r), this._nameColor = this._computeFullColor(u), this._statusColor = this._computeFullColor(u), this._circleColor = this._computeCircleColor(u), this._iconColor = l ? this._computeFullColor(u) : this._computeIconColor(u), this._iconSvgForceColor = !0;
+	let l = vp(r, (e) => this._getEntityActiveState(e), this._config.state_template ? this._evaluateStateTemplate(this._config.state_template, t) : null), u = _p(this._config, r, l);
+	this._personPicture = Q(i, "entity_picture") || Q(r, "entity_picture") || "", this._personZoneIcon = Mp.call(this, r, i), this._personBattery1 = Pp.call(this, this._config.battery_entity_1), this._personBattery2 = Pp.call(this, this._config.battery_entity_2), this._icon = Q(i, "icon") || Q(r, "icon") || "mdi:account", this._navigationPath = yp(this._config, r), this._nameColor = this._computeFullColor(u), this._statusColor = this._computeFullColor(u), this._circleColor = this._computeCircleColor(u), this._iconColor = l ? this._computeFullColor(u) : this._computeIconColor(u), this._iconSvgForceColor = !0;
 }
-function hp(e, t) {
+function Mp(e, t) {
 	if (e?.state === "home") return "mdi:home-variant";
-	let n = ap(this.hass), r = t?.entity_id;
+	let n = Sp(this.hass), r = t?.entity_id;
 	if (r) {
 		let e = n.zones.find((e) => Array.isArray(e.attributes?.persons) && e.attributes.persons.includes(r));
 		if (e?.attributes?.icon) return e.attributes.icon;
@@ -7197,11 +7213,11 @@ function hp(e, t) {
 	}
 	return "mdi:home-minus";
 }
-function gp(e) {
+function Np(e) {
 	let t = e?.state;
-	return t ? t === "home" ? X(this.hass, "Home") : t === "not_home" ? X(this.hass, "Away") : t.replace(/_/g, " ").replace(/\b\w/g, (e) => e.toUpperCase()) : "";
+	return t ? t === "home" ? Y(this.hass, "Home") : t === "not_home" ? Y(this.hass, "Away") : t.replace(/_/g, " ").replace(/\b\w/g, (e) => e.toUpperCase()) : "";
 }
-function _p(e) {
+function Pp(e) {
 	let t = e && this.hass ? this.hass.states[e] : null;
 	if (!t) return null;
 	let n = Number(t.state), r = "var(--state-icon-color)";
@@ -7211,13 +7227,13 @@ function _p(e) {
 		color: r
 	};
 }
-var vp = e((() => {
-	ip(), cp(), Dt(), qf();
+var Fp = e((() => {
+	xp(), Tp(), Dt(), up();
 }));
 //#endregion
 //#region src/cards/status/renders/status-card.js
-function yp() {
-	let e = this._config?.mode || "standard", t = this._statusItems || [], n = e === "icon_only" && t.length > 1, r = Math.max(t.length, 1), i = this._getStatusColumnCount(r), a = this._getStatusRowCount(r), o = Tp(this._statusText), s = this._isImageIcon(this._icon) ? this._resolveIconPath(this._icon) : "", c = s ? this._getInlineSvg(s, this._iconSvgForceColor) : "";
+function Ip() {
+	let e = this._config?.mode || "standard", t = this._statusItems || [], n = e === "icon_only" && t.length > 1, r = Math.max(t.length, 1), i = this._getStatusColumnCount(r), a = this._getStatusRowCount(r), o = Hp(this._statusText), s = this._isImageIcon(this._icon) ? this._resolveIconPath(this._icon) : "", c = s ? this._getInlineSvg(s, this._iconSvgForceColor) : "";
 	return D`
     <ha-card
       class="mode-${e} ${n ? "grouped" : ""} ${n && this._config?.separate_cards ? "separate-cards" : ""}"
@@ -7244,7 +7260,7 @@ function yp() {
           --status-text-color:${this._statusColor};
         "
       >
-        ${n ? bp.call(this, t, i) : D`
+        ${n ? Lp.call(this, t, i) : D`
         <div
           class="circle status-circle"
           @pointerdown=${this._handleMainIconPointerDown}
@@ -7258,7 +7274,7 @@ function yp() {
           @dblclick=${this._handleMainEntityDoubleTap}
           @contextmenu=${this._handleMainIconContextMenu}
         >
-          ${e === "person" ? Sp.call(this) : this._isImageIcon(this._icon) ? D`
+          ${e === "person" ? zp.call(this) : this._isImageIcon(this._icon) ? D`
                 <div
                   class="main-image-icon"
                 >
@@ -7302,20 +7318,20 @@ function yp() {
     </ha-card>
   `;
 }
-function bp(e, t) {
+function Lp(e, t) {
 	return D`
     <div class="status-icon-grid">
-      ${Ep(e, t).map((e, n) => D`
+      ${Up(e, t).map((e, n) => D`
         <div class="status-icon-row">
-          ${e.map((e, r) => xp.call(this, e, n * t + r))}
-          ${Dp(e.length, t, "status-icon-spacer")}
+          ${e.map((e, r) => Rp.call(this, e, n * t + r))}
+          ${Wp(e.length, t, "status-icon-spacer")}
         </div>
       `)}
     </div>
   `;
 }
-function xp(e, t) {
-	let n = Tp(e.statusText), r = this._isImageIcon(e.icon) ? this._resolveIconPath(e.icon) : "", i = r ? this._getInlineSvg(r, e.svgForceColor) : "", a = D`
+function Rp(e, t) {
+	let n = Hp(e.statusText), r = this._isImageIcon(e.icon) ? this._resolveIconPath(e.icon) : "", i = r ? this._getInlineSvg(r, e.svgForceColor) : "", a = D`
     <div class="circle status-circle">
       ${this._isImageIcon(e.icon) ? D`
             <div class="main-image-icon">
@@ -7377,7 +7393,7 @@ function xp(e, t) {
     </ha-card>
   `;
 }
-function Sp() {
+function zp() {
 	return D`
     <div class="person-main-icon">
       ${this._personPicture ? D`
@@ -7393,16 +7409,16 @@ function Sp() {
           ></ha-icon>
           `}
 
-      ${Cp.call(this, "zone", this._personZoneIcon || "mdi:home-minus", this._computeFullColor("blue"))}
+      ${Bp.call(this, "zone", this._personZoneIcon || "mdi:home-minus", this._computeFullColor("blue"))}
 
-      ${this._personBattery1 ? Cp.call(this, "battery-1", null, this._personBattery1.color, this._personBattery1.entityId, this._personBattery1.stateObj) : ""}
+      ${this._personBattery1 ? Bp.call(this, "battery-1", null, this._personBattery1.color, this._personBattery1.entityId, this._personBattery1.stateObj) : ""}
 
-      ${this._personBattery2 ? Cp.call(this, "battery-2", null, this._personBattery2.color, this._personBattery2.entityId, this._personBattery2.stateObj) : ""}
+      ${this._personBattery2 ? Bp.call(this, "battery-2", null, this._personBattery2.color, this._personBattery2.entityId, this._personBattery2.stateObj) : ""}
     </div>
   `;
 }
-function Cp(e, t, n, r = null, i = null) {
-	let a = wp(i);
+function Bp(e, t, n, r = null, i = null) {
+	let a = Vp(i);
 	return D`
     <span
       class="person-badge person-badge-${e} ${r ? "clickable" : ""}"
@@ -7428,29 +7444,29 @@ function Cp(e, t, n, r = null, i = null) {
     </span>
   `;
 }
-function wp(e) {
+function Vp(e) {
 	let t = e?.attributes || {};
 	return String(t.icon || "").toLowerCase().includes("battery-charging") || t.battery_charging === !0 || t.is_charging === !0 || t.charging === !0;
 }
-function Tp(e) {
+function Hp(e) {
 	let t = String(e || "").match(/-?\d+(?:\.\d+)?/);
 	return (t ? Number(t[0]) : null) === 0 ? "" : t?.[0] || "";
 }
-function Ep(e, t = 1) {
+function Up(e, t = 1) {
 	let n = Math.max(1, t), r = [];
 	for (let t = 0; t < e.length; t += n) r.push(e.slice(t, t + n));
 	return r;
 }
-function Dp(e, t, n) {
+function Wp(e, t, n) {
 	let r = Math.max(0, t - e);
 	return Array.from({ length: r }, () => D`
     <div class=${n}></div>
   `);
 }
-var Op = e((() => {
+var Gp = e((() => {
 	M(), H();
-})), kp, Ap = e((() => {
-	M(), Hr(), Wr(), Kr(), kp = [
+})), Kp, qp = e((() => {
+	M(), Hr(), Wr(), Kr(), Kp = [
 		Vr,
 		Ur,
 		Gr,
@@ -7755,7 +7771,7 @@ var Op = e((() => {
 }));
 //#endregion
 //#region src/common/editor/helpers/group-options.js
-function jp({ config: e = {}, itemCount: t = 0, wrapEnabled: n = !!e?.wrap, perRowKey: r = "items_per_row", defaultPerRow: i = 3, scrollThreshold: a = 6 } = {}) {
+function Jp({ config: e = {}, itemCount: t = 0, wrapEnabled: n = !!e?.wrap, perRowKey: r = "items_per_row", defaultPerRow: i = 3, scrollThreshold: a = 6 } = {}) {
 	let o = Math.max(1, Number(e?.[r]) || i), s = !!n && t > o;
 	return {
 		itemsPerRow: o,
@@ -7763,7 +7779,7 @@ function jp({ config: e = {}, itemCount: t = 0, wrapEnabled: n = !!e?.wrap, perR
 		showTabScrollHint: !s && t > a || s && o > a
 	};
 }
-function Mp({ itemCount: e = 0, classPrefix: t, wrapKey: n = "wrap", wrapEnabled: r = !!this._config?.[n], showWrapToggle: i = !0, showSeparateToggle: a = e > 1, separateKey: o = "separate_cards", perRowKey: s = "items_per_row", perRowLabel: c = "Items per row", defaultPerRow: l = 3 } = {}) {
+function Yp({ itemCount: e = 0, classPrefix: t, wrapKey: n = "wrap", wrapEnabled: r = !!this._config?.[n], showWrapToggle: i = !0, showSeparateToggle: a = e > 1, separateKey: o = "separate_cards", perRowKey: s = "items_per_row", perRowLabel: c = "Items per row", defaultPerRow: l = 3 } = {}) {
 	let u = t || "action";
 	return D`
     <div class="${u}-group-options">
@@ -7803,12 +7819,12 @@ function Mp({ itemCount: e = 0, classPrefix: t, wrapKey: n = "wrap", wrapEnabled
     </div>
   `;
 }
-var Np = e((() => {
+var Xp = e((() => {
 	M();
 }));
 //#endregion
 //#region src/editors/status/sections/status.js
-function Pp() {
+function Zp() {
 	let e = this._config?.mode || "standard", t = e === "icon_only", n = e === "person", r = t || n ? "more-info" : "navigate", i = this._config?.tap_action?.action || r, a = t || n ? i : "more-info";
 	return D`
     <div class="section">
@@ -7819,7 +7835,7 @@ function Pp() {
           <ha-selector
             class="editor-header-button-toggle status-mode-selector"
             .hass=${this.hass}
-            .selector=${{ button_toggle: { options: Vp.call(this) } }}
+            .selector=${{ button_toggle: { options: im.call(this) } }}
             .value=${e}
             @value-changed=${(e) => this._updateConfig({ mode: e.detail.value || "standard" })}
           ></ha-selector>
@@ -7827,12 +7843,12 @@ function Pp() {
       </div>
     </div>
 
-    ${t ? Ip.call(this, {
+    ${t ? $p.call(this, {
 		cardActionDefault: r,
 		mainEntityActionDefault: a
 	}) : D`
           <div class="section">
-            ${Fp.call(this)}
+            ${Qp.call(this)}
 
             ${n ? D`
                   ${this._renderEntity("Person entity", "main_entity")}
@@ -7858,7 +7874,7 @@ function Pp() {
 
                     ${qa.call(this, {
 		value: this._config?.main_entity || "",
-		filterOptions: Hp,
+		filterOptions: am,
 		onValueChanged: (e) => this._handleEntityUpdate ? this._handleEntityUpdate("main_entity", e) : this._handleConfigUpdate("main_entity", e)
 	})}
                   </div>
@@ -7874,7 +7890,7 @@ function Pp() {
 		"Color"
 	], "accent_off_color")}
                   </div>
-                  ${zp.call(this)}
+                  ${nm.call(this)}
                   ${this._renderTemplateInput("State template", "state_template")}
                   ${this._renderTemplateInput("Label template", "label_template")}
                 `}
@@ -7929,23 +7945,23 @@ function Pp() {
         `}
   `;
 }
-function Fp() {
-	return Lo.call(this, {
+function Qp() {
+	return Ro.call(this, {
 		label: "Status name",
 		valueKey: "status_name",
 		entityKey: "main_entity",
 		defaultType: "entity"
 	});
 }
-function Ip({ cardActionDefault: e, mainEntityActionDefault: t }) {
-	let n = this._getStatusItems(), r = Math.min(this._selectedStatusIndex || 0, n.length - 1), i = n[r] || {}, { itemsPerRow: a, shouldWrapTabs: o, showTabScrollHint: s } = jp({
+function $p({ cardActionDefault: e, mainEntityActionDefault: t }) {
+	let n = this._getStatusItems(), r = Math.min(this._selectedStatusIndex || 0, n.length - 1), i = n[r] || {}, { itemsPerRow: a, shouldWrapTabs: o, showTabScrollHint: s } = Jp({
 		config: this._config,
 		itemCount: n.length,
 		defaultPerRow: 3
 	});
 	return D`
     <div class="section">
-      ${Mp.call(this, {
+      ${Yp.call(this, {
 		itemCount: n.length,
 		classPrefix: "status",
 		defaultPerRow: 3
@@ -8030,43 +8046,43 @@ function Ip({ cardActionDefault: e, mainEntityActionDefault: t }) {
 
         ${qa.call(this, {
 		value: i.entity || "",
-		filterOptions: Hp,
+		filterOptions: am,
 		onValueChanged: (e) => this._updateStatusItem(r, { entity: e })
 	})}
       </div>
 
       <div class="color-pair">
-        ${Rp.call(this, [
+        ${tm.call(this, [
 		"Accent",
 		"Active",
 		"Color"
 	], "accent_on_color", r, i)}
-        ${Rp.call(this, [
+        ${tm.call(this, [
 		"Accent",
 		"Inactive",
 		"Color"
 	], "accent_off_color", r, i)}
       </div>
 
-      ${Bp.call(this, r, i)}
+      ${rm.call(this, r, i)}
 
-      ${Lp.call(this, "State template", "state_template", r, i)}
-      ${Lp.call(this, "Label template", "label_template", r, i)}
+      ${em.call(this, "State template", "state_template", r, i)}
+      ${em.call(this, "Label template", "label_template", r, i)}
 
       ${i.entity ? this._renderStatusItemInteractions(r, i, e, t) : ""}
     </div>
   `;
 }
-function Lp(e, t, n, r) {
+function em(e, t, n, r) {
 	return this._renderTemplateInput(e, t, {
 		value: r[t] || "",
 		onValueChanged: (e) => this._updateStatusItem(n, { [t]: e })
 	});
 }
-function Rp(e, t, n, r) {
+function tm(e, t, n, r) {
 	return this._renderColorControl(e, `status-${n}-${t}`, r[t] || "", (e) => this._updateStatusItem(n, { [t]: e }));
 }
-function zp() {
+function nm() {
 	return vi.call(this, {
 		label: "Icon",
 		sourceKey: "main_entity_icon_source",
@@ -8087,7 +8103,7 @@ function zp() {
 		}
 	});
 }
-function Bp(e, t) {
+function rm(e, t) {
 	let n = this, r = {
 		hass: this.hass,
 		_config: t,
@@ -8115,7 +8131,7 @@ function Bp(e, t) {
 		}
 	});
 }
-function Vp() {
+function im() {
 	return [
 		{
 			label: this._t("Standard"),
@@ -8131,8 +8147,8 @@ function Vp() {
 		}
 	];
 }
-var Hp, Up = e((() => {
-	M(), ps(), Y(), Wi(), Np(), Hp = [
+var am, om = e((() => {
+	M(), ms(), wo(), Wi(), Xp(), am = [
 		{
 			label: "All",
 			value: "all",
@@ -8151,8 +8167,8 @@ var Hp, Up = e((() => {
 			domains: ["sensor"]
 		}
 	];
-})), Wp, Gp = e((() => {
-	M(), Wp = c`
+})), sm, cm = e((() => {
+	M(), sm = c`
 .status-wrap-toggle {
   display: flex;
   align-items: center;
@@ -8318,8 +8334,8 @@ var Hp, Up = e((() => {
   --mdc-icon-size: 20px;
 }
 `;
-})), Kp = /* @__PURE__ */ t((() => {
-	M(), Io(), Up(), Qs(), Gp(), B(), qf(), Q(), Pt();
+})), lm = /* @__PURE__ */ t((() => {
+	M(), Lo(), om(), $s(), cm(), B(), up(), Z(), Pt();
 	var e = class extends j {
 		static svgCache = z;
 		static properties = {
@@ -8341,19 +8357,19 @@ var Hp, Up = e((() => {
 			super(), this._config = this._config || {}, this._selectedStatusIndex = 0, this._colorPickerKey = "", this._colorPickerTab = "picker", this._iconPickerKey = "", this._iconPickerTab = "ha", this._iconFileSearch = "", this._iconFilePickerOpen = !1, this._orbitIconFiles = [], this._orbitIconFilesLoading = !1, this._localIconFiles = [], this._localIconFilesLoading = !1;
 		}
 		connectedCallback() {
-			super.connectedCallback(), wo(this), At(this, "orbit-status-card");
+			super.connectedCallback(), To(this), At(this, "orbit-status-card");
 		}
 		disconnectedCallback() {
-			To(this), super.disconnectedCallback();
+			Eo(this), super.disconnectedCallback();
 		}
 		_getColorStyle(e) {
-			return Do(e);
-		}
-		_getColorPickerValue(e) {
 			return Oo(e);
 		}
+		_getColorPickerValue(e) {
+			return ko(e);
+		}
 		_t(e, t) {
-			return X(this.hass, e, t);
+			return Y(this.hass, e, t);
 		}
 		setConfig(e) {
 			this._config = e || {}, this._selectedStatusIndex = Math.min(this._selectedStatusIndex || 0, this._getStatusItems(e).length - 1);
@@ -8619,19 +8635,19 @@ var Hp, Up = e((() => {
 			return R.call(this, e, { forceColor: !0 });
 		}
 		_renderStatusSection() {
-			return Pp.call(this);
+			return Zp.call(this);
 		}
 		render() {
 			return D`
       <div class="wrapper">
         ${this._renderStatusSection()}
         <div class="editor-version">
-          ${this._t("Orbit Status Card v{version}", { version: Z.status })}
+          ${this._t("Orbit Status Card v{version}", { version: X.status })}
         </div>
       </div>
     `;
 		}
-		static styles = [Zs, Wp];
+		static styles = [Qs, sm];
 	};
 	customElements.define("orbit-status-card-editor", e);
 	function t(e) {
@@ -8704,8 +8720,8 @@ var Hp, Up = e((() => {
 			r.has(t) || (n[t] = e[t]);
 		}), n;
 	}
-})), qp = /* @__PURE__ */ t((() => {
-	M(), at(), L(), Qf(), It(), Vt(), Dn(), jn(), Nn(), Ln(), Vn(), B(), qf(), vp(), Op(), Ap(), Kp(), Q();
+})), um = /* @__PURE__ */ t((() => {
+	M(), at(), L(), hp(), It(), Vt(), Dn(), jn(), Nn(), Ln(), Vn(), B(), up(), Fp(), Gp(), qp(), lm(), Z();
 	var e = class extends j {
 		static svgCache = z;
 		static get properties() {
@@ -8739,7 +8755,7 @@ var Hp, Up = e((() => {
 		}
 		getLayoutOptions() {
 			if (this._config?.mode === "icon_only") {
-				let e = up(this._config).length, n = t(this._config, e);
+				let e = Dp(this._config).length, n = t(this._config, e);
 				return {
 					grid_columns: Math.max(1, n),
 					grid_min_columns: .5,
@@ -8757,7 +8773,7 @@ var Hp, Up = e((() => {
 			this._nameColor = this._computeFullColor(t), this._statusColor = this._computeFullColor(t), this._iconColor = this._computeIconColor(t), this._circleColor = this._computeCircleColor(t), this._statusItems = [];
 		}
 		willUpdate(e) {
-			return lp.call(this, e);
+			return Ep.call(this, e);
 		}
 		shouldUpdate(e) {
 			return Pn.call(this, e, this._getRelevantEntities(), {
@@ -8931,7 +8947,7 @@ var Hp, Up = e((() => {
 			return Mn.call(this, e, t);
 		}
 		_getRelevantEntities() {
-			return this._config?.mode === "icon_only" ? up(this._config).map((e) => e.entity || e.main_entity) : [
+			return this._config?.mode === "icon_only" ? Dp(this._config).map((e) => e.entity || e.main_entity) : [
 				this._config?.main_entity,
 				this._config?.tracker_entity,
 				this._config?.eta_entity,
@@ -9073,19 +9089,19 @@ var Hp, Up = e((() => {
 			e.preventDefault(), e.stopPropagation(), e.stopImmediatePropagation && e.stopImmediatePropagation();
 		}
 		render() {
-			return yp.call(this);
+			return Ip.call(this);
 		}
-		static styles = kp;
+		static styles = Kp;
 	};
 	function t(e = {}, t = 1) {
-		return Xf({
+		return pp({
 			config: e,
 			count: t,
 			perRowKey: "items_per_row"
 		});
 	}
 	function n(e = {}, t = 1) {
-		return Zf({
+		return mp({
 			config: e,
 			count: t,
 			perRowKey: "items_per_row"
@@ -9096,7 +9112,7 @@ var Hp, Up = e((() => {
 		cardClass: e,
 		name: "Orbit Status Card",
 		description: "Responsive status card",
-		version: Z.status,
+		version: X.status,
 		getEntitySuggestion: i
 	});
 	var r = new Set([
@@ -9115,7 +9131,7 @@ var Hp, Up = e((() => {
 		} };
 		if (r.has(n)) return null;
 		let i = {
-			label: X(e, "Standard"),
+			label: Y(e, "Standard"),
 			config: {
 				type: "custom:orbit-status-card",
 				mode: "standard",
@@ -9123,7 +9139,7 @@ var Hp, Up = e((() => {
 			}
 		};
 		return Bn(e, t) ? [i, {
-			label: X(e, "Icon only"),
+			label: Y(e, "Icon only"),
 			config: {
 				type: "custom:orbit-status-card",
 				mode: "icon_only",
@@ -9134,10 +9150,10 @@ var Hp, Up = e((() => {
 }));
 //#endregion
 //#region src/cards/action/helpers/lifecycle.js
-function Jp(e) {
-	!e.has("_config") && !e.has("hass") || (this._actions = Yp(this._config).map((e) => Xp.call(this, e)));
+function dm(e) {
+	!e.has("_config") && !e.has("hass") || (this._actions = fm(this._config).map((e) => pm.call(this, e)));
 }
-function Yp(e = {}) {
+function fm(e = {}) {
 	return Array.isArray(e.entities) && e.entities.length ? e.entities.map((e) => typeof e == "string" ? { entity: e } : e || {}) : [{
 		entity: e.main_entity,
 		accent_color: e.accent_color,
@@ -9149,8 +9165,8 @@ function Yp(e = {}) {
 		double_tap_action: e.double_tap_action
 	}];
 }
-function Xp(e) {
-	let t = e.entity || e.main_entity, n = t && this.hass ? this.hass.states[t] : null, r = e.accent_color || this._config.accent_color || "theme", i = Qp(n), a = this._computeCircleColor(r), o = i ? this._computeFullColor(r) : this._computeIconColor(r), s = Zp(e, t), c = s === "custom" && (e.main_entity_icon || e.icon) || "", l = s === "custom" && e.main_entity_icon ? "main_entity_icon" : s === "custom" && e.icon ? "icon" : "", u = c || "mdi:play-circle";
+function pm(e) {
+	let t = e.entity || e.main_entity, n = t && this.hass ? this.hass.states[t] : null, r = e.accent_color || this._config.accent_color || "theme", i = hm(n), a = this._computeCircleColor(r), o = i ? this._computeFullColor(r) : this._computeIconColor(r), s = mm(e, t), c = s === "custom" && (e.main_entity_icon || e.icon) || "", l = s === "custom" && e.main_entity_icon ? "main_entity_icon" : s === "custom" && e.icon ? "icon" : "", u = c || "mdi:play-circle";
 	return {
 		...e,
 		entityId: t,
@@ -9163,20 +9179,20 @@ function Xp(e) {
 		svgForceColor: l ? this._getSvgColorOverride(e, l) : !0
 	};
 }
-function Zp(e, t) {
+function mm(e, t) {
 	let n = e.main_entity_icon_source, r = !!t, i = !!(e.main_entity_icon || e.icon);
 	return n === "custom" ? "custom" : n === "entity" && r ? "entity" : i ? "custom" : "entity";
 }
-function Qp(e) {
+function hm(e) {
 	if (!e) return !1;
 	let t = e.entity_id?.split(".")[0], n = Number(e.attributes?.current);
 	return Number.isFinite(n) && n > 0 ? !0 : t === "script" && e.state === "on";
 }
-var $p = e((() => {}));
+var gm = e((() => {}));
 //#endregion
 //#region src/cards/action/renders/action-card.js
-function em() {
-	let e = this._actions || [], t = Math.max(e.length, 1), n = this._getActionColumnCount(t), r = this._getActionRowCount(t), i = nm(e, n);
+function _m() {
+	let e = this._actions || [], t = Math.max(e.length, 1), n = this._getActionColumnCount(t), r = this._getActionRowCount(t), i = ym(e, n);
 	return D`
     <ha-card
       class="${t > 1 ? "grouped" : ""} ${t > 1 && this._config?.separate_cards ? "separate-cards" : ""}"
@@ -9190,15 +9206,15 @@ function em() {
       <div class="container action-container">
         ${i.map((e, t) => D`
           <div class="action-row">
-            ${e.map((e, r) => tm.call(this, e, t * n + r))}
-            ${rm(e.length, n, "action-spacer")}
+            ${e.map((e, r) => vm.call(this, e, t * n + r))}
+            ${bm(e.length, n, "action-spacer")}
           </div>
         `)}
       </div>
     </ha-card>
   `;
 }
-function tm(e, t) {
+function vm(e, t) {
 	let n = this._isImageIcon(e.icon) ? this._resolveIconPath(e.icon) : "", r = n ? this._getInlineSvg(n, e.svgForceColor) : "", i = D`
     <div class="circle action-circle">
       ${this._isImageIcon(e.icon) ? D`
@@ -9258,21 +9274,21 @@ function tm(e, t) {
     </ha-card>
   `;
 }
-function nm(e, t = 1) {
+function ym(e, t = 1) {
 	let n = Math.max(1, t), r = [];
 	for (let t = 0; t < e.length; t += n) r.push(e.slice(t, t + n));
 	return r;
 }
-function rm(e, t, n) {
+function bm(e, t, n) {
 	let r = Math.max(0, t - e);
 	return Array.from({ length: r }, () => D`
     <div class=${n}></div>
   `);
 }
-var im = e((() => {
+var xm = e((() => {
 	M(), H();
-})), am, om = e((() => {
-	M(), Wr(), Kr(), am = [
+})), Sm, Cm = e((() => {
+	M(), Wr(), Kr(), Sm = [
 		Ur,
 		Gr,
 		c`
@@ -9404,8 +9420,8 @@ var im = e((() => {
 }));
 //#endregion
 //#region src/editors/action/sections/action.js
-function sm() {
-	let e = this._getActionItems(), t = Math.min(this._selectedActionIndex || 0, e.length - 1), n = e[t] || {}, r = this._actionEntityDomainFilter || "all", { itemsPerRow: i, shouldWrapTabs: a, showTabScrollHint: o } = jp({
+function wm() {
+	let e = this._getActionItems(), t = Math.min(this._selectedActionIndex || 0, e.length - 1), n = e[t] || {}, r = this._actionEntityDomainFilter || "all", { itemsPerRow: i, shouldWrapTabs: a, showTabScrollHint: o } = Jp({
 		config: this._config,
 		itemCount: e.length,
 		perRowKey: "actions_per_row",
@@ -9413,7 +9429,7 @@ function sm() {
 	});
 	return D`
     <div class="section">
-      ${Mp.call(this, {
+      ${Yp.call(this, {
 		itemCount: e.length,
 		classPrefix: "action",
 		perRowKey: "actions_per_row",
@@ -9491,7 +9507,7 @@ function sm() {
 
         ${qa.call(this, {
 		value: n.entity || "",
-		filterOptions: lm,
+		filterOptions: Em,
 		activeFilter: r,
 		onValueChanged: (e) => this._updateActionItem(t, { entity: e })
 	})}
@@ -9499,13 +9515,13 @@ function sm() {
 
       ${this._renderColorControl(["Accent", "Color"], `action-${t}-accent_color`, n.accent_color || "", (e) => this._updateActionItem(t, { accent_color: e }), this._config?.accent_color || "theme")}
 
-      ${cm.call(this, t, n)}
+      ${Tm.call(this, t, n)}
 
       ${n.entity ? this._renderActionItemInteractions(t, n) : ""}
     </div>
   `;
 }
-function cm(e, t) {
+function Tm(e, t) {
 	let n = this, r = {
 		hass: this.hass,
 		_config: t,
@@ -9523,8 +9539,8 @@ function cm(e, t) {
 		}
 	});
 }
-var lm, um = e((() => {
-	M(), Y(), Wi(), Np(), lm = [
+var Em, Dm = e((() => {
+	M(), wo(), Wi(), Xp(), Em = [
 		{
 			label: "All",
 			value: "all",
@@ -9565,8 +9581,8 @@ var lm, um = e((() => {
 			domains: ["script"]
 		}
 	];
-})), dm, fm = e((() => {
-	M(), dm = c`
+})), Om, km = e((() => {
+	M(), Om = c`
 .action-tabs {
   display: flex;
   align-items: end;
@@ -9732,8 +9748,8 @@ var lm, um = e((() => {
   --mdc-icon-size: 20px;
 }
 `;
-})), pm = /* @__PURE__ */ t((() => {
-	M(), Io(), um(), Qs(), fm(), B(), Gn(), qf(), Q(), Pt();
+})), Am = /* @__PURE__ */ t((() => {
+	M(), Lo(), Dm(), $s(), km(), B(), Gn(), up(), Z(), Pt();
 	var e = class extends j {
 		static svgCache = z;
 		static properties = {
@@ -9756,16 +9772,16 @@ var lm, um = e((() => {
 			super(), this._config = this._config || {}, this._selectedActionIndex = 0, this._actionEntityDomainFilter = "all", this._colorPickerKey = "", this._colorPickerTab = "picker", this._iconPickerKey = "", this._iconPickerTab = "ha", this._iconFileSearch = "", this._iconFilePickerOpen = !1, this._orbitIconFiles = [], this._orbitIconFilesLoading = !1, this._localIconFiles = [], this._localIconFilesLoading = !1;
 		}
 		connectedCallback() {
-			super.connectedCallback(), wo(this), At(this, "orbit-action-card");
+			super.connectedCallback(), To(this), At(this, "orbit-action-card");
 		}
 		disconnectedCallback() {
-			To(this), super.disconnectedCallback();
+			Eo(this), super.disconnectedCallback();
 		}
 		setConfig(e) {
 			this._config = e || {}, this._selectedActionIndex = Math.min(this._selectedActionIndex || 0, this._getActionItems(e).length - 1);
 		}
 		_t(e, t) {
-			return X(this.hass, e, t);
+			return Y(this.hass, e, t);
 		}
 		_updateConfig(e) {
 			this._config = o(Qi(this._config, e)), this.dispatchEvent(new CustomEvent("config-changed", {
@@ -9837,10 +9853,10 @@ var lm, um = e((() => {
 			});
 		}
 		_getColorStyle(e) {
-			return Do(e);
+			return Oo(e);
 		}
 		_getColorPickerValue(e) {
-			return Oo(e);
+			return ko(e);
 		}
 		_renderActionItemInteractions(e, t) {
 			let n = {
@@ -9956,19 +9972,19 @@ var lm, um = e((() => {
 			return R.call(this, e, { forceColor: !0 });
 		}
 		_renderActionSection() {
-			return sm.call(this);
+			return wm.call(this);
 		}
 		render() {
 			return D`
       <div class="wrapper">
         ${this._renderActionSection()}
         <div class="editor-version">
-          ${this._t("Orbit Action Card v{version}", { version: Z.action })}
+          ${this._t("Orbit Action Card v{version}", { version: X.action })}
         </div>
       </div>
     `;
 		}
-		static styles = [Zs, dm];
+		static styles = [Qs, Om];
 	};
 	customElements.define("orbit-action-card-editor", e);
 	function t(e) {
@@ -10026,8 +10042,8 @@ var lm, um = e((() => {
 			r.has(t) || (n[t] = e[t]);
 		}), n;
 	}
-})), mm = /* @__PURE__ */ t((() => {
-	M(), at(), Gn(), L(), Qf(), It(), Dn(), Ln(), Vn(), B(), $p(), im(), om(), pm(), Q();
+})), jm = /* @__PURE__ */ t((() => {
+	M(), at(), Gn(), L(), hp(), It(), Dn(), Ln(), Vn(), B(), gm(), xm(), Cm(), Am(), Z();
 	var e = class extends j {
 		static svgCache = z;
 		static get properties() {
@@ -10052,7 +10068,7 @@ var lm, um = e((() => {
 			};
 		}
 		getLayoutOptions() {
-			let e = Yp(this._config).length, n = t(this._config, e);
+			let e = fm(this._config).length, n = t(this._config, e);
 			return {
 				grid_columns: Math.max(1, n * 1),
 				grid_min_columns: .5,
@@ -10065,10 +10081,10 @@ var lm, um = e((() => {
 			this._iconColor = this._computeIconColor(t), this._cardBackground = this._computeCircleColor(t), this._isRunning = !1, this._actions = [];
 		}
 		willUpdate(e) {
-			return Jp.call(this, e);
+			return dm.call(this, e);
 		}
 		shouldUpdate(e) {
-			return Pn.call(this, e, Yp(this._config).map((e) => e.entity || e.main_entity), { hasTemplates: Fn(this._config) });
+			return Pn.call(this, e, fm(this._config).map((e) => e.entity || e.main_entity), { hasTemplates: Fn(this._config) });
 		}
 		_handleTap(e, t = 0) {
 			if (this._longPressTriggered) {
@@ -10117,7 +10133,7 @@ var lm, um = e((() => {
 			return t(this._config, e);
 		}
 		_getActionRowCount(e = this._actions?.length || 1) {
-			return Zf({
+			return mp({
 				config: this._config,
 				count: e,
 				perRowKey: "actions_per_row"
@@ -10154,12 +10170,12 @@ var lm, um = e((() => {
 			e.preventDefault(), e.stopPropagation(), e.stopImmediatePropagation && e.stopImmediatePropagation();
 		}
 		render() {
-			return em.call(this);
+			return _m.call(this);
 		}
-		static styles = am;
+		static styles = Sm;
 	};
 	function t(e = {}, t = 1) {
-		return Xf({
+		return pp({
 			config: e,
 			count: t,
 			perRowKey: "actions_per_row"
@@ -10170,7 +10186,7 @@ var lm, um = e((() => {
 		cardClass: e,
 		name: "Orbit Action Card",
 		description: "Compact scene, script, and automation launcher",
-		version: Z.action,
+		version: X.action,
 		getEntitySuggestion: r
 	});
 	var n = new Set([
@@ -10189,37 +10205,37 @@ var lm, um = e((() => {
 }));
 //#endregion
 //#region src/common/helpers/deck-padding.js
-function hm(e = {}) {
+function Mm(e = {}) {
 	let t = e?.attributes || {};
 	return {
-		top: xm(t.padding_top),
-		right: xm(t.padding_right),
-		bottom: xm(t.padding_bottom),
-		left: xm(t.padding_left)
+		top: Rm(t.padding_top),
+		right: Rm(t.padding_right),
+		bottom: Rm(t.padding_bottom),
+		left: Rm(t.padding_left)
 	};
 }
-function gm(e = {}) {
-	return Object.values(hm(e)).some(Boolean);
+function Nm(e = {}) {
+	return Object.values(Mm(e)).some(Boolean);
 }
-function _m(e = {}) {
+function Pm(e = {}) {
 	return e?.attributes?.force_padding === !0;
 }
-function vm(e = {}) {
-	return gm(e) && (_m(e) || !bm(e?.card));
+function Fm(e = {}) {
+	return Nm(e) && (Pm(e) || !Lm(e?.card));
 }
-function ym(e = {}) {
-	return _m(e) && gm(e);
+function Im(e = {}) {
+	return Pm(e) && Nm(e);
 }
-function bm(e) {
-	return Array.isArray(e) ? e.some((e) => bm(e)) : !e || typeof e != "object" ? typeof e == "string" ? /\bpadding(?:-(?:top|right|bottom|left))?\b/i.test(e) : !1 : Object.entries(e).some(([e, t]) => e.toLowerCase().includes("padding") || bm(t));
+function Lm(e) {
+	return Array.isArray(e) ? e.some((e) => Lm(e)) : !e || typeof e != "object" ? typeof e == "string" ? /\bpadding(?:-(?:top|right|bottom|left))?\b/i.test(e) : !1 : Object.entries(e).some(([e, t]) => e.toLowerCase().includes("padding") || Lm(t));
 }
-function xm(e) {
+function Rm(e) {
 	if (e == null || e === "") return "";
 	let t = e.toString().trim();
 	return t ? /^-?\d+(\.\d+)?$/.test(t) ? `${t}px` : t : "";
 }
-var Sm = e((() => {})), Cm, wm = e((() => {
-	M(), Cm = c`
+var zm = e((() => {})), Bm, Vm = e((() => {
+	M(), Bm = c`
   ha-card.deck-card {
     border-radius: var(--ha-card-border-radius, 15px);
     overflow: visible;
@@ -10435,15 +10451,15 @@ var Sm = e((() => {})), Cm, wm = e((() => {
 }));
 //#endregion
 //#region src/editors/deck-card-editor.js
-function Tm(e) {
+function Hm(e) {
 	let t = {}, n = /* @__PURE__ */ new Set();
-	return Im.forEach((r) => {
-		Object.prototype.hasOwnProperty.call(e, r) && (t[r] = r === "decks" && Array.isArray(e[r]) ? e[r].map(Dm) : e[r], n.add(r));
+	return $m.forEach((r) => {
+		Object.prototype.hasOwnProperty.call(e, r) && (t[r] = r === "decks" && Array.isArray(e[r]) ? e[r].map(Wm) : e[r], n.add(r));
 	}), Object.keys(e).forEach((r) => {
 		n.has(r) || (t[r] = e[r]);
 	}), t;
 }
-function Em(e) {
+function Um(e) {
 	if (!Array.isArray(e?.decks)) return {
 		config: e,
 		changed: !1
@@ -10472,26 +10488,26 @@ function Em(e) {
 		changed: t
 	};
 }
-function Dm(e) {
+function Wm(e) {
 	if (!e || typeof e != "object" || Array.isArray(e)) return e;
 	let t = {}, n = /* @__PURE__ */ new Set(), r = {
 		...e,
-		attributes: Om(e.attributes || {})
+		attributes: Gm(e.attributes || {})
 	};
-	return e.badge?.type ? (r.badge = e.badge, delete r.card) : e.card?.type ? (r.card = e.card, delete r.badge) : (delete r.badge, delete r.card), Lm.forEach((e) => {
+	return e.badge?.type ? (r.badge = e.badge, delete r.card) : e.card?.type ? (r.card = e.card, delete r.badge) : (delete r.badge, delete r.card), eh.forEach((e) => {
 		Object.prototype.hasOwnProperty.call(r, e) && (t[e] = r[e], n.add(e));
 	}), Object.keys(r).forEach((e) => {
 		n.has(e) || (t[e] = r[e]);
 	}), t;
 }
-function Om(e = {}) {
+function Gm(e = {}) {
 	return Object.entries(e).reduce((e, [t, n]) => (n !== void 0 && n !== "" && (e[t] = n), e), {});
 }
-function km(e = {}, t) {
-	let n = jm(e);
+function Km(e = {}, t) {
+	let n = Jm(e);
 	return n?.[t]?.action ? n[t] : t === "tap_action" && n?.entity ? "more-info" : "none";
 }
-function Am(e = {}) {
+function qm(e = {}) {
 	return e?.badge ? {
 		attributes: e.attributes || {},
 		badge: e.badge || {}
@@ -10500,17 +10516,17 @@ function Am(e = {}) {
 		card: e?.card || {}
 	};
 }
-function jm(e = {}) {
+function Jm(e = {}) {
 	return e?.badge || e?.card || {};
 }
-function Mm(e) {
-	return Nm(e) !== "none";
+function Ym(e) {
+	return Xm(e) !== "none";
 }
-function Nm(e) {
+function Xm(e) {
 	return typeof e == "string" ? e : e?.action || "none";
 }
-var Pm, Fm, Im, Lm, Rm = e((() => {
-	M(), Io(), Np(), Y(), Qs(), fm(), qf(), Q(), Pt(), Pm = Symbol.for("orbit-deck-card-preview-selected-index"), Fm = class extends j {
+var Zm, Qm, $m, eh, th = e((() => {
+	M(), Lo(), Xp(), wo(), $s(), km(), up(), Z(), Pt(), Zm = Symbol.for("orbit-deck-card-preview-selected-index"), Qm = class extends j {
 		static properties = {
 			hass: { attribute: !1 },
 			lovelace: { attribute: !1 },
@@ -10527,13 +10543,13 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
 			super(), this._config = {}, this._selectedTab = "setup", this._selectedDeckIndex = 0, this._childPickerType = "badge", this._colorPickerKey = "", this._colorPickerTab = "picker", this._styleSectionExpanded = !1, this._cardSectionExpanded = !0;
 		}
 		connectedCallback() {
-			super.connectedCallback(), wo(this), this._updateDocumentationContext();
+			super.connectedCallback(), To(this), this._updateDocumentationContext();
 		}
 		disconnectedCallback() {
-			To(this), super.disconnectedCallback();
+			Eo(this), super.disconnectedCallback();
 		}
 		setConfig(e) {
-			let t = Em(e || {});
+			let t = Um(e || {});
 			this._config = {
 				...t.config,
 				layout: ["tabs", "overlay"].includes(e?.layout) ? e.layout : "wrap"
@@ -10542,16 +10558,16 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
 			this._childPickerType = n?.badge ? "badge" : "card", this._updateDocumentationContext(), t.changed && queueMicrotask(() => this._dispatchConfigChanged());
 		}
 		_t(e, t) {
-			return X(this.hass, e, t);
+			return Y(this.hass, e, t);
 		}
 		_getColorPickerValue(e) {
-			return Oo(e);
+			return ko(e);
 		}
 		_getColorStyle(e) {
-			return Do(e);
+			return Oo(e);
 		}
 		_updateConfig(e) {
-			this._config = Tm(Qi(this._config, e)), this._dispatchConfigChanged();
+			this._config = Hm(Qi(this._config, e)), this._dispatchConfigChanged();
 		}
 		_dispatchConfigChanged() {
 			this.dispatchEvent(new CustomEvent("config-changed", {
@@ -10563,11 +10579,11 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
 		_getPreviewConfig() {
 			return {
 				...this._config,
-				[Pm]: this._selectedDeckIndex || 0
+				[Zm]: this._selectedDeckIndex || 0
 			};
 		}
 		_getDeckItems(e = this._config) {
-			return Array.isArray(e?.decks) ? e.decks.map(Am) : [];
+			return Array.isArray(e?.decks) ? e.decks.map(qm) : [];
 		}
 		_selectDeckItem(e) {
 			let t = this._getDeckItems()[e];
@@ -10577,7 +10593,7 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
 			this.dispatchEvent(new CustomEvent("config-changed", {
 				detail: { config: {
 					...this._getPreviewConfig(),
-					[Pm]: e
+					[Zm]: e
 				} },
 				bubbles: !0,
 				composed: !0
@@ -10704,7 +10720,7 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
 			let e = this._getDeckItems();
 			return D`
       <div class="section deck-card-tab-section">
-        ${this._config?.layout === "wrap" ? Mp.call(this, {
+        ${this._config?.layout === "wrap" ? Yp.call(this, {
 				itemCount: e.length,
 				classPrefix: "action",
 				wrapEnabled: !0,
@@ -10765,7 +10781,7 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
     `;
 		}
 		_renderDeckTabs(e, t) {
-			let { itemsPerRow: n, shouldWrapTabs: r } = jp({
+			let { itemsPerRow: n, shouldWrapTabs: r } = Jp({
 				config: this._config,
 				itemCount: e.length,
 				wrapEnabled: this._config?.layout === "wrap",
@@ -11100,7 +11116,7 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
     `;
 		}
 		_renderDeckInteractions(e, t) {
-			let n = t?.attributes || {}, r = km(t, "tap_action"), i = km(t, "hold_action"), a = km(t, "double_tap_action");
+			let n = t?.attributes || {}, r = Km(t, "tap_action"), i = Km(t, "hold_action"), a = Km(t, "double_tap_action");
 			return J.call(this, {
 				expanded: !1,
 				config: n,
@@ -11111,27 +11127,27 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
 						formKey: "tap_action",
 						label: "Tap behavior",
 						defaultAction: r,
-						defaultVisible: Mm(r),
-						displayDefaultValue: Mm(r)
+						defaultVisible: Ym(r),
+						displayDefaultValue: Ym(r)
 					},
 					{
 						key: "hold_action",
 						formKey: "hold_action",
 						label: "Hold behavior",
 						defaultAction: i,
-						defaultVisible: Mm(i),
-						displayDefaultValue: Mm(i)
+						defaultVisible: Ym(i),
+						displayDefaultValue: Ym(i)
 					},
 					{
 						key: "double_tap_action",
 						formKey: "double_tap_action",
 						label: "Double tap behavior",
 						defaultAction: a,
-						defaultVisible: Mm(a),
-						displayDefaultValue: Mm(a)
+						defaultVisible: Ym(a),
+						displayDefaultValue: Ym(a)
 					}
 				],
-				context: { entity_id: n.entity || jm(t)?.entity }
+				context: { entity_id: n.entity || Jm(t)?.entity }
 			});
 		}
 		async _ensureNativeBadgePicker() {
@@ -11251,14 +11267,14 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
         ${this._selectedTab === "setup" ? this._renderSetup() : this._renderCard()}
 
         <div class="editor-version">
-          ${this._t("Orbit Deck Card v{version}", { version: Z.deck })}
+          ${this._t("Orbit Deck Card v{version}", { version: X.deck })}
         </div>
       </div>
     `;
 		}
 		static styles = [
-			Zs,
-			dm,
+			Qs,
+			Om,
 			c`
       .deck-subtabs-row {
         display: flex;
@@ -11416,7 +11432,7 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
       }
     `
 		];
-	}, customElements.define("orbit-deck-card-editor", Fm), Im = [
+	}, customElements.define("orbit-deck-card-editor", Qm), $m = [
 		"type",
 		"layout",
 		"items_per_row",
@@ -11430,13 +11446,13 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
 		"decks",
 		"grid_options",
 		"view_layout"
-	], Lm = [
+	], eh = [
 		"attributes",
 		"badge",
 		"card"
 	];
-})), zm = /* @__PURE__ */ t((() => {
-	M(), It(), Q(), L(), Sm(), at(), jn(), wm(), Rm();
+})), nh = /* @__PURE__ */ t((() => {
+	M(), It(), Z(), L(), zm(), at(), jn(), Vm(), th();
 	var e = class extends j {
 		static get properties() {
 			return {
@@ -11477,7 +11493,7 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
 				layout: n
 			};
 			let r = t(this._config), i = g(r), a = h(r);
-			Number.isInteger(e?.[Pm]) ? this._selectedIndex = Math.min(Math.max(0, e[Pm]), Math.max(0, r.length - 1)) : i === this._defaultSelectionKey ? this._selectedIndex = Math.min(this._selectedIndex || 0, Math.max(0, r.length - 1)) : (this._selectedIndex = a, this._defaultSelectionKey = i), this._scheduleCardBuild();
+			Number.isInteger(e?.[Zm]) ? this._selectedIndex = Math.min(Math.max(0, e[Zm]), Math.max(0, r.length - 1)) : i === this._defaultSelectionKey ? this._selectedIndex = Math.min(this._selectedIndex || 0, Math.max(0, r.length - 1)) : (this._selectedIndex = a, this._defaultSelectionKey = i), this._scheduleCardBuild();
 		}
 		updated(e) {
 			e.has("hass") && this._deckCards.forEach((e) => {
@@ -11535,7 +11551,7 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
 		async _scheduleCardBuild() {
 			let e = t(this._config), n = JSON.stringify(e.map((e, t) => ({
 				kind: d(e),
-				config: u(e, y(this._config, e, t))
+				config: u(e, ie(this._config, e, t))
 			})));
 			if (n === this._cardBuildKey) {
 				this._deckCards = this._deckCards.map((t, n) => ({
@@ -11549,7 +11565,7 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
 				item: e,
 				index: t
 			}));
-			let r = await this._loadCardHelpers(), i = e.map((e, t) => this._createDeckEntry(e, r, t, y(this._config, e, t)));
+			let r = await this._loadCardHelpers(), i = e.map((e, t) => this._createDeckEntry(e, r, t, ie(this._config, e, t)));
 			n === this._cardBuildKey && (this._deckCards = i);
 		}
 		async _loadCardHelpers() {
@@ -11657,15 +11673,15 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
     `;
 		}
 		_applyDeckPaddingToEntries() {
-			let e = this._deckCards.map((e) => y(this._config, e.item, e.index) ? "flat" : "native").join(":"), t = `${re(this._deckCards)}|surface:${e}`;
+			let e = this._deckCards.map((e) => ie(this._config, e.item, e.index) ? "flat" : "native").join(":"), t = `${y(this._deckCards)}|surface:${e}`;
 			t !== this._paddingApplyKey && (this._paddingApplyKey = t, this._deckCards.forEach((e) => this._applyDeckCardPadding(e)));
 		}
 		_applyDeckCardPadding(e, t = 0) {
 			let n = e?.element;
 			if (!n) return;
-			let r = hm(e.item), i = vm(e.item);
+			let r = Mm(e.item), i = Fm(e.item);
 			(n.updateComplete instanceof Promise ? n.updateComplete : Promise.resolve()).then(() => new Promise((e) => requestAnimationFrame(e))).then(() => {
-				let a = ce(n), o = a[0] || null, s = ie(this.renderRoot, e.index), c = y(this._config, e.item, e.index);
+				let a = ce(n), o = a[0] || null, s = re(this.renderRoot, e.index), c = ie(this._config, e.item, e.index);
 				if (!(!o && !s)) {
 					if ((i || c) && !o && t < 10 && window.setTimeout(() => this._applyDeckCardPadding(e, t + 1), 50), b(n, c), a.forEach((e) => b(e, c)), !i && !o?._orbitDeckPaddingApplied && !s?._orbitDeckPaddingApplied) {
 						o && de(o);
@@ -11759,7 +11775,7 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
         </ha-card>
       `;
 		}
-		static styles = Cm;
+		static styles = Bm;
 	};
 	function t(e = {}) {
 		return Array.isArray(e?.decks) ? e.decks.map((e) => e?.badge ? {
@@ -11844,7 +11860,7 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
 		return e?.attributes?.entity || m(e?.attributes?.tap_action) || m(e?.attributes?.hold_action) || m(e?.attributes?.double_tap_action) || m(t?.tap_action) || m(t?.hold_action) || m(t?.double_tap_action) || t?.entity || null;
 	}
 	function u(e = {}, t = !1) {
-		let n = f(e), r = ym(e) ? p(n) : n, i = r;
+		let n = f(e), r = Im(e) ? p(n) : n, i = r;
 		if (s(e)) {
 			let { tap_action: e, hold_action: t, double_tap_action: n, ...a } = r;
 			i = a;
@@ -11900,10 +11916,10 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
     <div class="deck-spacer"></div>
   `);
 	}
-	function re(e = []) {
+	function y(e = []) {
 		return e.map((e) => {
 			if (!e?.element) return `${e?.index ?? ""}:none`;
-			let t = hm(e.item), n = _m(e.item), r = vm(e.item);
+			let t = Mm(e.item), n = Pm(e.item), r = Fm(e.item);
 			return [
 				e.index,
 				e.kind || d(e.item),
@@ -11916,10 +11932,10 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
 			].join(":");
 		}).join("|");
 	}
-	function ie(e, t) {
+	function re(e, t) {
 		return e?.querySelector?.(`.deck-item-interaction[data-deck-index="${t}"]`);
 	}
-	function y(e = {}, t = {}, n = 0) {
+	function ie(e = {}, t = {}, n = 0) {
 		return e?.layout === "wrap" ? !e?.separate_cards : e?.layout === "overlay" ? n > 0 && t?.attributes?.transparent_background === !0 : e?.layout === "tabs";
 	}
 	var ae = {
@@ -12003,12 +12019,12 @@ var Pm, Fm, Im, Lm, Rm = e((() => {
 		cardClass: e,
 		name: "Orbit Deck Card",
 		description: "Wrap or tab any Lovelace cards",
-		version: Z.deck
+		version: X.deck
 	});
 }));
 //#endregion
 //#region src/common/helpers/badge-registration.js
-function Bm({ tag: e, badgeClass: t, name: n, description: r, version: i, documentationURL: a }) {
+function rh({ tag: e, badgeClass: t, name: n, description: r, version: i, documentationURL: a }) {
 	customElements.get(e) || customElements.define(e, t), window.customBadges = window.customBadges || [];
 	for (let t = window.customBadges.length - 1; t >= 0; --t) window.customBadges[t].type === e && window.customBadges.splice(t, 1);
 	window.customBadges.push({
@@ -12019,33 +12035,37 @@ function Bm({ tag: e, badgeClass: t, name: n, description: r, version: i, docume
 		documentationURL: a || kt(e)
 	}), console.info(`%c ${n} %c v${i} `, "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;", "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;");
 }
-var Vm = e((() => {
+var ih = e((() => {
 	Pt();
 }));
 //#endregion
 //#region src/common/helpers/status-badge.js
-function Hm(e = "") {
-	return Qm.get(e) || {
+function ah(e = "") {
+	return hh.get(e) || {
 		value: e,
 		label: e ? e.replaceAll("_", " ") : "Status",
 		icon: "mdi:shape"
 	};
 }
-function Um(e = {}) {
-	let t = !e.entity && (e.area || e.domain || e.device_class) ? "area_count" : "entity", n = e.state_source || t;
-	if (["entity", "area_count"].includes(n)) return n;
-	throw Error(`Invalid state_source "${n}". Expected "entity" or "area_count".`);
+function $(e = {}) {
+	let t = e.state_template ? "template" : !e.entity && (e.area || e.domain || e.device_class) ? "area_count" : "entity", n = e.state_source || t;
+	if ([
+		"entity",
+		"area_count",
+		"template"
+	].includes(n)) return n;
+	throw Error(`Invalid state_source "${n}". Expected "entity", "area_count", or "template".`);
 }
-function Wm(e = {}) {
-	let t = Um(e), n = e.domain ? Hm(e.domain) : void 0;
+function oh(e = {}) {
+	let t = $(e), n = e.domain ? ah(e.domain) : void 0;
 	if (t === "area_count" && n?.requiresDeviceClass && !e.device_class) throw Error(`Orbit Status Badge requires "device_class" for domain "${e.domain}".`);
 	return t;
 }
-function Gm(e = {}) {
-	let t = Um(e), n = e.accent_on_color === "amber" && e.accent_off_color === "grey", r = e.color_mode === "native" || n, i = { ...e };
+function sh(e = {}) {
+	let t = $(e), n = e.accent_on_color === "amber" && e.accent_off_color === "grey", r = e.color_mode === "native" || n, i = { ...e };
 	return Object.keys(i).forEach((e) => {
 		(i[e] === "" || i[e] === void 0) && delete i[e];
-	}), i.show_state === !0 && delete i.show_state, i.show_icon === !0 && delete i.show_icon, i.show_name === !1 && delete i.show_name, i.show_entity_picture === !1 && delete i.show_entity_picture, t === "entity" ? (delete i.state_source, delete i.area, delete i.domain, delete i.device_class, i.state_content === "state" && delete i.state_content, i.tap_action?.action === "more-info" && delete i.tap_action) : (i.state_source = "area_count", delete i.entity, i.state_content === "count" && delete i.state_content, i.tap_action?.action === "none" && delete i.tap_action), i.hold_action?.action === "none" && delete i.hold_action, i.double_tap_action?.action === "none" && delete i.double_tap_action, i.icon_source === "domain" && (delete i.icon_source, delete i.icon, delete i.icon_on, delete i.icon_off), (r || [
+	}), i.show_state === !0 && delete i.show_state, i.show_icon === !0 && delete i.show_icon, i.show_name === !1 && delete i.show_name, i.show_entity_picture === !1 && delete i.show_entity_picture, t === "entity" ? (delete i.state_source, delete i.area, delete i.domain, delete i.device_class, delete i.state_template, i.state_content === "state" && delete i.state_content, i.tap_action?.action === "more-info" && delete i.tap_action) : t === "area_count" ? (i.state_source = "area_count", delete i.entity, delete i.state_template, i.state_content === "count" && delete i.state_content, i.tap_action?.action === "none" && delete i.tap_action) : (i.state_source = "template", delete i.entity, delete i.area, delete i.domain, delete i.device_class, i.state_content === "state" && delete i.state_content, i.tap_action?.action === "none" && delete i.tap_action), i.hold_action?.action === "none" && delete i.hold_action, i.double_tap_action?.action === "none" && delete i.double_tap_action, i.icon_source === "domain" && (delete i.icon_source, delete i.icon, delete i.icon_on, delete i.icon_off), (r || [
 		"",
 		"theme",
 		"state",
@@ -12057,11 +12077,25 @@ function Gm(e = {}) {
 		"state-inactive"
 	].includes(i.accent_off_color)) && delete i.accent_off_color, delete i.color_mode, i;
 }
-function Km(e, t = !1) {
+function ch(e) {
+	let t = String(e ?? "").trim(), n = t.toLowerCase();
+	if (!t || [
+		"false",
+		"off",
+		"no",
+		"none",
+		"null",
+		"unknown",
+		"unavailable"
+	].includes(n)) return !1;
+	let r = Number(t);
+	return Number.isFinite(r) ? r !== 0 : !0;
+}
+function lh(e, t = !1) {
 	if (e.state === "unavailable") return "var(--state-unavailable-color)";
 	let n = e.entity_id.split(".")[0], r = e.attributes || {};
-	if (n === "light" && t && Array.isArray(r.rgb_color)) return Jm(r.rgb_color);
-	let i = qm(e.state), a = t ? "active" : "inactive";
+	if (n === "light" && t && Array.isArray(r.rgb_color)) return dh(r.rgb_color);
+	let i = uh(e.state), a = t ? "active" : "inactive";
 	return [
 		r.device_class ? `--state-${n}-${r.device_class}-${i}-color` : "",
 		`--state-${n}-${i}-color`,
@@ -12069,14 +12103,14 @@ function Km(e, t = !1) {
 		`--state-${a}-color`
 	].filter(Boolean).reduceRight((e, t) => `var(${t}, ${e})`, "var(--state-icon-color, var(--secondary-text-color))");
 }
-function qm(e = "") {
+function uh(e = "") {
 	return e.toString().trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
 }
-function Jm(e) {
-	let [t, n, r] = Ym(e);
-	return n < .4 && (n < .1 ? r = 225 : n = .4), `#${Xm(t, n, r).map((e) => e.toString(16).padStart(2, "0")).join("")}`;
+function dh(e) {
+	let [t, n, r] = fh(e);
+	return n < .4 && (n < .1 ? r = 225 : n = .4), `#${ph(t, n, r).map((e) => e.toString(16).padStart(2, "0")).join("")}`;
 }
-function Ym([e, t, n]) {
+function fh([e, t, n]) {
 	let [r, i, a] = [
 		e,
 		t,
@@ -12088,7 +12122,7 @@ function Ym([e, t, n]) {
 		o * 255
 	];
 }
-function Xm(e, t, n) {
+function ph(e, t, n) {
 	let r = n / 255 * t, i = e / 60, a = r * (1 - Math.abs(i % 2 - 1)), [o, s, c] = i < 1 ? [
 		r,
 		a,
@@ -12120,8 +12154,8 @@ function Xm(e, t, n) {
 		c
 	].map((e) => Math.round((e + l) * 255));
 }
-var Zm, Qm, $m = e((() => {
-	Zm = [
+var mh, hh, gh = e((() => {
+	mh = [
 		{
 			value: "light",
 			label: "Lights",
@@ -12164,9 +12198,9 @@ var Zm, Qm, $m = e((() => {
 			icon: "mdi:radiobox-marked",
 			requiresDeviceClass: !0
 		}
-	], Qm = new Map(Zm.map((e) => [e.value, e]));
-})), eh = /* @__PURE__ */ t((() => {
-	M(), Io(), Qs(), Pt(), B(), qf(), $m(), Q();
+	], hh = new Map(mh.map((e) => [e.value, e]));
+})), _h = /* @__PURE__ */ t((() => {
+	M(), Lo(), $s(), Pt(), B(), up(), gh(), Z();
 	var e = "sensor.orbit_status_badge_preview", t = class extends j {
 		static svgCache = z;
 		static properties = {
@@ -12187,13 +12221,13 @@ var Zm, Qm, $m = e((() => {
 			super(), this._config = {}, this._colorPickerKey = "", this._colorPickerTab = "picker", this._iconPickerKey = "", this._iconPickerTab = "ha", this._orbitIconFiles = [], this._orbitIconFilesLoading = !1, this._localIconFiles = [], this._localIconFilesLoading = !1, this._contentExpanded = !1, this._stateTypeExpanded = !1;
 		}
 		connectedCallback() {
-			super.connectedCallback(), wo(this), At(this, "orbit-status-badge");
+			super.connectedCallback(), To(this), At(this, "orbit-status-badge");
 		}
 		disconnectedCallback() {
-			To(this), super.disconnectedCallback();
+			Eo(this), super.disconnectedCallback();
 		}
 		setConfig(e) {
-			let t = e || {}, n = Gm(t), r = JSON.stringify(t) !== JSON.stringify(n);
+			let t = e || {}, n = sh(t), r = JSON.stringify(t) !== JSON.stringify(n);
 			if (this._config = n, r) {
 				let e = n;
 				this.updateComplete.then(() => {
@@ -12202,10 +12236,10 @@ var Zm, Qm, $m = e((() => {
 			}
 		}
 		_t(e, t) {
-			return X(this.hass, e, t);
+			return Y(this.hass, e, t);
 		}
 		_updateConfig(e) {
-			this._config = Gm(Qi(this._config, e)), this._dispatchConfigChanged(this._config);
+			this._config = sh(Qi(this._config, e)), this._dispatchConfigChanged(this._config);
 		}
 		_dispatchConfigChanged(e) {
 			this.dispatchEvent(new CustomEvent("config-changed", {
@@ -12225,10 +12259,10 @@ var Zm, Qm, $m = e((() => {
 			return _i.call(this, e, t, n);
 		}
 		_getColorStyle(e) {
-			return Do(e);
+			return Oo(e);
 		}
 		_getColorPickerValue(e) {
-			return Oo(e);
+			return ko(e);
 		}
 		_loadLocalIconFiles(e = "") {
 			return bi.call(this, e);
@@ -12287,7 +12321,7 @@ var Zm, Qm, $m = e((() => {
 			};
 		}
 		render() {
-			let t = this._getDeviceClassOptions(), i = Zm.find((e) => e.value === this._config?.domain), a = [...this._config?.show_state === !1 ? [] : ["state"], ...this._config?.show_icon === !1 ? [] : ["icon"]], o = Um(this._config), s = this._config?.entity || "", c = o === "entity" && s ? this.hass : this._getStateContentHass(), l = o === "entity" && s ? s : e;
+			let t = this._getDeviceClassOptions(), i = mh.find((e) => e.value === this._config?.domain), a = [...this._config?.show_state === !1 ? [] : ["state"], ...this._config?.show_icon === !1 ? [] : ["icon"]], o = $(this._config), s = this._config?.entity || "", c = o === "entity" && s ? this.hass : this._getStateContentHass(), l = o === "entity" && s ? s : e;
 			return D`
       <div class="wrapper">
         <div class="section">
@@ -12372,21 +12406,23 @@ var Zm, Qm, $m = e((() => {
                 ></ha-selector>
               </div>
 
-              <div class="field">
-                <ha-selector
-                  .hass=${c}
-                  .label=${this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.state_content") || this._t("State content")}
-                  .selector=${{ ui_state_content: {
+              ${o === "template" ? "" : D`
+                    <div class="field">
+                      <ha-selector
+                        .hass=${c}
+                        .label=${this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.state_content") || this._t("State content")}
+                        .selector=${{ ui_state_content: {
 				entity_id: l,
 				allow_name: !0
 			} }}
-                  .value=${this._config?.state_content || (o === "entity" ? "state" : "count")}
-                  @value-changed=${(e) => this._handleConfigUpdate("state_content", (() => {
+                        .value=${this._config?.state_content || (o === "entity" ? "state" : "count")}
+                        @value-changed=${(e) => this._handleConfigUpdate("state_content", (() => {
 				let t = e.detail.value;
 				return !t || t === (o === "entity" ? "state" : "count") ? void 0 : t;
 			})())}
-                ></ha-selector>
-              </div>
+                      ></ha-selector>
+                    </div>
+                  `}
             </div>
           </ha-expansion-panel>
 
@@ -12420,12 +12456,12 @@ var Zm, Qm, $m = e((() => {
         </div>
 
         <div class="editor-version">
-          ${this._t("Orbit Status Badge v{version}", { version: Z.statusBadge })}
+          ${this._t("Orbit Status Badge v{version}", { version: X.statusBadge })}
         </div>
       </div>
     `;
 		}
-		static styles = [...Zs, c`
+		static styles = [...Qs, c`
       .content-panel,
       .state-type-panel {
         display: block;
@@ -12469,7 +12505,7 @@ var Zm, Qm, $m = e((() => {
           class="main-entity-icon-source-selector"
           .hass=${this.hass}
           .selector=${{ button_toggle: { options: [{
-			label: this._t(e === "entity" ? "Entity" : "Domain"),
+			label: this._t(e === "entity" ? "Entity" : e === "area_count" ? "Domain" : "Default"),
 			value: "domain"
 		}, {
 			label: this._t("Custom"),
@@ -12504,13 +12540,20 @@ var Zm, Qm, $m = e((() => {
         <ha-selector
           class="main-entity-icon-source-selector"
           .hass=${this.hass}
-          .selector=${{ button_toggle: { options: [{
-			label: this._t("Entity"),
-			value: "entity"
-		}, {
-			label: this._t("Area Count"),
-			value: "area_count"
-		}] } }}
+          .selector=${{ button_toggle: { options: [
+			{
+				label: this._t("Entity"),
+				value: "entity"
+			},
+			{
+				label: this._t("Area Count"),
+				value: "area_count"
+			},
+			{
+				label: this._t("Template"),
+				value: "template"
+			}
+		] } }}
           .value=${e}
           @value-changed=${(e) => {
 			let t = e.detail.value || "entity";
@@ -12519,10 +12562,19 @@ var Zm, Qm, $m = e((() => {
 				area: void 0,
 				domain: void 0,
 				device_class: void 0,
+				state_template: void 0,
 				state_content: void 0
-			} : {
+			} : t === "area_count" ? {
 				state_source: "area_count",
 				entity: void 0,
+				state_template: void 0,
+				state_content: void 0
+			} : {
+				state_source: "template",
+				entity: void 0,
+				area: void 0,
+				domain: void 0,
+				device_class: void 0,
 				state_content: void 0
 			});
 		}}
@@ -12537,7 +12589,7 @@ var Zm, Qm, $m = e((() => {
               .value=${this._config?.entity || ""}
               @value-changed=${(e) => this._handleConfigUpdate("entity", e.detail.value || "")}
             ></ha-selector>
-          ` : D`
+          ` : e === "area_count" ? D`
             <div class="field">
               <span class="native-picker-label">${this._t("Area")}</span>
               <ha-selector
@@ -12582,12 +12634,22 @@ var Zm, Qm, $m = e((() => {
                     ></ha-generic-picker>
                   </div>
                 ` : ""}
-          `}
+          ` : D`
+              <div class="field">
+                <ha-selector
+                  .hass=${this.hass}
+                  .label=${this._t("Template")}
+                  .selector=${{ template: {} }}
+                  .value=${this._config?.state_template || ""}
+                  @value-changed=${(e) => this._handleConfigUpdate("state_template", e.detail.value || "")}
+                ></ha-selector>
+              </div>
+            `}
     </div>
   `;
 	}
 	function i() {
-		return Zm.map((e) => ({
+		return mh.map((e) => ({
 			id: e.value,
 			primary: this._t(e.label),
 			sorting_label: this._t(e.label),
@@ -12595,7 +12657,7 @@ var Zm, Qm, $m = e((() => {
 		}));
 	}
 	function a(e) {
-		let t = Zm.find((t) => t.value === e);
+		let t = mh.find((t) => t.value === e);
 		return t ? D`
     <ha-icon slot="start" .icon=${t.icon}></ha-icon>
     <span slot="headline">${this._t(t.label)}</span>
@@ -12644,15 +12706,20 @@ var Zm, Qm, $m = e((() => {
 	function f(e = "") {
 		return e.replaceAll("_", " ").replace(/\b\w/g, (e) => e.toUpperCase());
 	}
-})), th = /* @__PURE__ */ t((() => {
-	M(), H(), at(), Vm(), L(), Vt(), Dn(), jn(), Vn(), $m(), B(), Q(), eh();
-	var e = class extends j {
+})), vh = /* @__PURE__ */ t((() => {
+	M(), H(), at(), ih(), L(), Vt(), Dn(), jn(), Vn(), gh(), B(), Z(), _h();
+	var e = "__ORBIT_TEMPLATE_RESULT_START_8C4F2A__", t = "__ORBIT_TEMPLATE_RESULT_END_8C4F2A__", n = class extends j {
 		static svgCache = z;
 		static properties = {
 			hass: { attribute: !1 },
 			_config: { state: !0 },
-			_isHeadingBadge: { state: !0 }
+			_isHeadingBadge: { state: !0 },
+			_templateError: { state: !0 },
+			_templateResult: { state: !0 }
 		};
+		constructor() {
+			super(), this._templateError = "", this._templateResult = "unavailable", this._templateSubscription = void 0, this._templateSubscriptionGeneration = 0, this._templateSubscriptionKey = "";
+		}
 		static getConfigElement() {
 			return document.createElement("orbit-status-badge-editor");
 		}
@@ -12660,63 +12727,107 @@ var Zm, Qm, $m = e((() => {
 			return {};
 		}
 		setConfig(e) {
-			Wm(e || {}), this._config = Gm(e || {});
+			oh(e || {}), this._config = sh(e || {});
 		}
 		connectedCallback() {
-			super.connectedCallback(), this._isHeadingBadge = !!this.closest("hui-heading-badge"), this.toggleAttribute("heading-badge", this._isHeadingBadge);
+			super.connectedCallback(), this._isHeadingBadge = !!this.closest("hui-heading-badge"), this.toggleAttribute("heading-badge", this._isHeadingBadge), queueMicrotask(() => this._syncTemplateSubscription());
 		}
 		disconnectedCallback() {
-			this._clearDoubleTapTimer(), this._cancelLongPress(), super.disconnectedCallback();
+			this._disconnectTemplateSubscription(), this._clearDoubleTapTimer(), this._cancelLongPress(), super.disconnectedCallback();
+		}
+		updated(e) {
+			(e.has("hass") || e.has("_config")) && this._syncTemplateSubscription();
+		}
+		_disconnectTemplateSubscription() {
+			this._templateSubscriptionGeneration += 1, this._templateSubscriptionKey = "";
+			let e = this._templateSubscription;
+			this._templateSubscription = void 0, e?.then((e) => e()).catch(() => {});
+		}
+		_syncTemplateSubscription() {
+			let n = $(this._config), r = this._config?.state_template?.trim() || "", i = this.hass?.connection;
+			if (!this.isConnected || n !== "template" || !r || !i?.subscribeMessage) {
+				(this._templateSubscription || this._templateSubscriptionKey) && this._disconnectTemplateSubscription();
+				return;
+			}
+			let a = JSON.stringify({
+				template: r,
+				config: this._config
+			});
+			if (a === this._templateSubscriptionKey) return;
+			this._disconnectTemplateSubscription(), this._templateSubscriptionKey = a, this._templateError = "", this._templateResult = "unavailable";
+			let o = this._templateSubscriptionGeneration, s = `${e}${r}${t}`, c = i.subscribeMessage((n) => {
+				if (o !== this._templateSubscriptionGeneration || a !== this._templateSubscriptionKey) return;
+				if ("error" in n) {
+					this._templateError = n.error || "Template rendering failed", this._templateResult = "unavailable";
+					return;
+				}
+				this._templateError = "";
+				let r = String(n.result ?? ""), i = r.indexOf(e), s = r.lastIndexOf(t);
+				this._templateResult = i !== -1 && s > i ? r.slice(i + 38, s).trim() : r.trim();
+			}, {
+				type: "render_template",
+				template: s,
+				variables: { config: this._config },
+				strict: !0,
+				report_errors: !0
+			});
+			this._templateSubscription = c, c.catch((e) => {
+				o !== this._templateSubscriptionGeneration || a !== this._templateSubscriptionKey || (this._templateSubscription = void 0, this._templateError = e?.message || String(e), this._templateResult = "unavailable");
+			});
 		}
 		_getEntities() {
-			if (Um(this._config) === "entity") {
+			if ($(this._config) === "entity") {
 				let e = this.hass?.states?.[this._config?.entity];
 				return e ? [e] : [];
 			}
-			let e = this._config?.domain || "", t = this._config?.area, n = this._config?.device_class || "", r = Hm(e);
+			let e = this._config?.domain || "", t = this._config?.area, n = this._config?.device_class || "", r = ah(e);
 			return !this.hass || !t || !e || r.requiresDeviceClass && !n ? [] : Object.values(this.hass.states || {}).filter((i) => i.entity_id.startsWith(`${e}.`) && zn(this.hass, i.entity_id) === t && (!r.requiresDeviceClass || i.attributes?.device_class === n));
 		}
 		_getModel() {
-			let e = Um(this._config), n = this._getEntities(), r = n.filter((e) => Bt(e)), i = r.length > 0, a = e === "entity" ? n[0] : void 0, o = a?.entity_id.split(".")[0] || this._config?.domain || "", s = Hm(o), c = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), l = this._config?.icon || "", u = i ? this._config?.icon_on || l : this._config?.icon_off || l, d = c === "custom" && u || s.icon, f = i ? this._config?.accent_on_color ?? this._config?.color : this._config?.accent_off_color, p = !f || [
+			let e = $(this._config), t = this._getEntities(), n = t.filter((e) => Bt(e)), i = e === "template" ? this._templateResult : "", a = e === "template" ? ch(i) : n.length > 0, o = e === "entity" ? t[0] : void 0, s = o?.entity_id.split(".")[0] || this._config?.domain || "", c = ah(s), l = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), u = this._config?.icon || "", d = a ? this._config?.icon_on || u : this._config?.icon_off || u, f = l === "custom" && d || c.icon, p = a ? this._config?.accent_on_color ?? this._config?.color : this._config?.accent_off_color, m = !p || [
 				"theme",
 				"state",
 				"state-active",
 				"state-inactive"
-			].includes(f) ? "theme" : f, m = r[0] || n[0] || {
-				entity_id: `${o}.orbit_status_badge`,
-				state: i ? "on" : "off",
+			].includes(p) ? "theme" : p, h = e === "template" ? {
+				entity_id: "sensor.orbit_status_badge_template",
+				state: i || "unavailable",
+				attributes: { friendly_name: this._config?.name || "Template" }
+			} : n[0] || t[0] || {
+				entity_id: `${s || "sensor"}.orbit_status_badge`,
+				state: a ? "on" : "off",
 				attributes: this._config?.device_class ? { device_class: this._config.device_class } : {}
-			}, h = e === "entity" ? m : {
-				entity_id: `${o}.orbit_status_badge`,
-				state: m.state,
+			}, g = ["entity", "template"].includes(e) ? h : {
+				entity_id: `${s}.orbit_status_badge`,
+				state: h.state,
 				attributes: this._config?.device_class ? { device_class: this._config.device_class } : {}
-			}, g = this.hass?.areas?.[this._config?.area]?.name || "", ee = this._config?.name, _ = this._config?.device_class ? t(this._config.device_class) : "", v = (a && this.hass?.formatEntityName ? this.hass.formatEntityName(a) : "") || g || _ || s.label, te = ee && this.hass?.formatEntityName && this.hass.formatEntityName(m, ee) || v, ne = c === "custom" ? i && this._config?.icon_on ? "icon_on" : !i && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : "";
+			}, ee = this.hass?.areas?.[this._config?.area]?.name || "", _ = this._config?.name, v = this._config?.device_class ? r(this._config.device_class) : "", te = o && this.hass?.formatEntityName ? this.hass.formatEntityName(o) : "", ne = e === "template" ? "Template" : te || ee || v || c.label, y = _ && this.hass?.formatEntityName && this.hass.formatEntityName(h, _) || ne, re = l === "custom" ? a && this._config?.icon_on ? "icon_on" : !a && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : "";
 			return {
-				entities: n,
-				activeEntities: r,
-				isOn: i,
-				count: r.length,
-				displayValue: e === "entity" ? m.state : r.length,
-				label: te,
-				icon: d,
-				iconKey: ne,
-				iconSource: c,
+				entities: t,
+				activeEntities: n,
+				isOn: a,
+				count: n.length,
+				displayValue: e === "template" ? i : e === "entity" ? h.state : n.length,
+				label: y,
+				icon: f,
+				iconKey: re,
+				iconSource: l,
 				stateSource: e,
-				representativeStateObj: m,
-				iconStateObj: h,
-				displayStateObj: e === "entity" ? m : {
+				representativeStateObj: h,
+				iconStateObj: g,
+				displayStateObj: ["entity", "template"].includes(e) ? h : {
 					entity_id: "sensor.orbit_status_badge_count",
-					state: i ? "on" : "off",
+					state: a ? "on" : "off",
 					attributes: {
-						count: r.length,
-						friendly_name: te
+						count: n.length,
+						friendly_name: y
 					},
-					last_changed: m.last_changed,
-					last_updated: m.last_updated,
-					context: m.context
+					last_changed: h.last_changed,
+					last_updated: h.last_updated,
+					context: h.context
 				},
-				defaultStateContent: e === "entity" ? "state" : "count",
-				iconColor: p === "theme" ? Km(m, i) : ot(p)
+				defaultStateContent: e === "area_count" ? "count" : "state",
+				iconColor: m === "theme" ? lh(h, a) : ot(m)
 			};
 		}
 		_handleAction(e, t = null) {
@@ -12745,7 +12856,7 @@ var Zm, Qm, $m = e((() => {
 				this._longPressTriggered = !1;
 				return;
 			}
-			let n = Um(this._config) === "entity" ? { action: "more-info" } : { action: "none" };
+			let n = $(this._config) === "entity" ? { action: "more-info" } : { action: "none" };
 			return F.call(this, e, t, this._config?.tap_action || n, this._config?.double_tap_action);
 		}
 		_handleDoubleTap(e, t) {
@@ -12774,16 +12885,16 @@ var Zm, Qm, $m = e((() => {
 		render() {
 			let e = this._getModel(), t = e.activeEntities[0]?.entity_id || e.entities[0]?.entity_id || null, n = N(this._config?.tap_action || (e.stateSource === "entity" ? { action: "more-info" } : { action: "none" })) || N(this._config?.hold_action) || N(this._config?.double_tap_action), r = this._config?.show_state !== !1, i = D`
       ${this._config?.show_icon === !1 ? "" : this._renderIcon(e)}
-      ${r ? D`
-            <state-display
-              .hass=${this.hass}
-              .stateObj=${e.displayStateObj}
-              .content=${this._config?.state_content || e.defaultStateContent}
-              .timeFormat=${this._config?.time_format}
-              .name=${e.label}
-              dash-unavailable
-            ></state-display>
-          ` : ""}
+      ${r ? e.stateSource === "template" ? D`<span class="template-state">${e.displayValue}</span>` : D`
+              <state-display
+                .hass=${this.hass}
+                .stateObj=${e.displayStateObj}
+                .content=${this._config?.state_content || e.defaultStateContent}
+                .timeFormat=${this._config?.time_format}
+                .name=${e.label}
+                dash-unavailable
+              ></state-display>
+            ` : ""}
     `, a = {
 				click: (e) => this._handleTap(e, t),
 				dblclick: (e) => this._handleDoubleTap(e, t),
@@ -12850,20 +12961,24 @@ var Zm, Qm, $m = e((() => {
       width: 100%;
       height: 100%;
     }
+
+    .template-state {
+      white-space: pre-line;
+    }
   `;
 	};
-	function t(e = "") {
+	function r(e = "") {
 		return e.replaceAll("_", " ").replace(/\b\w/g, (e) => e.toUpperCase());
 	}
-	Bm({
+	rh({
 		tag: "orbit-status-badge",
-		badgeClass: e,
+		badgeClass: n,
 		name: "Orbit Status Badge",
-		description: "Counts active entities in an area",
-		version: Z.statusBadge
+		description: "Displays an entity, area count, or template state",
+		version: X.statusBadge
 	});
-})), nh = /* @__PURE__ */ t((() => {
-	Yf(), qp(), mm(), zm(), th();
+})), yh = /* @__PURE__ */ t((() => {
+	fp(), um(), jm(), nh(), vh();
 }));
 //#endregion
-export default nh();
+export default yh();

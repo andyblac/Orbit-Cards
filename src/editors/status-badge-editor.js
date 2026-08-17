@@ -333,32 +333,36 @@ class OrbitStatusBadgeEditor extends LitElement {
                 ></ha-selector>
               </div>
 
-              <div class="field">
-                <ha-selector
-                  .hass=${stateContentHass}
-                  .label=${this.hass?.localize(
-                    "ui.panel.lovelace.editor.card.heading.entity_config.state_content"
-                  ) || this._t("State content")}
-                  .selector=${{
-                    ui_state_content: {
-                      entity_id: stateContentEntityId,
-                      allow_name: true,
-                    },
-                  }}
-                  .value=${this._config?.state_content ||
-                    (stateSource === "entity" ? "state" : "count")}
-                  @value-changed=${(e) =>
-                    this._handleConfigUpdate("state_content", (() => {
-                      const value = e.detail.value;
-                      const defaultValue = stateSource === "entity"
-                        ? "state"
-                        : "count";
-                      return !value || value === defaultValue
-                        ? undefined
-                        : value;
-                    })())}
-                ></ha-selector>
-              </div>
+              ${stateSource !== "template"
+                ? html`
+                    <div class="field">
+                      <ha-selector
+                        .hass=${stateContentHass}
+                        .label=${this.hass?.localize(
+                          "ui.panel.lovelace.editor.card.heading.entity_config.state_content"
+                        ) || this._t("State content")}
+                        .selector=${{
+                          ui_state_content: {
+                            entity_id: stateContentEntityId,
+                            allow_name: true,
+                          },
+                        }}
+                        .value=${this._config?.state_content ||
+                          (stateSource === "entity" ? "state" : "count")}
+                        @value-changed=${(e) =>
+                          this._handleConfigUpdate("state_content", (() => {
+                            const value = e.detail.value;
+                            const defaultValue = stateSource === "entity"
+                              ? "state"
+                              : "count";
+                            return !value || value === defaultValue
+                              ? undefined
+                              : value;
+                          })())}
+                      ></ha-selector>
+                    </div>
+                  `
+                : ""}
             </div>
           </ha-expansion-panel>
 
@@ -465,7 +469,11 @@ function renderBadgeIconControl(stateSource = "entity") {
               options: [
                 {
                   label: this._t(
-                    stateSource === "entity" ? "Entity" : "Domain"
+                    stateSource === "entity"
+                      ? "Entity"
+                      : stateSource === "area_count"
+                        ? "Domain"
+                        : "Default"
                   ),
                   value: "domain",
                 },
@@ -527,25 +535,42 @@ function renderBadgeStateControl({
                   label: this._t("Area Count"),
                   value: "area_count",
                 },
+                {
+                  label: this._t("Template"),
+                  value: "template",
+                },
               ],
             },
           }}
           .value=${stateSource}
           @value-changed=${(e) => {
             const value = e.detail.value || "entity";
-            this._updateConfig(value === "entity"
-              ? {
-                  state_source: undefined,
-                  area: undefined,
-                  domain: undefined,
-                  device_class: undefined,
-                  state_content: undefined,
-                }
-              : {
-                  state_source: "area_count",
-                  entity: undefined,
-                  state_content: undefined,
-                });
+            this._updateConfig(
+              value === "entity"
+                ? {
+                    state_source: undefined,
+                    area: undefined,
+                    domain: undefined,
+                    device_class: undefined,
+                    state_template: undefined,
+                    state_content: undefined,
+                  }
+                : value === "area_count"
+                  ? {
+                      state_source: "area_count",
+                      entity: undefined,
+                      state_template: undefined,
+                      state_content: undefined,
+                    }
+                  : {
+                      state_source: "template",
+                      entity: undefined,
+                      area: undefined,
+                      domain: undefined,
+                      device_class: undefined,
+                      state_content: undefined,
+                    }
+            );
           }}
         ></ha-selector>
       </div>
@@ -561,7 +586,8 @@ function renderBadgeStateControl({
                 this._handleConfigUpdate("entity", e.detail.value || "")}
             ></ha-selector>
           `
-        : html`
+        : stateSource === "area_count"
+          ? html`
             <div class="field">
               <span class="native-picker-label">${this._t("Area")}</span>
               <ha-selector
@@ -626,7 +652,22 @@ function renderBadgeStateControl({
                   </div>
                 `
               : ""}
-          `}
+          `
+          : html`
+              <div class="field">
+                <ha-selector
+                  .hass=${this.hass}
+                  .label=${this._t("Template")}
+                  .selector=${{ template: {} }}
+                  .value=${this._config?.state_template || ""}
+                  @value-changed=${(e) =>
+                    this._handleConfigUpdate(
+                      "state_template",
+                      e.detail.value || ""
+                    )}
+                ></ha-selector>
+              </div>
+            `}
     </div>
   `;
 }
