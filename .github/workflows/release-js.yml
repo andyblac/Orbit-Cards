@@ -1,0 +1,46 @@
+name: Build release JavaScript
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and upload orbit-cards.js
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build Orbit Cards
+        run: npm run build
+
+      - name: Validate compiled bundle
+        run: |
+          test -f dist/orbit-cards.js
+          test "$(wc -c < dist/orbit-cards.js)" -gt 350000
+          grep -q 'motion_off.svg' dist/orbit-cards.js
+
+      - name: Upload compiled release asset
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" \
+            dist/orbit-cards.js \
+            --clobber \
+            --repo "${{ github.repository }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
