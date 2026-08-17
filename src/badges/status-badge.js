@@ -33,17 +33,19 @@ import {
   getNativeEntityBadgeColor,
   getStatusBadgeDomainConfig,
   getStatusBadgeStateSource,
-  getTemplateResultActiveState,
   normalizeStatusBadgeColors,
   validateStatusBadgeConfig,
 } from "../common/helpers/status-badge.js";
 import { sharedSvgCache } from "../common/helpers/svg-cache.js";
+import {
+  disconnectTemplateSubscriptions,
+  evaluateStateTemplate,
+  getTemplateResultActiveState,
+  syncTemplateSubscriptions,
+} from "../common/helpers/templates.js";
 import { CARD_VERSIONS } from "../version.js";
 
 import "../editors/status-badge-editor.js";
-
-const TEMPLATE_RESULT_PREFIX = "__ORBIT_TEMPLATE_RESULT_START_8C4F2A__";
-const TEMPLATE_RESULT_SUFFIX = "__ORBIT_TEMPLATE_RESULT_END_8C4F2A__";
 
 class OrbitStatusBadge extends LitElement {
   static svgCache = sharedSvgCache;
@@ -52,18 +54,8 @@ class OrbitStatusBadge extends LitElement {
     hass: { attribute: false },
     _config: { state: true },
     _isHeadingBadge: { state: true },
-    _templateError: { state: true },
-    _templateResult: { state: true },
+    _templateRevision: { state: true },
   };
-
-  constructor() {
-    super();
-    this._templateError = "";
-    this._templateResult = "unavailable";
-    this._templateSubscription = undefined;
-    this._templateSubscriptionGeneration = 0;
-    this._templateSubscriptionKey = "";
-  }
 
   static getConfigElement() {
     return document.createElement("orbit-status-badge-editor");
@@ -82,11 +74,11 @@ class OrbitStatusBadge extends LitElement {
     super.connectedCallback();
     this._isHeadingBadge = Boolean(this.closest("hui-heading-badge"));
     this.toggleAttribute("heading-badge", this._isHeadingBadge);
-    queueMicrotask(() => this._syncTemplateSubscription());
+    queueMicrotask(() => this._syncTemplateSubscriptions());
   }
 
   disconnectedCallback() {
-    this._disconnectTemplateSubscription();
+    disconnectTemplateSubscriptions.call(this);
     this._clearDoubleTapTimer();
     this._cancelLongPress();
     super.disconnectedCallback();
@@ -94,99 +86,20 @@ class OrbitStatusBadge extends LitElement {
 
   updated(changedProperties) {
     if (changedProperties.has("hass") || changedProperties.has("_config")) {
-      this._syncTemplateSubscription();
+      this._syncTemplateSubscriptions();
     }
   }
 
-  _disconnectTemplateSubscription() {
-    this._templateSubscriptionGeneration += 1;
-    this._templateSubscriptionKey = "";
-
-    const subscription = this._templateSubscription;
-    this._templateSubscription = undefined;
-
-    subscription?.then((unsubscribe) => unsubscribe()).catch(() => {});
-  }
-
-  _syncTemplateSubscription() {
+  _syncTemplateSubscriptions() {
     const stateSource = getStatusBadgeStateSource(this._config);
     const template = this._config?.state_template?.trim() || "";
-    const connection = this.hass?.connection;
 
-    if (
-      !this.isConnected ||
-      stateSource !== "template" ||
-      !template ||
-      !connection?.subscribeMessage
-    ) {
-      if (this._templateSubscription || this._templateSubscriptionKey) {
-        this._disconnectTemplateSubscription();
-      }
-      return;
-    }
-
-    const subscriptionKey = JSON.stringify({
-      template,
-      config: this._config,
-    });
-    if (subscriptionKey === this._templateSubscriptionKey) return;
-
-    this._disconnectTemplateSubscription();
-    this._templateSubscriptionKey = subscriptionKey;
-    this._templateError = "";
-    this._templateResult = "unavailable";
-
-    const generation = this._templateSubscriptionGeneration;
-    const subscribedTemplate =
-      `${TEMPLATE_RESULT_PREFIX}${template}${TEMPLATE_RESULT_SUFFIX}`;
-    const subscription = connection.subscribeMessage(
-      (result) => {
-        if (
-          generation !== this._templateSubscriptionGeneration ||
-          subscriptionKey !== this._templateSubscriptionKey
-        ) {
-          return;
-        }
-
-        if ("error" in result) {
-          this._templateError = result.error || "Template rendering failed";
-          this._templateResult = "unavailable";
-          return;
-        }
-
-        this._templateError = "";
-        const renderedResult = String(result.result ?? "");
-        const resultStart = renderedResult.indexOf(TEMPLATE_RESULT_PREFIX);
-        const resultEnd = renderedResult.lastIndexOf(TEMPLATE_RESULT_SUFFIX);
-        this._templateResult = resultStart !== -1 && resultEnd > resultStart
-          ? renderedResult.slice(
-              resultStart + TEMPLATE_RESULT_PREFIX.length,
-              resultEnd
-            ).trim()
-          : renderedResult.trim();
-      },
-      {
-        type: "render_template",
-        template: subscribedTemplate,
-        variables: { config: this._config },
-        strict: true,
-        report_errors: true,
-      }
+    syncTemplateSubscriptions.call(
+      this,
+      stateSource === "template" && template
+        ? [{ template, entityId: "" }]
+        : []
     );
-
-    this._templateSubscription = subscription;
-    subscription.catch((error) => {
-      if (
-        generation !== this._templateSubscriptionGeneration ||
-        subscriptionKey !== this._templateSubscriptionKey
-      ) {
-        return;
-      }
-
-      this._templateSubscription = undefined;
-      this._templateError = error?.message || String(error);
-      this._templateResult = "unavailable";
-    });
   }
 
   _getEntities() {
@@ -219,7 +132,11 @@ class OrbitStatusBadge extends LitElement {
       getEntityActiveState(stateObj)
     );
     const templateResult = stateSource === "template"
-      ? this._templateResult
+      ? evaluateStateTemplate.call(
+          this,
+          this._config?.state_template,
+          ""
+        ) ?? "unavailable"
       : "";
     const isOn = stateSource === "template"
       ? getTemplateResultActiveState(templateResult)

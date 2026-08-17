@@ -63,6 +63,8 @@ Orbit Cards is available directly from the default HACS repository. Search for `
 - Material Design Icons and local SVG/image icons.
 - Tap, hold, navigation, service, popup, and Browser Mod actions.
 - Dynamic entity state updates scoped to only the entities used by each card.
+- Native Home Assistant Jinja rendering shared by every Orbit component that
+  supports templates.
 - Grouped compact layouts for Status Icon only and Action Card.
 - Deck Card layouts for wrapping Lovelace cards into rows, showing them as tabs, or overlaying compact controls on a main card.
 - Entity-compatible status badges plus area/domain active counts, live Home
@@ -129,6 +131,21 @@ state_template: >-
 Rendered numeric zero and common off values are treated as inactive for the
 badge colour and active/inactive icon selection. Non-zero numbers and other
 rendered values are treated as active.
+
+Area Card button state templates and Status Card state/label templates use the
+same native Home Assistant renderer. Legacy bare expressions are migrated
+automatically when their card is loaded in the visual editor. For example:
+
+```yaml
+# Legacy
+state_template: state_attr('fan.wetroom_extractor_fan', 'percentage') | int > 50
+
+# Migrated native Home Assistant template
+state_template: >-
+  {{ state_attr('fan.wetroom_extractor_fan', 'percentage') | int > 50 }}
+```
+
+Existing templates that already contain Jinja delimiters are left unchanged.
 
 ## Installation
 

@@ -70,9 +70,6 @@ export function renderInput(label, key, placeholder, options = {}) {
 
 export function renderTemplateInput(label, key, options = {}) {
     const value = options.value ?? this._config?.[key] ?? "";
-    const helper =
-      options.helper ??
-      "states[entity.entity_id].attributes.percentage > 50";
     const handleValueChanged = options.onValueChanged ||
       ((nextValue) =>
         this._handleConfigUpdate(
@@ -86,10 +83,9 @@ export function renderTemplateInput(label, key, options = {}) {
           .hass=${this.hass}
           .label=${t(this, label)}
           .selector=${{
-            text: {},
+            template: {},
           }}
           .value=${value}
-          .placeholder=${helper}
           @value-changed=${(e) =>
             handleValueChanged(e.detail.value || "")}
         ></ha-selector>

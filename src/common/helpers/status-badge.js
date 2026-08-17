@@ -168,31 +168,6 @@ export function normalizeStatusBadgeColors(config = {}) {
   return normalized;
 }
 
-export function getTemplateResultActiveState(result) {
-  const value = String(result ?? "").trim();
-  const normalizedValue = value.toLowerCase();
-
-  if (
-    !value ||
-    [
-      "false",
-      "off",
-      "no",
-      "none",
-      "null",
-      "unknown",
-      "unavailable",
-    ].includes(normalizedValue)
-  ) {
-    return false;
-  }
-
-  const numericValue = Number(value);
-  if (Number.isFinite(numericValue)) return numericValue !== 0;
-
-  return true;
-}
-
 export function getNativeEntityBadgeColor(stateObj, isActive = false) {
   if (stateObj.state === "unavailable") {
     return "var(--state-unavailable-color)";

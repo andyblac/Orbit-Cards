@@ -13,7 +13,11 @@ import {
 import { localize } from "../../../common/localize.js";
 
 export function updateStatusCard(changedProps) {
-  if (!changedProps.has("_config") && !changedProps.has("hass")) return;
+  if (
+    !changedProps.has("_config") &&
+    !changedProps.has("hass") &&
+    !changedProps.has("_templateRevision")
+  ) return;
 
   if (this._config.mode === "person") {
     updatePersonStatusCard.call(this);

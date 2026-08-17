@@ -39,7 +39,12 @@ import {
   LONG_PRESS_DELAY,
 } from "../common/helpers/long-press.js";
 import {
+  migrateStatusCardConfig,
+} from "../common/helpers/config-migration.js";
+import {
+  disconnectTemplateSubscriptions,
   evaluateStateTemplate,
+  syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
 import {
   hasTemplateConfig,
@@ -85,6 +90,7 @@ class OrbitStatusCard extends LitElement {
       _personBattery1: { type: Object },
       _personBattery2: { type: Object },
       _statusItems: { type: Array },
+      _templateRevision: { type: Number },
     };
   }
 
@@ -121,7 +127,7 @@ class OrbitStatusCard extends LitElement {
   }
 
   setConfig(config) {
-    this._config = config;
+    this._config = migrateStatusCardConfig(config).config;
 
     const color = config.accent_off_color || "theme";
 
@@ -133,7 +139,16 @@ class OrbitStatusCard extends LitElement {
   }
 
   willUpdate(changedProps) {
+    if (changedProps.has("_config") || changedProps.has("hass")) {
+      syncTemplateSubscriptions.call(this, this._getTemplateEntries());
+    }
+
     return updateStatusCard.call(this, changedProps);
+  }
+
+  disconnectedCallback() {
+    disconnectTemplateSubscriptions.call(this);
+    super.disconnectedCallback();
   }
 
   shouldUpdate(changedProps) {
@@ -509,6 +524,30 @@ class OrbitStatusCard extends LitElement {
 
   _evaluateStateTemplate(template, entityId) {
     return evaluateStateTemplate.call(this, template, entityId);
+  }
+
+  _getTemplateEntries() {
+    if (this._config?.mode === "icon_only") {
+      return getIconOnlyStatusItems(this._config).flatMap((item) =>
+        [item.state_template, item.label_template]
+          .filter(Boolean)
+          .map((template) => ({
+            template,
+            entityId: item.entity || item.main_entity || "",
+          }))
+      );
+    }
+
+    const entityId = this._config?.mode === "person"
+      ? this._config?.tracker_entity || ""
+      : this._config?.main_entity || "";
+
+    return [
+      this._config?.state_template,
+      this._config?.label_template,
+    ]
+      .filter(Boolean)
+      .map((template) => ({ template, entityId }));
   }
 
   _getRelevantEntities() {
