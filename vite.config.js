@@ -83,7 +83,7 @@ export default defineConfig({
   build: {
     codeSplitting: false,
     lib: {
-      entry: "src/orbit-cards.js",
+      entry: "src/index.js",
       formats: ["es"],
       fileName: () => "orbit-cards.js",
     },

@@ -1,5 +1,5 @@
 // ==============================
-// orbit-cards.js
+// Orbit Cards bundle entry
 // ==============================
 
 import "./cards/area-card.js";
