@@ -1,4 +1,4 @@
-export const ORBIT_CARDS_VERSION = "1.0.5-beta.1";
+export const ORBIT_CARDS_VERSION = "1.0.5";
 
 export const CARD_VERSIONS = {
   area: "0.8.5",
