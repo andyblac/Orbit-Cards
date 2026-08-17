@@ -100,6 +100,7 @@ export function normalizeStatusBadgeColors(config = {}) {
     delete normalized.device_class;
     delete normalized.state_template;
     delete normalized.active_template;
+    delete normalized.name_template;
     if (normalized.state_content === "state") {
       delete normalized.state_content;
     }
@@ -111,6 +112,7 @@ export function normalizeStatusBadgeColors(config = {}) {
     delete normalized.entity;
     delete normalized.state_template;
     delete normalized.active_template;
+    delete normalized.name_template;
     if (normalized.state_content === "count") {
       delete normalized.state_content;
     }

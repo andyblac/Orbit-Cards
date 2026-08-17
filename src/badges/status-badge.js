@@ -94,17 +94,19 @@ class OrbitStatusBadge extends LitElement {
     const stateSource = getStatusBadgeStateSource(this._config);
     const template = this._config?.state_template?.trim() || "";
     const activeTemplate = this._config?.active_template?.trim() || "";
+    const nameTemplate = this._config?.name_template?.trim() || "";
+    const entries = stateSource === "template"
+      ? [template, activeTemplate, nameTemplate]
+          .filter(Boolean)
+          .map((entryTemplate) => ({
+            template: entryTemplate,
+            entityId: "",
+          }))
+      : [];
 
     syncTemplateSubscriptions.call(
       this,
-      stateSource === "template"
-        ? [template, activeTemplate]
-            .filter(Boolean)
-            .map((entryTemplate) => ({
-              template: entryTemplate,
-              entityId: "",
-            }))
-        : []
+      entries
     );
   }
 
@@ -177,12 +179,19 @@ class OrbitStatusBadge extends LitElement {
     ].includes(configuredColor)
       ? "theme"
       : configuredColor;
+    const nameTemplate = stateSource === "template"
+      ? this._config?.name_template?.trim() || ""
+      : "";
+    const nameTemplateResult = nameTemplate
+      ? evaluateStateTemplate.call(this, nameTemplate, "")
+      : null;
+    const templatedName = String(nameTemplateResult ?? "").trim();
     const representativeStateObj = stateSource === "template"
       ? {
           entity_id: "sensor.orbit_status_badge_template",
           state: templateResult || "unavailable",
           attributes: {
-            friendly_name: this._config?.name || "Template",
+            friendly_name: templatedName || "Template",
           },
         }
       : activeEntities[0] || entities[0] || {
@@ -213,7 +222,10 @@ class OrbitStatusBadge extends LitElement {
       ? "Template"
       : entityLabel || areaName || deviceClassLabel || domainConfig.label;
     const label = configuredName && this.hass?.formatEntityName
-      ? this.hass.formatEntityName(representativeStateObj, configuredName) ||
+      ? this.hass.formatEntityName(
+          representativeStateObj,
+          replaceTemplateNameItem(configuredName, templatedName)
+        ) ||
         defaultLabel
       : defaultLabel;
     const iconKey = iconSource === "custom"
@@ -488,6 +500,16 @@ function formatDeviceClass(deviceClass = "") {
   return deviceClass
     .replaceAll("_", " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function replaceTemplateNameItem(value, templatedName) {
+  const replaceItem = (item) => item?.type === "template"
+    ? { type: "text", text: templatedName }
+    : item;
+
+  return Array.isArray(value)
+    ? value.map(replaceItem)
+    : replaceItem(value);
 }
 
 registerOrbitBadge({

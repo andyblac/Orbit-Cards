@@ -25,6 +25,7 @@ import {
 } from "../common/helpers/status-badge.js";
 import {
   disconnectTemplateSubscriptions,
+  evaluateStateTemplate,
   getTemplateError,
   syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
@@ -64,6 +65,8 @@ class OrbitStatusBadgeEditor extends LitElement {
     this._localIconFilesLoading = false;
     this._contentExpanded = false;
     this._stateTypeExpanded = false;
+    this._namePickerEnhanceFrame = undefined;
+    this._namePickerEnhanceAttempts = 0;
   }
 
   connectedCallback() {
@@ -74,6 +77,10 @@ class OrbitStatusBadgeEditor extends LitElement {
   }
 
   disconnectedCallback() {
+    if (this._namePickerEnhanceFrame !== undefined) {
+      cancelAnimationFrame(this._namePickerEnhanceFrame);
+      this._namePickerEnhanceFrame = undefined;
+    }
     disconnectTemplateSubscriptions.call(this);
     disconnectEditorPopoverClose(this);
     super.disconnectedCallback();
@@ -82,7 +89,25 @@ class OrbitStatusBadgeEditor extends LitElement {
   updated(changedProperties) {
     if (changedProperties.has("hass") || changedProperties.has("_config")) {
       this._syncTemplateSubscriptions();
+      this._namePickerEnhanceAttempts = 0;
     }
+
+    this._scheduleNamePickerEnhancement();
+  }
+
+  _scheduleNamePickerEnhancement() {
+    if (
+      getStatusBadgeStateSource(this._config) !== "template" ||
+      this._namePickerEnhanceFrame !== undefined
+    ) {
+      return;
+    }
+
+    this._namePickerEnhanceFrame = requestAnimationFrame(() => {
+      this._namePickerEnhanceFrame = undefined;
+      this._namePickerEnhanceAttempts += 1;
+      this._enhanceNamePicker();
+    });
   }
 
   _syncTemplateSubscriptions() {
@@ -90,14 +115,114 @@ class OrbitStatusBadgeEditor extends LitElement {
     const templates = [
       this._config?.state_template,
       this._config?.active_template,
+      this._config?.name_template,
     ].filter(Boolean);
+    const entries = stateSource === "template"
+      ? templates.map((template) => ({ template, entityId: "" }))
+      : [];
 
     syncTemplateSubscriptions.call(
       this,
-      stateSource === "template"
-        ? templates.map((template) => ({ template, entityId: "" }))
-        : []
+      entries
     );
+  }
+
+  _enhanceNamePicker() {
+    const selector = this.shadowRoot?.querySelector(
+      ".status-badge-name-selector"
+    );
+    const picker = findElementInShadowTree(
+      selector,
+      "ha-entity-name-picker"
+    );
+
+    if (!picker) {
+      if (this._namePickerEnhanceAttempts < 10) {
+        this._scheduleNamePickerEnhancement();
+      }
+      return;
+    }
+    this._namePickerEnhanceAttempts = 0;
+    if (picker.__orbitTemplateNameEnhanced) return;
+
+    const getFilteredItems = picker._getFilteredItems;
+    const validTypes = picker._validTypes;
+    const formatItem = picker._formatItem;
+    const pickerValueChanged = picker._pickerValueChanged;
+
+    if (
+      typeof getFilteredItems !== "function" ||
+      typeof validTypes !== "function" ||
+      typeof formatItem !== "function" ||
+      typeof pickerValueChanged !== "function"
+    ) {
+      return;
+    }
+
+    picker.__orbitTemplateNameEnhanced = true;
+    picker._validTypes = (entityId) => new Set([
+      ...validTypes.call(picker, entityId),
+      "template",
+    ]);
+    picker._formatItem = (item) => item?.type === "template"
+      ? this._t("Template")
+      : formatItem.call(picker, item);
+    picker._getFilteredItems = () => {
+      const items = getFilteredItems.call(picker);
+      const selectedItems = getNativeNamePickerItems(picker.value);
+      const editingTemplate = picker._editIndex != null &&
+        selectedItems[picker._editIndex]?.type === "template";
+      const hasTemplate = selectedItems.some(
+        (item) => item?.type === "template"
+      );
+
+      if (!hasTemplate || editingTemplate) {
+        const renderedName = String(evaluateStateTemplate.call(
+          this,
+          this._config?.name_template,
+          ""
+        ) ?? "").trim();
+        const primary = this._t("Template");
+        const secondary = renderedName || this._t("Not configured");
+
+        items.push({
+          id: "___template___",
+          primary,
+          secondary,
+          search_labels: {
+            id: "___template___",
+            primary,
+            secondary,
+          },
+          sorting_label: primary,
+        });
+      }
+
+      return items;
+    };
+    picker._pickerValueChanged = (event) => {
+      if (event.detail?.value !== "___template___") {
+        pickerValueChanged.call(picker, event);
+        return;
+      }
+
+      event.stopPropagation();
+      if (picker.disabled) return;
+
+      const items = getNativeNamePickerItems(picker.value);
+      const templateItem = { type: "template" };
+
+      if (picker._editIndex != null) {
+        items[picker._editIndex] = templateItem;
+        picker._editIndex = undefined;
+      } else {
+        items.push(templateItem);
+      }
+
+      picker._setValue(items);
+      if (picker._picker) picker._picker.value = undefined;
+    };
+    picker.requestUpdate();
   }
 
   setConfig(config) {
@@ -204,12 +329,18 @@ class OrbitStatusBadgeEditor extends LitElement {
   _getStateContentHass() {
     const now = new Date().toISOString();
     const areaName = this.hass?.areas?.[this._config?.area]?.name;
+    const nameTemplate = this._config?.name_template?.trim() || "";
+    const templateName = getStatusBadgeStateSource(this._config) === "template"
+      ? String(
+          evaluateStateTemplate.call(this, nameTemplate, "") ?? ""
+        ).trim()
+      : "";
     const previewState = {
       entity_id: STATE_CONTENT_ENTITY_ID,
       state: "on",
       attributes: {
         count: 2,
-        friendly_name: areaName || "Orbit status",
+        friendly_name: templateName || areaName || "Orbit status",
       },
       last_changed: now,
       last_updated: now,
@@ -240,6 +371,7 @@ class OrbitStatusBadgeEditor extends LitElement {
       (item) => item.value === this._config?.domain
     );
     const displayedElements = [
+      ...(this._config?.show_name === true ? ["name"] : []),
       ...(this._config?.show_state !== false ? ["state"] : []),
       ...(this._config?.show_icon !== false ? ["icon"] : []),
     ];
@@ -294,6 +426,9 @@ class OrbitStatusBadgeEditor extends LitElement {
             <div class="content-panel-body">
               <div class="field">
                 <ha-selector
+                  class=${stateSource === "template"
+                    ? "status-badge-name-selector"
+                    : ""}
                   .hass=${stateContentHass}
                   .label=${this.hass?.localize(
                     "ui.panel.lovelace.editor.card.generic.name"
@@ -337,6 +472,12 @@ class OrbitStatusBadgeEditor extends LitElement {
                       multiple: true,
                       options: [
                         {
+                          value: "name",
+                          label: this.hass?.localize(
+                            "ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.name"
+                          ) || this._t("Name"),
+                        },
+                        {
                           value: "state",
                           label: this.hass?.localize(
                             "ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.state"
@@ -355,6 +496,7 @@ class OrbitStatusBadgeEditor extends LitElement {
                   @value-changed=${(e) => {
                     const value = e.detail.value || [];
                     this._updateConfig({
+                      show_name: value.includes("name") ? true : undefined,
                       show_state: value.includes("state") ? undefined : false,
                       show_icon: value.includes("icon") ? undefined : false,
                     });
@@ -719,17 +861,58 @@ function renderBadgeStateControl({
                   this._config?.active_template
                 )}
               </div>
+              <div class="field">
+                <ha-selector
+                  .hass=${this.hass}
+                  .label=${this._t("Name template")}
+                  .selector=${{ template: {} }}
+                  .value=${this._config?.name_template || ""}
+                  @value-changed=${(e) =>
+                    this._handleConfigUpdate(
+                      "name_template",
+                      e.detail.value || undefined
+                    )}
+                ></ha-selector>
+                ${renderTemplateError.call(
+                  this,
+                  this._config?.name_template
+                )}
+              </div>
             `}
     </div>
   `;
 }
 
-function renderTemplateError(template) {
-  const error = getTemplateError.call(this, template, "");
+function renderTemplateError(template, entityId = "") {
+  const error = getTemplateError.call(this, template, entityId);
 
   return error
     ? html`<ha-alert alert-type="error">${error}</ha-alert>`
     : "";
+}
+
+function getNativeNamePickerItems(value) {
+  if (!value) return [];
+  if (typeof value === "string") {
+    return [{ type: "text", text: value }];
+  }
+
+  return Array.isArray(value) ? [...value] : [value];
+}
+
+function findElementInShadowTree(root, selector) {
+  if (!root) return undefined;
+  if (root.matches?.(selector)) return root;
+
+  const directMatch = root.shadowRoot?.querySelector(selector);
+  if (directMatch) return directMatch;
+
+  for (const child of root.shadowRoot?.querySelectorAll("*") || []) {
+    const nestedMatch = findElementInShadowTree(child, selector);
+    if (nestedMatch) return nestedMatch;
+  }
+
+  return undefined;
 }
 
 function getDomainPickerItems() {

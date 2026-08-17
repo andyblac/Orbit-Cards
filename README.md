@@ -129,6 +129,9 @@ state_template: >-
 active_template: >-
   {{ (states('sensor.consumer_unit_power') | float(0)
       - states('sensor.boiler_power') | float(0)) > 50 }}
+name_template: >-
+  {{ 'High usage' if states('sensor.consumer_unit_power') | float(0) > 50
+     else 'Net power' }}
 ```
 
 The display template controls the badge text. The optional active template
@@ -136,6 +139,10 @@ independently controls the badge colour and active/inactive icon selection.
 When no active template is configured, rendered numeric zero and common off
 values are treated as inactive; non-zero numbers and other rendered values are
 treated as active.
+
+For the Template state type, the optional name template supplies a rendered
+Template name source that can be selected and combined in the composed Name
+picker. The source remains visible as `Not configured` until a template is set.
 
 Area Card button state templates and Status Card state/label templates use the
 same native Home Assistant renderer. Legacy bare expressions are migrated
