@@ -54,7 +54,9 @@ export function updateEditorDocumentationContext(
   const documentationURL = getOrbitDocumentationURL(cardType, context);
 
   queueMicrotask(() => {
-    const dialog = findComposedAncestor(editor, "hui-dialog-edit-card");
+    const dialog =
+      findComposedAncestor(editor, "hui-dialog-edit-card") ||
+      findComposedAncestor(editor, "hui-dialog-edit-badge");
 
     if (!dialog || dialog._documentationURL === documentationURL) {
       return;

@@ -787,6 +787,7 @@ const THEME_COLOR_OPTIONS = [
   "white",
   "disabled",
   "state-icon-color",
+  "state-inactive-color",
   "state-light-active-color",
   "gold",
   "violet",

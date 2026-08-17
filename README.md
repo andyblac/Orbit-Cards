@@ -11,6 +11,8 @@
 
 Orbit Cards is a collection of modern Home Assistant dashboard cards with a shared visual style, shared editor controls, and support for custom icons, dynamic colours, popups, navigation, and compact grouped layouts.
 
+It also includes the `custom:orbit-status-badge`, which counts active entities of a selected domain in an area.
+
 Orbit Cards is available directly from the default HACS repository. Search for `Orbit Cards` in HACS to install it.
 
 ---
@@ -63,6 +65,52 @@ Orbit Cards is available directly from the default HACS repository. Search for `
 - Dynamic entity state updates scoped to only the entities used by each card.
 - Grouped compact layouts for Status Icon only and Action Card.
 - Deck Card layouts for wrapping Lovelace cards into rows, showing them as tabs, or overlaying compact controls on a main card.
+- Entity-compatible status badges plus area/domain active counts, native state
+  content, basic/on/off custom icons, and separate active/inactive colours.
+
+## Status Badge
+
+The Orbit Status Badge can be used anywhere Home Assistant accepts badges. Entity is the default state type, so a native Entity badge can be converted by changing only its type:
+
+```yaml
+type: custom:orbit-status-badge
+entity: binary_sensor.front_door_contact_sensor
+```
+
+Native Entity badge options such as `entity`, `name`, `icon`, `color`,
+`show_name`, `show_state`, `show_icon`, `show_entity_picture`,
+`state_content`, `time_format`, and tap/hold/double-tap actions are supported.
+
+Area Count is the Orbit-specific state type and can also be used inside a Heading card:
+
+```yaml
+type: heading
+heading: Room Trends
+icon: mdi:chart-line
+badges:
+  - type: custom:orbit-status-badge
+    state_source: area_count
+    area: landing
+    domain: light
+```
+
+Area Count counts active entities in the selected area and domain. The
+`state_source: area_count` setting can be supplied explicitly and is inferred
+when an area or domain is configured without an entity. A device-class filter is offered when Home Assistant reports
+device classes for that domain, allowing
+semantic types such as sockets and motion sensors to be counted separately:
+
+```yaml
+# Sockets
+domain: switch
+device_class: outlet
+
+# Motion sensors
+domain: binary_sensor
+device_class: motion
+```
+
+Lights use `domain: light` without a device-class filter. Both Orbit colour pickers are pre-populated with the shared `State colour (default)` palette option; inside the badge, that option resolves from the representative entity's domain, device class, and exact state, followed by Home Assistant's domain and global active/inactive fallbacks. The editor also provides basic, active, and inactive custom icons.
 
 ## Installation
 
