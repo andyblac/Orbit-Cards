@@ -6574,7 +6574,7 @@ var rm, im, am = e((() => {
 		status: "0.14.0",
 		action: "0.6.5",
 		deck: "0.4.1",
-		statusBadge: "0.4.0"
+		statusBadge: "0.5.0"
 	};
 })), om = /* @__PURE__ */ t((() => {
 	P(), es(), Is(), Vs(), Xs(), sa(), gc(), rr(), tn(), Mt(), am(), Z();
