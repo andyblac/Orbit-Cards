@@ -1,6 +1,6 @@
 {
   "name": "orbit-cards",
-  "version": "1.0.4-beta.3",
+  "version": "1.0.4",
   "scripts": {
     "build": "vite build",
     "watch": "vite build --watch"
