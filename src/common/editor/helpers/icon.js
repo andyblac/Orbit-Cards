@@ -78,10 +78,12 @@ export function resolveIconPath(iconPath) {
 }
 
 function getOrbitIconPath(file) {
-  const moduleUrl = import.meta.url.split("?")[0];
-  const base = moduleUrl.slice(0, moduleUrl.lastIndexOf("/") + 1);
+  const moduleUrl = new URL(import.meta.url);
+  const assetUrl = new URL(file, moduleUrl);
 
-  return `${base}${file}`;
+  assetUrl.search = moduleUrl.search;
+
+  return assetUrl.toString();
 }
 
 export function renderIconInput(label, key, placeholder) {

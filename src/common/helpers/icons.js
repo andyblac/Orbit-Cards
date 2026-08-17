@@ -74,16 +74,24 @@ export function resolveIconPath(iconPath) {
 }
 
 function getOrbitIconPath(file) {
-  const moduleUrl = import.meta.url.split("?")[0];
-  const base = moduleUrl.slice(0, moduleUrl.lastIndexOf("/") + 1);
+  const moduleUrl = new URL(import.meta.url);
+  const assetUrl = new URL(file, moduleUrl);
 
-  return `${base}${file}`;
+  assetUrl.search = moduleUrl.search;
+
+  return assetUrl.toString();
+}
+
+function getOrbitIconBasePath() {
+  const moduleUrl = import.meta.url.split("?")[0];
+
+  return moduleUrl.slice(0, moduleUrl.lastIndexOf("/") + 1);
 }
 
 let orbitManifestRevisionPromise;
 
 function getOrbitManifestRevision(path) {
-  if (!path.split("?")[0].startsWith(getOrbitIconPath(""))) {
+  if (!path.split("?")[0].startsWith(getOrbitIconBasePath())) {
     return Promise.resolve("");
   }
 
@@ -94,12 +102,6 @@ function getOrbitManifestRevision(path) {
     )
       .then(async (response) => {
         if (!response.ok) return "";
-
-        const headerRevision =
-          response.headers.get("etag") ||
-          response.headers.get("last-modified");
-
-        if (headerRevision) return headerRevision;
 
         return hashManifest(await response.text());
       })
