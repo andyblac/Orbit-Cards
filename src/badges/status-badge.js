@@ -93,11 +93,17 @@ class OrbitStatusBadge extends LitElement {
   _syncTemplateSubscriptions() {
     const stateSource = getStatusBadgeStateSource(this._config);
     const template = this._config?.state_template?.trim() || "";
+    const activeTemplate = this._config?.active_template?.trim() || "";
 
     syncTemplateSubscriptions.call(
       this,
-      stateSource === "template" && template
-        ? [{ template, entityId: "" }]
+      stateSource === "template"
+        ? [template, activeTemplate]
+            .filter(Boolean)
+            .map((entryTemplate) => ({
+              template: entryTemplate,
+              entityId: "",
+            }))
         : []
     );
   }
@@ -138,8 +144,14 @@ class OrbitStatusBadge extends LitElement {
           ""
         ) ?? "unavailable"
       : "";
+    const activeTemplate = this._config?.active_template?.trim() || "";
+    const activeTemplateResult = stateSource === "template" && activeTemplate
+      ? evaluateStateTemplate.call(this, activeTemplate, "")
+      : null;
     const isOn = stateSource === "template"
-      ? getTemplateResultActiveState(templateResult)
+      ? getTemplateResultActiveState(
+          activeTemplateResult ?? templateResult
+        )
       : activeEntities.length > 0;
     const selectedEntity = stateSource === "entity" ? entities[0] : undefined;
     const domain = selectedEntity?.entity_id.split(".")[0] ||

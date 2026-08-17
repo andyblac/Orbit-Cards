@@ -126,11 +126,16 @@ name: Net power
 state_template: >-
   {{ (states('sensor.consumer_unit_power') | float(0)
       - states('sensor.boiler_power') | float(0)) | round(2) }} kW
+active_template: >-
+  {{ (states('sensor.consumer_unit_power') | float(0)
+      - states('sensor.boiler_power') | float(0)) > 50 }}
 ```
 
-Rendered numeric zero and common off values are treated as inactive for the
-badge colour and active/inactive icon selection. Non-zero numbers and other
-rendered values are treated as active.
+The display template controls the badge text. The optional active template
+independently controls the badge colour and active/inactive icon selection.
+When no active template is configured, rendered numeric zero and common off
+values are treated as inactive; non-zero numbers and other rendered values are
+treated as active.
 
 Area Card button state templates and Status Card state/label templates use the
 same native Home Assistant renderer. Legacy bare expressions are migrated

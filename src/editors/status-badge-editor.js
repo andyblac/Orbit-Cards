@@ -23,6 +23,11 @@ import {
   normalizeStatusBadgeColors,
   STATUS_BADGE_DOMAINS,
 } from "../common/helpers/status-badge.js";
+import {
+  disconnectTemplateSubscriptions,
+  getTemplateError,
+  syncTemplateSubscriptions,
+} from "../common/helpers/templates.js";
 import { CARD_VERSIONS } from "../version.js";
 
 const STATE_CONTENT_ENTITY_ID = "sensor.orbit_status_badge_preview";
@@ -43,6 +48,7 @@ class OrbitStatusBadgeEditor extends LitElement {
     _localIconFilesLoading: { state: true },
     _contentExpanded: { state: true },
     _stateTypeExpanded: { state: true },
+    _templateRevision: { state: true },
   };
 
   constructor() {
@@ -64,11 +70,34 @@ class OrbitStatusBadgeEditor extends LitElement {
     super.connectedCallback();
     connectEditorPopoverClose(this);
     updateEditorDocumentationContext(this, "orbit-status-badge");
+    queueMicrotask(() => this._syncTemplateSubscriptions());
   }
 
   disconnectedCallback() {
+    disconnectTemplateSubscriptions.call(this);
     disconnectEditorPopoverClose(this);
     super.disconnectedCallback();
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has("hass") || changedProperties.has("_config")) {
+      this._syncTemplateSubscriptions();
+    }
+  }
+
+  _syncTemplateSubscriptions() {
+    const stateSource = getStatusBadgeStateSource(this._config);
+    const templates = [
+      this._config?.state_template,
+      this._config?.active_template,
+    ].filter(Boolean);
+
+    syncTemplateSubscriptions.call(
+      this,
+      stateSource === "template"
+        ? templates.map((template) => ({ template, entityId: "" }))
+        : []
+    );
   }
 
   setConfig(config) {
@@ -553,6 +582,7 @@ function renderBadgeStateControl({
                     domain: undefined,
                     device_class: undefined,
                     state_template: undefined,
+                    active_template: undefined,
                     state_content: undefined,
                   }
                 : value === "area_count"
@@ -560,6 +590,7 @@ function renderBadgeStateControl({
                       state_source: "area_count",
                       entity: undefined,
                       state_template: undefined,
+                      active_template: undefined,
                       state_content: undefined,
                     }
                   : {
@@ -657,7 +688,7 @@ function renderBadgeStateControl({
               <div class="field">
                 <ha-selector
                   .hass=${this.hass}
-                  .label=${this._t("Template")}
+                  .label=${this._t("Display template")}
                   .selector=${{ template: {} }}
                   .value=${this._config?.state_template || ""}
                   @value-changed=${(e) =>
@@ -666,10 +697,39 @@ function renderBadgeStateControl({
                       e.detail.value || ""
                     )}
                 ></ha-selector>
+                ${renderTemplateError.call(
+                  this,
+                  this._config?.state_template
+                )}
+              </div>
+              <div class="field">
+                <ha-selector
+                  .hass=${this.hass}
+                  .label=${this._t("Active template")}
+                  .selector=${{ template: {} }}
+                  .value=${this._config?.active_template || ""}
+                  @value-changed=${(e) =>
+                    this._handleConfigUpdate(
+                      "active_template",
+                      e.detail.value || undefined
+                    )}
+                ></ha-selector>
+                ${renderTemplateError.call(
+                  this,
+                  this._config?.active_template
+                )}
               </div>
             `}
     </div>
   `;
+}
+
+function renderTemplateError(template) {
+  const error = getTemplateError.call(this, template, "");
+
+  return error
+    ? html`<ha-alert alert-type="error">${error}</ha-alert>`
+    : "";
 }
 
 function getDomainPickerItems() {

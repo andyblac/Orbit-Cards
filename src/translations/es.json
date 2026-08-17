@@ -21,6 +21,8 @@
   "State type": "Tipo de estado",
   "Tap behavior": "Comportamiento al tocar",
   "Template": "Plantilla",
+  "Display template": "Plantilla de visualización",
+  "Active template": "Plantilla de activación",
   "Type": "Tipo",
   "Visible if selected in state content": "Visible si se selecciona en el contenido del estado",
   "Accent color": "Color de acento",

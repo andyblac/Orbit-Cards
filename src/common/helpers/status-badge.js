@@ -99,6 +99,7 @@ export function normalizeStatusBadgeColors(config = {}) {
     delete normalized.domain;
     delete normalized.device_class;
     delete normalized.state_template;
+    delete normalized.active_template;
     if (normalized.state_content === "state") {
       delete normalized.state_content;
     }
@@ -109,6 +110,7 @@ export function normalizeStatusBadgeColors(config = {}) {
     normalized.state_source = "area_count";
     delete normalized.entity;
     delete normalized.state_template;
+    delete normalized.active_template;
     if (normalized.state_content === "count") {
       delete normalized.state_content;
     }

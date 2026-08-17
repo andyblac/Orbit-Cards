@@ -21,6 +21,8 @@
   "State type": "Zustandstyp",
   "Tap behavior": "Tippverhalten",
   "Template": "Vorlage",
+  "Display template": "Anzeigevorlage",
+  "Active template": "Aktivierungsvorlage",
   "Type": "Typ",
   "Visible if selected in state content": "Sichtbar, wenn im Zustandsinhalt ausgewählt",
   "Accent color": "Akzentfarbe",

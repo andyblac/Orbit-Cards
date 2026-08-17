@@ -21,6 +21,8 @@
   "State type": "Statustype",
   "Tap behavior": "Gedrag bij tikken",
   "Template": "Sjabloon",
+  "Display template": "Weergavesjabloon",
+  "Active template": "Activeringssjabloon",
   "Type": "Type",
   "Visible if selected in state content": "Zichtbaar indien geselecteerd in statusinhoud",
   "Accent color": "Accentkleur",

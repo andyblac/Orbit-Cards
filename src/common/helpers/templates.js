@@ -84,6 +84,17 @@ export function evaluateStateTemplate(template, entityId = "") {
   return record?.result ?? null;
 }
 
+export function getTemplateError(template, entityId = "") {
+  if (!template) return "";
+
+  const normalizedTemplate = migrateLegacyTemplate(template)?.trim();
+  const record = this.__orbitTemplateSubscriptions?.get(
+    getTemplateId(normalizedTemplate, entityId)
+  );
+
+  return record?.error || "";
+}
+
 export function getTemplateResultActiveState(result) {
   const normalized = String(result ?? "").trim().toLowerCase();
 
@@ -133,7 +144,7 @@ function subscribeTemplate(descriptor) {
       if (subscriptions.get(id) !== record) return;
 
       if ("error" in message) {
-        record.error = message.error || "Template rendering failed";
+        record.error = formatTemplateError(message.error);
         record.result = null;
       } else {
         record.error = "";
@@ -159,7 +170,7 @@ function subscribeTemplate(descriptor) {
     if (subscriptions.get(id) !== record) return;
 
     record.subscription = undefined;
-    record.error = error?.message || String(error);
+    record.error = formatTemplateError(error);
     record.result = null;
     this._templateRevision = (this._templateRevision || 0) + 1;
   });
@@ -201,5 +212,17 @@ function safeStringify(value) {
     return JSON.stringify(value);
   } catch (_error) {
     return "";
+  }
+}
+
+function formatTemplateError(error) {
+  if (!error) return "Template rendering failed";
+  if (typeof error === "string") return error;
+  if (error.message) return error.message;
+
+  try {
+    return JSON.stringify(error);
+  } catch (_jsonError) {
+    return String(error);
   }
 }
