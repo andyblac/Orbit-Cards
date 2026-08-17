@@ -2,95 +2,53 @@
   {
     "name": "Fan",
     "file": "fan.svg",
-    "tags": [
-      "bathroom",
-      "fan"
-    ],
-    "revision": "cb5e88ad"
+    "tags": ["bathroom", "fan"]
   },
   {
     "name": "Garage Door Closed",
     "file": "garage-door_closed.svg",
-    "tags": [
-      "garage",
-      "door"
-    ],
-    "revision": "8be5bebb"
+    "tags": ["garage", "door"]
   },
   {
     "name": "Garage Door Open",
     "file": "garage-door_open.svg",
-    "tags": [
-      "garage",
-      "door"
-    ],
-    "revision": "35ab64d4"
+    "tags": ["garage", "door"]
   },
   {
     "name": "Motion Detected",
     "file": "motion_detected.svg",
-    "tags": [
-      "motion",
-      "sensor"
-    ],
-    "revision": "1e493a0d"
+    "tags": ["motion", "sensor"]
   },
   {
     "name": "No Motion",
     "file": "motion_off.svg",
-    "tags": [
-      "motion",
-      "sensor"
-    ],
-    "revision": "99496985"
+    "tags": ["motion", "sensor"]
   },
   {
     "name": "Shutter Opening",
     "file": "shutter-opening.svg",
     "revision": "3bfde376",
-    "tags": [
-      "cover",
-      "shade",
-      "shutter",
-      "opening"
-    ]
+    "tags": ["cover", "shade", "shutter", "opening"]
   },
   {
     "name": "Shutter Closing",
     "file": "shutter-closing.svg",
     "revision": "458fb44b",
-    "tags": [
-      "cover",
-      "shade",
-      "shutter",
-      "closing"
-    ]
+    "tags": ["cover", "shade", "shutter", "closing"]
   },
   {
     "name": "Shower On",
     "file": "shower_on.svg",
-    "tags": [
-      "bathroom",
-      "water"
-    ],
-    "revision": "8975f9ce"
+    "tags": ["bathroom", "water"]
   },
   {
     "name": "Shower Off",
     "file": "shower_off.svg",
-    "tags": [
-      "bathroom",
-      "water"
-    ],
-    "revision": "c76410cf"
+    "tags": ["bathroom", "water"]
   },
   {
     "name": "Washing Machine Running",
     "file": "washing-machine-running.svg",
-    "tags": [
-      "kitchen",
-      "washing"
-    ],
-    "revision": "e99f7c57"
+    "tags": ["kitchen", "washing"]
   }
 ]

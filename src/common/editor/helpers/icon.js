@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { orbitIconManifest } from "../../../icons/bundled.js";
 
 function t(editor, key) {
   if (Array.isArray(key)) {
@@ -57,7 +58,7 @@ export function resolveIconPath(iconPath) {
   if (!iconPath) return "";
 
   if (iconPath.startsWith("orbit:")) {
-    return getOrbitIconPath(iconPath.slice(6));
+    return iconPath;
   }
 
   if (iconPath.startsWith("local:")) {
@@ -75,15 +76,6 @@ export function resolveIconPath(iconPath) {
   }
 
   return `/local/icons/${iconPath}`;
-}
-
-function getOrbitIconPath(file) {
-  const moduleUrl = new URL(import.meta.url);
-  const assetUrl = new URL(file, moduleUrl);
-
-  assetUrl.search = moduleUrl.search;
-
-  return assetUrl.toString();
 }
 
 export function renderIconInput(label, key, placeholder) {
@@ -618,15 +610,9 @@ function renderFileIconLabel(icon) {
 }
 
 async function discoverOrbitIconFiles() {
-  const files = await loadIconManifest([
-    getOrbitIconPath("manifest.json"),
-    getOrbitIconPath("orbit-icons.json"),
-  ]);
-
-  return files.map((file) => ({
-    ...file,
-    source: "orbit",
-  }));
+  return orbitIconManifest
+    .filter(isIconFile)
+    .map((file) => normalizeIconRecord(file, "orbit"));
 }
 
 async function discoverLocalIconFiles() {

@@ -1,3 +1,5 @@
+import { getBundledOrbitSvg } from "../../icons/bundled.js";
+
 export function getMainIconColor(stateObj, isOn) {
   const accentColor = this._config.accent_color || "theme";
 
@@ -53,7 +55,7 @@ export function resolveIconPath(iconPath) {
   if (!iconPath) return "";
 
   if (iconPath.startsWith("orbit:")) {
-    return getOrbitIconPath(iconPath.slice(6));
+    return iconPath;
   }
 
   if (iconPath.startsWith("local:")) {
@@ -71,63 +73,6 @@ export function resolveIconPath(iconPath) {
   }
 
   return `/local/icons/${iconPath}`;
-}
-
-function getOrbitIconPath(file) {
-  const moduleUrl = new URL(import.meta.url);
-  const assetUrl = new URL(file, moduleUrl);
-
-  assetUrl.search = moduleUrl.search;
-
-  return assetUrl.toString();
-}
-
-function getOrbitIconBasePath() {
-  const moduleUrl = import.meta.url.split("?")[0];
-
-  return moduleUrl.slice(0, moduleUrl.lastIndexOf("/") + 1);
-}
-
-let orbitManifestRevisionPromise;
-
-function getOrbitManifestRevision(path) {
-  if (!path.split("?")[0].startsWith(getOrbitIconBasePath())) {
-    return Promise.resolve("");
-  }
-
-  if (!orbitManifestRevisionPromise) {
-    orbitManifestRevisionPromise = fetch(
-      getOrbitIconPath("manifest.json"),
-      { cache: "no-cache" }
-    )
-      .then(async (response) => {
-        if (!response.ok) return "";
-
-        return hashManifest(await response.text());
-      })
-      .catch(() => "");
-  }
-
-  return orbitManifestRevisionPromise;
-}
-
-function hashManifest(value) {
-  let hash = 0x811c9dc5;
-
-  for (let index = 0; index < value.length; index += 1) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 0x01000193);
-  }
-
-  return (hash >>> 0).toString(16);
-}
-
-function addManifestRevision(path, revision) {
-  if (!revision) return path;
-
-  const separator = path.includes("?") ? "&" : "?";
-
-  return `${path}${separator}orbit_manifest=${encodeURIComponent(revision)}`;
 }
 
 export function getInlineSvg(path, options = {}) {
@@ -153,6 +98,14 @@ export function getInlineSvg(path, options = {}) {
   if (cached === "loading") {
     addSvgSubscriber(cacheKey, this);
     return "";
+  }
+
+  const bundledSvg = getBundledOrbitSvg(path);
+
+  if (bundledSvg) {
+    const svg = prepareInlineSvg(bundledSvg, forceColor, animate);
+    svgCache[cacheKey] = svg;
+    return svg;
   }
 
   svgCache[cacheKey] = "loading";
@@ -258,15 +211,9 @@ function notifySvgSubscribers(path) {
 }
 
 function fetchInlineSvg(path) {
-  return getOrbitManifestRevision(path)
-    .then((revision) => {
-      const requestPath = addManifestRevision(path, revision);
+  return fetch(path).then((response) => {
+    if (response.ok) return response;
 
-      return fetch(requestPath)
-        .then((response) => {
-          if (response.ok) return response;
-
-          return fetch(requestPath, { cache: "reload" });
-        });
-    });
+    return fetch(path, { cache: "reload" });
+  });
 }
