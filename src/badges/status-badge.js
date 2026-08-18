@@ -513,7 +513,12 @@ class OrbitStatusBadge extends LitElement {
       ? html`
           <ha-heading-badge
             .type=${hasAction ? "button" : "text"}
-            style=${`--icon-color:${model.iconColor};`}
+            style=${[
+              `--icon-color:${model.iconColor}`,
+              "--ha-heading-badge-font-size:var(--ha-heading-card-title-font-size,var(--ha-font-size-l))",
+              "--ha-heading-badge-font-weight:var(--ha-heading-card-title-font-weight,var(--ha-font-weight-normal))",
+              "--ha-heading-badge-line-height:var(--ha-heading-card-title-line-height,var(--ha-line-height-normal))",
+            ].join(";")}
             .title=${`${model.label}: ${model.displayValue}`}
             aria-label=${`${model.label}: ${model.displayValue}`}
             @click=${events.click}
@@ -589,15 +594,19 @@ class OrbitStatusBadge extends LitElement {
     }
 
     :host([heading-badge]) .image-icon {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
     }
 
     :host([heading-badge]) .entity-picture {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       border-radius: var(--ha-border-radius-circle);
       object-fit: cover;
+    }
+
+    :host([heading-badge]) ha-state-icon {
+      --mdc-icon-size: 18px;
     }
 
     .image-icon svg {

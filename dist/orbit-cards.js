@@ -13343,7 +13343,12 @@ var cg, lg, ug = e((() => {
       ` : this._isHeadingBadge ? k`
           <ha-heading-badge
             .type=${n ? "button" : "text"}
-            style=${`--icon-color:${e.iconColor};`}
+            style=${[
+				`--icon-color:${e.iconColor}`,
+				"--ha-heading-badge-font-size:var(--ha-heading-card-title-font-size,var(--ha-font-size-l))",
+				"--ha-heading-badge-font-weight:var(--ha-heading-card-title-font-weight,var(--ha-font-weight-normal))",
+				"--ha-heading-badge-line-height:var(--ha-heading-card-title-line-height,var(--ha-line-height-normal))"
+			].join(";")}
             .title=${`${e.label}: ${e.displayValue}`}
             aria-label=${`${e.label}: ${e.displayValue}`}
             @click=${p.click}
@@ -13417,15 +13422,19 @@ var cg, lg, ug = e((() => {
     }
 
     :host([heading-badge]) .image-icon {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
     }
 
     :host([heading-badge]) .entity-picture {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       border-radius: var(--ha-border-radius-circle);
       object-fit: cover;
+    }
+
+    :host([heading-badge]) ha-state-icon {
+      --mdc-icon-size: 18px;
     }
 
     .image-icon svg {
