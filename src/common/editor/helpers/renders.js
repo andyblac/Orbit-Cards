@@ -761,6 +761,7 @@ const THEME_COLOR_OPTIONS = [
   { id: "theme", label: "State color (default)" },
   { id: "light", label: "State Light color" },
   "primary-color",
+  "card-background-color",
   "accent-color",
   "red",
   "pink",

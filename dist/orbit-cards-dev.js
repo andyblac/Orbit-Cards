@@ -3483,6 +3483,7 @@ var Ro, zo, Bo, Vo = e((() => {
 			label: "State Light color"
 		},
 		"primary-color",
+		"card-background-color",
 		"accent-color",
 		"red",
 		"pink",
