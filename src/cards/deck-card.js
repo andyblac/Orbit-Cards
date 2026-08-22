@@ -494,10 +494,17 @@ class OrbitDeckCard extends LitElement {
 
   _renderInteractiveDeckEntry(entry) {
     const hasActions = hasDeckItemActions(entry?.item);
+    const transparentBackground = shouldFlattenDeckCardSurface(
+      this._config,
+      entry?.item,
+      entry?.index
+    );
 
     return html`
       <div
-        class="deck-item-interaction ${hasActions ? "has-actions" : ""}"
+        class="deck-item-interaction ${hasActions ? "has-actions" : ""} ${
+          transparentBackground ? "transparent-background" : ""
+        }"
         data-deck-index=${entry?.index ?? ""}
       >
         ${this._renderDeckEntry(entry)}
@@ -995,15 +1002,19 @@ function getDeckItemWrapper(root, index) {
 }
 
 function shouldFlattenDeckCardSurface(config = {}, item = {}, index = 0) {
+  const configured = item?.attributes?.transparent_background;
+
   if (config?.layout === "wrap") {
-    return !config?.separate_cards;
+    return typeof configured === "boolean"
+      ? configured
+      : !config?.separate_cards;
   }
 
   if (config?.layout === "overlay") {
-    return index > 0 && item?.attributes?.transparent_background === true;
+    return index > 0 && configured === true;
   }
 
-  return config?.layout === "tabs";
+  return config?.layout === "tabs" && configured !== false;
 }
 
 const DECK_CARD_SURFACE_STYLES = {

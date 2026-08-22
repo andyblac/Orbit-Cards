@@ -22,9 +22,8 @@ export const deckCardStyles = css`
     box-shadow: none;
   }
 
-  ha-card.deck-card.wrap:not(.separate-cards) .deck-item,
-  ha-card.deck-card.wrap:not(.separate-cards) .deck-item > *,
-  ha-card.deck-card.wrap:not(.separate-cards) .deck-item-interaction > * {
+  .deck-item-interaction.transparent-background,
+  .deck-item-interaction.transparent-background > * {
     --ha-card-background: transparent;
     --card-background-color: transparent;
     --ha-card-box-shadow: none;
