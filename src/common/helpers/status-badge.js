@@ -212,7 +212,9 @@ export function normalizeStatusBadgeColors(config = {}) {
     }
   } else {
     normalized.state_source = "template";
-    delete normalized.entity;
+    if (normalized.display_style !== "badge") {
+      delete normalized.entity;
+    }
     delete normalized.area;
     delete normalized.domain;
     delete normalized.device_class;

@@ -36,6 +36,7 @@
   "Active template": "Activeringssjabloon",
   "Inactive template": "Deactiveringssjabloon",
   "Type": "Type",
+  "Visibility": "Zichtbaarheid",
   "Visible if selected in state content": "Zichtbaar indien geselecteerd in statusinhoud",
   "Accent color": "Accentkleur",
   "Action button": "Actieknop",

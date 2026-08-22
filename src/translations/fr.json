@@ -36,6 +36,7 @@
   "Active template": "Modèle d’activation",
   "Inactive template": "Modèle d’inactivité",
   "Type": "Type",
+  "Visibility": "Visibilité",
   "Visible if selected in state content": "Visible si sélectionné dans le contenu de l’état",
   "Accent color": "Couleur d'accent",
   "Action button": "Bouton d'action",

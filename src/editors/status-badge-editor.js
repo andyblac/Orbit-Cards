@@ -756,7 +756,7 @@ function renderBadgeStateControl({
   const typeOptions = badgeMode
     ? [
         { label: this._t("Always"), value: "always" },
-        { label: this._t("Entity state"), value: "state" },
+        { label: this._t("State"), value: "state" },
         { label: this._t("Template"), value: "template" },
       ]
     : [
@@ -767,8 +767,25 @@ function renderBadgeStateControl({
 
   return html`
     <div class="field main-entity-icon-source-field">
+      ${badgeMode
+        ? html`
+            <ha-selector
+              .hass=${this.hass}
+              .label=${this._t("Entity")}
+              .selector=${{ entity: {} }}
+              .required=${false}
+              .value=${this._config?.entity || ""}
+              @value-changed=${(e) =>
+                this._handleConfigUpdate(
+                  "entity",
+                  e.detail.value || ""
+                )}
+            ></ha-selector>
+          `
+        : ""}
+
       <div class="field-header">
-        <label>${this._t("Type")}</label>
+        <label>${this._t(badgeMode ? "Visibility" : "Type")}</label>
         <ha-selector
           class="main-entity-icon-source-selector"
           .hass=${this.hass}
@@ -786,7 +803,6 @@ function renderBadgeStateControl({
                   ? {
                       card_visibility: undefined,
                       state_source: undefined,
-                      entity: undefined,
                       area: undefined,
                       domain: undefined,
                       device_class: undefined,
@@ -812,7 +828,6 @@ function renderBadgeStateControl({
                     : {
                         card_visibility: "template",
                         state_source: "template",
-                        entity: undefined,
                         area: undefined,
                         domain: undefined,
                         device_class: undefined,
@@ -857,10 +872,7 @@ function renderBadgeStateControl({
         ></ha-selector>
       </div>
 
-      ${badgeMode && selectedType === "always"
-        ? ""
-        : (!badgeMode && stateSource === "entity") ||
-            (badgeMode && selectedType === "state")
+      ${!badgeMode && stateSource === "entity"
         ? html`
             <ha-selector
               .hass=${this.hass}

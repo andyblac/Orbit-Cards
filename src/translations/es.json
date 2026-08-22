@@ -36,6 +36,7 @@
   "Active template": "Plantilla de activación",
   "Inactive template": "Plantilla de inactividad",
   "Type": "Tipo",
+  "Visibility": "Visibilidad",
   "Visible if selected in state content": "Visible si se selecciona en el contenido del estado",
   "Accent color": "Color de acento",
   "Action button": "Botón de acción",

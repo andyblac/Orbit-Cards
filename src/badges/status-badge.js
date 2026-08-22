@@ -118,7 +118,10 @@ class OrbitStatusBadge extends LitElement {
 
   _getEntities() {
     const stateSource = getStatusBadgeStateSource(this._config);
-    if (stateSource === "entity") {
+    if (
+      stateSource === "entity" ||
+      (this._config?.display_style === "badge" && this._config?.entity)
+    ) {
       const stateObj = this.hass?.states?.[this._config?.entity];
       return stateObj ? [stateObj] : [];
     }
@@ -177,7 +180,7 @@ class OrbitStatusBadge extends LitElement {
         !this._config?.card_visibility
       ? true
       : computedIsOn;
-    const selectedEntity = stateSource === "entity" ? entities[0] : undefined;
+    const selectedEntity = entities[0];
     const domain = selectedEntity?.entity_id.split(".")[0] ||
       this._config?.domain || "";
     const domainConfig = getStatusBadgeDomainConfig(domain);
@@ -214,7 +217,8 @@ class OrbitStatusBadge extends LitElement {
       ? evaluateStateTemplate.call(this, nameTemplate, "")
       : null;
     const templatedName = String(nameTemplateResult ?? "").trim();
-    const representativeStateObj = stateSource === "template"
+    const representativeStateObj = stateSource === "template" &&
+        !selectedEntity
       ? {
           entity_id: "sensor.orbit_status_badge_template",
           state: templateResult || "unavailable",
@@ -246,9 +250,9 @@ class OrbitStatusBadge extends LitElement {
     const entityLabel = selectedEntity && this.hass?.formatEntityName
       ? this.hass.formatEntityName(selectedEntity)
       : "";
-    const defaultLabel = stateSource === "template"
+    const defaultLabel = entityLabel || (stateSource === "template"
       ? "Template"
-      : entityLabel || areaName || deviceClassLabel || domainConfig.label;
+      : areaName || deviceClassLabel || domainConfig.label);
     const label = configuredName && this.hass?.formatEntityName
       ? this.hass.formatEntityName(
           representativeStateObj,

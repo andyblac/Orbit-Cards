@@ -36,6 +36,7 @@
   "Active template": "Aktivierungsvorlage",
   "Inactive template": "Inaktivitätsvorlage",
   "Type": "Typ",
+  "Visibility": "Sichtbarkeit",
   "Visible if selected in state content": "Sichtbar, wenn im Zustandsinhalt ausgewählt",
   "Accent color": "Akzentfarbe",
   "Action button": "Aktionstaste",
