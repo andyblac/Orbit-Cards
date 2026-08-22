@@ -207,7 +207,7 @@ export function normalizeStatusBadgeColors(config = {}) {
     if (normalized.state_content === "count") {
       delete normalized.state_content;
     }
-    if (normalized.tap_action?.action === "none") {
+    if (normalized.tap_action?.action === "active-entities") {
       delete normalized.tap_action;
     }
   } else {

@@ -17,6 +17,7 @@ import {
   getEntityActiveState,
 } from "../common/helpers/entities.js";
 import {
+  getEntityColor,
   getInlineSvg,
   getSvgColorOverride,
   isImageIcon,
@@ -45,6 +46,7 @@ import {
   syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
 import { CARD_VERSIONS } from "../version.js";
+import { localize } from "../common/localize.js";
 
 import "../editors/status-badge-editor.js";
 
@@ -56,6 +58,7 @@ class OrbitStatusBadge extends LitElement {
     _config: { state: true },
     _isHeadingBadge: { state: true },
     _templateRevision: { state: true },
+    _activeEntitiesOpen: { state: true },
   };
 
   static getConfigElement() {
@@ -69,6 +72,10 @@ class OrbitStatusBadge extends LitElement {
   setConfig(config) {
     validateStatusBadgeConfig(config || {});
     this._config = normalizeStatusBadgeColors(config || {});
+  }
+
+  _t(key) {
+    return localize(this.hass, key);
   }
 
   connectedCallback() {
@@ -310,6 +317,11 @@ class OrbitStatusBadge extends LitElement {
   }
 
   _handleAction(actionConfig, entityId = null) {
+    if (actionConfig?.action === "active-entities") {
+      this._activeEntitiesOpen = true;
+      return;
+    }
+
     return handleAction.call(this, actionConfig, entityId);
   }
 
@@ -350,10 +362,7 @@ class OrbitStatusBadge extends LitElement {
       return;
     }
 
-    const defaultTapAction = getStatusBadgeStateSource(this._config) ===
-      "entity"
-      ? { action: "more-info" }
-      : { action: "none" };
+    const defaultTapAction = getStatusBadgeDefaultTapAction(this._config);
 
     return handleTapAction.call(
       this,
@@ -444,15 +453,140 @@ class OrbitStatusBadge extends LitElement {
     return "";
   }
 
+  _renderActiveEntitiesDialog(model) {
+    if (!this._activeEntitiesOpen) return nothing;
+
+    const controls = model.activeEntities
+      .map((stateObj) => ({
+        stateObj,
+        control: getActiveEntityControl(this.hass, stateObj),
+      }));
+    const controllable = controls.filter((entry) => entry.control);
+    const groupControl = getActiveEntityGroupControl(controllable);
+
+    return html`
+      <ha-adaptive-dialog
+        .open=${true}
+        width="small"
+        @closed=${() => {
+          this._activeEntitiesOpen = false;
+        }}
+      >
+        <ha-icon-button
+          slot="headerNavigationIcon"
+          .label=${this.hass?.localize?.("ui.common.close")}
+          @click=${() => {
+            this._activeEntitiesOpen = false;
+          }}
+        >
+          <ha-icon icon="mdi:close"></ha-icon>
+        </ha-icon-button>
+        <span slot="headerTitle">${this._t("Active entities")}</span>
+        ${groupControl
+          ? html`
+              <ha-button
+                slot="headerActionItems"
+                appearance="filled"
+                @click=${() => this._callActiveEntityService(
+                  groupControl,
+                  controllable.map((entry) => entry.stateObj.entity_id)
+                )}
+              >
+                <ha-icon slot="start" .icon=${groupControl.icon}></ha-icon>
+                ${getActiveEntityServiceName(this.hass, groupControl)}
+                (${controllable.length})
+              </ha-button>
+            `
+          : ""}
+
+        <div class="active-entities-dialog-content">
+          ${controls.length
+            ? controls.map(({ stateObj, control }) => html`
+                <div
+                  class="active-entity-row"
+                >
+                  ${control
+                    ? html`
+                        <ha-icon-button
+                          class="active-entity-icon-button"
+                          .label=${getActiveEntityServiceName(
+                            this.hass,
+                            control
+                          )}
+                          @click=${(event) => {
+                            event.stopPropagation();
+                            this._callActiveEntityService(
+                              control,
+                              [stateObj.entity_id]
+                            );
+                          }}
+                        >
+                          <ha-state-icon
+                            .hass=${this.hass}
+                            .stateObj=${stateObj}
+                            style=${`color:${getActiveEntityIconColor(stateObj)}`}
+                          ></ha-state-icon>
+                        </ha-icon-button>
+                      `
+                    : html`
+                        <ha-state-icon
+                          .hass=${this.hass}
+                          .stateObj=${stateObj}
+                          style=${`color:${getActiveEntityIconColor(stateObj)}`}
+                        ></ha-state-icon>
+                      `}
+                  <button
+                    type="button"
+                    class="active-entity-info"
+                    @click=${() => this._showEntityMoreInfo(stateObj.entity_id)}
+                  >
+                    <span class="active-entity-name">
+                      ${getActiveEntityName(this.hass, stateObj)}
+                    </span>
+                    <state-display
+                      .hass=${this.hass}
+                      .stateObj=${stateObj}
+                    ></state-display>
+                  </button>
+                </div>
+              `)
+            : html`
+                <div class="active-entities-empty">
+                  ${this._t("No active entities")}
+                </div>
+              `}
+        </div>
+      </ha-adaptive-dialog>
+    `;
+  }
+
+  _callActiveEntityService(control, entityIds) {
+    if (!control || !entityIds.length) return;
+
+    this.hass?.callService(control.domain, control.service, {
+      entity_id: entityIds,
+    });
+  }
+
+  _showEntityMoreInfo(entityId) {
+    queueMicrotask(() => {
+      this.dispatchEvent(
+        new CustomEvent("hass-more-info", {
+          detail: { entityId },
+          bubbles: true,
+          composed: true,
+        })
+      );
+    });
+  }
+
   render() {
     const model = this._getModel();
     const actionEntity = model.activeEntities[0]?.entity_id ||
       model.entities[0]?.entity_id ||
       null;
     const tapAction = this._config?.tap_action ||
-      (model.stateSource === "entity"
-        ? { action: "more-info" }
-        : { action: "none" });
+      getStatusBadgeDefaultTapAction(this._config);
     const hasAction = isActionEnabled(tapAction) ||
       isActionEnabled(this._config?.hold_action) ||
       isActionEnabled(this._config?.double_tap_action);
@@ -502,6 +636,7 @@ class OrbitStatusBadge extends LitElement {
       pointerdown: (ev) => this._handlePointerDown(ev, actionEntity),
       pointerup: (ev) => this._handlePointerEnd(ev),
     };
+    const activeEntitiesDialog = this._renderActiveEntitiesDialog(model);
 
     if (badgeMode && !showCardBadge) return nothing;
 
@@ -523,10 +658,11 @@ class OrbitStatusBadge extends LitElement {
         >
           ${content}
         </div>
+        ${activeEntitiesDialog}
       `;
     }
 
-    return this._isHeadingBadge
+    const badge = this._isHeadingBadge
       ? html`
           <ha-heading-badge
             .type=${hasAction ? "button" : "text"}
@@ -566,6 +702,8 @@ class OrbitStatusBadge extends LitElement {
             ${content}
           </ha-badge>
         `;
+
+    return html`${badge}${activeEntitiesDialog}`;
   }
 
   static styles = css`
@@ -635,7 +773,168 @@ class OrbitStatusBadge extends LitElement {
     .template-state {
       white-space: pre-line;
     }
+
+    ha-adaptive-dialog {
+      --mdc-dialog-min-width: min(420px, 95vw);
+      --mdc-dialog-max-width: min(520px, 95vw);
+      --ha-dialog-min-height: auto;
+      --ha-bottom-sheet-height: auto;
+    }
+
+    .active-entities-dialog-content {
+      min-width: 0;
+      padding: 0 var(--ha-space-4, 16px);
+    }
+
+    .active-entity-row {
+      display: flex;
+      align-items: center;
+      gap: var(--ha-space-3, 12px);
+      min-height: 56px;
+      padding: var(--ha-space-2, 8px) 0;
+      border-top: 1px solid var(--divider-color);
+    }
+
+    .active-entity-row > ha-state-icon {
+      flex: 0 0 auto;
+      margin: 12px;
+    }
+
+    .active-entity-icon-button {
+      flex: 0 0 auto;
+    }
+
+    .active-entity-icon-button ha-state-icon {
+      pointer-events: none;
+    }
+
+    .active-entity-info {
+      display: flex;
+      flex: 1 1 auto;
+      min-width: 0;
+      flex-direction: column;
+      gap: 2px;
+      padding: var(--ha-space-2, 8px) 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: start;
+      cursor: pointer;
+    }
+
+    .active-entity-info:focus-visible {
+      border-radius: var(--ha-border-radius-md);
+      background: var(--secondary-background-color);
+    }
+
+    .active-entity-name {
+      overflow: hidden;
+      color: var(--primary-text-color);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .active-entity-info state-display {
+      color: var(--secondary-text-color);
+      font-size: var(--ha-font-size-s, 12px);
+    }
+
+    .active-entities-empty {
+      padding: var(--ha-space-5, 20px) 0;
+      color: var(--secondary-text-color);
+      text-align: center;
+    }
   `;
+}
+
+function getStatusBadgeDefaultTapAction(config = {}) {
+  const stateSource = getStatusBadgeStateSource(config);
+
+  if (stateSource === "entity") return { action: "more-info" };
+  if (stateSource === "area_count") return { action: "active-entities" };
+
+  return { action: "none" };
+}
+
+function getActiveEntityControl(hass, stateObj) {
+  const domain = stateObj?.entity_id?.split(".")[0] || "";
+  const controls = {
+    light: {
+      service: "turn_off",
+      icon: "mdi:power",
+    },
+    switch: {
+      service: "turn_off",
+      icon: "mdi:power",
+    },
+    fan: {
+      service: "turn_off",
+      icon: "mdi:power",
+    },
+    cover: {
+      service: "close_cover",
+      icon: "mdi:window-shutter",
+    },
+    lock: {
+      service: "lock",
+      icon: "mdi:lock",
+    },
+    media_player: {
+      service: "turn_off",
+      icon: "mdi:power",
+    },
+    climate: {
+      service: "turn_off",
+      icon: "mdi:power",
+    },
+  };
+  const control = controls[domain];
+
+  if (!control) return null;
+  if (domain === "cover" && !(stateObj.attributes?.supported_features & 2)) {
+    return null;
+  }
+  if (domain === "lock" && !(stateObj.attributes?.supported_features & 1)) {
+    return null;
+  }
+  if (
+    hass?.services?.[domain] &&
+    !hass.services[domain][control.service]
+  ) {
+    return null;
+  }
+
+  return { domain, ...control };
+}
+
+function getActiveEntityGroupControl(controllable) {
+  if (controllable.length < 2) return null;
+
+  const firstControl = controllable[0].control;
+  return controllable.every(({ control }) =>
+    control.domain === firstControl.domain &&
+    control.service === firstControl.service
+  )
+    ? firstControl
+    : null;
+}
+
+function getActiveEntityName(hass, stateObj) {
+  return hass?.formatEntityName?.(stateObj) ||
+    stateObj?.attributes?.friendly_name ||
+    stateObj?.entity_id ||
+    "";
+}
+
+function getActiveEntityServiceName(hass, control) {
+  return hass?.services?.[control.domain]?.[control.service]?.name;
+}
+
+function getActiveEntityIconColor(stateObj) {
+  return getEntityColor(stateObj) ||
+    getNativeEntityBadgeColor(stateObj, true);
 }
 
 function formatDeviceClass(deviceClass = "") {

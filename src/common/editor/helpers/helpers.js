@@ -30,6 +30,7 @@ export {
 } from "./config.js";
 
 import {
+  renderActionSelector,
   renderInteractionsSection,
   renderEntity,
   renderArea,
@@ -289,6 +290,7 @@ function clampColor(value) {
 }
 
 export {
+  renderActionSelector,
   renderInteractionsSection,
   renderEntity,
   renderArea,

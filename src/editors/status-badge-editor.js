@@ -11,7 +11,7 @@ import {
   mergeConfig,
   renderColor,
   renderIconInput,
-  renderInteractionsSection,
+  renderActionSelector,
   resolveIconPath,
 } from "../common/editor/helpers/helpers.js";
 import { editorStyles } from "../common/editor/styles/editor-styles.js";
@@ -51,6 +51,7 @@ class OrbitStatusBadgeEditor extends LitElement {
     _localIconFilesLoading: { state: true },
     _contentExpanded: { state: true },
     _stateTypeExpanded: { state: true },
+    _interactionsExpanded: { state: true },
     _templateRevision: { state: true },
   };
 
@@ -67,6 +68,7 @@ class OrbitStatusBadgeEditor extends LitElement {
     this._localIconFilesLoading = false;
     this._contentExpanded = false;
     this._stateTypeExpanded = false;
+    this._interactionsExpanded = false;
     this._namePickerEnhanceFrame = undefined;
     this._namePickerEnhanceAttempts = 0;
   }
@@ -599,39 +601,7 @@ class OrbitStatusBadgeEditor extends LitElement {
             </div>
           </ha-expansion-panel>
 
-          ${renderInteractionsSection.call(this, {
-            interactions: [
-              {
-                key: "tap_action",
-                formKey: "tap_action",
-                label: "Tap behavior",
-                defaultAction: stateSource === "entity"
-                  ? "more-info"
-                  : "none",
-                defaultVisible: true,
-              },
-              {
-                key: "hold_action",
-                formKey: "hold_action",
-                label: "Hold behavior",
-                defaultAction: "none",
-              },
-              {
-                key: "double_tap_action",
-                formKey: "double_tap_action",
-                label: "Double tap behavior",
-                defaultAction: "none",
-              },
-            ],
-            context: {
-              area_id: stateSource === "area_count"
-                ? this._config?.area
-                : undefined,
-              entity_id: stateSource === "entity"
-                ? this._config?.entity
-                : undefined,
-            },
-          })}
+          ${renderBadgeInteractions.call(this, stateSource)}
         </div>
 
         <div class="editor-version">
@@ -647,7 +617,8 @@ class OrbitStatusBadgeEditor extends LitElement {
     ...editorStyles,
     css`
       .content-panel,
-      .state-type-panel {
+      .state-type-panel,
+      .badge-interactions-panel {
         display: block;
         --expansion-panel-content-padding: 0;
         border-radius: var(--ha-border-radius-md);
@@ -655,14 +626,16 @@ class OrbitStatusBadgeEditor extends LitElement {
       }
 
       .content-panel > [slot="header"],
-      .state-type-panel > [slot="header"] {
+      .state-type-panel > [slot="header"],
+      .badge-interactions-panel > [slot="header"] {
         margin: 0;
         font-size: inherit;
         font-weight: inherit;
       }
 
       .content-panel ha-icon,
-      .state-type-panel ha-icon {
+      .state-type-panel ha-icon,
+      .badge-interactions-panel > ha-icon {
         color: var(--secondary-text-color);
       }
 
@@ -676,6 +649,13 @@ class OrbitStatusBadgeEditor extends LitElement {
       .native-picker-label {
         display: block;
       }
+
+      .badge-interactions-content {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 12px;
+      }
     `,
   ];
 
@@ -685,6 +665,58 @@ customElements.define(
   "orbit-status-badge-editor",
   OrbitStatusBadgeEditor
 );
+
+function renderBadgeInteractions(stateSource) {
+  const defaultTapAction = stateSource === "entity"
+    ? "more-info"
+    : stateSource === "area_count"
+      ? "active-entities"
+      : "none";
+  const activeEntitiesAction = {
+    id: "active-entities",
+    primary: this._t("Active entities"),
+    icon: "mdi:format-list-bulleted",
+  };
+
+  return html`
+    <ha-expansion-panel
+      class="badge-interactions-panel"
+      outlined
+      .expanded=${this._interactionsExpanded === true}
+      @expanded-changed=${(event) => {
+        this._interactionsExpanded = event.detail.expanded;
+      }}
+    >
+      <ha-icon slot="leading-icon" icon="mdi:gesture-tap-button"></ha-icon>
+      <div slot="header" role="heading" aria-level="3">
+        ${this._t("Interactions")}
+      </div>
+      <div class="badge-interactions-content">
+        ${renderActionSelector.call(
+          this,
+          "Tap behavior",
+          "tap_action",
+          defaultTapAction,
+          stateSource === "area_count"
+            ? { extraActions: [activeEntitiesAction] }
+            : undefined
+        )}
+        ${renderActionSelector.call(
+          this,
+          "Hold behavior",
+          "hold_action",
+          "none"
+        )}
+        ${renderActionSelector.call(
+          this,
+          "Double tap behavior",
+          "double_tap_action",
+          "none"
+        )}
+      </div>
+    </ha-expansion-panel>
+  `;
+}
 
 function renderBadgeIconControl(stateSource = "entity") {
   const iconSource = this._config?.icon_source ||
@@ -785,7 +817,7 @@ function renderBadgeStateControl({
         : ""}
 
       <div class="field-header">
-        <label>${this._t(badgeMode ? "Visibility" : "Type")}</label>
+        <label>${this._t(badgeMode ? "Visibility" : "State")}</label>
         <ha-selector
           class="main-entity-icon-source-selector"
           .hass=${this.hass}

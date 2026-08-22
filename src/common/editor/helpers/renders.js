@@ -85,6 +85,7 @@ function localizeHomeAssistantAction(hass, action) {
 }
 
 const ACTION_LABELS = {
+  "active-entities": "Active entities",
   "call-service": "Perform action",
   "more-info": "More info",
   navigate: "Navigate",
@@ -836,7 +837,12 @@ function isNativeColorValue(value) {
   );
 }
 
-export function renderActionSelector(label, key, defaultAction) {
+export function renderActionSelector(
+  label,
+  key,
+  defaultAction,
+  { extraActions = [] } = {}
+) {
   const raw = this._config?.[key];
   const defaultValue =
     typeof defaultAction === "object"
@@ -848,7 +854,13 @@ export function renderActionSelector(label, key, defaultAction) {
       ? normalizeActionValue(raw, defaultValue)
       : defaultValue;
   const action = value.action || defaultValue.action || "none";
-  const actionItems = getActionPickerItems(this);
+  const extraActionIds = new Set(extraActions.map((item) => item.id));
+  const actionItems = [
+    ...extraActions,
+    ...getActionPickerItems(this).filter(
+      (item) => !extraActionIds.has(item.id)
+    ),
+  ];
 
   return html`
     <div class="field action-field">
