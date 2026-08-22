@@ -115,12 +115,16 @@ class OrbitStatusBadgeEditor extends LitElement {
     const templates = [
       this._config?.state_template,
       this._config?.active_template,
+      this._config?.inactive_template,
       this._config?.name_template,
     ];
-    const cardMode = this._config?.display_style === "card";
+    const badgeMode = this._config?.display_style === "badge";
     const selectedTemplates = stateSource === "template"
-      ? cardMode
-        ? [this._config?.active_template]
+      ? badgeMode
+        ? [
+            this._config?.active_template,
+            this._config?.inactive_template,
+          ]
         : templates
       : [];
     const entries = selectedTemplates
@@ -372,9 +376,7 @@ class OrbitStatusBadgeEditor extends LitElement {
   }
 
   render() {
-    const cardMode = ["card", "icon"].includes(
-      this._config?.display_style
-    );
+    const badgeMode = this._config?.display_style === "badge";
     const deviceClassOptions = this._getDeviceClassOptions();
     const domainConfig = STATUS_BADGE_DOMAINS.find(
       (item) => item.value === this._config?.domain
@@ -406,17 +408,15 @@ class OrbitStatusBadgeEditor extends LitElement {
                   button_toggle: {
                     options: [
                       { label: this._t("Header"), value: "header" },
-                      { label: this._t("Card"), value: "card" },
+                      { label: this._t("Badge"), value: "badge" },
                     ],
                   },
                 }}
-                .value=${["card", "icon"].includes(
-                  this._config?.display_style
-                ) ? "card" : "header"}
+                .value=${badgeMode ? "badge" : "header"}
                 @value-changed=${(e) =>
                   this._handleConfigUpdate(
                     "display_style",
-                    e.detail.value === "card" ? "card" : undefined
+                    e.detail.value === "badge" ? "badge" : undefined
                   )}
               ></ha-selector>
             </div>
@@ -442,7 +442,7 @@ class OrbitStatusBadgeEditor extends LitElement {
                 stateSource,
                 domainConfig,
                 deviceClassOptions,
-                cardMode,
+                badgeMode,
               })}
             </div>
           </ha-expansion-panel>
@@ -460,7 +460,7 @@ class OrbitStatusBadgeEditor extends LitElement {
               ${this._t("Content")}
             </div>
             <div class="content-panel-body">
-              ${cardMode
+              ${badgeMode
                 ? this._renderColor(
                     ["Background", "Color"],
                     "card_color",
@@ -495,18 +495,18 @@ class OrbitStatusBadgeEditor extends LitElement {
                 ${this._renderColor(
                   ["Active", "Color"],
                   "accent_on_color",
-                  cardMode ? "white" : "theme"
+                  badgeMode ? "white" : "theme"
                 )}
                 ${this._renderColor(
                   ["Inactive", "Color"],
                   "accent_off_color",
-                  cardMode ? "white" : "theme"
+                  badgeMode ? "white" : "theme"
                 )}
               </div>
 
               ${renderBadgeIconControl.call(this, stateSource)}
 
-              ${!cardMode
+              ${!badgeMode
                 ? html`
                     <div class="field">
                       <label>${this.hass?.localize(
@@ -745,13 +745,13 @@ function renderBadgeStateControl({
   stateSource,
   domainConfig,
   deviceClassOptions,
-  cardMode,
+  badgeMode,
 }) {
   const domainValue = this._config?.domain || "";
-  const selectedType = cardMode
+  const selectedType = badgeMode
     ? this._config?.card_visibility || "always"
     : stateSource;
-  const typeOptions = cardMode
+  const typeOptions = badgeMode
     ? [
         { label: this._t("Always"), value: "always" },
         { label: this._t("Entity state"), value: "state" },
@@ -777,8 +777,8 @@ function renderBadgeStateControl({
           }}
           .value=${selectedType}
           @value-changed=${(e) => {
-            const value = e.detail.value || (cardMode ? "always" : "entity");
-            if (cardMode) {
+            const value = e.detail.value || (badgeMode ? "always" : "entity");
+            if (badgeMode) {
               this._updateConfig(
                 value === "always"
                   ? {
@@ -790,6 +790,7 @@ function renderBadgeStateControl({
                       device_class: undefined,
                       state_template: undefined,
                       active_template: undefined,
+                      inactive_template: undefined,
                       name_template: undefined,
                       state_content: undefined,
                     }
@@ -802,6 +803,7 @@ function renderBadgeStateControl({
                         device_class: undefined,
                         state_template: undefined,
                         active_template: undefined,
+                        inactive_template: undefined,
                         name_template: undefined,
                         state_content: undefined,
                       }
@@ -828,6 +830,7 @@ function renderBadgeStateControl({
                     device_class: undefined,
                     state_template: undefined,
                     active_template: undefined,
+                    inactive_template: undefined,
                     state_content: undefined,
                   }
                 : value === "area_count"
@@ -836,6 +839,7 @@ function renderBadgeStateControl({
                       entity: undefined,
                       state_template: undefined,
                       active_template: undefined,
+                      inactive_template: undefined,
                       state_content: undefined,
                     }
                   : {
@@ -851,10 +855,10 @@ function renderBadgeStateControl({
         ></ha-selector>
       </div>
 
-      ${cardMode && selectedType === "always"
+      ${badgeMode && selectedType === "always"
         ? ""
-        : (!cardMode && stateSource === "entity") ||
-            (cardMode && selectedType === "state")
+        : (!badgeMode && stateSource === "entity") ||
+            (badgeMode && selectedType === "state")
         ? html`
             <ha-selector
               .hass=${this.hass}
@@ -866,7 +870,7 @@ function renderBadgeStateControl({
                 this._handleConfigUpdate("entity", e.detail.value || "")}
             ></ha-selector>
           `
-        : !cardMode && stateSource === "area_count"
+        : !badgeMode && stateSource === "area_count"
           ? html`
             <div class="field">
               <span class="native-picker-label">${this._t("Area")}</span>
@@ -935,7 +939,7 @@ function renderBadgeStateControl({
           `
           : selectedType === "template"
             ? html`
-              ${!cardMode
+              ${!badgeMode
                 ? html`
                     <div class="field">
                       <ha-selector
@@ -973,7 +977,28 @@ function renderBadgeStateControl({
                   this._config?.active_template
                 )}
               </div>
-              ${!cardMode
+              ${badgeMode
+                ? html`
+                    <div class="field">
+                      <ha-selector
+                        .hass=${this.hass}
+                        .label=${this._t("Inactive template")}
+                        .selector=${{ template: {} }}
+                        .value=${this._config?.inactive_template || ""}
+                        @value-changed=${(e) =>
+                          this._handleConfigUpdate(
+                            "inactive_template",
+                            e.detail.value || undefined
+                          )}
+                      ></ha-selector>
+                      ${renderTemplateError.call(
+                        this,
+                        this._config?.inactive_template
+                      )}
+                    </div>
+                  `
+                : ""}
+              ${!badgeMode
                 ? html`
                     <div class="field">
                       <ha-selector

@@ -94,12 +94,13 @@ class OrbitStatusBadge extends LitElement {
     const stateSource = getStatusBadgeStateSource(this._config);
     const template = this._config?.state_template?.trim() || "";
     const activeTemplate = this._config?.active_template?.trim() || "";
+    const inactiveTemplate = this._config?.inactive_template?.trim() || "";
     const nameTemplate = this._config?.name_template?.trim() || "";
-    const cardMode = this._config?.display_style === "card";
+    const badgeMode = this._config?.display_style === "badge";
     const templates = stateSource === "template"
-      ? cardMode
-        ? [activeTemplate]
-        : [template, activeTemplate, nameTemplate]
+      ? badgeMode
+        ? [activeTemplate, inactiveTemplate]
+        : [template, activeTemplate, inactiveTemplate, nameTemplate]
       : [];
     const entries = templates
       .filter(Boolean)
@@ -154,12 +155,19 @@ class OrbitStatusBadge extends LitElement {
     const activeTemplateResult = stateSource === "template" && activeTemplate
       ? evaluateStateTemplate.call(this, activeTemplate, "")
       : null;
+    const inactiveTemplate = this._config?.inactive_template?.trim() || "";
+    const inactiveTemplateResult = stateSource === "template" &&
+        inactiveTemplate
+      ? evaluateStateTemplate.call(this, inactiveTemplate, "")
+      : null;
+    const inactiveTemplateActive = Boolean(inactiveTemplate) &&
+      getTemplateResultActiveState(inactiveTemplateResult);
     const computedIsOn = stateSource === "template"
       ? getTemplateResultActiveState(
           activeTemplateResult ?? templateResult
         )
       : activeEntities.length > 0;
-    const isOn = this._config?.display_style === "card" &&
+    const isOn = this._config?.display_style === "badge" &&
         !this._config?.card_visibility
       ? true
       : computedIsOn;
@@ -256,6 +264,7 @@ class OrbitStatusBadge extends LitElement {
       entities,
       activeEntities,
       isOn,
+      inactiveTemplateActive,
       count: activeEntities.length,
       displayValue: stateSource === "template"
         ? templateResult
@@ -355,13 +364,11 @@ class OrbitStatusBadge extends LitElement {
   }
 
   _renderIcon(model) {
-    const cardMode = ["card", "icon"].includes(
-      this._config?.display_style
-    );
-    const cardImageStyle = cardMode
+    const badgeMode = this._config?.display_style === "badge";
+    const cardImageStyle = badgeMode
       ? "width:12px;height:12px;margin:0;"
       : "";
-    const cardEntityPictureStyle = cardMode
+    const cardEntityPictureStyle = badgeMode
       ? "width:16px;height:16px;margin:0;border-radius:var(--ha-border-radius-md);"
       : "";
     const entityPicture = model.stateSource === "entity" &&
@@ -439,15 +446,15 @@ class OrbitStatusBadge extends LitElement {
     const hasAction = isActionEnabled(tapAction) ||
       isActionEnabled(this._config?.hold_action) ||
       isActionEnabled(this._config?.double_tap_action);
-    const cardMode = ["card", "icon"].includes(
-      this._config?.display_style
-    );
+    const badgeMode = this._config?.display_style === "badge";
     const cardVisibility = this._config?.card_visibility || "always";
     const showCardBadge = cardVisibility === "always" ||
-      (["state", "template"].includes(cardVisibility) && model.isOn);
-    const showState = !cardMode && this._config?.show_state !== false;
-    const showName = !cardMode && this._config?.show_name === true;
-    const showIcon = cardMode || this._config?.show_icon !== false;
+      (cardVisibility === "state" && model.isOn) ||
+      (cardVisibility === "template" &&
+        (model.isOn || model.inactiveTemplateActive));
+    const showState = !badgeMode && this._config?.show_state !== false;
+    const showName = !badgeMode && this._config?.show_name === true;
+    const showIcon = badgeMode || this._config?.show_icon !== false;
     const cardBackgroundColor = this._config?.card_color
       ? computeFullColor(this._config.card_color)
       : "var(--primary-color)";
@@ -486,9 +493,9 @@ class OrbitStatusBadge extends LitElement {
       pointerup: (ev) => this._handlePointerEnd(ev),
     };
 
-    if (cardMode && !showCardBadge) return nothing;
+    if (badgeMode && !showCardBadge) return nothing;
 
-    if (cardMode) {
+    if (badgeMode) {
       return html`
         <div
           class="card-badge"
@@ -535,7 +542,7 @@ class OrbitStatusBadge extends LitElement {
           <ha-badge
             .type=${hasAction ? "button" : "badge"}
             .label=${showName ? model.label : undefined}
-            .iconOnly=${cardMode || (!showState && !showName)}
+            .iconOnly=${badgeMode || (!showState && !showName)}
             style=${badgeStyle}
             .title=${`${model.label}: ${model.displayValue}`}
             aria-label=${`${model.label}: ${model.displayValue}`}
