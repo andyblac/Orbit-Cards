@@ -68,6 +68,57 @@ export function validateStatusBadgeConfig(config = {}) {
   return stateSource;
 }
 
+export function getStatusBadgeHideItems(config = {}) {
+  if (!Object.prototype.hasOwnProperty.call(config, "hide")) {
+    return [{ type: "hidden" }];
+  }
+
+  if (!Array.isArray(config.hide)) return [];
+
+  const items = [];
+  const labels = new Set();
+  let hasHidden = false;
+
+  config.hide.forEach((item) => {
+    if (item === "hidden" && !hasHidden) {
+      hasHidden = true;
+      items.push({ type: "hidden" });
+      return;
+    }
+
+    const label = typeof item?.label === "string"
+      ? item.label.trim()
+      : "";
+
+    if (!label || labels.has(label)) return;
+
+    labels.add(label);
+    items.push({ type: "label", label });
+  });
+
+  return items;
+}
+
+export function serializeStatusBadgeHideItems(items = []) {
+  return items.map((item) => item?.type === "hidden"
+    ? "hidden"
+    : { label: item?.label }
+  );
+}
+
+export function shouldHideStatusBadgeEntity(hass, entityId, config = {}) {
+  const hideItems = getStatusBadgeHideItems(config);
+  const entity = hass?.entities?.[entityId];
+
+  return hideItems.some((item) => {
+    if (item.type === "hidden") return Boolean(entity?.hidden_by);
+
+    return item.type === "label" &&
+      Array.isArray(entity?.labels) &&
+      entity.labels.includes(item.label);
+  });
+}
+
 export function normalizeStatusBadgeColors(config = {}) {
   let stateSource = getStatusBadgeStateSource(config);
   const legacyExampleColors =
@@ -97,6 +148,17 @@ export function normalizeStatusBadgeColors(config = {}) {
     normalized.display_style !== "badge"
   ) {
     delete normalized.display_style;
+  }
+  if (Object.prototype.hasOwnProperty.call(normalized, "hide")) {
+    const hideItems = getStatusBadgeHideItems(normalized);
+
+    normalized.hide = serializeStatusBadgeHideItems(hideItems);
+    if (
+      normalized.hide.length === 1 &&
+      normalized.hide[0] === "hidden"
+    ) {
+      delete normalized.hide;
+    }
   }
   if (normalized.card_visibility === "always") {
     delete normalized.card_visibility;
@@ -128,6 +190,7 @@ export function normalizeStatusBadgeColors(config = {}) {
     delete normalized.active_template;
     delete normalized.inactive_template;
     delete normalized.name_template;
+    delete normalized.hide;
     if (normalized.state_content === "state") {
       delete normalized.state_content;
     }
@@ -153,6 +216,7 @@ export function normalizeStatusBadgeColors(config = {}) {
     delete normalized.area;
     delete normalized.domain;
     delete normalized.device_class;
+    delete normalized.hide;
     if (normalized.state_content === "state") {
       delete normalized.state_content;
     }

@@ -19,8 +19,10 @@ import { updateEditorDocumentationContext } from "../common/helpers/documentatio
 import { sharedSvgCache } from "../common/helpers/svg-cache.js";
 import { localize } from "../common/localize.js";
 import {
+  getStatusBadgeHideItems,
   getStatusBadgeStateSource,
   normalizeStatusBadgeColors,
+  serializeStatusBadgeHideItems,
   STATUS_BADGE_DOMAINS,
 } from "../common/helpers/status-badge.js";
 import {
@@ -936,6 +938,8 @@ function renderBadgeStateControl({
                   </div>
                 `
               : ""}
+
+            ${renderAreaCountHidePicker.call(this)}
           `
           : selectedType === "template"
             ? html`
@@ -1033,6 +1037,71 @@ function renderTemplateError(template, entityId = "") {
     : "";
 }
 
+function renderAreaCountHidePicker() {
+  const selectedItems = getStatusBadgeHideItems(this._config);
+  const hideHiddenEntities = selectedItems.some(
+    (item) => item.type === "hidden"
+  );
+  const selectedLabels = selectedItems
+    .filter((item) => item.type === "label")
+    .map((item) => item.label);
+
+  const updateHideConfig = ({
+    hidden = hideHiddenEntities,
+    labels = selectedLabels,
+  } = {}) => {
+    this._updateConfig({
+      hide: serializeStatusBadgeHideItems([
+        ...(hidden ? [{ type: "hidden" }] : []),
+        ...labels.map((label) => ({ type: "label", label })),
+      ]),
+    });
+  };
+
+  return html`
+    <div class="field">
+      <label>${this._t("Hide")}</label>
+
+      <div class="status-badge-hide-hidden-row">
+        <button
+          type="button"
+          class=${hideHiddenEntities
+            ? "name-picker-chip"
+            : "name-picker-add-chip"}
+          @click=${() =>
+            updateHideConfig({ hidden: !hideHiddenEntities })}
+        >
+          <ha-icon icon=${hideHiddenEntities
+            ? "mdi:eye-off"
+            : "mdi:plus"}></ha-icon>
+          <span>${this._t("Hidden entities")}</span>
+          ${hideHiddenEntities
+            ? html`<ha-icon
+                class="name-picker-chip-remove"
+                icon="mdi:close"
+              ></ha-icon>`
+            : ""}
+        </button>
+      </div>
+
+      <ha-selector
+        .hass=${this.hass}
+        .selector=${{
+          label: {
+            multiple: true,
+          },
+        }}
+        .value=${selectedLabels}
+        @value-changed=${(e) =>
+          updateHideConfig({
+            labels: Array.isArray(e.detail.value)
+              ? e.detail.value
+              : [],
+          })}
+      ></ha-selector>
+    </div>
+  `;
+}
 function getNativeNamePickerItems(value) {
   if (!value) return [];
   if (typeof value === "string") {

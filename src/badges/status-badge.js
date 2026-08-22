@@ -31,6 +31,7 @@ import {
 import { getEntityAreaId } from "../common/helpers/suggestions.js";
 import {
   getNativeEntityBadgeColor,
+  shouldHideStatusBadgeEntity,
   getStatusBadgeDomainConfig,
   getStatusBadgeStateSource,
   normalizeStatusBadgeColors,
@@ -134,7 +135,12 @@ class OrbitStatusBadge extends LitElement {
       stateObj.entity_id.startsWith(`${domain}.`) &&
       getEntityAreaId(this.hass, stateObj.entity_id) === areaId &&
       (!domainConfig.requiresDeviceClass ||
-        stateObj.attributes?.device_class === deviceClass)
+        stateObj.attributes?.device_class === deviceClass) &&
+      !shouldHideStatusBadgeEntity(
+        this.hass,
+        stateObj.entity_id,
+        this._config
+      )
     );
   }
 

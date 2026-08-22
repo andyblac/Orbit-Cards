@@ -120,6 +120,17 @@ domain: binary_sensor
 device_class: motion
 ```
 
+Hidden entities are excluded from Area Count by default. The visual editor's
+Hide control can also exclude entities with one or more Home Assistant labels:
+
+```yaml
+hide:
+  - hidden
+  - label: maintenance
+```
+
+Remove `hidden` in the editor to include entities hidden by Home Assistant.
+
 Lights use `domain: light` without a device-class filter. Both Orbit colour pickers are pre-populated with the shared `State colour (default)` palette option; inside the badge, that option resolves from the representative entity's domain, device class, and exact state, followed by Home Assistant's domain and global active/inactive fallbacks. The editor also provides basic, active, and inactive custom icons.
 
 Template is the third state type and accepts any Home Assistant Jinja template.

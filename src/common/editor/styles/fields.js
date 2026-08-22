@@ -107,6 +107,12 @@ export const fieldStyles = css`
   margin-right: -4px;
 }
 
+.status-badge-hide-hidden-row {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+}
+
 .color-pair,
 .selector-pair,
 .icon-pair {
