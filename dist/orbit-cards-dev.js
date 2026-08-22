@@ -11163,18 +11163,18 @@ var wg, Tg, Eg, Dg, Og = e((() => {
       </div>
     `;
 		}
-		_renderChildTypeTabs(e) {
-			let t = this._childPickerType;
+		_renderChildTypeTabs() {
+			let e = this._childPickerType;
 			return O`
       <div class="editor-tabs deck-child-type-tabs" role="tablist">
-        ${[["badge", "Badges"], ["card", "Cards"]].map(([e, n]) => O`
+        ${[["badge", "Badges"], ["card", "Cards"]].map(([t, n]) => O`
           <button
             type="button"
-            class="editor-tab ${t === e ? "active" : ""}"
+            class="editor-tab ${e === t ? "active" : ""}"
             role="tab"
-            aria-selected=${t === e ? "true" : "false"}
+            aria-selected=${e === t ? "true" : "false"}
             @click=${() => {
-				this._childPickerType = e;
+				this._childPickerType = t;
 			}}
           >
             ${this._t(n)}
@@ -11419,7 +11419,7 @@ var wg, Tg, Eg, Dg, Og = e((() => {
           ${this._t("Card")}
         </div>
         <div class="deck-card-section-content">
-          ${this._renderChildTypeTabs(t)}
+          ${t?.badge?.type || t?.card?.type ? "" : this._renderChildTypeTabs()}
           <div class="deck-card-editor-frame">
             ${this._renderChildPicker(e, t)}
           </div>

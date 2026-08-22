@@ -546,7 +546,7 @@ class OrbitDeckCardEditor extends LitElement {
     `;
   }
 
-  _renderChildTypeTabs(item) {
+  _renderChildTypeTabs() {
     const selectedType = this._childPickerType;
 
     return html`
@@ -902,7 +902,9 @@ class OrbitDeckCardEditor extends LitElement {
           ${this._t("Card")}
         </div>
         <div class="deck-card-section-content">
-          ${this._renderChildTypeTabs(item)}
+          ${item?.badge?.type || item?.card?.type
+            ? ""
+            : this._renderChildTypeTabs()}
           <div class="deck-card-editor-frame">
             ${this._renderChildPicker(index, item)}
           </div>
