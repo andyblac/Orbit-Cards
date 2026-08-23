@@ -13447,8 +13447,12 @@ var gm, _m, vm = e((() => {
 			_config: { state: !0 },
 			_isHeadingBadge: { state: !0 },
 			_templateRevision: { state: !0 },
-			_activeEntitiesOpen: { state: !0 }
+			_activeEntitiesOpen: { state: !0 },
+			_activeEntitiesDurationNow: { state: !0 }
 		};
+		constructor() {
+			super(), this._activeEntitiesDurationNow = Date.now(), this._activeEntitiesDurationTimer = null;
+		}
 		static getConfigElement() {
 			return document.createElement("orbit-status-badge-editor");
 		}
@@ -13465,7 +13469,7 @@ var gm, _m, vm = e((() => {
 			super.connectedCallback(), this._isHeadingBadge = !!this.closest("hui-heading-badge"), this.toggleAttribute("heading-badge", this._isHeadingBadge), queueMicrotask(() => this._syncTemplateSubscriptions());
 		}
 		disconnectedCallback() {
-			Bt.call(this), this._clearDoubleTapTimer(), this._cancelLongPress(), super.disconnectedCallback();
+			Bt.call(this), this._stopActiveEntitiesDurationTimer(), this._clearDoubleTapTimer(), this._cancelLongPress(), super.disconnectedCallback();
 		}
 		updated(e) {
 			(e.has("hass") || e.has("_config")) && this._syncTemplateSubscriptions();
@@ -13491,7 +13495,7 @@ var gm, _m, vm = e((() => {
 			return !this.hass || !t || !e || r.requiresDeviceClass && !n ? [] : Object.values(this.hass.states || {}).filter((i) => i.entity_id.startsWith(`${e}.`) && tr(this.hass, i.entity_id) === t && (!r.requiresDeviceClass || i.attributes?.device_class === n) && !lm(this.hass, i.entity_id, this._config));
 		}
 		_getModel() {
-			let e = $(this._config), t = this._getEntities(), n = t.filter((e) => an(e)), r = e === "template" ? R.call(this, this._config?.state_template, "") ?? "unavailable" : "", i = this._config?.active_template?.trim() || "", a = e === "template" && i ? R.call(this, i, "") : null, o = this._config?.inactive_template?.trim() || "", c = e === "template" && o ? R.call(this, o, "") : null, u = !!o && Ht(c), d = e === "template" ? Ht(a ?? r) : n.length > 0, f = this._config?.display_style === "badge" && !this._config?.card_visibility ? !0 : d, p = t[0], m = p?.entity_id.split(".")[0] || this._config?.domain || "", h = am(m), g = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), _ = this._config?.icon || "", v = f ? this._config?.icon_on || _ : this._config?.icon_off || _, ee = g === "custom" && v || h.icon, y = f ? this._config?.accent_on_color ?? this._config?.color : this._config?.accent_off_color, te = !!(y && ![
+			let e = $(this._config), t = this._getEntities(), n = t.filter((e) => an(e)), r = e === "template" ? R.call(this, this._config?.state_template, "") ?? "unavailable" : "", i = this._config?.active_template?.trim() || "", a = e === "template" && i ? R.call(this, i, "") : null, o = this._config?.inactive_template?.trim() || "", s = e === "template" && o ? R.call(this, o, "") : null, c = !!o && Ht(s), l = e === "template" ? Ht(a ?? r) : n.length > 0, u = this._config?.display_style === "badge" && !this._config?.card_visibility ? !0 : l, p = t[0], m = p?.entity_id.split(".")[0] || this._config?.domain || "", h = am(m), g = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), _ = this._config?.icon || "", v = u ? this._config?.icon_on || _ : this._config?.icon_off || _, ee = g === "custom" && v || h.icon, y = u ? this._config?.accent_on_color ?? this._config?.color : this._config?.accent_off_color, te = !!(y && ![
 				"theme",
 				"state",
 				"state-active",
@@ -13507,18 +13511,18 @@ var gm, _m, vm = e((() => {
 				attributes: { friendly_name: re || "Template" }
 			} : n[0] || t[0] || {
 				entity_id: `${m || "sensor"}.orbit_status_badge`,
-				state: f ? "on" : "off",
+				state: u ? "on" : "off",
 				attributes: this._config?.device_class ? { device_class: this._config.device_class } : {}
 			}, ie = ["entity", "template"].includes(e) ? S : {
 				entity_id: `${m}.orbit_status_badge`,
 				state: S.state,
 				attributes: this._config?.device_class ? { device_class: this._config.device_class } : {}
-			}, ae = this.hass?.areas?.[this._config?.area]?.name || "", C = this._config?.name, oe = this._config?.device_class ? s(this._config.device_class) : "", se = (p && this.hass?.formatEntityName ? this.hass.formatEntityName(p) : "") || (e === "template" ? "Template" : ae || oe || h.label), w = C && this.hass?.formatEntityName && this.hass.formatEntityName(S, l(C, re)) || se, ce = g === "custom" ? f && this._config?.icon_on ? "icon_on" : !f && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : "";
+			}, ae = this.hass?.areas?.[this._config?.area]?.name || "", C = this._config?.name, oe = this._config?.device_class ? d(this._config.device_class) : "", se = (p && this.hass?.formatEntityName ? this.hass.formatEntityName(p) : "") || (e === "template" ? "Template" : ae || oe || h.label), w = C && this.hass?.formatEntityName && this.hass.formatEntityName(S, f(C, re)) || se, ce = g === "custom" ? u && this._config?.icon_on ? "icon_on" : !u && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : "";
 			return {
 				entities: t,
 				activeEntities: n,
-				isOn: f,
-				inactiveTemplateActive: u,
+				isOn: u,
+				inactiveTemplateActive: c,
 				count: n.length,
 				displayValue: e === "template" ? r : e === "entity" ? S.state : n.length,
 				label: w,
@@ -13530,7 +13534,7 @@ var gm, _m, vm = e((() => {
 				iconStateObj: ie,
 				displayStateObj: ["entity", "template"].includes(e) ? S : {
 					entity_id: "sensor.orbit_status_badge_count",
-					state: f ? "on" : "off",
+					state: u ? "on" : "off",
 					attributes: {
 						count: n.length,
 						friendly_name: w
@@ -13541,15 +13545,30 @@ var gm, _m, vm = e((() => {
 				},
 				defaultStateContent: e === "area_count" ? "count" : "state",
 				hasIconColorOverride: te,
-				iconColor: b === "theme" ? dm(S, f) : ot(b)
+				iconColor: b === "theme" ? dm(S, u) : ot(b)
 			};
 		}
 		_handleAction(e, t = null) {
 			if (e?.action === "active-entities") {
-				this._activeEntitiesOpen = !0;
+				this._activeEntitiesOpen = !0, this._activeEntitiesDurationNow = Date.now(), this._startActiveEntitiesDurationTimer();
 				return;
 			}
 			return Ue.call(this, e, t);
+		}
+		_startActiveEntitiesDurationTimer() {
+			this._activeEntitiesDurationTimer === null && (this._activeEntitiesDurationTimer = window.setInterval(() => {
+				if (!this._activeEntitiesOpen) {
+					this._stopActiveEntitiesDurationTimer();
+					return;
+				}
+				this._activeEntitiesDurationNow = Date.now();
+			}, 6e4));
+		}
+		_stopActiveEntitiesDurationTimer() {
+			this._activeEntitiesDurationTimer !== null && (window.clearInterval(this._activeEntitiesDurationTimer), this._activeEntitiesDurationTimer = null);
+		}
+		_closeActiveEntitiesDialog() {
+			this._activeEntitiesOpen = !1, this._stopActiveEntitiesDurationTimer();
 		}
 		_navigate(e) {
 			return qe(e);
@@ -13623,34 +13642,35 @@ var gm, _m, vm = e((() => {
 			let t = e.activeEntities.map((e) => ({
 				stateObj: e,
 				control: n(this.hass, e)
-			})), s = t.filter((e) => e.control), c = r(s);
+			})), c = t.filter((e) => e.control), l = r(c), d = a(this.hass, t, l);
 			return O`
       <ha-adaptive-dialog
         .open=${!0}
         width="small"
-        @closed=${() => {
-				this._activeEntitiesOpen = !1;
-			}}
+        style=${[
+				`--ha-dialog-width-sm: ${d}px`,
+				`--mdc-dialog-min-width: ${d}px`,
+				`--mdc-dialog-max-width: ${d}px`
+			].join(";")}
+        @closed=${() => this._closeActiveEntitiesDialog()}
       >
         <ha-icon-button
           slot="headerNavigationIcon"
           .label=${this.hass?.localize?.("ui.common.close")}
-          @click=${() => {
-				this._activeEntitiesOpen = !1;
-			}}
+          @click=${() => this._closeActiveEntitiesDialog()}
         >
           <ha-icon icon="mdi:close"></ha-icon>
         </ha-icon-button>
         <span slot="headerTitle">${this._t("Active entities")}</span>
-        ${c ? O`
+        ${l ? O`
               <ha-button
                 slot="headerActionItems"
                 appearance="filled"
-                @click=${() => this._callActiveEntityService(c, s.map((e) => e.stateObj.entity_id))}
+                @click=${() => this._callActiveEntityService(l, c.map((e) => e.stateObj.entity_id))}
               >
-                <ha-icon slot="start" .icon=${c.icon}></ha-icon>
-                ${a(this.hass, c)}
-                (${s.length})
+                <ha-icon slot="start" .icon=${l.icon}></ha-icon>
+                ${s(this.hass, l)}
+                (${c.length})
               </ha-button>
             ` : ""}
 
@@ -13660,9 +13680,11 @@ var gm, _m, vm = e((() => {
                   class="active-entity-row"
                 >
                   ${t ? O`
-                        <ha-icon-button
-                          class="active-entity-icon-button"
-                          .label=${a(this.hass, t)}
+                        <button
+                          type="button"
+                          class="active-entity-control-button"
+                          aria-label=${s(this.hass, t)}
+                          title=${s(this.hass, t)}
                           @click=${(n) => {
 				n.stopPropagation(), this._callActiveEntityService(t, [e.entity_id]);
 			}}
@@ -13670,14 +13692,14 @@ var gm, _m, vm = e((() => {
                           <ha-state-icon
                             .hass=${this.hass}
                             .stateObj=${e}
-                            style=${`color:${o(e)}`}
+                            style=${u(e)}
                           ></ha-state-icon>
-                        </ha-icon-button>
+                        </button>
                       ` : O`
                         <ha-state-icon
                           .hass=${this.hass}
                           .stateObj=${e}
-                          style=${`color:${o(e)}`}
+                          style=${u(e)}
                         ></ha-state-icon>
                       `}
                   <button
@@ -13688,10 +13710,14 @@ var gm, _m, vm = e((() => {
                     <span class="active-entity-name">
                       ${i(this.hass, e)}
                     </span>
-                    <state-display
-                      .hass=${this.hass}
-                      .stateObj=${e}
-                    ></state-display>
+                    <span class="active-entity-state-line">
+                      <state-display
+                        .hass=${this.hass}
+                        .stateObj=${e}
+                      ></state-display>
+                      <span aria-hidden="true">-</span>
+                      <span>${o(this.hass, e, this._activeEntitiesDurationNow)}</span>
+                    </span>
                   </button>
                 </div>
               `) : O`
@@ -13864,8 +13890,6 @@ var gm, _m, vm = e((() => {
     }
 
     ha-adaptive-dialog {
-      --mdc-dialog-min-width: min(420px, 95vw);
-      --mdc-dialog-max-width: min(520px, 95vw);
       --ha-dialog-min-height: auto;
       --ha-bottom-sheet-height: auto;
     }
@@ -13889,12 +13913,38 @@ var gm, _m, vm = e((() => {
       margin: 12px;
     }
 
-    .active-entity-icon-button {
-      flex: 0 0 auto;
+    .active-entity-row ha-state-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      line-height: 0;
+      --mdc-icon-size: 36px;
     }
 
-    .active-entity-icon-button ha-state-icon {
+    .active-entity-control-button {
+      display: grid;
+      flex: 0 0 auto;
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      outline: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .active-entity-control-button ha-state-icon {
       pointer-events: none;
+    }
+
+    .active-entity-control-button:focus-visible,
+    .active-entity-control-button:hover {
+      background: var(--secondary-background-color);
     }
 
     .active-entity-info {
@@ -13925,7 +13975,15 @@ var gm, _m, vm = e((() => {
       white-space: nowrap;
     }
 
-    .active-entity-info state-display {
+    .active-entity-state-line {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      color: var(--secondary-text-color);
+      font-size: var(--ha-font-size-s, 12px);
+    }
+
+    .active-entity-state-line state-display {
       color: var(--secondary-text-color);
       font-size: var(--ha-font-size-s, 12px);
     }
@@ -13985,16 +14043,37 @@ var gm, _m, vm = e((() => {
 	function i(e, t) {
 		return e?.formatEntityName?.(t) || t?.attributes?.friendly_name || t?.entity_id || "";
 	}
-	function a(e, t) {
+	function a(e, t, n) {
+		let r = 132 + t.reduce((t, { stateObj: n }) => Math.max(t, i(e, n).length), 0) * 8;
+		return Math.min(520, Math.max(n ? 360 : 280, r));
+	}
+	function o(e, t, n = Date.now()) {
+		let r = Date.parse(t?.last_changed || "");
+		if (!Number.isFinite(r)) return "";
+		let i = Math.max(0, n - r), a, o;
+		i >= 864e5 ? (a = "days", o = Math.round(i / 864e5)) : i >= 36e5 ? (a = "hours", o = Math.round(i / 36e5)) : (a = "minutes", o = Math.max(1, Math.round(i / 6e4)));
+		let s = String(e?.locale?.language || e?.language || "en").replace("_", "-");
+		try {
+			let e = new Intl.DurationFormat(s, { style: "long" }).format({ [a]: o });
+			return s.toLowerCase().startsWith("en") ? e.replace(/\b(days?|hours?|minutes?)\b/, (e) => e[0].toUpperCase() + e.slice(1)) : e;
+		} catch {
+			let e = a.slice(0, -1), t = o === 1 ? e : a;
+			return `${o} ${t[0].toUpperCase()}${t.slice(1)}`;
+		}
+	}
+	function s(e, t) {
 		return e?.services?.[t.domain]?.[t.service]?.name;
 	}
-	function o(e) {
+	function l(e) {
 		return In(e) || dm(e, !0);
 	}
-	function s(e = "") {
+	function u(e) {
+		return [`color:${l(e)}`, "--mdc-icon-size:36px"].join(";");
+	}
+	function d(e = "") {
 		return e.replaceAll("_", " ").replace(/\b\w/g, (e) => e.toUpperCase());
 	}
-	function l(e, t) {
+	function f(e, t) {
 		let n = (e) => e?.type === "template" ? {
 			type: "text",
 			text: t

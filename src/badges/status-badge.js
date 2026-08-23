@@ -59,7 +59,14 @@ class OrbitStatusBadge extends LitElement {
     _isHeadingBadge: { state: true },
     _templateRevision: { state: true },
     _activeEntitiesOpen: { state: true },
+    _activeEntitiesDurationNow: { state: true },
   };
+
+  constructor() {
+    super();
+    this._activeEntitiesDurationNow = Date.now();
+    this._activeEntitiesDurationTimer = null;
+  }
 
   static getConfigElement() {
     return document.createElement("orbit-status-badge-editor");
@@ -87,6 +94,7 @@ class OrbitStatusBadge extends LitElement {
 
   disconnectedCallback() {
     disconnectTemplateSubscriptions.call(this);
+    this._stopActiveEntitiesDurationTimer();
     this._clearDoubleTapTimer();
     this._cancelLongPress();
     super.disconnectedCallback();
@@ -319,10 +327,37 @@ class OrbitStatusBadge extends LitElement {
   _handleAction(actionConfig, entityId = null) {
     if (actionConfig?.action === "active-entities") {
       this._activeEntitiesOpen = true;
+      this._activeEntitiesDurationNow = Date.now();
+      this._startActiveEntitiesDurationTimer();
       return;
     }
 
     return handleAction.call(this, actionConfig, entityId);
+  }
+
+  _startActiveEntitiesDurationTimer() {
+    if (this._activeEntitiesDurationTimer !== null) return;
+
+    this._activeEntitiesDurationTimer = window.setInterval(() => {
+      if (!this._activeEntitiesOpen) {
+        this._stopActiveEntitiesDurationTimer();
+        return;
+      }
+
+      this._activeEntitiesDurationNow = Date.now();
+    }, 60_000);
+  }
+
+  _stopActiveEntitiesDurationTimer() {
+    if (this._activeEntitiesDurationTimer === null) return;
+
+    window.clearInterval(this._activeEntitiesDurationTimer);
+    this._activeEntitiesDurationTimer = null;
+  }
+
+  _closeActiveEntitiesDialog() {
+    this._activeEntitiesOpen = false;
+    this._stopActiveEntitiesDurationTimer();
   }
 
   _navigate(path) {
@@ -463,21 +498,28 @@ class OrbitStatusBadge extends LitElement {
       }));
     const controllable = controls.filter((entry) => entry.control);
     const groupControl = getActiveEntityGroupControl(controllable);
+    const dialogWidth = getActiveEntitiesDialogWidth(
+      this.hass,
+      controls,
+      groupControl
+    );
+    const dialogWidthStyle = [
+      `--ha-dialog-width-sm: ${dialogWidth}px`,
+      `--mdc-dialog-min-width: ${dialogWidth}px`,
+      `--mdc-dialog-max-width: ${dialogWidth}px`,
+    ].join(";");
 
     return html`
       <ha-adaptive-dialog
         .open=${true}
         width="small"
-        @closed=${() => {
-          this._activeEntitiesOpen = false;
-        }}
+        style=${dialogWidthStyle}
+        @closed=${() => this._closeActiveEntitiesDialog()}
       >
         <ha-icon-button
           slot="headerNavigationIcon"
           .label=${this.hass?.localize?.("ui.common.close")}
-          @click=${() => {
-            this._activeEntitiesOpen = false;
-          }}
+          @click=${() => this._closeActiveEntitiesDialog()}
         >
           <ha-icon icon="mdi:close"></ha-icon>
         </ha-icon-button>
@@ -507,9 +549,14 @@ class OrbitStatusBadge extends LitElement {
                 >
                   ${control
                     ? html`
-                        <ha-icon-button
-                          class="active-entity-icon-button"
-                          .label=${getActiveEntityServiceName(
+                        <button
+                          type="button"
+                          class="active-entity-control-button"
+                          aria-label=${getActiveEntityServiceName(
+                            this.hass,
+                            control
+                          )}
+                          title=${getActiveEntityServiceName(
                             this.hass,
                             control
                           )}
@@ -524,15 +571,15 @@ class OrbitStatusBadge extends LitElement {
                           <ha-state-icon
                             .hass=${this.hass}
                             .stateObj=${stateObj}
-                            style=${`color:${getActiveEntityIconColor(stateObj)}`}
+                            style=${getActiveEntityIconStyle(stateObj)}
                           ></ha-state-icon>
-                        </ha-icon-button>
+                        </button>
                       `
                     : html`
                         <ha-state-icon
                           .hass=${this.hass}
                           .stateObj=${stateObj}
-                          style=${`color:${getActiveEntityIconColor(stateObj)}`}
+                          style=${getActiveEntityIconStyle(stateObj)}
                         ></ha-state-icon>
                       `}
                   <button
@@ -543,10 +590,18 @@ class OrbitStatusBadge extends LitElement {
                     <span class="active-entity-name">
                       ${getActiveEntityName(this.hass, stateObj)}
                     </span>
-                    <state-display
-                      .hass=${this.hass}
-                      .stateObj=${stateObj}
-                    ></state-display>
+                    <span class="active-entity-state-line">
+                      <state-display
+                        .hass=${this.hass}
+                        .stateObj=${stateObj}
+                      ></state-display>
+                      <span aria-hidden="true">-</span>
+                      <span>${formatActiveEntityDuration(
+                        this.hass,
+                        stateObj,
+                        this._activeEntitiesDurationNow
+                      )}</span>
+                    </span>
                   </button>
                 </div>
               `)
@@ -775,8 +830,6 @@ class OrbitStatusBadge extends LitElement {
     }
 
     ha-adaptive-dialog {
-      --mdc-dialog-min-width: min(420px, 95vw);
-      --mdc-dialog-max-width: min(520px, 95vw);
       --ha-dialog-min-height: auto;
       --ha-bottom-sheet-height: auto;
     }
@@ -800,12 +853,38 @@ class OrbitStatusBadge extends LitElement {
       margin: 12px;
     }
 
-    .active-entity-icon-button {
-      flex: 0 0 auto;
+    .active-entity-row ha-state-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      line-height: 0;
+      --mdc-icon-size: 36px;
     }
 
-    .active-entity-icon-button ha-state-icon {
+    .active-entity-control-button {
+      display: grid;
+      flex: 0 0 auto;
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      outline: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .active-entity-control-button ha-state-icon {
       pointer-events: none;
+    }
+
+    .active-entity-control-button:focus-visible,
+    .active-entity-control-button:hover {
+      background: var(--secondary-background-color);
     }
 
     .active-entity-info {
@@ -836,7 +915,15 @@ class OrbitStatusBadge extends LitElement {
       white-space: nowrap;
     }
 
-    .active-entity-info state-display {
+    .active-entity-state-line {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      color: var(--secondary-text-color);
+      font-size: var(--ha-font-size-s, 12px);
+    }
+
+    .active-entity-state-line state-display {
       color: var(--secondary-text-color);
       font-size: var(--ha-font-size-s, 12px);
     }
@@ -928,6 +1015,64 @@ function getActiveEntityName(hass, stateObj) {
     "";
 }
 
+function getActiveEntitiesDialogWidth(hass, controls, groupControl) {
+  const longestNameLength = controls.reduce(
+    (length, { stateObj }) => Math.max(
+      length,
+      getActiveEntityName(hass, stateObj).length
+    ),
+    0
+  );
+
+  const contentWidth = 132 + (longestNameLength * 8);
+  const headerWidth = groupControl ? 360 : 280;
+
+  return Math.min(520, Math.max(headerWidth, contentWidth));
+}
+
+function formatActiveEntityDuration(hass, stateObj, now = Date.now()) {
+  const changedAt = Date.parse(stateObj?.last_changed || "");
+
+  if (!Number.isFinite(changedAt)) return "";
+
+  const elapsed = Math.max(0, now - changedAt);
+  let unit;
+  let value;
+
+  if (elapsed >= 86_400_000) {
+    unit = "days";
+    value = Math.round(elapsed / 86_400_000);
+  } else if (elapsed >= 3_600_000) {
+    unit = "hours";
+    value = Math.round(elapsed / 3_600_000);
+  } else {
+    unit = "minutes";
+    value = Math.max(1, Math.round(elapsed / 60_000));
+  }
+
+  const locale = String(
+    hass?.locale?.language || hass?.language || "en"
+  ).replace("_", "-");
+
+  try {
+    const formatted = new Intl.DurationFormat(locale, {
+      style: "long",
+    }).format({ [unit]: value });
+
+    return locale.toLowerCase().startsWith("en")
+      ? formatted.replace(
+          /\b(days?|hours?|minutes?)\b/,
+          (word) => word[0].toUpperCase() + word.slice(1)
+        )
+      : formatted;
+  } catch (_err) {
+    const singular = unit.slice(0, -1);
+    const label = value === 1 ? singular : unit;
+
+    return `${value} ${label[0].toUpperCase()}${label.slice(1)}`;
+  }
+}
+
 function getActiveEntityServiceName(hass, control) {
   return hass?.services?.[control.domain]?.[control.service]?.name;
 }
@@ -935,6 +1080,13 @@ function getActiveEntityServiceName(hass, control) {
 function getActiveEntityIconColor(stateObj) {
   return getEntityColor(stateObj) ||
     getNativeEntityBadgeColor(stateObj, true);
+}
+
+function getActiveEntityIconStyle(stateObj) {
+  return [
+    `color:${getActiveEntityIconColor(stateObj)}`,
+    "--mdc-icon-size:36px",
+  ].join(";");
 }
 
 function formatDeviceClass(deviceClass = "") {
