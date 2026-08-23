@@ -12544,7 +12544,7 @@ function cm(e = []) {
 }
 function lm(e, t, n = {}) {
 	let r = sm(n), i = e?.entities?.[t];
-	return r.some((e) => e.type === "hidden" ? !!i?.hidden_by : e.type === "label" && Array.isArray(i?.labels) && i.labels.includes(e.label));
+	return r.some((e) => e.type === "hidden" ? !!(i?.hidden || i?.hidden_by) : e.type === "label" && Array.isArray(i?.labels) && i.labels.includes(e.label));
 }
 function um(e = {}) {
 	let t = $(e), n = e.accent_on_color === "amber" && e.accent_off_color === "grey", r = e.color_mode === "native" || n, i = { ...e };
@@ -13493,10 +13493,10 @@ var gm, _m, vm = e((() => {
 				return e ? [e] : [];
 			}
 			let e = this._config?.domain || "", t = this._config?.area, n = this._config?.device_class || "", r = am(e);
-			return !this.hass || !t || !e || r.requiresDeviceClass && !n ? [] : Object.values(this.hass.states || {}).filter((i) => i.entity_id.startsWith(`${e}.`) && er(this.hass, i.entity_id) === t && (!r.requiresDeviceClass || i.attributes?.device_class === n) && !lm(this.hass, i.entity_id, this._config));
+			return !this.hass || !t || !e || r.requiresDeviceClass && !n ? [] : Object.values(this.hass.states || {}).filter((i) => i.entity_id.startsWith(`${e}.`) && er(this.hass, i.entity_id) === t && (!r.requiresDeviceClass || a(this.hass, i, e) === n) && !lm(this.hass, i.entity_id, this._config));
 		}
 		_getModel() {
-			let e = $(this._config), t = this._getEntities(), n = t.filter((e) => rn(e)), r = e === "template" ? z.call(this, this._config?.state_template, "") ?? "unavailable" : "", i = this._config?.active_template?.trim() || "", a = e === "template" && i ? z.call(this, i, "") : null, o = this._config?.inactive_template?.trim() || "", s = e === "template" && o ? z.call(this, o, "") : null, c = !!o && Vt(s), l = e === "template" ? Vt(a ?? r) : n.length > 0, u = this._config?.display_style === "badge" && !this._config?.card_visibility ? !0 : l, d = t[0], f = d?.entity_id.split(".")[0] || this._config?.domain || "", p = am(f), g = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), _ = this._config?.icon || "", v = u ? this._config?.icon_on || _ : this._config?.icon_off || _, y = g === "custom" && v || p.icon, b = u ? this._config?.accent_on_color ?? this._config?.color : this._config?.accent_off_color, ee = !!(b && ![
+			let e = $(this._config), t = this._getEntities(), n = t.filter((e) => rn(e)), r = e === "template" ? z.call(this, this._config?.state_template, "") ?? "unavailable" : "", i = this._config?.active_template?.trim() || "", a = e === "template" && i ? z.call(this, i, "") : null, o = this._config?.inactive_template?.trim() || "", s = e === "template" && o ? z.call(this, o, "") : null, c = !!o && Vt(s), l = e === "template" ? Vt(a ?? r) : n.length > 0, u = this._config?.display_style === "badge" && !this._config?.card_visibility ? !0 : l, d = t[0], f = d?.entity_id.split(".")[0] || this._config?.domain || "", p = am(f), m = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), _ = this._config?.icon || "", v = u ? this._config?.icon_on || _ : this._config?.icon_off || _, y = m === "custom" && v || p.icon, b = u ? this._config?.accent_on_color ?? this._config?.color : this._config?.accent_off_color, ee = !!(b && ![
 				"theme",
 				"state",
 				"state-active",
@@ -13518,7 +13518,7 @@ var gm, _m, vm = e((() => {
 				entity_id: `${f}.orbit_status_badge`,
 				state: C.state,
 				attributes: this._config?.device_class ? { device_class: this._config.device_class } : {}
-			}, ie = this.hass?.areas?.[this._config?.area]?.name || "", w = this._config?.name, ae = this._config?.device_class ? m(this._config.device_class) : "", oe = (d && this.hass?.formatEntityName ? this.hass.formatEntityName(d) : "") || (e === "template" ? "Template" : ie || ae || p.label), T = w && this.hass?.formatEntityName && this.hass.formatEntityName(C, h(w, ne)) || oe, se = g === "custom" ? u && this._config?.icon_on ? "icon_on" : !u && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : "";
+			}, ie = this.hass?.areas?.[this._config?.area]?.name || "", w = this._config?.name, ae = this._config?.device_class ? h(this._config.device_class) : "", oe = (d && this.hass?.formatEntityName ? this.hass.formatEntityName(d) : "") || (e === "template" ? "Template" : ie || ae || p.label), T = w && this.hass?.formatEntityName && this.hass.formatEntityName(C, g(w, ne)) || oe, se = m === "custom" ? u && this._config?.icon_on ? "icon_on" : !u && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : "";
 			return {
 				entities: t,
 				activeEntities: n,
@@ -13529,7 +13529,7 @@ var gm, _m, vm = e((() => {
 				label: T,
 				icon: y,
 				iconKey: se,
-				iconSource: g,
+				iconSource: m,
 				stateSource: e,
 				representativeStateObj: C,
 				iconStateObj: re,
@@ -13640,19 +13640,19 @@ var gm, _m, vm = e((() => {
 		}
 		_renderActiveEntitiesDialog(e) {
 			if (!this._activeEntitiesOpen) return A;
-			let t = a(this.hass), s = e.activeEntities.map((e) => ({
+			let t = o(this.hass), a = e.activeEntities.map((e) => ({
 				stateObj: e,
 				name: i(this.hass, e),
 				control: n(this.hass, e)
-			})).sort((e, n) => o(t, e, n)), c = s.filter((e) => e.control), f = r(c), m = l(s, f);
+			})).sort((e, n) => s(t, e, n)), c = a.filter((e) => e.control), l = r(c), p = u(a, l);
 			return O`
       <ha-adaptive-dialog
         .open=${!0}
         width="small"
         style=${[
-				`--ha-dialog-width-sm: ${m}px`,
-				`--mdc-dialog-min-width: ${m}px`,
-				`--mdc-dialog-max-width: ${m}px`
+				`--ha-dialog-width-sm: ${p}px`,
+				`--mdc-dialog-min-width: ${p}px`,
+				`--mdc-dialog-max-width: ${p}px`
 			].join(";")}
         @closed=${() => this._closeActiveEntitiesDialog()}
       >
@@ -13664,20 +13664,20 @@ var gm, _m, vm = e((() => {
           <ha-icon icon="mdi:close"></ha-icon>
         </ha-icon-button>
         <span slot="headerTitle">${this._t("Active entities")}</span>
-        ${f ? O`
+        ${l ? O`
               <ha-button
                 slot="headerActionItems"
                 appearance="filled"
-                @click=${() => this._callActiveEntityService(f, c.map((e) => e.stateObj.entity_id))}
+                @click=${() => this._callActiveEntityService(l, c.map((e) => e.stateObj.entity_id))}
               >
-                <ha-icon slot="start" .icon=${f.icon}></ha-icon>
-                ${d(this.hass, f)}
+                <ha-icon slot="start" .icon=${l.icon}></ha-icon>
+                ${f(this.hass, l)}
                 (${c.length})
               </ha-button>
             ` : ""}
 
         <div class="active-entities-dialog-content">
-          ${s.length ? s.map(({ stateObj: e, name: t, control: n }) => O`
+          ${a.length ? a.map(({ stateObj: e, name: t, control: n }) => O`
                 <div
                   class="active-entity-row"
                 >
@@ -13685,8 +13685,8 @@ var gm, _m, vm = e((() => {
                         <button
                           type="button"
                           class="active-entity-control-button"
-                          aria-label=${d(this.hass, n)}
-                          title=${d(this.hass, n)}
+                          aria-label=${f(this.hass, n)}
+                          title=${f(this.hass, n)}
                           @click=${(t) => {
 				t.stopPropagation(), this._callActiveEntityService(n, [e.entity_id]);
 			}}
@@ -13694,14 +13694,14 @@ var gm, _m, vm = e((() => {
                           <ha-state-icon
                             .hass=${this.hass}
                             .stateObj=${e}
-                            style=${p(e)}
+                            style=${m(e)}
                           ></ha-state-icon>
                         </button>
                       ` : O`
                         <ha-state-icon
                           .hass=${this.hass}
                           .stateObj=${e}
-                          style=${p(e)}
+                          style=${m(e)}
                         ></ha-state-icon>
                       `}
                   <button
@@ -13718,7 +13718,7 @@ var gm, _m, vm = e((() => {
                         .stateObj=${e}
                       ></state-display>
                       <span aria-hidden="true">-</span>
-                      <span>${u(this.hass, e, this._activeEntitiesDurationNow)}</span>
+                      <span>${d(this.hass, e, this._activeEntitiesDurationNow)}</span>
                     </span>
                   </button>
                 </div>
@@ -14045,27 +14045,31 @@ var gm, _m, vm = e((() => {
 	function i(e, t) {
 		let n = e?.formatEntityName?.(t) || t?.attributes?.friendly_name || t?.entity_id || "", r = er(e, t?.entity_id), i = e?.areas?.[r]?.name?.trim();
 		if (!i || n.length <= i.length) return n;
-		let a = RegExp(`^${s(i)}(?:\\s*[-–—:|]\\s*|\\s+)`, "i");
+		let a = RegExp(`^${l(i)}(?:\\s*[-–—:|]\\s*|\\s+)`, "i");
 		return n.replace(a, "").trim() || n;
 	}
-	function a(e) {
+	function a(e, t, n) {
+		let r = e?.entities?.[t?.entity_id];
+		return r?.device_class || t?.attributes?.device_class || r?.original_device_class || (n === "switch" ? "switch" : "");
+	}
+	function o(e) {
 		let t = e?.locale?.language || e?.language;
 		return new Intl.Collator(t, {
 			numeric: !0,
 			sensitivity: "base"
 		});
 	}
-	function o(e, t, n) {
+	function s(e, t, n) {
 		return e.compare(t.name, n.name) || t.stateObj.entity_id.localeCompare(n.stateObj.entity_id);
 	}
-	function s(e) {
+	function l(e) {
 		return e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 	}
-	function l(e, t) {
+	function u(e, t) {
 		let n = 132 + e.reduce((e, { name: t }) => Math.max(e, t.length), 0) * 8;
 		return Math.min(520, Math.max(t ? 360 : 280, n));
 	}
-	function u(e, t, n = Date.now()) {
+	function d(e, t, n = Date.now()) {
 		let r = Date.parse(t?.last_changed || "");
 		if (!Number.isFinite(r)) return "";
 		let i = Math.max(0, n - r), a, o;
@@ -14079,19 +14083,19 @@ var gm, _m, vm = e((() => {
 			return `${o} ${t[0].toUpperCase()}${t.slice(1)}`;
 		}
 	}
-	function d(e, t) {
+	function f(e, t) {
 		return e?.services?.[t.domain]?.[t.service]?.name;
 	}
-	function f(e) {
+	function p(e) {
 		return Fn(e) || dm(e, !0);
 	}
-	function p(e) {
-		return [`color:${f(e)}`, "--mdc-icon-size:36px"].join(";");
+	function m(e) {
+		return [`color:${p(e)}`, "--mdc-icon-size:36px"].join(";");
 	}
-	function m(e = "") {
+	function h(e = "") {
 		return e.replaceAll("_", " ").replace(/\b\w/g, (e) => e.toUpperCase());
 	}
-	function h(e, t) {
+	function g(e, t) {
 		let n = (e) => e?.type === "template" ? {
 			type: "text",
 			text: t

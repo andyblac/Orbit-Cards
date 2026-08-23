@@ -111,7 +111,9 @@ export function shouldHideStatusBadgeEntity(hass, entityId, config = {}) {
   const entity = hass?.entities?.[entityId];
 
   return hideItems.some((item) => {
-    if (item.type === "hidden") return Boolean(entity?.hidden_by);
+    if (item.type === "hidden") {
+      return Boolean(entity?.hidden || entity?.hidden_by);
+    }
 
     return item.type === "label" &&
       Array.isArray(entity?.labels) &&

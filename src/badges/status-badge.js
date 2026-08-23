@@ -153,7 +153,8 @@ class OrbitStatusBadge extends LitElement {
       stateObj.entity_id.startsWith(`${domain}.`) &&
       getEntityAreaId(this.hass, stateObj.entity_id) === areaId &&
       (!domainConfig.requiresDeviceClass ||
-        stateObj.attributes?.device_class === deviceClass) &&
+        getActiveEntityDeviceClass(this.hass, stateObj, domain) ===
+          deviceClass) &&
       !shouldHideStatusBadgeEntity(
         this.hass,
         stateObj.entity_id,
@@ -1023,6 +1024,15 @@ function getActiveEntityName(hass, stateObj) {
   );
 
   return name.replace(areaPrefix, "").trim() || name;
+}
+
+function getActiveEntityDeviceClass(hass, stateObj, domain) {
+  const registryEntry = hass?.entities?.[stateObj?.entity_id];
+
+  return registryEntry?.device_class ||
+    stateObj?.attributes?.device_class ||
+    registryEntry?.original_device_class ||
+    (domain === "switch" ? "switch" : "");
 }
 
 function getActiveEntityNameCollator(hass) {
