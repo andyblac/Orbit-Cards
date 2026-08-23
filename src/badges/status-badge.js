@@ -491,18 +491,17 @@ class OrbitStatusBadge extends LitElement {
   _renderActiveEntitiesDialog(model) {
     if (!this._activeEntitiesOpen) return nothing;
 
+    const nameCollator = getActiveEntityNameCollator(this.hass);
     const controls = model.activeEntities
       .map((stateObj) => ({
         stateObj,
+        name: getActiveEntityName(this.hass, stateObj),
         control: getActiveEntityControl(this.hass, stateObj),
-      }));
+      }))
+      .sort((a, b) => compareActiveEntityNames(nameCollator, a, b));
     const controllable = controls.filter((entry) => entry.control);
     const groupControl = getActiveEntityGroupControl(controllable);
-    const dialogWidth = getActiveEntitiesDialogWidth(
-      this.hass,
-      controls,
-      groupControl
-    );
+    const dialogWidth = getActiveEntitiesDialogWidth(controls, groupControl);
     const dialogWidthStyle = [
       `--ha-dialog-width-sm: ${dialogWidth}px`,
       `--mdc-dialog-min-width: ${dialogWidth}px`,
@@ -543,7 +542,7 @@ class OrbitStatusBadge extends LitElement {
 
         <div class="active-entities-dialog-content">
           ${controls.length
-            ? controls.map(({ stateObj, control }) => html`
+            ? controls.map(({ stateObj, name, control }) => html`
                 <div
                   class="active-entity-row"
                 >
@@ -588,7 +587,7 @@ class OrbitStatusBadge extends LitElement {
                     @click=${() => this._showEntityMoreInfo(stateObj.entity_id)}
                   >
                     <span class="active-entity-name">
-                      ${getActiveEntityName(this.hass, stateObj)}
+                      ${name}
                     </span>
                     <span class="active-entity-state-line">
                       <state-display
@@ -1009,18 +1008,44 @@ function getActiveEntityGroupControl(controllable) {
 }
 
 function getActiveEntityName(hass, stateObj) {
-  return hass?.formatEntityName?.(stateObj) ||
+  const name = hass?.formatEntityName?.(stateObj) ||
     stateObj?.attributes?.friendly_name ||
     stateObj?.entity_id ||
     "";
+  const areaId = getEntityAreaId(hass, stateObj?.entity_id);
+  const areaName = hass?.areas?.[areaId]?.name?.trim();
+
+  if (!areaName || name.length <= areaName.length) return name;
+
+  const areaPrefix = new RegExp(
+    `^${escapeRegExp(areaName)}(?:\\s*[-–—:|]\\s*|\\s+)`,
+    "i"
+  );
+
+  return name.replace(areaPrefix, "").trim() || name;
 }
 
-function getActiveEntitiesDialogWidth(hass, controls, groupControl) {
+function getActiveEntityNameCollator(hass) {
+  const locale = hass?.locale?.language || hass?.language;
+
+  return new Intl.Collator(locale, {
+    numeric: true,
+    sensitivity: "base",
+  });
+}
+
+function compareActiveEntityNames(collator, a, b) {
+  return collator.compare(a.name, b.name) ||
+    a.stateObj.entity_id.localeCompare(b.stateObj.entity_id);
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function getActiveEntitiesDialogWidth(controls, groupControl) {
   const longestNameLength = controls.reduce(
-    (length, { stateObj }) => Math.max(
-      length,
-      getActiveEntityName(hass, stateObj).length
-    ),
+    (length, { name }) => Math.max(length, name.length),
     0
   );
 
