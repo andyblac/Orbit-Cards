@@ -35,6 +35,7 @@ class OrbitDeckCard extends LitElement {
   static get properties() {
     return {
       hass: {},
+      preview: { type: Boolean },
       _config: { type: Object },
       _deckCards: { state: true },
       _selectedIndex: { state: true },
@@ -44,6 +45,7 @@ class OrbitDeckCard extends LitElement {
   constructor() {
     super();
     this._config = {};
+    this.preview = false;
     this._deckCards = [];
     this._selectedIndex = 0;
     this._cardHelpers = null;
@@ -118,10 +120,16 @@ class OrbitDeckCard extends LitElement {
   }
 
   updated(changedProps) {
-    if (changedProps.has("hass")) {
+    if (changedProps.has("hass") || changedProps.has("preview")) {
       this._deckCards.forEach((entry) => {
         if (entry.element) {
-          entry.element.hass = this.hass;
+          if (changedProps.has("hass")) {
+            entry.element.hass = this.hass;
+          }
+          if (changedProps.has("preview")) {
+            entry.element.preview = this.preview;
+            entry.element.editMode = this.preview;
+          }
         }
       });
     }
@@ -334,22 +342,57 @@ class OrbitDeckCard extends LitElement {
     }
 
     try {
-      const element = kind === "badge"
-        ? helpers.createBadgeElement(childConfig)
-        : helpers.createCardElement(childConfig);
+      const usesNativeVisibility =
+        this._config?.layout !== "overlay" &&
+        Array.isArray(childConfig.visibility) &&
+        childConfig.visibility.length > 0;
+      const element = usesNativeVisibility
+        ? this._createVisibilityAwareElement(kind, childConfig)
+        : kind === "badge"
+          ? helpers.createBadgeElement(childConfig)
+          : helpers.createCardElement(childConfig);
       element.hass = this.hass;
+      element.preview = this.preview;
+      element.editMode = this.preview;
       element.addEventListener(
         "ll-rebuild",
         () => this._scheduleCardBuild(),
         { once: true }
       );
 
-      return {
+      const entry = {
         item,
         index,
         kind,
         element,
+        visible: !element.hidden,
       };
+
+      if (usesNativeVisibility) {
+        const eventName = kind === "badge"
+          ? "badge-visibility-changed"
+          : "card-visibility-changed";
+
+        element.addEventListener(eventName, (ev) => {
+          ev.stopPropagation();
+          const visible = ev.detail?.value !== false && !element.hidden;
+          const currentEntry = this._deckCards.find(
+            (candidate) => candidate.element === element
+          ) || entry;
+
+          if (currentEntry.visible === visible) return;
+
+          currentEntry.visible = visible;
+          this.requestUpdate();
+          this.updateComplete.then(() => {
+            if (visible) this._applyDeckCardPadding(currentEntry);
+            this._bindDeckItemActionListeners();
+          });
+        });
+        element.load();
+      }
+
+      return entry;
     } catch (err) {
       return {
         item,
@@ -357,6 +400,19 @@ class OrbitDeckCard extends LitElement {
         error: err?.message || "Unable to create card",
       };
     }
+  }
+
+  _createVisibilityAwareElement(kind, config) {
+    const element = document.createElement(
+      kind === "badge" ? "hui-badge" : "hui-card"
+    );
+
+    element.hass = this.hass;
+    element.preview = this.preview;
+    element.editMode = this.preview;
+    element.config = config;
+
+    return element;
   }
 
   _selectTab(index) {
@@ -605,8 +661,12 @@ class OrbitDeckCard extends LitElement {
   }
 
   _renderWrap(decks) {
-    const columns = this._getColumnCount(decks.length || 1);
-    const rows = chunkItems(this._deckCards, columns);
+    const visibleEntries = this._getVisibleDeckEntries();
+    const hiddenEntries = this._deckCards.filter(
+      (entry) => entry.visible === false
+    );
+    const columns = this._getColumnCount(visibleEntries.length || 1);
+    const rows = chunkItems(visibleEntries, columns);
 
     return html`
       <ha-card
@@ -625,16 +685,24 @@ class OrbitDeckCard extends LitElement {
             </div>
           `)}
         </div>
+        ${this._renderVisibilityObservers(hiddenEntries)}
       </ha-card>
     `;
   }
 
   _renderTabs(decks) {
-    const selectedIndex = Math.min(
+    const configuredIndex = Math.min(
       this._selectedIndex || 0,
       Math.max(0, decks.length - 1)
     );
-    const selectedEntry = this._deckCards[selectedIndex];
+    const visibleEntries = this._getVisibleDeckEntries();
+    const selectedEntry = visibleEntries.find(
+      (entry) => entry.index === configuredIndex
+    ) || visibleEntries[0];
+    const selectedIndex = selectedEntry?.index ?? configuredIndex;
+    const observerEntries = this._deckCards.filter(
+      (entry) => entry !== selectedEntry
+    );
     const tabWidthMode = getTabWidthMode(this._config);
     const tabStyles = getTabStyleVariables(this._config);
 
@@ -646,28 +714,45 @@ class OrbitDeckCard extends LitElement {
         style=${tabStyles}
       >
         <div class="deck-tabs" role="tablist">
-          ${decks.map((item, index) => html`
+          ${visibleEntries.map((entry) => html`
             <button
               type="button"
-              class="deck-tab ${index === selectedIndex ? "active" : ""}"
+              class="deck-tab ${entry.index === selectedIndex ? "active" : ""}"
               role="tab"
-              aria-selected=${index === selectedIndex ? "true" : "false"}
+              aria-selected=${entry.index === selectedIndex ? "true" : "false"}
               style=${tabWidthMode === "custom"
-                ? `--orbit-deck-tab-width:${item.attributes?.width || "120px"};`
+                ? `--orbit-deck-tab-width:${entry.item.attributes?.width || "120px"};`
                 : ""}
-              @click=${() => this._selectTab(index)}
+              @click=${() => this._selectTab(entry.index)}
             >
-              ${item.attributes?.icon
-                ? html`<ha-icon .icon=${item.attributes.icon}></ha-icon>`
+              ${entry.item.attributes?.icon
+                ? html`<ha-icon .icon=${entry.item.attributes.icon}></ha-icon>`
                 : ""}
-              <span>${item.attributes?.name || item.attributes?.label || `Card ${index + 1}`}</span>
+              <span>${entry.item.attributes?.name || entry.item.attributes?.label || `Card ${entry.index + 1}`}</span>
             </button>
           `)}
         </div>
         <div class="deck-tab-content">
-          ${this._renderInteractiveDeckEntry(selectedEntry)}
+          ${selectedEntry
+            ? this._renderInteractiveDeckEntry(selectedEntry)
+            : ""}
         </div>
+        ${this._renderVisibilityObservers(observerEntries)}
       </ha-card>
+    `;
+  }
+
+  _getVisibleDeckEntries() {
+    return this._deckCards.filter((entry) => entry.visible !== false);
+  }
+
+  _renderVisibilityObservers(entries) {
+    if (!entries.length) return "";
+
+    return html`
+      <div class="deck-visibility-observers" aria-hidden="true">
+        ${entries.map((entry) => this._renderDeckEntry(entry))}
+      </div>
     `;
   }
 

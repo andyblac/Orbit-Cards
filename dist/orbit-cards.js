@@ -10719,6 +10719,10 @@ var Rp = e((() => {})), zp, Bp = e((() => {
     pointer-events: none;
   }
 
+  .deck-visibility-observers {
+    display: none !important;
+  }
+
   .deck-tabs {
     display: flex;
     align-items: end;
@@ -11333,6 +11337,7 @@ var Zp, Qp, $p, em, tm = e((() => {
           .hass=${this.hass}
           .lovelace=${this.lovelace}
           .value=${t.card}
+          .showVisibilityTab=${["wrap", "tabs"].includes(this._config?.layout || "wrap")}
           @config-changed=${(t) => {
 				t.stopPropagation(), this._updateDeckCard(e, t.detail.config);
 			}}
@@ -11881,13 +11886,14 @@ var Zp, Qp, $p, em, tm = e((() => {
 		static get properties() {
 			return {
 				hass: {},
+				preview: { type: Boolean },
 				_config: { type: Object },
 				_deckCards: { state: !0 },
 				_selectedIndex: { state: !0 }
 			};
 		}
 		constructor() {
-			super(), this._config = {}, this._deckCards = [], this._selectedIndex = 0, this._cardHelpers = null, this._cardBuildKey = "", this._defaultSelectionKey = "", this._paddingApplyKey = "", this._overlayGeometryFrame = null, this._overlayGeometryObserver = null, this._overlayObservedTargets = /* @__PURE__ */ new Set(), this._overlayGeometryToken = 0;
+			super(), this._config = {}, this.preview = !1, this._deckCards = [], this._selectedIndex = 0, this._cardHelpers = null, this._cardBuildKey = "", this._defaultSelectionKey = "", this._paddingApplyKey = "", this._overlayGeometryFrame = null, this._overlayGeometryObserver = null, this._overlayObservedTargets = /* @__PURE__ */ new Set(), this._overlayGeometryToken = 0;
 		}
 		disconnectedCallback() {
 			super.disconnectedCallback(), this._clearOverlayGeometryObserver();
@@ -11920,8 +11926,8 @@ var Zp, Qp, $p, em, tm = e((() => {
 			Number.isInteger(e?.[Zp]) ? this._selectedIndex = Math.min(Math.max(0, e[Zp]), Math.max(0, r.length - 1)) : i === this._defaultSelectionKey ? this._selectedIndex = Math.min(this._selectedIndex || 0, Math.max(0, r.length - 1)) : (this._selectedIndex = a, this._defaultSelectionKey = i), this._scheduleCardBuild();
 		}
 		updated(e) {
-			e.has("hass") && this._deckCards.forEach((e) => {
-				e.element && (e.element.hass = this.hass);
+			(e.has("hass") || e.has("preview")) && this._deckCards.forEach((t) => {
+				t.element && (e.has("hass") && (t.element.hass = this.hass), e.has("preview") && (t.element.preview = this.preview, t.element.editMode = this.preview));
 			}), (e.has("_deckCards") || e.has("_config")) && (this._applyDeckPaddingToEntries(), this._bindDeckItemActionListeners()), this._config?.layout === "overlay" ? (e.has("_deckCards") || e.has("_config")) && this._scheduleOverlayGeometrySync() : this._clearOverlayGeometryObserver();
 		}
 		_scheduleOverlayGeometrySync() {
@@ -12003,13 +12009,26 @@ var Zp, Qp, $p, em, tm = e((() => {
 				error: `No ${i} type configured`
 			};
 			try {
-				let r = i === "badge" ? t.createBadgeElement(a) : t.createCardElement(a);
-				return r.hass = this.hass, r.addEventListener("ll-rebuild", () => this._scheduleCardBuild(), { once: !0 }), {
+				let r = this._config?.layout !== "overlay" && Array.isArray(a.visibility) && a.visibility.length > 0, o = r ? this._createVisibilityAwareElement(i, a) : i === "badge" ? t.createBadgeElement(a) : t.createCardElement(a);
+				o.hass = this.hass, o.preview = this.preview, o.editMode = this.preview, o.addEventListener("ll-rebuild", () => this._scheduleCardBuild(), { once: !0 });
+				let s = {
 					item: e,
 					index: n,
 					kind: i,
-					element: r
+					element: o,
+					visible: !o.hidden
 				};
+				if (r) {
+					let e = i === "badge" ? "badge-visibility-changed" : "card-visibility-changed";
+					o.addEventListener(e, (e) => {
+						e.stopPropagation();
+						let t = e.detail?.value !== !1 && !o.hidden, n = this._deckCards.find((e) => e.element === o) || s;
+						n.visible !== t && (n.visible = t, this.requestUpdate(), this.updateComplete.then(() => {
+							t && this._applyDeckCardPadding(n), this._bindDeckItemActionListeners();
+						}));
+					}), o.load();
+				}
+				return s;
 			} catch (t) {
 				return {
 					item: e,
@@ -12017,6 +12036,10 @@ var Zp, Qp, $p, em, tm = e((() => {
 					error: t?.message || "Unable to create card"
 				};
 			}
+		}
+		_createVisibilityAwareElement(e, t) {
+			let n = document.createElement(e === "badge" ? "hui-badge" : "hui-card");
+			return n.hass = this.hass, n.preview = this.preview, n.editMode = this.preview, n.config = t, n;
 		}
 		_selectTab(e) {
 			this._selectedIndex = e;
@@ -12119,54 +12142,66 @@ var Zp, Qp, $p, em, tm = e((() => {
 			}).catch(() => {});
 		}
 		_renderWrap(e) {
-			let t = this._getColumnCount(e.length || 1), n = y(this._deckCards, t);
+			let t = this._getVisibleDeckEntries(), n = this._deckCards.filter((e) => e.visible === !1), r = this._getColumnCount(t.length || 1), i = y(t, r);
 			return O`
       <ha-card
         class="deck-card wrap ${e.length > 1 && this._config?.separate_cards ? "separate-cards" : ""}"
-        style="--deck-columns:${t};"
+        style="--deck-columns:${r};"
       >
         <div class="deck-wrap">
-          ${n.map((e) => O`
+          ${i.map((e) => O`
             <div class="deck-row">
               ${e.map((e) => O`
                 <div class="deck-item">
                   ${this._renderInteractiveDeckEntry(e)}
                 </div>
               `)}
-              ${te(e.length, t)}
+              ${te(e.length, r)}
             </div>
           `)}
         </div>
+        ${this._renderVisibilityObservers(n)}
       </ha-card>
     `;
 		}
 		_renderTabs(e) {
-			let t = Math.min(this._selectedIndex || 0, Math.max(0, e.length - 1)), n = this._deckCards[t], r = _(this._config), i = v(this._config);
+			let t = Math.min(this._selectedIndex || 0, Math.max(0, e.length - 1)), n = this._getVisibleDeckEntries(), r = n.find((e) => e.index === t) || n[0], i = r?.index ?? t, a = this._deckCards.filter((e) => e !== r), o = _(this._config), s = v(this._config);
 			return O`
       <ha-card
-        class="deck-card tabs tab-width-${r} ${this._config?.tab_divider === !1 ? "hide-tab-dividers" : ""}"
-        style=${i}
+        class="deck-card tabs tab-width-${o} ${this._config?.tab_divider === !1 ? "hide-tab-dividers" : ""}"
+        style=${s}
       >
         <div class="deck-tabs" role="tablist">
-          ${e.map((e, n) => O`
+          ${n.map((e) => O`
             <button
               type="button"
-              class="deck-tab ${n === t ? "active" : ""}"
+              class="deck-tab ${e.index === i ? "active" : ""}"
               role="tab"
-              aria-selected=${n === t ? "true" : "false"}
-              style=${r === "custom" ? `--orbit-deck-tab-width:${e.attributes?.width || "120px"};` : ""}
-              @click=${() => this._selectTab(n)}
+              aria-selected=${e.index === i ? "true" : "false"}
+              style=${o === "custom" ? `--orbit-deck-tab-width:${e.item.attributes?.width || "120px"};` : ""}
+              @click=${() => this._selectTab(e.index)}
             >
-              ${e.attributes?.icon ? O`<ha-icon .icon=${e.attributes.icon}></ha-icon>` : ""}
-              <span>${e.attributes?.name || e.attributes?.label || `Card ${n + 1}`}</span>
+              ${e.item.attributes?.icon ? O`<ha-icon .icon=${e.item.attributes.icon}></ha-icon>` : ""}
+              <span>${e.item.attributes?.name || e.item.attributes?.label || `Card ${e.index + 1}`}</span>
             </button>
           `)}
         </div>
         <div class="deck-tab-content">
-          ${this._renderInteractiveDeckEntry(n)}
+          ${r ? this._renderInteractiveDeckEntry(r) : ""}
         </div>
+        ${this._renderVisibilityObservers(a)}
       </ha-card>
     `;
+		}
+		_getVisibleDeckEntries() {
+			return this._deckCards.filter((e) => e.visible !== !1);
+		}
+		_renderVisibilityObservers(e) {
+			return e.length ? O`
+      <div class="deck-visibility-observers" aria-hidden="true">
+        ${e.map((e) => this._renderDeckEntry(e))}
+      </div>
+    ` : "";
 		}
 		_renderOverlay() {
 			let e = this._deckCards[0], t = this._deckCards.slice(1);

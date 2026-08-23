@@ -77,6 +77,10 @@ export const deckCardStyles = css`
     pointer-events: none;
   }
 
+  .deck-visibility-observers {
+    display: none !important;
+  }
+
   .deck-tabs {
     display: flex;
     align-items: end;

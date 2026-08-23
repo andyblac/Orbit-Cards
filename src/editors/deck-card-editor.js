@@ -634,6 +634,9 @@ class OrbitDeckCardEditor extends LitElement {
           .hass=${this.hass}
           .lovelace=${this.lovelace}
           .value=${item.card}
+          .showVisibilityTab=${["wrap", "tabs"].includes(
+            this._config?.layout || "wrap"
+          )}
           @config-changed=${(ev) => {
             ev.stopPropagation();
             this._updateDeckCard(index, ev.detail.config);
