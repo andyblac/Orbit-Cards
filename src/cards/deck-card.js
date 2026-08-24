@@ -56,11 +56,21 @@ class OrbitDeckCard extends LitElement {
     this._overlayGeometryObserver = null;
     this._overlayObservedTargets = new Set();
     this._overlayGeometryToken = 0;
+    this._deckEntryGeneration = 0;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._paddingApplyKey = "";
+    this.requestUpdate();
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
+    this._cancelLongPress();
+    this._clearDoubleTapTimer();
     this._clearOverlayGeometryObserver();
+    this._disconnectDeckEntryObservers();
+    super.disconnectedCallback();
   }
 
   static getConfigElement() {
@@ -304,6 +314,7 @@ class OrbitDeckCard extends LitElement {
     }
 
     this._cardBuildKey = buildKey;
+    this._disconnectDeckEntryObservers();
     this._deckCards = decks.map((item, index) => ({ item, index }));
 
     const helpers = await this._loadCardHelpers();
@@ -413,6 +424,28 @@ class OrbitDeckCard extends LitElement {
     element.config = config;
 
     return element;
+  }
+
+  _disconnectDeckEntryObservers(entries = this._deckCards) {
+    this._deckEntryGeneration += 1;
+
+    entries.forEach((entry) => {
+      const element = entry?.element;
+
+      if (!element) return;
+
+      const observedElements = new Set([element, ...getCardElements(element)]);
+      observedElements.forEach((observedElement) => {
+        disconnectDeckCardSurfaceObserver(observedElement);
+        disconnectDeckPaddingObserver(observedElement);
+      });
+    });
+  }
+
+  _isDeckEntryActive(entry, generation) {
+    return this.isConnected &&
+      generation === this._deckEntryGeneration &&
+      this._deckCards.includes(entry);
   }
 
   _selectTab(index) {
@@ -602,6 +635,7 @@ class OrbitDeckCard extends LitElement {
 
     if (!element) return;
 
+    const generation = this._deckEntryGeneration;
     const padding = getDeckItemPadding(entry.item);
     const shouldApplyPadding = shouldApplyDeckItemPadding(entry.item);
     const waitForRender =
@@ -612,6 +646,8 @@ class OrbitDeckCard extends LitElement {
     waitForRender
       .then(() => new Promise((resolve) => requestAnimationFrame(resolve)))
       .then(() => {
+        if (!this._isDeckEntryActive(entry, generation)) return;
+
         const cardElements = getCardElements(element);
         const cardElement = cardElements[0] || null;
         const wrapperElement = getDeckItemWrapper(this.renderRoot, entry.index);
@@ -650,6 +686,8 @@ class OrbitDeckCard extends LitElement {
         if (shouldApplyPadding && cardElement) {
           connectDeckPaddingObserver(cardElement, padding);
           requestAnimationFrame(() => {
+            if (!this._isDeckEntryActive(entry, generation)) return;
+
             if (wrapperElement) applyPaddingTarget(wrapperElement, padding, false);
             applyPaddingTarget(cardElement, padding, true);
           });

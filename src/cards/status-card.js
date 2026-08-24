@@ -148,6 +148,9 @@ class OrbitStatusCard extends LitElement {
 
   disconnectedCallback() {
     disconnectTemplateSubscriptions.call(this);
+    this._clearMainIconHoldTimer();
+    this._clearStatusItemHoldTimer();
+    this._clearDoubleTapTimer();
     super.disconnectedCallback();
   }
 

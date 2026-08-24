@@ -153,6 +153,8 @@ class OrbitAreaCard extends LitElement {
 
   disconnectedCallback() {
     disconnectTemplateSubscriptions.call(this);
+    this._cancelLongPress();
+    this._clearDoubleTapTimer();
     super.disconnectedCallback();
   }
 
