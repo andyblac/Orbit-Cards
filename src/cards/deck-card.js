@@ -1220,10 +1220,10 @@ function disconnectDeckCardSurfaceObserver(element) {
 }
 
 function getCardElements(element) {
-  const cards = [];
+  const cards = new Set();
 
   collectCardElements(element, cards, new WeakSet());
-  return cards;
+  return [...cards];
 }
 
 function collectCardElements(element, cards, seen) {
@@ -1231,8 +1231,8 @@ function collectCardElements(element, cards, seen) {
 
   seen.add(element);
 
-  if (element.localName === "ha-card" && !cards.includes(element)) {
-    cards.push(element);
+  if (element.localName === "ha-card") {
+    cards.add(element);
   }
 
   const roots = [element.shadowRoot, element].filter(Boolean);
@@ -1241,8 +1241,8 @@ function collectCardElements(element, cards, seen) {
     const children = root.querySelectorAll?.("*") || [];
 
     for (const child of children) {
-      if (child.localName === "ha-card" && !cards.includes(child)) {
-        cards.push(child);
+      if (child.localName === "ha-card") {
+        cards.add(child);
       }
       if (child.shadowRoot) {
         collectCardElements(child, cards, seen);

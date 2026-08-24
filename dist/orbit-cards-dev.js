@@ -12284,13 +12284,13 @@ function ru(e) {
 	e._orbitDeckSurfaceObserver?.disconnect(), e._orbitDeckSurfaceObserver = null;
 }
 function iu(e) {
-	let t = [];
-	return au(e, t, /* @__PURE__ */ new WeakSet()), t;
+	let t = /* @__PURE__ */ new Set();
+	return au(e, t, /* @__PURE__ */ new WeakSet()), [...t];
 }
 function au(e, t, n) {
-	!e || n.has(e) || (n.add(e), e.localName === "ha-card" && !t.includes(e) && t.push(e), [e.shadowRoot, e].filter(Boolean).forEach((e) => {
+	!e || n.has(e) || (n.add(e), e.localName === "ha-card" && t.add(e), [e.shadowRoot, e].filter(Boolean).forEach((e) => {
 		let r = e.querySelectorAll?.("*") || [];
-		for (let e of r) e.localName === "ha-card" && !t.includes(e) && t.push(e), e.shadowRoot && au(e, t, n);
+		for (let e of r) e.localName === "ha-card" && t.add(e), e.shadowRoot && au(e, t, n);
 	}));
 }
 function ou(e, t, n) {
