@@ -1929,33 +1929,6 @@ function sortAreaPickerItems(itemA, itemB) {
   );
 }
 
-export function renderNavigationSelector({
-  value = "",
-  label = "",
-  onValueChanged,
-  className = "entity-picker",
-} = {}) {
-  installEntityFilterScrollGuard();
-
-  return html`
-    <ha-navigation-picker
-      class=${className}
-      @click=${stopPickerEventPropagation}
-      @pointerdown=${stopPickerEventPropagation}
-      @wheel=${stopPickerEventPropagation}
-      @touchmove=${stopPickerEventPropagation}
-      @picker-opened=${(e) => {
-        e.currentTarget.__orbitSuppressSectionScroll = true;
-      }}
-      .hass=${this.hass}
-      .label=${label ? t(this, label) : ""}
-      .value=${value || ""}
-      @value-changed=${(e) =>
-        onValueChanged?.(e.detail.value || "")}
-    ></ha-navigation-picker>
-  `;
-}
-
 export function renderEntity(label, key, replacements) {
   return html`
     <div class="field">
