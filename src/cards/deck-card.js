@@ -31,6 +31,15 @@ import { DECK_PREVIEW_SELECTED_INDEX } from "../editors/deck-card-editor.js";
 
 import "../editors/deck-card-editor.js";
 
+const DECK_INTERACTION_EVENTS = [
+  "pointerdown",
+  "click",
+  "dblclick",
+  "pointerup",
+  "pointerleave",
+  "pointercancel",
+];
+
 class OrbitDeckCard extends LitElement {
   static get properties() {
     return {
@@ -57,10 +66,13 @@ class OrbitDeckCard extends LitElement {
     this._overlayObservedTargets = new Set();
     this._overlayGeometryToken = 0;
     this._deckEntryGeneration = 0;
+    this._deckInteractionListener = (event) =>
+      this._handleDeckInteractionEvent(event);
   }
 
   connectedCallback() {
     super.connectedCallback();
+    this._bindDeckItemActionListeners();
     this._paddingApplyKey = "";
     this.requestUpdate();
   }
@@ -70,6 +82,7 @@ class OrbitDeckCard extends LitElement {
     this._clearDoubleTapTimer();
     this._clearOverlayGeometryObserver();
     this._disconnectDeckEntryObservers();
+    this._unbindDeckItemActionListeners();
     super.disconnectedCallback();
   }
 
@@ -146,7 +159,6 @@ class OrbitDeckCard extends LitElement {
 
     if (changedProps.has("_deckCards") || changedProps.has("_config")) {
       this._applyDeckPaddingToEntries();
-      this._bindDeckItemActionListeners();
     }
 
     if (this._config?.layout === "overlay") {
@@ -397,7 +409,6 @@ class OrbitDeckCard extends LitElement {
           this.requestUpdate();
           this.updateComplete.then(() => {
             if (visible) this._applyDeckCardPadding(currentEntry);
-            this._bindDeckItemActionListeners();
           });
         });
         element.load();
@@ -489,39 +500,48 @@ class OrbitDeckCard extends LitElement {
   }
 
   _bindDeckItemActionListeners() {
-    this.renderRoot.querySelectorAll(".deck-item-interaction").forEach((el) => {
-      if (el._orbitDeckActionHost === this) return;
-
-      const listeners = {
-        pointerdown: (ev) => this._handleDeckItemPointerDown(
-          ev,
-          this._getDeckEntryFromEventTarget(el)
-        ),
-        click: (ev) => this._handleDeckItemClick(
-          ev,
-          this._getDeckEntryFromEventTarget(el)
-        ),
-        dblclick: (ev) => this._handleDeckItemDoubleClick(
-          ev,
-          this._getDeckEntryFromEventTarget(el)
-        ),
-        pointerup: (ev) => this._finishLongPress(ev),
-        pointerleave: () => this._cancelLongPress(),
-        pointercancel: () => this._cancelLongPress(),
-      };
-
-      el.addEventListener("pointerdown", listeners.pointerdown, {
-        capture: true,
-      });
-      el.addEventListener("click", listeners.click, { capture: true });
-      el.addEventListener("dblclick", listeners.dblclick, { capture: true });
-      el.addEventListener("pointerup", listeners.pointerup, {
-        capture: true,
-      });
-      el.addEventListener("pointerleave", listeners.pointerleave);
-      el.addEventListener("pointercancel", listeners.pointercancel);
-      el._orbitDeckActionHost = this;
+    DECK_INTERACTION_EVENTS.forEach((eventName) => {
+      this.renderRoot.addEventListener(
+        eventName,
+        this._deckInteractionListener,
+        true
+      );
     });
+  }
+
+  _unbindDeckItemActionListeners() {
+    DECK_INTERACTION_EVENTS.forEach((eventName) => {
+      this.renderRoot.removeEventListener(
+        eventName,
+        this._deckInteractionListener,
+        true
+      );
+    });
+  }
+
+  _handleDeckInteractionEvent(event) {
+    const target = event.composedPath().find((element) =>
+      element?.classList?.contains("deck-item-interaction") &&
+      element.getRootNode() === this.renderRoot
+    );
+
+    if (!target) return;
+
+    const entry = this._getDeckEntryFromEventTarget(target);
+
+    if (event.type === "pointerdown") {
+      this._handleDeckItemPointerDown(event, entry);
+    } else if (event.type === "click") {
+      this._handleDeckItemClick(event, entry);
+    } else if (event.type === "dblclick") {
+      this._handleDeckItemDoubleClick(event, entry);
+    } else if (event.type === "pointerup") {
+      this._finishLongPress(event);
+    } else if (event.type === "pointercancel") {
+      this._cancelLongPress();
+    } else if (event.type === "pointerleave" && event.target === target) {
+      this._cancelLongPress();
+    }
   }
 
   _handleDeckItemPointerDown(ev, entry) {
