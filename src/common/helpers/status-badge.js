@@ -105,9 +105,7 @@ export function shouldHideStatusBadgeEntity(hass, entityId, config = {}) {
   const entity = hass?.entities?.[entityId];
 
   return hideItems.some((item) => {
-    if (item.type === "hidden") {
-      return Boolean(entity?.hidden || entity?.hidden_by);
-    }
+    if (item.type === "hidden") return Boolean(entity?.hidden);
 
     return item.type === "label" &&
       Array.isArray(entity?.labels) &&
@@ -115,7 +113,7 @@ export function shouldHideStatusBadgeEntity(hass, entityId, config = {}) {
   });
 }
 
-export function normalizeStatusBadgeColors(config = {}) {
+export function normalizeStatusBadgeConfig(config = {}) {
   const stateSource = getStatusBadgeStateSource(config);
   const normalized = { ...config };
 
@@ -226,6 +224,17 @@ export function normalizeStatusBadgeColors(config = {}) {
   }
 
   return normalized;
+}
+
+export function formatDeviceClass(deviceClass = "") {
+  return deviceClass
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+export function getStatusBadgeEntityDeviceClass(stateObj, domain) {
+  return stateObj?.attributes?.device_class ||
+    (domain === "switch" ? "switch" : "");
 }
 
 export function getNativeEntityBadgeColor(stateObj, isActive = false) {

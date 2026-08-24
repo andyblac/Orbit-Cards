@@ -19,9 +19,10 @@ import { updateEditorDocumentationContext } from "../common/helpers/documentatio
 import { sharedSvgCache } from "../common/helpers/svg-cache.js";
 import { localize } from "../common/localize.js";
 import {
+  formatDeviceClass,
   getStatusBadgeHideItems,
   getStatusBadgeStateSource,
-  normalizeStatusBadgeColors,
+  normalizeStatusBadgeConfig,
   serializeStatusBadgeHideItems,
   STATUS_BADGE_DOMAINS,
 } from "../common/helpers/status-badge.js";
@@ -240,7 +241,7 @@ class OrbitStatusBadgeEditor extends LitElement {
   }
 
   setConfig(config) {
-    this._config = normalizeStatusBadgeColors(config || {});
+    this._config = normalizeStatusBadgeConfig(config || {});
   }
 
   _t(key, replacements) {
@@ -248,7 +249,7 @@ class OrbitStatusBadgeEditor extends LitElement {
   }
 
   _updateConfig(changes) {
-    this._config = normalizeStatusBadgeColors(
+    this._config = normalizeStatusBadgeConfig(
       mergeConfig(this._config, changes)
     );
     this._dispatchConfigChanged(this._config);
@@ -1225,10 +1226,4 @@ function createDeviceClassPickerState(domain, deviceClass) {
     state: "off",
     attributes: { device_class: deviceClass },
   };
-}
-
-function formatDeviceClass(deviceClass = "") {
-  return deviceClass
-    .replaceAll("_", " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }

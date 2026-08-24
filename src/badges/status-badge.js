@@ -17,7 +17,6 @@ import {
   getEntityActiveState,
 } from "../common/helpers/entities.js";
 import {
-  getEntityColor,
   getInlineSvg,
   getSvgColorOverride,
   isImageIcon,
@@ -31,11 +30,13 @@ import {
 } from "../common/helpers/long-press.js";
 import { getEntityAreaId } from "../common/helpers/suggestions.js";
 import {
+  formatDeviceClass,
   getNativeEntityBadgeColor,
   shouldHideStatusBadgeEntity,
   getStatusBadgeDomainConfig,
+  getStatusBadgeEntityDeviceClass,
   getStatusBadgeStateSource,
-  normalizeStatusBadgeColors,
+  normalizeStatusBadgeConfig,
   validateStatusBadgeConfig,
 } from "../common/helpers/status-badge.js";
 import { sharedSvgCache } from "../common/helpers/svg-cache.js";
@@ -47,6 +48,17 @@ import {
 } from "../common/helpers/templates.js";
 import { CARD_VERSIONS } from "../version.js";
 import { localize } from "../common/localize.js";
+import {
+  compareActiveEntityNames,
+  formatActiveEntityDuration,
+  getActiveEntitiesDialogWidth,
+  getActiveEntityControl,
+  getActiveEntityGroupControl,
+  getActiveEntityIconStyle,
+  getActiveEntityName,
+  getActiveEntityNameCollator,
+  getActiveEntityServiceName,
+} from "./helpers/active-entities.js";
 
 import "../editors/status-badge-editor.js";
 
@@ -78,7 +90,7 @@ class OrbitStatusBadge extends LitElement {
 
   setConfig(config) {
     validateStatusBadgeConfig(config || {});
-    this._config = normalizeStatusBadgeColors(config || {});
+    this._config = normalizeStatusBadgeConfig(config || {});
   }
 
   _t(key) {
@@ -153,7 +165,7 @@ class OrbitStatusBadge extends LitElement {
       stateObj.entity_id.startsWith(`${domain}.`) &&
       getEntityAreaId(this.hass, stateObj.entity_id) === areaId &&
       (!domainConfig.requiresDeviceClass ||
-        getActiveEntityDeviceClass(this.hass, stateObj, domain) ===
+        getStatusBadgeEntityDeviceClass(stateObj, domain) ===
           deviceClass) &&
       !shouldHideStatusBadgeEntity(
         this.hass,
@@ -494,14 +506,24 @@ class OrbitStatusBadge extends LitElement {
 
     const nameCollator = getActiveEntityNameCollator(this.hass);
     const controls = model.activeEntities
-      .map((stateObj) => ({
-        stateObj,
-        name: getActiveEntityName(this.hass, stateObj),
-        control: getActiveEntityControl(this.hass, stateObj),
-      }))
+      .map((stateObj) => {
+        const control = getActiveEntityControl(this.hass, stateObj);
+
+        return {
+          stateObj,
+          control,
+          name: getActiveEntityName(this.hass, stateObj),
+          serviceName: control
+            ? getActiveEntityServiceName(this.hass, control)
+            : "",
+        };
+      })
       .sort((a, b) => compareActiveEntityNames(nameCollator, a, b));
     const controllable = controls.filter((entry) => entry.control);
     const groupControl = getActiveEntityGroupControl(controllable);
+    const groupServiceName = groupControl
+      ? getActiveEntityServiceName(this.hass, groupControl)
+      : "";
     const dialogWidth = getActiveEntitiesDialogWidth(controls, groupControl);
     const dialogWidthStyle = [
       `--ha-dialog-width-sm: ${dialogWidth}px`,
@@ -535,7 +557,7 @@ class OrbitStatusBadge extends LitElement {
                 )}
               >
                 <ha-icon slot="start" .icon=${groupControl.icon}></ha-icon>
-                ${getActiveEntityServiceName(this.hass, groupControl)}
+                ${groupServiceName}
                 (${controllable.length})
               </ha-button>
             `
@@ -543,7 +565,7 @@ class OrbitStatusBadge extends LitElement {
 
         <div class="active-entities-dialog-content">
           ${controls.length
-            ? controls.map(({ stateObj, name, control }) => html`
+            ? controls.map(({ stateObj, name, control, serviceName }) => html`
                 <div
                   class="active-entity-row"
                 >
@@ -552,14 +574,8 @@ class OrbitStatusBadge extends LitElement {
                         <button
                           type="button"
                           class="active-entity-control-button"
-                          aria-label=${getActiveEntityServiceName(
-                            this.hass,
-                            control
-                          )}
-                          title=${getActiveEntityServiceName(
-                            this.hass,
-                            control
-                          )}
+                          aria-label=${serviceName}
+                          title=${serviceName}
                           @click=${(event) => {
                             event.stopPropagation();
                             this._callActiveEntityService(
@@ -943,191 +959,6 @@ function getStatusBadgeDefaultTapAction(config = {}) {
   if (stateSource === "area_count") return { action: "active-entities" };
 
   return { action: "none" };
-}
-
-function getActiveEntityControl(hass, stateObj) {
-  const domain = stateObj?.entity_id?.split(".")[0] || "";
-  const controls = {
-    light: {
-      service: "turn_off",
-      icon: "mdi:power",
-    },
-    switch: {
-      service: "turn_off",
-      icon: "mdi:power",
-    },
-    fan: {
-      service: "turn_off",
-      icon: "mdi:power",
-    },
-    cover: {
-      service: "close_cover",
-      icon: "mdi:window-shutter",
-    },
-    lock: {
-      service: "lock",
-      icon: "mdi:lock",
-    },
-    media_player: {
-      service: "turn_off",
-      icon: "mdi:power",
-    },
-    climate: {
-      service: "turn_off",
-      icon: "mdi:power",
-    },
-  };
-  const control = controls[domain];
-
-  if (!control) return null;
-  if (domain === "cover" && !(stateObj.attributes?.supported_features & 2)) {
-    return null;
-  }
-  if (domain === "lock" && !(stateObj.attributes?.supported_features & 1)) {
-    return null;
-  }
-  if (
-    hass?.services?.[domain] &&
-    !hass.services[domain][control.service]
-  ) {
-    return null;
-  }
-
-  return { domain, ...control };
-}
-
-function getActiveEntityGroupControl(controllable) {
-  if (controllable.length < 2) return null;
-
-  const firstControl = controllable[0].control;
-  return controllable.every(({ control }) =>
-    control.domain === firstControl.domain &&
-    control.service === firstControl.service
-  )
-    ? firstControl
-    : null;
-}
-
-function getActiveEntityName(hass, stateObj) {
-  const name = hass?.formatEntityName?.(stateObj) ||
-    stateObj?.attributes?.friendly_name ||
-    stateObj?.entity_id ||
-    "";
-  const areaId = getEntityAreaId(hass, stateObj?.entity_id);
-  const areaName = hass?.areas?.[areaId]?.name?.trim();
-
-  if (!areaName || name.length <= areaName.length) return name;
-
-  const areaPrefix = new RegExp(
-    `^${escapeRegExp(areaName)}(?:\\s*[-–—:|]\\s*|\\s+)`,
-    "i"
-  );
-
-  return name.replace(areaPrefix, "").trim() || name;
-}
-
-function getActiveEntityDeviceClass(hass, stateObj, domain) {
-  const registryEntry = hass?.entities?.[stateObj?.entity_id];
-
-  return registryEntry?.device_class ||
-    stateObj?.attributes?.device_class ||
-    registryEntry?.original_device_class ||
-    (domain === "switch" ? "switch" : "");
-}
-
-function getActiveEntityNameCollator(hass) {
-  const locale = hass?.locale?.language || hass?.language;
-
-  return new Intl.Collator(locale, {
-    numeric: true,
-    sensitivity: "base",
-  });
-}
-
-function compareActiveEntityNames(collator, a, b) {
-  return collator.compare(a.name, b.name) ||
-    a.stateObj.entity_id.localeCompare(b.stateObj.entity_id);
-}
-
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function getActiveEntitiesDialogWidth(controls, groupControl) {
-  const longestNameLength = controls.reduce(
-    (length, { name }) => Math.max(length, name.length),
-    0
-  );
-
-  const contentWidth = 132 + (longestNameLength * 8);
-  const headerWidth = groupControl ? 360 : 280;
-
-  return Math.min(520, Math.max(headerWidth, contentWidth));
-}
-
-function formatActiveEntityDuration(hass, stateObj, now = Date.now()) {
-  const changedAt = Date.parse(stateObj?.last_changed || "");
-
-  if (!Number.isFinite(changedAt)) return "";
-
-  const elapsed = Math.max(0, now - changedAt);
-  let unit;
-  let value;
-
-  if (elapsed >= 86_400_000) {
-    unit = "days";
-    value = Math.round(elapsed / 86_400_000);
-  } else if (elapsed >= 3_600_000) {
-    unit = "hours";
-    value = Math.round(elapsed / 3_600_000);
-  } else {
-    unit = "minutes";
-    value = Math.max(1, Math.round(elapsed / 60_000));
-  }
-
-  const locale = String(
-    hass?.locale?.language || hass?.language || "en"
-  ).replace("_", "-");
-
-  try {
-    const formatted = new Intl.DurationFormat(locale, {
-      style: "long",
-    }).format({ [unit]: value });
-
-    return locale.toLowerCase().startsWith("en")
-      ? formatted.replace(
-          /\b(days?|hours?|minutes?)\b/,
-          (word) => word[0].toUpperCase() + word.slice(1)
-        )
-      : formatted;
-  } catch (_err) {
-    const singular = unit.slice(0, -1);
-    const label = value === 1 ? singular : unit;
-
-    return `${value} ${label[0].toUpperCase()}${label.slice(1)}`;
-  }
-}
-
-function getActiveEntityServiceName(hass, control) {
-  return hass?.services?.[control.domain]?.[control.service]?.name;
-}
-
-function getActiveEntityIconColor(stateObj) {
-  return getEntityColor(stateObj) ||
-    getNativeEntityBadgeColor(stateObj, true);
-}
-
-function getActiveEntityIconStyle(stateObj) {
-  return [
-    `color:${getActiveEntityIconColor(stateObj)}`,
-    "--mdc-icon-size:36px",
-  ].join(";");
-}
-
-function formatDeviceClass(deviceClass = "") {
-  return deviceClass
-    .replaceAll("_", " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function replaceTemplateNameItem(value, templatedName) {
