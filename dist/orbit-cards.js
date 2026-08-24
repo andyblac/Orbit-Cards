@@ -13558,7 +13558,7 @@ var Mm, Nm, Pm, Fm = e((() => {
 			_activeEntitiesDurationNow: { state: !0 }
 		};
 		constructor() {
-			super(), this._activeEntitiesDurationNow = Date.now(), this._activeEntitiesDurationTimer = null;
+			super(), this._activeEntitiesDurationNow = Date.now(), this._activeEntitiesDurationTimer = null, this._areaEntityCache = null;
 		}
 		static getConfigElement() {
 			return document.createElement("orbit-status-badge-editor");
@@ -13567,7 +13567,7 @@ var Mm, Nm, Pm, Fm = e((() => {
 			return {};
 		}
 		setConfig(e) {
-			om(e || {}), this._config = um(e || {});
+			om(e || {}), this._config = um(e || {}), this._areaEntityCache = null;
 		}
 		_t(e) {
 			return Y(this.hass, e);
@@ -13580,6 +13580,14 @@ var Mm, Nm, Pm, Fm = e((() => {
 		}
 		updated(e) {
 			(e.has("hass") || e.has("_config")) && this._syncTemplateSubscriptions();
+		}
+		shouldUpdate(e) {
+			if (!e.has("hass") || e.has("_config") || [...e.keys()].some((e) => e !== "hass")) return !0;
+			let t = e.get("hass"), n = this.hass;
+			if (!t || !n) return !0;
+			if (t.entities !== n.entities || t.devices !== n.devices || t.areas !== n.areas) return this._areaEntityCache = null, !0;
+			let r = $(this._config);
+			return r === "template" ? !0 : (r === "area_count" ? this._getAreaEntityIds() : [this._config?.entity].filter(Boolean)).some((e) => t.states?.[e] !== n.states?.[e]);
 		}
 		_syncTemplateSubscriptions() {
 			let e = $(this._config), t = this._config?.state_template?.trim() || "", n = this._config?.active_template?.trim() || "", r = this._config?.inactive_template?.trim() || "", i = this._config?.name_template?.trim() || "", a = this._config?.display_style === "badge", o = (e === "template" ? a ? [n, r] : [
@@ -13599,7 +13607,20 @@ var Mm, Nm, Pm, Fm = e((() => {
 				return e ? [e] : [];
 			}
 			let e = this._config?.domain || "", t = this._config?.area, n = this._config?.device_class || "", r = am(e);
-			return !this.hass || !t || !e || r.requiresDeviceClass && !n ? [] : Object.values(this.hass.states || {}).filter((i) => i.entity_id.startsWith(`${e}.`) && tr(this.hass, i.entity_id) === t && (!r.requiresDeviceClass || fm(i, e) === n) && !lm(this.hass, i.entity_id, this._config));
+			return !this.hass || !t || !e || r.requiresDeviceClass && !n ? [] : this._getAreaEntityIds().map((e) => this.hass.states?.[e]).filter((t) => t && (!r.requiresDeviceClass || fm(t, e) === n) && !lm(this.hass, t.entity_id, this._config));
+		}
+		_getAreaEntityIds() {
+			let e = this.hass, t = this._config?.area || "", n = this._config?.domain || "", r = e?.entities || {}, i = e?.devices || {}, a = this._areaEntityCache;
+			if (!e || !t || !n) return [];
+			if (a?.areaId === t && a?.domain === n && a?.entities === r && a?.devices === i) return a.entityIds;
+			let o = `${n}.`, s = Object.keys(r).filter((n) => n.startsWith(o) && tr(e, n) === t);
+			return this._areaEntityCache = {
+				areaId: t,
+				domain: n,
+				entities: r,
+				devices: i,
+				entityIds: s
+			}, s;
 		}
 		_getModel() {
 			let e = $(this._config), t = this._getEntities(), r = t.filter((e) => rn(e)), i = e === "template" ? zt.call(this, this._config?.state_template, "") ?? "unavailable" : "", a = this._config?.active_template?.trim() || "", o = e === "template" && a ? zt.call(this, a, "") : null, s = this._config?.inactive_template?.trim() || "", c = e === "template" && s ? zt.call(this, s, "") : null, l = !!s && Vt(c), u = e === "template" ? Vt(o ?? i) : r.length > 0, d = this._config?.display_style === "badge" && !this._config?.card_visibility ? !0 : u, f = t[0], p = f?.entity_id.split(".")[0] || this._config?.domain || "", m = am(p), h = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), g = this._config?.icon || "", ee = d ? this._config?.icon_on || g : this._config?.icon_off || g, _ = h === "custom" && ee || m.icon, v = d ? this._config?.accent_on_color ?? this._config?.color : this._config?.accent_off_color, te = !!(v && ![

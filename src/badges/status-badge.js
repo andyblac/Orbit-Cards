@@ -78,6 +78,7 @@ class OrbitStatusBadge extends LitElement {
     super();
     this._activeEntitiesDurationNow = Date.now();
     this._activeEntitiesDurationTimer = null;
+    this._areaEntityCache = null;
   }
 
   static getConfigElement() {
@@ -91,6 +92,7 @@ class OrbitStatusBadge extends LitElement {
   setConfig(config) {
     validateStatusBadgeConfig(config || {});
     this._config = normalizeStatusBadgeConfig(config || {});
+    this._areaEntityCache = null;
   }
 
   _t(key) {
@@ -116,6 +118,40 @@ class OrbitStatusBadge extends LitElement {
     if (changedProperties.has("hass") || changedProperties.has("_config")) {
       this._syncTemplateSubscriptions();
     }
+  }
+
+  shouldUpdate(changedProperties) {
+    if (!changedProperties.has("hass")) return true;
+    if (changedProperties.has("_config")) return true;
+    if ([...changedProperties.keys()].some((key) => key !== "hass")) {
+      return true;
+    }
+
+    const oldHass = changedProperties.get("hass");
+    const newHass = this.hass;
+
+    if (!oldHass || !newHass) return true;
+
+    if (
+      oldHass.entities !== newHass.entities ||
+      oldHass.devices !== newHass.devices ||
+      oldHass.areas !== newHass.areas
+    ) {
+      this._areaEntityCache = null;
+      return true;
+    }
+
+    const stateSource = getStatusBadgeStateSource(this._config);
+
+    if (stateSource === "template") return true;
+
+    const entityIds = stateSource === "area_count"
+      ? this._getAreaEntityIds()
+      : [this._config?.entity].filter(Boolean);
+
+    return entityIds.some((entityId) =>
+      oldHass.states?.[entityId] !== newHass.states?.[entityId]
+    );
   }
 
   _syncTemplateSubscriptions() {
@@ -161,9 +197,10 @@ class OrbitStatusBadge extends LitElement {
     if (!this.hass || !areaId || !domain) return [];
     if (domainConfig.requiresDeviceClass && !deviceClass) return [];
 
-    return Object.values(this.hass.states || {}).filter((stateObj) =>
-      stateObj.entity_id.startsWith(`${domain}.`) &&
-      getEntityAreaId(this.hass, stateObj.entity_id) === areaId &&
+    return this._getAreaEntityIds().map((entityId) =>
+      this.hass.states?.[entityId]
+    ).filter((stateObj) =>
+      stateObj &&
       (!domainConfig.requiresDeviceClass ||
         getStatusBadgeEntityDeviceClass(stateObj, domain) ===
           deviceClass) &&
@@ -173,6 +210,42 @@ class OrbitStatusBadge extends LitElement {
         this._config
       )
     );
+  }
+
+  _getAreaEntityIds() {
+    const hass = this.hass;
+    const areaId = this._config?.area || "";
+    const domain = this._config?.domain || "";
+    const entities = hass?.entities || {};
+    const devices = hass?.devices || {};
+    const cache = this._areaEntityCache;
+
+    if (!hass || !areaId || !domain) return [];
+
+    if (
+      cache?.areaId === areaId &&
+      cache?.domain === domain &&
+      cache?.entities === entities &&
+      cache?.devices === devices
+    ) {
+      return cache.entityIds;
+    }
+
+    const domainPrefix = `${domain}.`;
+    const entityIds = Object.keys(entities).filter((entityId) =>
+      entityId.startsWith(domainPrefix) &&
+      getEntityAreaId(hass, entityId) === areaId
+    );
+
+    this._areaEntityCache = {
+      areaId,
+      domain,
+      entities,
+      devices,
+      entityIds,
+    };
+
+    return entityIds;
   }
 
   _getModel() {
