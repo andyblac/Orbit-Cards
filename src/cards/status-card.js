@@ -9,7 +9,6 @@ import {
   handleAction,
   handleDoubleTapAction,
   handleTapAction,
-  isActionEnabled,
   isAddCardPickerPreview,
   navigate,
 } from "../common/helpers/actions.js";
@@ -63,6 +62,20 @@ import {
   getIconOnlyStatusItems,
   updateStatusCard,
 } from "./status/helpers/lifecycle.js";
+import {
+  getCardDoubleTapAction,
+  getCardHoldAction,
+  getCardTapAction,
+  getMainEntityDoubleTapAction,
+  getMainEntityHoldAction,
+  getMainEntityTapAction,
+  getStatusItemCardDoubleTapAction,
+  getStatusItemCardHoldAction,
+  getStatusItemCardTapAction,
+  getStatusItemMainEntityDoubleTapAction,
+  getStatusItemMainEntityHoldAction,
+  getStatusItemMainEntityTapAction,
+} from "./status/helpers/action-config.js";
 import { renderStatusCard } from "./status/renders/status-card.js";
 import { statusCardStyles } from "./status/styles/status-card-styles.js";
 
@@ -699,153 +712,51 @@ class OrbitStatusCard extends LitElement {
   }
 
   _getCardHoldAction() {
-    return isActionEnabled(this._config.hold_action)
-      ? this._config.hold_action
-      : null;
+    return getCardHoldAction.call(this);
   }
 
   _getCardDoubleTapAction() {
-    return isActionEnabled(this._config.double_tap_action)
-      ? this._config.double_tap_action
-      : null;
+    return getCardDoubleTapAction.call(this);
   }
 
   _getMainEntityHoldAction() {
-    return isActionEnabled(this._config.main_entity_hold_action)
-      ? this._config.main_entity_hold_action
-      : null;
+    return getMainEntityHoldAction.call(this);
   }
 
   _getMainEntityTapAction() {
-    const actionConfig = this._config.main_entity_tap_action;
-
-    if (actionConfig?.action === "none") return null;
-    if (actionConfig?.action) return actionConfig;
-
-    return this._isIconOnlyMode() || this._isPersonMode()
-      ? null
-      : {
-          action: "more-info",
-        };
+    return getMainEntityTapAction.call(this);
   }
 
   _getMainEntityDoubleTapAction() {
-    return isActionEnabled(this._config.main_entity_double_tap_action)
-      ? this._config.main_entity_double_tap_action
-      : null;
+    return getMainEntityDoubleTapAction.call(this);
   }
 
   _getCardTapAction() {
-    const defaultAction = {
-      action: this._isIconOnlyMode() || this._isPersonMode()
-        ? "more-info"
-        : "navigate",
-      navigation_path:
-        this._navigationPath ||
-        "/lovelace/home",
-    };
-
-    const actionConfig = this._config.tap_action;
-
-    if (!actionConfig?.action) return defaultAction;
-
-    return actionConfig;
+    return getCardTapAction.call(this);
   }
 
   _getStatusItemCardTapAction(index = 0) {
-    const item = this._statusItems?.[index];
-
-    if (item?.tap_action?.action) {
-      return item.tap_action;
-    }
-
-    if (this._config.tap_action?.action) {
-      return this._config.tap_action;
-    }
-
-    return {
-      action: "more-info",
-    };
+    return getStatusItemCardTapAction.call(this, index);
   }
 
   _getStatusItemCardHoldAction(index = 0) {
-    const item = this._statusItems?.[index];
-
-    if (isActionEnabled(item?.hold_action)) {
-      return item.hold_action;
-    }
-
-    if (isActionEnabled(this._config.hold_action)) {
-      return this._config.hold_action;
-    }
-
-    return null;
+    return getStatusItemCardHoldAction.call(this, index);
   }
 
   _getStatusItemCardDoubleTapAction(index = 0) {
-    const item = this._statusItems?.[index];
-
-    if (isActionEnabled(item?.double_tap_action)) {
-      return item.double_tap_action;
-    }
-
-    if (isActionEnabled(this._config.double_tap_action)) {
-      return this._config.double_tap_action;
-    }
-
-    return null;
+    return getStatusItemCardDoubleTapAction.call(this, index);
   }
 
   _getStatusItemMainEntityTapAction(index = 0) {
-    const item = this._statusItems?.[index];
-
-    if (
-      item?.main_entity_tap_action?.action &&
-      item.main_entity_tap_action.action !== "none"
-    ) {
-      return item.main_entity_tap_action;
-    }
-
-    if (
-      this._config.main_entity_tap_action?.action &&
-      this._config.main_entity_tap_action.action !== "none"
-    ) {
-      return this._config.main_entity_tap_action;
-    }
-
-    return this._getStatusItemCardTapAction(index);
+    return getStatusItemMainEntityTapAction.call(this, index);
   }
 
   _getStatusItemMainEntityDoubleTapAction(index = 0) {
-    const item = this._statusItems?.[index];
-
-    if (isActionEnabled(item?.main_entity_double_tap_action)) {
-      return item.main_entity_double_tap_action;
-    }
-
-    if (isActionEnabled(this._config.main_entity_double_tap_action)) {
-      return this._config.main_entity_double_tap_action;
-    }
-
-    return null;
+    return getStatusItemMainEntityDoubleTapAction.call(this, index);
   }
 
   _getStatusItemMainEntityHoldAction(index = 0) {
-    const item = this._statusItems?.[index];
-
-    if (item?.main_entity_hold_action?.action) {
-      return item.main_entity_hold_action.action === "none"
-        ? null
-        : item.main_entity_hold_action;
-    }
-
-    if (this._config.main_entity_hold_action?.action) {
-      return this._config.main_entity_hold_action.action === "none"
-        ? null
-        : this._config.main_entity_hold_action;
-    }
-
-    return null;
+    return getStatusItemMainEntityHoldAction.call(this, index);
   }
 
   _isIconOnlyMode() {
