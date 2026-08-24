@@ -270,10 +270,9 @@ function getAreaButtonModel(prefix, entityId, index, options) {
     entityId
   );
 
-  const isOn =
-    evaluatedState === null || evaluatedState === undefined
-      ? this._getEntityActiveState(stateObj)
-      : getTemplateResultActiveState(evaluatedState);
+  const isOn = stateTemplate
+    ? getTemplateResultActiveState(evaluatedState)
+    : this._getEntityActiveState(stateObj);
 
   const iconSource = getButtonIconSource.call(
     this,
