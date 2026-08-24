@@ -218,7 +218,8 @@ export function renderColorControl(
                   label,
                   value,
                   onUpdate,
-                  effectivePreviewValue
+                  effectivePreviewValue,
+                  pickerKey
                 )}
               `
             : html`
@@ -329,13 +330,29 @@ function renderNativeColorPicker(label, value, onUpdate, previewValue = value) {
   `;
 }
 
-function renderThemeColorPicker(label, value, onUpdate, previewValue = value) {
+function renderThemeColorPicker(
+  label,
+  value,
+  onUpdate,
+  previewValue = value,
+  pickerKey = ""
+) {
   const displayValue = value || previewValue;
   const selectedValue =
     getDefaultColorTab(displayValue) === "theme"
       ? normalizeThemeColorValue(displayValue) || "theme"
       : "";
-  const items = getCachedThemeColorItems.call(this);
+  const cachedItems = getCachedThemeColorItems.call(this);
+  const items = getThemeColorItemsWithValue.call(
+    this,
+    cachedItems,
+    selectedValue
+  );
+  const getItems = getThemeColorItemsGetter.call(
+    this,
+    pickerKey,
+    items
+  );
 
   return html`
     <div
@@ -343,9 +360,9 @@ function renderThemeColorPicker(label, value, onUpdate, previewValue = value) {
       @click=${(e) => e.stopPropagation()}
     >
       <ha-generic-picker
+        .getItems=${getItems}
         .label=${label ? t(this, label) : ""}
         .value=${selectedValue}
-        .getItems=${() => items}
         .rowRenderer=${(item) =>
           renderThemeColorPickerRow.call(this, item)}
         .valueRenderer=${(itemValue) =>
@@ -363,6 +380,41 @@ function renderThemeColorPicker(label, value, onUpdate, previewValue = value) {
       ></ha-generic-picker>
     </div>
   `;
+}
+
+function getThemeColorItemsWithValue(items, selectedValue) {
+  if (
+    !selectedValue ||
+    items.some((item) => item.id === selectedValue)
+  ) {
+    return items;
+  }
+
+  return [
+    ...items,
+    createThemeColorItem.call(this, {
+      id: selectedValue,
+      source: "theme",
+    }),
+  ];
+}
+
+function getThemeColorItemsGetter(pickerKey, items) {
+  this._themeColorItemGetters ||= new Map();
+
+  let entry = this._themeColorItemGetters.get(pickerKey);
+
+  if (!entry) {
+    entry = {
+      items,
+      getItems: () => entry.items,
+    };
+    this._themeColorItemGetters.set(pickerKey, entry);
+  } else {
+    entry.items = items;
+  }
+
+  return entry.getItems;
 }
 
 function renderThemeColorPickerRow(item) {
