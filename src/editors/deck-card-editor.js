@@ -36,6 +36,12 @@ import {
   getDeckChildTypeName,
   isVisibleDeckActionDefault,
 } from "./deck/item-helpers.js";
+import {
+  renderBadgePicker,
+  renderCardPicker,
+  renderChildPicker,
+  renderChildTypeTabs,
+} from "./deck/sections/child-picker.js";
 import { renderDeckStyleControls } from "./deck/sections/style.js";
 import { deckCardEditorStyles } from "./deck/styles.js";
 
@@ -558,135 +564,19 @@ class OrbitDeckCardEditor extends LitElement {
   }
 
   _renderChildTypeTabs() {
-    const selectedType = this._childPickerType;
-
-    return html`
-      <div class="editor-tabs deck-child-type-tabs" role="tablist">
-        ${[
-          ["badge", "Badges"],
-          ["card", "Cards"],
-        ].map(([type, label]) => html`
-          <button
-            type="button"
-            class="editor-tab ${selectedType === type ? "active" : ""}"
-            role="tab"
-            aria-selected=${selectedType === type ? "true" : "false"}
-            @click=${() => {
-              this._childPickerType = type;
-            }}
-          >
-            ${this._t(label)}
-          </button>
-        `)}
-      </div>
-    `;
+    return renderChildTypeTabs.call(this);
   }
 
   _renderChildPicker(index, item) {
-    return this._childPickerType === "badge"
-      ? this._renderBadgePicker(index, item)
-      : this._renderCardPicker(index, item);
+    return renderChildPicker.call(this, index, item);
   }
 
   _renderBadgePicker(index, item) {
-    if (item?.badge?.type) {
-      if (!customElements.get("hui-badge-element-editor")) {
-        this._ensureNativeBadgeEditor();
-        return html`
-          <div class="deck-card-picker-loading">
-            <ha-spinner></ha-spinner>
-          </div>
-        `;
-      }
-
-      return html`
-        <hui-badge-element-editor
-          .hass=${this.hass}
-          .lovelace=${this.lovelace}
-          .value=${item.badge}
-          @config-changed=${(ev) => {
-            ev.stopPropagation();
-            this._updateDeckBadge(index, ev.detail.config);
-          }}
-        ></hui-badge-element-editor>
-      `;
-    }
-
-    if (!this.hass || !this.lovelace) {
-      return html``;
-    }
-
-    if (!customElements.get("hui-badge-picker")) {
-      this._ensureNativeBadgePicker();
-      return html`
-        <div class="deck-card-picker-loading">
-          <ha-spinner></ha-spinner>
-        </div>
-      `;
-    }
-
-    return html`
-      <hui-badge-picker
-        .hass=${this.hass}
-        .lovelace=${this.lovelace}
-        .badgePicked=${(badge) => this._updateDeckBadge(index, badge)}
-        @config-changed=${(ev) => {
-          ev.stopPropagation();
-          this._updateDeckBadge(index, ev.detail.config);
-        }}
-      ></hui-badge-picker>
-    `;
+    return renderBadgePicker.call(this, index, item);
   }
 
   _renderCardPicker(index, item) {
-    if (item?.card?.type) {
-      return html`
-        <hui-card-element-editor
-          .hass=${this.hass}
-          .lovelace=${this.lovelace}
-          .value=${item.card}
-          .showVisibilityTab=${["wrap", "tabs"].includes(
-            this._config?.layout || "wrap"
-          )}
-          @config-changed=${(ev) => {
-            ev.stopPropagation();
-            this._updateDeckCard(index, ev.detail.config);
-          }}
-        ></hui-card-element-editor>
-      `;
-    }
-
-    if (!this.hass || !this.lovelace) {
-      return html``;
-    }
-
-    if (!customElements.get("hui-card-picker")) {
-      this._ensureNativeCardPicker();
-      return html`
-        <hui-card-element-editor
-          class="native-picker-preloader"
-          .hass=${this.hass}
-          .lovelace=${this.lovelace}
-          .value=${{ type: "vertical-stack", cards: [] }}
-          @config-changed=${(ev) => ev.stopPropagation()}
-        ></hui-card-element-editor>
-        <div class="deck-card-picker-loading">
-          <ha-spinner></ha-spinner>
-        </div>
-      `;
-    }
-
-    return html`
-      <hui-card-picker
-        .hass=${this.hass}
-        .lovelace=${this.lovelace}
-        .cardPicked=${(card) => this._updateDeckCard(index, card)}
-        @config-changed=${(ev) => {
-          ev.stopPropagation();
-          this._updateDeckCard(index, ev.detail.config);
-        }}
-      ></hui-card-picker>
-    `;
+    return renderCardPicker.call(this, index, item);
   }
 
   _renderDeckStyleControls(index, item) {
