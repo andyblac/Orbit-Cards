@@ -10963,8 +10963,167 @@ function Zl(e) {
 	return typeof e == "string" ? e : e?.action || "none";
 }
 //#endregion
-//#region src/editors/deck-card-editor.js
-var Ql = Symbol.for("orbit-deck-card-dev-preview-selected-index"), $l = class extends O {
+//#region src/editors/deck/styles.js
+var Ql = [
+	ss,
+	$c,
+	d`
+    .deck-subtabs-row {
+      display: flex;
+      align-items: end;
+      gap: 12px;
+      border-bottom: 1px solid var(--orbit-editor-border);
+      margin-bottom: 12px;
+    }
+
+    .deck-subtabs {
+      flex: 1 1 auto;
+      border-bottom: none;
+    }
+
+    .deck-layout-toggle {
+      display: flex;
+      justify-content: flex-end;
+      margin-left: auto;
+      width: auto;
+      min-width: 270px;
+      margin-bottom: 6px;
+    }
+
+    .deck-tab-width-toggle {
+      width: auto;
+      min-width: 260px;
+    }
+
+    .deck-overlay-fit-toggle {
+      width: min(360px, 100%);
+      min-width: 0;
+    }
+
+    .field-grid.two-columns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .field-grid.four-columns {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .deck-tab-colors {
+      margin-top: 12px;
+    }
+
+    .deck-tab-divider-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 36px;
+      margin-top: 4px;
+      font-size: var(--ha-font-size-m, 14px);
+      font-weight: var(--ha-font-weight-normal, 400);
+      line-height: var(--ha-line-height-normal, 20px);
+    }
+
+    .deck-card-tab-section {
+      gap: 4px;
+    }
+
+    .deck-style-section {
+      margin-top: 4px;
+    }
+
+    .deck-style-content {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-bottom: 0;
+    }
+
+    .deck-style-content .field-grid.two-columns {
+      margin-bottom: 0;
+    }
+
+    .deck-force-padding-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 36px;
+      margin: 0;
+      font-size: var(--ha-font-size-m, 14px);
+      font-weight: var(--ha-font-weight-normal, 400);
+      line-height: var(--ha-line-height-normal, 20px);
+    }
+
+    .deck-padding-grid {
+      margin-top: -4px;
+      margin-bottom: -26px;
+    }
+
+    .deck-interactions-section .interactions-form {
+      margin-top: 0;
+    }
+
+    .deck-default-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 6px 0 16px;
+    }
+
+    .deck-card-editor-frame {
+      min-height: 160px;
+    }
+
+    .deck-child-type-tabs {
+      margin: -4px 0 12px;
+    }
+
+    hui-badge-picker {
+      display: block;
+      min-height: 320px;
+    }
+
+    .deck-card-section {
+      display: block;
+      margin: 0;
+      --expansion-panel-content-padding: 0;
+      border-radius: var(--ha-border-radius-md);
+      --ha-card-border-radius: var(--ha-border-radius-md);
+    }
+
+    .deck-card-section-content {
+      padding: 12px;
+    }
+
+    .deck-card-section ha-icon {
+      color: var(--secondary-text-color);
+    }
+
+    .deck-card-picker-loading {
+      width: 100%;
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .native-picker-preloader {
+      display: none;
+    }
+
+    .deck-empty-editor {
+      color: var(--secondary-text-color);
+      padding: 24px 0;
+    }
+  `
+], $l = Symbol.for("orbit-deck-card-dev-preview-selected-index"), eu = class extends O {
 	static properties = {
 		hass: { attribute: !1 },
 		lovelace: { attribute: !1 },
@@ -11017,7 +11176,7 @@ var Ql = Symbol.for("orbit-deck-card-dev-preview-selected-index"), $l = class ex
 	_getPreviewConfig() {
 		return {
 			...this._config,
-			[Ql]: this._selectedDeckIndex || 0
+			[$l]: this._selectedDeckIndex || 0
 		};
 	}
 	_getDeckItems(e = this._config) {
@@ -11031,7 +11190,7 @@ var Ql = Symbol.for("orbit-deck-card-dev-preview-selected-index"), $l = class ex
 		this.dispatchEvent(new CustomEvent("config-changed", {
 			detail: { config: {
 				...this._getPreviewConfig(),
-				[Ql]: e
+				[$l]: e
 			} },
 			bubbles: !0,
 			composed: !0
@@ -11717,178 +11876,19 @@ var Ql = Symbol.for("orbit-deck-card-dev-preview-selected-index"), $l = class ex
       </div>
     `;
 	}
-	static styles = [
-		ss,
-		$c,
-		d`
-      .deck-subtabs-row {
-        display: flex;
-        align-items: end;
-        gap: 12px;
-        border-bottom: 1px solid var(--orbit-editor-border);
-        margin-bottom: 12px;
-      }
-
-      .deck-subtabs {
-        flex: 1 1 auto;
-        border-bottom: none;
-      }
-
-      .deck-layout-toggle {
-        display: flex;
-        justify-content: flex-end;
-        margin-left: auto;
-        width: auto;
-        min-width: 270px;
-        margin-bottom: 6px;
-      }
-
-      .deck-tab-width-toggle {
-        width: auto;
-        min-width: 260px;
-      }
-
-      .deck-overlay-fit-toggle {
-        width: min(360px, 100%);
-        min-width: 0;
-      }
-
-      .field-grid.two-columns {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-        margin-bottom: 12px;
-      }
-
-      .field-grid.four-columns {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 8px;
-      }
-
-      .deck-tab-colors {
-        margin-top: 12px;
-      }
-
-      .deck-tab-divider-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        min-height: 36px;
-        margin-top: 4px;
-        font-size: var(--ha-font-size-m, 14px);
-        font-weight: var(--ha-font-weight-normal, 400);
-        line-height: var(--ha-line-height-normal, 20px);
-      }
-
-      .deck-card-tab-section {
-        gap: 4px;
-      }
-
-      .deck-style-section {
-        margin-top: 4px;
-      }
-
-      .deck-style-content {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        padding-bottom: 0;
-      }
-
-      .deck-style-content .field-grid.two-columns {
-        margin-bottom: 0;
-      }
-
-      .deck-force-padding-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        min-height: 36px;
-        margin: 0;
-        font-size: var(--ha-font-size-m, 14px);
-        font-weight: var(--ha-font-weight-normal, 400);
-        line-height: var(--ha-line-height-normal, 20px);
-      }
-
-      .deck-padding-grid {
-        margin-top: -4px;
-        margin-bottom: -26px;
-      }
-
-      .deck-interactions-section .interactions-form {
-        margin-top: 0;
-      }
-
-      .deck-default-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        margin: 6px 0 16px;
-      }
-
-      .deck-card-editor-frame {
-        min-height: 160px;
-      }
-
-      .deck-child-type-tabs {
-        margin: -4px 0 12px;
-      }
-
-      hui-badge-picker {
-        display: block;
-        min-height: 320px;
-      }
-
-      .deck-card-section {
-        display: block;
-        margin: 0;
-        --expansion-panel-content-padding: 0;
-        border-radius: var(--ha-border-radius-md);
-        --ha-card-border-radius: var(--ha-border-radius-md);
-      }
-
-      .deck-card-section-content {
-        padding: 12px;
-      }
-
-      .deck-card-section ha-icon {
-        color: var(--secondary-text-color);
-      }
-
-      .deck-card-picker-loading {
-        width: 100%;
-        min-height: 56px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .native-picker-preloader {
-        display: none;
-      }
-
-      .deck-empty-editor {
-        color: var(--secondary-text-color);
-        padding: 24px 0;
-      }
-    `
-	];
+	static styles = Ql;
 };
-customElements.define("orbit-deck-card-dev-editor", $l);
+customElements.define("orbit-deck-card-dev-editor", eu);
 //#endregion
 //#region src/cards/deck-card.js
-var eu = [
+var tu = [
 	"pointerdown",
 	"click",
 	"dblclick",
 	"pointerup",
 	"pointerleave",
 	"pointercancel"
-], tu = class extends O {
+], nu = class extends O {
 	static get properties() {
 		return {
 			hass: {},
@@ -11932,7 +11932,7 @@ var eu = [
 			layout: t
 		};
 		let n = bl(this._config), r = Ol(n), i = Dl(n);
-		Number.isInteger(e?.[Ql]) ? this._selectedIndex = Math.min(Math.max(0, e[Ql]), Math.max(0, n.length - 1)) : r === this._defaultSelectionKey ? this._selectedIndex = Math.min(this._selectedIndex || 0, Math.max(0, n.length - 1)) : (this._selectedIndex = i, this._defaultSelectionKey = r), this._scheduleCardBuild();
+		Number.isInteger(e?.[$l]) ? this._selectedIndex = Math.min(Math.max(0, e[$l]), Math.max(0, n.length - 1)) : r === this._defaultSelectionKey ? this._selectedIndex = Math.min(this._selectedIndex || 0, Math.max(0, n.length - 1)) : (this._selectedIndex = i, this._defaultSelectionKey = r), this._scheduleCardBuild();
 	}
 	updated(e) {
 		(e.has("hass") || e.has("preview")) && this._deckCards.forEach((t) => {
@@ -11990,7 +11990,7 @@ var eu = [
 	async _scheduleCardBuild() {
 		let e = bl(this._config), t = JSON.stringify(e.map((e, t) => ({
 			kind: wl(e),
-			config: Cl(e, iu(this._config, e, t))
+			config: Cl(e, au(this._config, e, t))
 		})));
 		if (t === this._cardBuildKey) {
 			this._deckCards = this._deckCards.map((t, n) => ({
@@ -12004,7 +12004,7 @@ var eu = [
 			item: e,
 			index: t
 		}));
-		let n = await this._loadCardHelpers(), r = e.map((e, t) => this._createDeckEntry(e, n, t, iu(this._config, e, t)));
+		let n = await this._loadCardHelpers(), r = e.map((e, t) => this._createDeckEntry(e, n, t, au(this._config, e, t)));
 		t === this._cardBuildKey && (this._deckCards = r);
 	}
 	async _loadCardHelpers() {
@@ -12053,8 +12053,8 @@ var eu = [
 	_disconnectDeckEntryObservers(e = this._deckCards) {
 		this._deckEntryGeneration += 1, e.forEach((e) => {
 			let t = e?.element;
-			t && new Set([t, ...uu(t)]).forEach((e) => {
-				lu(e), gu(e);
+			t && new Set([t, ...du(t)]).forEach((e) => {
+				uu(e), _u(e);
 			});
 		});
 	}
@@ -12090,12 +12090,12 @@ var eu = [
 		return Number.isInteger(t) && this._deckCards[t] || null;
 	}
 	_bindDeckItemActionListeners() {
-		eu.forEach((e) => {
+		tu.forEach((e) => {
 			this.renderRoot.addEventListener(e, this._deckInteractionListener, !0);
 		});
 	}
 	_unbindDeckItemActionListeners() {
-		eu.forEach((e) => {
+		tu.forEach((e) => {
 			this.renderRoot.removeEventListener(e, this._deckInteractionListener, !0);
 		});
 	}
@@ -12124,7 +12124,7 @@ var eu = [
 		k(n) && M.call(this, e, Sl(t.item), n);
 	}
 	_renderInteractiveDeckEntry(e) {
-		let t = xl(e?.item), n = iu(this._config, e?.item, e?.index);
+		let t = xl(e?.item), n = au(this._config, e?.item, e?.index);
 		return C`
       <div
         class="deck-item-interaction ${t ? "has-actions" : ""} ${n ? "transparent-background" : ""}"
@@ -12143,7 +12143,7 @@ var eu = [
     `;
 	}
 	_applyDeckPaddingToEntries() {
-		let e = this._deckCards.map((e) => iu(this._config, e.item, e.index) ? "flat" : "native").join(":"), t = `${nu(this._deckCards)}|surface:${e}`;
+		let e = this._deckCards.map((e) => au(this._config, e.item, e.index) ? "flat" : "native").join(":"), t = `${ru(this._deckCards)}|surface:${e}`;
 		t !== this._paddingApplyKey && (this._paddingApplyKey = t, this._deckCards.forEach((e) => this._applyDeckCardPadding(e)));
 	}
 	_applyDeckCardPadding(e, t = 0) {
@@ -12152,15 +12152,15 @@ var eu = [
 		let r = this._deckEntryGeneration, i = pl(e.item), a = gl(e.item);
 		(n.updateComplete instanceof Promise ? n.updateComplete : Promise.resolve()).then(() => new Promise((e) => requestAnimationFrame(e))).then(() => {
 			if (!this._isDeckEntryActive(e, r)) return;
-			let o = uu(n), s = o[0] || null, c = ru(this.renderRoot, e.index), l = iu(this._config, e.item, e.index);
+			let o = du(n), s = o[0] || null, c = iu(this.renderRoot, e.index), l = au(this._config, e.item, e.index);
 			if (!(!s && !c)) {
-				if ((a || l) && !s && t < 10 && window.setTimeout(() => this._applyDeckCardPadding(e, t + 1), 50), ou(n, l), o.forEach((e) => ou(e, l)), !a && !s?._orbitDeckPaddingApplied && !c?._orbitDeckPaddingApplied) {
-					s && gu(s);
+				if ((a || l) && !s && t < 10 && window.setTimeout(() => this._applyDeckCardPadding(e, t + 1), 50), su(n, l), o.forEach((e) => su(e, l)), !a && !s?._orbitDeckPaddingApplied && !c?._orbitDeckPaddingApplied) {
+					s && _u(s);
 					return;
 				}
-				c && fu(c, i, !1), s && fu(s, i, a), a && s ? (hu(s, i), requestAnimationFrame(() => {
-					this._isDeckEntryActive(e, r) && (c && fu(c, i, !1), fu(s, i, !0));
-				})) : s && gu(s);
+				c && pu(c, i, !1), s && pu(s, i, a), a && s ? (gu(s, i), requestAnimationFrame(() => {
+					this._isDeckEntryActive(e, r) && (c && pu(c, i, !1), pu(s, i, !0));
+				})) : s && _u(s);
 			}
 		}).catch(() => {});
 	}
@@ -12260,7 +12260,7 @@ var eu = [
 	}
 	static styles = zl;
 };
-function nu(e = []) {
+function ru(e = []) {
 	return e.map((e) => {
 		if (!e?.element) return `${e?.index ?? ""}:none`;
 		let t = pl(e.item), n = hl(e.item), r = gl(e.item);
@@ -12276,14 +12276,14 @@ function nu(e = []) {
 		].join(":");
 	}).join("|");
 }
-function ru(e, t) {
+function iu(e, t) {
 	return e?.querySelector?.(`.deck-item-interaction[data-deck-index="${t}"]`);
 }
-function iu(e = {}, t = {}, n = 0) {
+function au(e = {}, t = {}, n = 0) {
 	let r = t?.attributes?.transparent_background;
 	return e?.layout === "wrap" ? typeof r == "boolean" ? r : !e?.separate_cards : e?.layout === "overlay" ? n > 0 && r === !0 : e?.layout === "tabs" && r !== !1;
 }
-var au = {
+var ou = {
 	"--ha-card-background": "transparent",
 	"--card-background-color": "transparent",
 	"--ha-card-box-shadow": "none",
@@ -12295,80 +12295,80 @@ var au = {
 	"border-color": "transparent",
 	"box-shadow": "none"
 };
-function ou(e, t) {
+function su(e, t) {
 	if (t) {
-		e._orbitDeckSurfaceStyles ||= Object.fromEntries(Object.keys(au).map((t) => [t, {
+		e._orbitDeckSurfaceStyles ||= Object.fromEntries(Object.keys(ou).map((t) => [t, {
 			value: e.style.getPropertyValue(t),
 			priority: e.style.getPropertyPriority(t)
-		}])), su(e), cu(e);
+		}])), cu(e), lu(e);
 		return;
 	}
 	let n = e._orbitDeckSurfaceStyles;
-	n && (lu(e), Object.entries(n).forEach(([t, n]) => {
+	n && (uu(e), Object.entries(n).forEach(([t, n]) => {
 		n.value ? e.style.setProperty(t, n.value, n.priority) : e.style.removeProperty(t);
 	}), delete e._orbitDeckSurfaceStyles);
 }
-function su(e) {
-	Object.entries(au).forEach(([t, n]) => {
+function cu(e) {
+	Object.entries(ou).forEach(([t, n]) => {
 		(e.style.getPropertyValue(t) !== n || e.style.getPropertyPriority(t) !== "important") && e.style.setProperty(t, n, "important");
 	});
 }
-function cu(e) {
+function lu(e) {
 	e._orbitDeckSurfaceObserver || (e._orbitDeckSurfaceObserver = new MutationObserver(() => {
-		e._orbitDeckSurfaceStyles && su(e);
+		e._orbitDeckSurfaceStyles && cu(e);
 	}), e._orbitDeckSurfaceObserver.observe(e, {
 		attributes: !0,
 		attributeFilter: ["style"]
 	}));
 }
-function lu(e) {
+function uu(e) {
 	e._orbitDeckSurfaceObserver?.disconnect(), e._orbitDeckSurfaceObserver = null;
 }
-function uu(e) {
+function du(e) {
 	let t = /* @__PURE__ */ new Set();
-	return du(e, t, /* @__PURE__ */ new WeakSet()), [...t];
-}
-function du(e, t, n) {
-	!e || n.has(e) || (n.add(e), e.localName === "ha-card" && t.add(e), [e.shadowRoot, e].filter(Boolean).forEach((e) => {
-		let r = e.querySelectorAll?.("*") || [];
-		for (let e of r) e.localName === "ha-card" && t.add(e), e.shadowRoot && du(e, t, n);
-	}));
+	return fu(e, t, /* @__PURE__ */ new WeakSet()), [...t];
 }
 function fu(e, t, n) {
-	pu(e, n ? t : {
+	!e || n.has(e) || (n.add(e), e.localName === "ha-card" && t.add(e), [e.shadowRoot, e].filter(Boolean).forEach((e) => {
+		let r = e.querySelectorAll?.("*") || [];
+		for (let e of r) e.localName === "ha-card" && t.add(e), e.shadowRoot && fu(e, t, n);
+	}));
+}
+function pu(e, t, n) {
+	mu(e, n ? t : {
 		top: "",
 		right: "",
 		bottom: "",
 		left: ""
 	}), e._orbitDeckPaddingApplied = n;
 }
-function pu(e, t) {
-	mu(e, "padding-top", t.top), mu(e, "padding-right", t.right), mu(e, "padding-bottom", t.bottom), mu(e, "padding-left", t.left);
+function mu(e, t) {
+	hu(e, "padding-top", t.top), hu(e, "padding-right", t.right), hu(e, "padding-bottom", t.bottom), hu(e, "padding-left", t.left);
 }
-function mu(e, t, n) {
+function hu(e, t, n) {
 	n ? (e.style.getPropertyValue(t) !== n || e.style.getPropertyPriority(t) !== "important") && e.style.setProperty(t, n, "important") : e.style.removeProperty(t);
 }
-function hu(e, t) {
+function gu(e, t) {
 	e._orbitDeckPadding = t, !e._orbitDeckPaddingObserver && (e._orbitDeckPaddingObserver = new MutationObserver(() => {
-		e._orbitDeckPadding && pu(e, e._orbitDeckPadding);
+		e._orbitDeckPadding && mu(e, e._orbitDeckPadding);
 	}), e._orbitDeckPaddingObserver.observe(e, {
 		attributes: !0,
 		attributeFilter: ["style"]
 	}));
 }
-function gu(e) {
+function _u(e) {
 	e._orbitDeckPadding = null, e._orbitDeckPaddingObserver?.disconnect(), e._orbitDeckPaddingObserver = null;
 }
 jt({
 	tag: "orbit-deck-card-dev",
-	cardClass: tu,
+	cardClass: nu,
 	name: "Orbit Deck Card (Dev)",
 	description: "Wrap or tab any Lovelace cards",
 	version: t.deck
 });
 //#endregion
 //#region src/common/helpers/badge-registration.js
-function _u({ tag: e, badgeClass: t, name: n, description: r, version: a, documentationURL: o }) {
+function vu({ tag: e, badgeClass: t, name: n, description: r, version: a, documentationURL: o }) {
 	customElements.get(e) || customElements.define(e, t), window.customBadges = window.customBadges || [];
 	for (let t = window.customBadges.length - 1; t >= 0; --t) window.customBadges[t].type === e && window.customBadges.splice(t, 1);
 	window.customBadges.push({
@@ -12381,7 +12381,7 @@ function _u({ tag: e, badgeClass: t, name: n, description: r, version: a, docume
 }
 //#endregion
 //#region src/common/helpers/status-badge.js
-var vu = [
+var yu = [
 	{
 		value: "light",
 		label: "Lights",
@@ -12424,9 +12424,9 @@ var vu = [
 		icon: "mdi:radiobox-marked",
 		requiresDeviceClass: !0
 	}
-], yu = new Map(vu.map((e) => [e.value, e]));
-function bu(e = "") {
-	return yu.get(e) || {
+], bu = new Map(yu.map((e) => [e.value, e]));
+function xu(e = "") {
+	return bu.get(e) || {
 		value: e,
 		label: e ? e.replaceAll("_", " ") : "Status",
 		icon: "mdi:shape"
@@ -12441,12 +12441,12 @@ function $(e = {}) {
 	].includes(t)) return t;
 	throw Error(`Invalid state_source "${t}". Expected "entity", "area_count", or "template".`);
 }
-function xu(e = {}) {
-	let t = $(e), n = e.domain ? bu(e.domain) : void 0;
+function Su(e = {}) {
+	let t = $(e), n = e.domain ? xu(e.domain) : void 0;
 	if (t === "area_count" && n?.requiresDeviceClass && !e.device_class) throw Error(`Orbit Status Badge (Dev) requires "device_class" for domain "${e.domain}".`);
 	return t;
 }
-function Su(e = {}) {
+function Cu(e = {}) {
 	if (!Object.prototype.hasOwnProperty.call(e, "hide")) return [{ type: "hidden" }];
 	if (!Array.isArray(e.hide)) return [];
 	let t = [], n = /* @__PURE__ */ new Set(), r = !1;
@@ -12462,18 +12462,18 @@ function Su(e = {}) {
 		}));
 	}), t;
 }
-function Cu(e = []) {
+function wu(e = []) {
 	return e.map((e) => e?.type === "hidden" ? "hidden" : { label: e?.label });
 }
-function wu(e, t, n = {}) {
-	let r = Su(n), i = e?.entities?.[t];
+function Tu(e, t, n = {}) {
+	let r = Cu(n), i = e?.entities?.[t];
 	return r.some((e) => e.type === "hidden" ? !!i?.hidden : e.type === "label" && Array.isArray(i?.labels) && i.labels.includes(e.label));
 }
-function Tu(e = {}) {
+function Eu(e = {}) {
 	let t = $(e), n = { ...e };
 	return Object.keys(n).forEach((e) => {
 		(n[e] === "" || n[e] === void 0) && delete n[e];
-	}), n.show_state === !0 && delete n.show_state, n.show_icon === !0 && delete n.show_icon, n.show_name === !1 && delete n.show_name, n.show_entity_picture === !1 && delete n.show_entity_picture, Object.prototype.hasOwnProperty.call(n, "hide") && (n.hide = Cu(Su(n)), n.hide.length === 1 && n.hide[0] === "hidden" && delete n.hide), n.card_visibility === "always" && delete n.card_visibility, t === "entity" ? (delete n.state_source, delete n.area, delete n.domain, delete n.device_class, delete n.state_template, delete n.active_template, delete n.inactive_template, delete n.name_template, delete n.hide, n.state_content === "state" && delete n.state_content, n.tap_action?.action === "more-info" && delete n.tap_action) : t === "area_count" ? (n.state_source = "area_count", delete n.entity, delete n.state_template, delete n.active_template, delete n.inactive_template, delete n.name_template, n.state_content === "count" && delete n.state_content, n.tap_action?.action === "active-entities" && delete n.tap_action) : (n.state_source = "template", n.display_style !== "badge" && delete n.entity, delete n.area, delete n.domain, delete n.device_class, delete n.hide, n.state_content === "state" && delete n.state_content, n.tap_action?.action === "none" && delete n.tap_action), n.hold_action?.action === "none" && delete n.hold_action, n.double_tap_action?.action === "none" && delete n.double_tap_action, n.icon_source === "domain" && (delete n.icon_source, delete n.icon, delete n.icon_on, delete n.icon_off), [
+	}), n.show_state === !0 && delete n.show_state, n.show_icon === !0 && delete n.show_icon, n.show_name === !1 && delete n.show_name, n.show_entity_picture === !1 && delete n.show_entity_picture, Object.prototype.hasOwnProperty.call(n, "hide") && (n.hide = wu(Cu(n)), n.hide.length === 1 && n.hide[0] === "hidden" && delete n.hide), n.card_visibility === "always" && delete n.card_visibility, t === "entity" ? (delete n.state_source, delete n.area, delete n.domain, delete n.device_class, delete n.state_template, delete n.active_template, delete n.inactive_template, delete n.name_template, delete n.hide, n.state_content === "state" && delete n.state_content, n.tap_action?.action === "more-info" && delete n.tap_action) : t === "area_count" ? (n.state_source = "area_count", delete n.entity, delete n.state_template, delete n.active_template, delete n.inactive_template, delete n.name_template, n.state_content === "count" && delete n.state_content, n.tap_action?.action === "active-entities" && delete n.tap_action) : (n.state_source = "template", n.display_style !== "badge" && delete n.entity, delete n.area, delete n.domain, delete n.device_class, delete n.hide, n.state_content === "state" && delete n.state_content, n.tap_action?.action === "none" && delete n.tap_action), n.hold_action?.action === "none" && delete n.hold_action, n.double_tap_action?.action === "none" && delete n.double_tap_action, n.icon_source === "domain" && (delete n.icon_source, delete n.icon, delete n.icon_on, delete n.icon_off), [
 		"",
 		"theme",
 		"state",
@@ -12485,17 +12485,17 @@ function Tu(e = {}) {
 		"state-inactive"
 	].includes(n.accent_off_color) && delete n.accent_off_color, n;
 }
-function Eu(e = "") {
+function Du(e = "") {
 	return e.replaceAll("_", " ").replace(/\b\w/g, (e) => e.toUpperCase());
 }
-function Du(e, t) {
+function Ou(e, t) {
 	return e?.attributes?.device_class || (t === "switch" ? "switch" : "");
 }
-function Ou(e, t = !1) {
+function ku(e, t = !1) {
 	if (e.state === "unavailable") return "var(--state-unavailable-color)";
 	let n = e.entity_id.split(".")[0], r = e.attributes || {};
-	if (n === "light" && t && Array.isArray(r.rgb_color)) return Au(r.rgb_color);
-	let i = ku(e.state), a = t ? "active" : "inactive";
+	if (n === "light" && t && Array.isArray(r.rgb_color)) return ju(r.rgb_color);
+	let i = Au(e.state), a = t ? "active" : "inactive";
 	return [
 		r.device_class ? `--state-${n}-${r.device_class}-${i}-color` : "",
 		`--state-${n}-${i}-color`,
@@ -12503,14 +12503,14 @@ function Ou(e, t = !1) {
 		`--state-${a}-color`
 	].filter(Boolean).reduceRight((e, t) => `var(${t}, ${e})`, "var(--state-icon-color, var(--secondary-text-color))");
 }
-function ku(e = "") {
+function Au(e = "") {
 	return e.toString().trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
 }
-function Au(e) {
-	let [t, n, r] = ju(e);
-	return n < .4 && (n < .1 ? r = 225 : n = .4), `#${Mu(t, n, r).map((e) => e.toString(16).padStart(2, "0")).join("")}`;
+function ju(e) {
+	let [t, n, r] = Mu(e);
+	return n < .4 && (n < .1 ? r = 225 : n = .4), `#${Nu(t, n, r).map((e) => e.toString(16).padStart(2, "0")).join("")}`;
 }
-function ju([e, t, n]) {
+function Mu([e, t, n]) {
 	let [r, i, a] = [
 		e,
 		t,
@@ -12522,7 +12522,7 @@ function ju([e, t, n]) {
 		o * 255
 	];
 }
-function Mu(e, t, n) {
+function Nu(e, t, n) {
 	let r = n / 255 * t, i = e / 60, a = r * (1 - Math.abs(i % 2 - 1)), [o, s, c] = i < 1 ? [
 		r,
 		a,
@@ -12556,7 +12556,7 @@ function Mu(e, t, n) {
 }
 //#endregion
 //#region src/badges/helpers/active-entities.js
-var Nu = {
+var Pu = {
 	light: {
 		service: "turn_off",
 		icon: "mdi:power"
@@ -12585,68 +12585,68 @@ var Nu = {
 		service: "turn_off",
 		icon: "mdi:power"
 	}
-}, Pu = /* @__PURE__ */ new Map(), Fu = /* @__PURE__ */ new Map();
-function Iu(e, t) {
-	let n = t?.entity_id?.split(".")[0] || "", r = Nu[n];
+}, Fu = /* @__PURE__ */ new Map(), Iu = /* @__PURE__ */ new Map();
+function Lu(e, t) {
+	let n = t?.entity_id?.split(".")[0] || "", r = Pu[n];
 	return !r || n === "cover" && !(t.attributes?.supported_features & 2) || n === "lock" && !(t.attributes?.supported_features & 1) || e?.services?.[n] && !e.services[n][r.service] ? null : {
 		domain: n,
 		...r
 	};
 }
-function Lu(e) {
+function Ru(e) {
 	if (e.length < 2) return null;
 	let t = e[0].control;
 	return e.every(({ control: e }) => e.domain === t.domain && e.service === t.service) ? t : null;
 }
-function Ru(e, t) {
+function zu(e, t) {
 	let n = e?.formatEntityName?.(t) || t?.attributes?.friendly_name || t?.entity_id || "", r = An(e, t?.entity_id), i = e?.areas?.[r]?.name?.trim();
 	if (!i || n.length <= i.length) return n;
-	let a = RegExp(`^${Ku(i)}(?:\\s*[-–—:|]\\s*|\\s+)`, "i");
+	let a = RegExp(`^${qu(i)}(?:\\s*[-–—:|]\\s*|\\s+)`, "i");
 	return n.replace(a, "").trim() || n;
 }
-function zu(e) {
+function Bu(e) {
 	let t = e?.locale?.language || e?.language || "en";
-	return Pu.has(t) || Pu.set(t, new Intl.Collator(t, {
+	return Fu.has(t) || Fu.set(t, new Intl.Collator(t, {
 		numeric: !0,
 		sensitivity: "base"
-	})), Pu.get(t);
+	})), Fu.get(t);
 }
-function Bu(e, t, n) {
+function Vu(e, t, n) {
 	return e.compare(t.name, n.name) || t.stateObj.entity_id.localeCompare(n.stateObj.entity_id);
 }
-function Vu(e, t) {
+function Hu(e, t) {
 	let n = 132 + e.reduce((e, { name: t }) => Math.max(e, t.length), 0) * 8;
 	return Math.min(520, Math.max(t ? 360 : 280, n));
 }
-function Hu(e, t, n = Date.now()) {
+function Uu(e, t, n = Date.now()) {
 	let r = Date.parse(t?.last_changed || "");
 	if (!Number.isFinite(r)) return "";
 	let i = Math.max(0, n - r), a, o;
 	i >= 864e5 ? (a = "days", o = Math.round(i / 864e5)) : i >= 36e5 ? (a = "hours", o = Math.round(i / 36e5)) : (a = "minutes", o = Math.max(1, Math.round(i / 6e4)));
 	let s = String(e?.locale?.language || e?.language || "en").replace("_", "-");
 	try {
-		let e = Gu(s).format({ [a]: o });
+		let e = Ku(s).format({ [a]: o });
 		return s.toLowerCase().startsWith("en") ? e.replace(/\b(days?|hours?|minutes?)\b/, (e) => e[0].toUpperCase() + e.slice(1)) : e;
 	} catch {
 		let e = a.slice(0, -1), t = o === 1 ? e : a;
 		return `${o} ${t[0].toUpperCase()}${t.slice(1)}`;
 	}
 }
-function Uu(e, t) {
+function Wu(e, t) {
 	return e?.services?.[t.domain]?.[t.service]?.name;
 }
-function Wu(e) {
-	return `color:${mn(e) || Ou(e, !0)};--mdc-icon-size:36px`;
-}
 function Gu(e) {
-	return Fu.has(e) || Fu.set(e, new Intl.DurationFormat(e, { style: "long" })), Fu.get(e);
+	return `color:${mn(e) || ku(e, !0)};--mdc-icon-size:36px`;
 }
 function Ku(e) {
+	return Iu.has(e) || Iu.set(e, new Intl.DurationFormat(e, { style: "long" })), Iu.get(e);
+}
+function qu(e) {
 	return e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 //#endregion
 //#region src/editors/status-badge/sections.js
-function qu(e) {
+function Ju(e) {
 	let t = e === "entity" ? "more-info" : e === "area_count" ? "active-entities" : "none", n = {
 		id: "active-entities",
 		primary: this._t("Active entities"),
@@ -12673,7 +12673,7 @@ function qu(e) {
     </ha-expansion-panel>
   `;
 }
-function Ju(e = "entity") {
+function Yu(e = "entity") {
 	let t = this._config?.icon_source || (this._config?.icon ? "custom" : "domain");
 	return C`
     <div class="field main-entity-icon-source-field">
@@ -12709,7 +12709,7 @@ function Ju(e = "entity") {
     </div>
   `;
 }
-function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode: r }) {
+function Xu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode: r }) {
 	let i = this._config?.domain || "", a = r ? this._config?.card_visibility || "always" : e, o = r ? [
 		{
 			label: this._t("Always"),
@@ -12851,9 +12851,9 @@ function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                 .label=${this._t("Domain")}
                 .placeholder=${this._t("Domain")}
                 use-top-label
-                .getItems=${() => Qu.call(this)}
-                .valueRenderer=${(e) => $u.call(this, e)}
-                .rowRenderer=${ed}
+                .getItems=${() => $u.call(this)}
+                .valueRenderer=${(e) => ed.call(this, e)}
+                .rowRenderer=${td}
                 @value-changed=${(e) => this._updateConfig({
 		domain: e.detail.value || void 0,
 		device_class: void 0
@@ -12869,15 +12869,15 @@ function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                       .label=${this._t("Device class")}
                       .placeholder=${this._t("Device class")}
                       use-top-label
-                      .getItems=${() => td.call(this, i, n)}
-                      .valueRenderer=${(e) => nd.call(this, i, e)}
-                      .rowRenderer=${(e, t) => rd(e, t)}
+                      .getItems=${() => nd.call(this, i, n)}
+                      .valueRenderer=${(e) => rd.call(this, i, e)}
+                      .rowRenderer=${(e, t) => id(e, t)}
                       @value-changed=${(e) => this._handleConfigUpdate("device_class", e.detail.value || void 0)}
                     ></ha-generic-picker>
                   </div>
                 ` : ""}
 
-            ${Zu.call(this)}
+            ${Qu.call(this)}
           ` : a === "template" ? C`
               ${r ? "" : C`
                     <div class="field">
@@ -12888,7 +12888,7 @@ function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                         .value=${this._config?.state_template || ""}
                         @value-changed=${(e) => this._handleConfigUpdate("state_template", e.detail.value || "")}
                       ></ha-selector>
-                      ${Xu.call(this, this._config?.state_template)}
+                      ${Zu.call(this, this._config?.state_template)}
                     </div>
                   `}
               <div class="field">
@@ -12899,7 +12899,7 @@ function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                   .value=${this._config?.active_template || ""}
                   @value-changed=${(e) => this._handleConfigUpdate("active_template", e.detail.value || void 0)}
                 ></ha-selector>
-                ${Xu.call(this, this._config?.active_template)}
+                ${Zu.call(this, this._config?.active_template)}
               </div>
               ${r ? C`
                     <div class="field">
@@ -12910,7 +12910,7 @@ function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                         .value=${this._config?.inactive_template || ""}
                         @value-changed=${(e) => this._handleConfigUpdate("inactive_template", e.detail.value || void 0)}
                       ></ha-selector>
-                      ${Xu.call(this, this._config?.inactive_template)}
+                      ${Zu.call(this, this._config?.inactive_template)}
                     </div>
                   ` : ""}
               ${r ? "" : C`
@@ -12922,20 +12922,20 @@ function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                         .value=${this._config?.name_template || ""}
                         @value-changed=${(e) => this._handleConfigUpdate("name_template", e.detail.value || void 0)}
                       ></ha-selector>
-                      ${Xu.call(this, this._config?.name_template)}
+                      ${Zu.call(this, this._config?.name_template)}
                     </div>
                   `}
             ` : ""}
     </div>
   `;
 }
-function Xu(e, t = "") {
+function Zu(e, t = "") {
 	let n = Rt.call(this, e, t);
 	return n ? C`<ha-alert alert-type="error">${n}</ha-alert>` : "";
 }
-function Zu() {
-	let e = Su(this._config), t = e.some((e) => e.type === "hidden"), n = e.filter((e) => e.type === "label").map((e) => e.label), r = ({ hidden: e = t, labels: r = n } = {}) => {
-		this._updateConfig({ hide: Cu([...e ? [{ type: "hidden" }] : [], ...r.map((e) => ({
+function Qu() {
+	let e = Cu(this._config), t = e.some((e) => e.type === "hidden"), n = e.filter((e) => e.type === "label").map((e) => e.label), r = ({ hidden: e = t, labels: r = n } = {}) => {
+		this._updateConfig({ hide: wu([...e ? [{ type: "hidden" }] : [], ...r.map((e) => ({
 			type: "label",
 			label: e
 		}))]) });
@@ -12968,22 +12968,22 @@ function Zu() {
     </div>
   `;
 }
-function Qu() {
-	return vu.map((e) => ({
+function $u() {
+	return yu.map((e) => ({
 		id: e.value,
 		primary: this._t(e.label),
 		sorting_label: this._t(e.label),
 		icon: e.icon
 	}));
 }
-function $u(e) {
-	let t = vu.find((t) => t.value === e);
+function ed(e) {
+	let t = yu.find((t) => t.value === e);
 	return t ? C`
     <ha-icon slot="start" .icon=${t.icon}></ha-icon>
     <span slot="headline">${this._t(t.label)}</span>
   ` : "";
 }
-function ed(e, t) {
+function td(e, t) {
 	return C`
     <ha-combo-box-item type="button" compact .borderTop=${t !== 0}>
       <ha-icon slot="start" .icon=${e.icon}></ha-icon>
@@ -12991,24 +12991,24 @@ function ed(e, t) {
     </ha-combo-box-item>
   `;
 }
-function td(e, t) {
+function nd(e, t) {
 	return t.filter((e) => e.value).map((t) => ({
 		id: t.value,
 		primary: t.label,
 		sorting_label: t.label,
-		stateObj: id(e, t.value)
+		stateObj: ad(e, t.value)
 	}));
 }
-function nd(e, t) {
+function rd(e, t) {
 	return t ? C`
     <ha-state-icon
       slot="start"
-      .stateObj=${id(e, t)}
+      .stateObj=${ad(e, t)}
     ></ha-state-icon>
-    <span slot="headline">${Eu(t)}</span>
+    <span slot="headline">${Du(t)}</span>
   ` : "";
 }
-function rd(e, t) {
+function id(e, t) {
 	return C`
     <ha-combo-box-item type="button" compact .borderTop=${t !== 0}>
       <ha-state-icon slot="start" .stateObj=${e.stateObj}></ha-state-icon>
@@ -13016,7 +13016,7 @@ function rd(e, t) {
     </ha-combo-box-item>
   `;
 }
-function id(e, t) {
+function ad(e, t) {
 	return {
 		entity_id: `${e}.orbit_status_badge_picker`,
 		state: "off",
@@ -13025,7 +13025,7 @@ function id(e, t) {
 }
 //#endregion
 //#region src/editors/status-badge-editor.js
-var ad = "sensor.orbit_status_badge_preview", od = class extends O {
+var od = "sensor.orbit_status_badge_preview", sd = class extends O {
 	static svgCache = I;
 	static properties = {
 		hass: { attribute: !1 },
@@ -13073,7 +13073,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
 		It.call(this, r);
 	}
 	_enhanceNamePicker() {
-		let e = this.shadowRoot?.querySelector(".status-badge-name-selector"), t = cd(e, "ha-entity-name-picker");
+		let e = this.shadowRoot?.querySelector(".status-badge-name-selector"), t = ld(e, "ha-entity-name-picker");
 		if (!t) {
 			this._namePickerEnhanceAttempts < 10 && this._scheduleNamePickerEnhancement();
 			return;
@@ -13081,7 +13081,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
 		if (this._namePickerEnhanceAttempts = 0, t.__orbitTemplateNameEnhanced) return;
 		let n = t._getFilteredItems, r = t._validTypes, i = t._formatItem, a = t._pickerValueChanged;
 		typeof n != "function" || typeof r != "function" || typeof i != "function" || typeof a != "function" || (t.__orbitTemplateNameEnhanced = !0, t._validTypes = (e) => new Set([...r.call(t, e), "template"]), t._formatItem = (e) => e?.type === "template" ? this._t("Template") : i.call(t, e), t._getFilteredItems = () => {
-			let e = n.call(t), r = sd(t.value), i = t._editIndex != null && r[t._editIndex]?.type === "template";
+			let e = n.call(t), r = cd(t.value), i = t._editIndex != null && r[t._editIndex]?.type === "template";
 			if (!r.some((e) => e?.type === "template") || i) {
 				let t = String(P.call(this, this._config?.name_template, "") ?? "").trim(), n = this._t("Template"), r = t || this._t("Not configured");
 				e.push({
@@ -13103,18 +13103,18 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
 				return;
 			}
 			if (e.stopPropagation(), t.disabled) return;
-			let n = sd(t.value), r = { type: "template" };
+			let n = cd(t.value), r = { type: "template" };
 			t._editIndex == null ? n.push(r) : (n[t._editIndex] = r, t._editIndex = void 0), t._setValue(n), t._picker && (t._picker.value = void 0);
 		}, t.requestUpdate());
 	}
 	setConfig(e) {
-		this._config = Tu(e || {});
+		this._config = Eu(e || {});
 	}
 	_t(e, t) {
 		return Y(this.hass, e, t);
 	}
 	_updateConfig(e) {
-		this._config = Tu(H(this._config, e)), this._dispatchConfigChanged(this._config);
+		this._config = Eu(H(this._config, e)), this._dispatchConfigChanged(this._config);
 	}
 	_dispatchConfigChanged(e) {
 		this.dispatchEvent(new CustomEvent("config-changed", {
@@ -13159,12 +13159,12 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
 			r && n.add(r);
 		}), t && n.add(t), [...n].sort((e, t) => e.localeCompare(t)).map((e) => ({
 			value: e,
-			label: Eu(e)
+			label: Du(e)
 		}))) : [];
 	}
 	_getStateContentHass() {
 		let e = (/* @__PURE__ */ new Date()).toISOString(), t = this.hass?.areas?.[this._config?.area]?.name, n = this._config?.name_template?.trim() || "", r = {
-			entity_id: ad,
+			entity_id: od,
 			state: "on",
 			attributes: {
 				count: 2,
@@ -13182,8 +13182,8 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
 			...this.hass,
 			entities: {
 				...this.hass?.entities || {},
-				[ad]: {
-					entity_id: ad,
+				[od]: {
+					entity_id: od,
 					platform: "orbit",
 					area_id: this._config?.area || null,
 					device_id: null
@@ -13191,16 +13191,16 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
 			},
 			states: {
 				...this.hass?.states || {},
-				[ad]: r
+				[od]: r
 			}
 		};
 	}
 	render() {
-		let e = this._config?.display_style === "badge", n = this._getDeviceClassOptions(), r = vu.find((e) => e.value === this._config?.domain), i = [
+		let e = this._config?.display_style === "badge", n = this._getDeviceClassOptions(), r = yu.find((e) => e.value === this._config?.domain), i = [
 			...this._config?.show_name === !0 ? ["name"] : [],
 			...this._config?.show_state === !1 ? [] : ["state"],
 			...this._config?.show_icon === !1 ? [] : ["icon"]
-		], a = $(this._config), o = this._config?.entity || "", s = a === "entity" && o ? this.hass : this._getStateContentHass(), c = a === "entity" && o ? o : ad;
+		], a = $(this._config), o = this._config?.entity || "", s = a === "entity" && o ? this.hass : this._getStateContentHass(), c = a === "entity" && o ? o : od;
 		return C`
       <div class="wrapper">
         <div class="section">
@@ -13239,7 +13239,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
               ${this._t("State type")}
             </div>
             <div class="content-panel-body">
-              ${Yu.call(this, {
+              ${Xu.call(this, {
 			stateSource: a,
 			domainConfig: r,
 			deviceClassOptions: n,
@@ -13280,7 +13280,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
                 ${this._renderColor(["Inactive", "Color"], "accent_off_color", e ? "white" : "theme")}
               </div>
 
-              ${Ju.call(this, a)}
+              ${Yu.call(this, a)}
 
               ${e ? "" : C`
                     <div class="field">
@@ -13337,7 +13337,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
             </div>
           </ha-expansion-panel>
 
-          ${qu.call(this, a)}
+          ${Ju.call(this, a)}
         </div>
 
         <div class="editor-version">
@@ -13389,26 +13389,26 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
       }
     `];
 };
-customElements.define("orbit-status-badge-dev-editor", od);
-function sd(e) {
+customElements.define("orbit-status-badge-dev-editor", sd);
+function cd(e) {
 	return e ? typeof e == "string" ? [{
 		type: "text",
 		text: e
 	}] : Array.isArray(e) ? [...e] : [e] : [];
 }
-function cd(e, t) {
+function ld(e, t) {
 	if (!e) return;
 	if (e.matches?.(t)) return e;
 	let n = e.shadowRoot?.querySelector(t);
 	if (n) return n;
 	for (let n of e.shadowRoot?.querySelectorAll("*") || []) {
-		let e = cd(n, t);
+		let e = ld(n, t);
 		if (e) return e;
 	}
 }
 //#endregion
 //#region src/badges/status-badge.js
-var ld = class extends O {
+var ud = class extends O {
 	static svgCache = I;
 	static properties = {
 		hass: { attribute: !1 },
@@ -13428,7 +13428,7 @@ var ld = class extends O {
 		return {};
 	}
 	setConfig(e) {
-		xu(e || {}), this._config = Tu(e || {}), this._areaEntityCache = null;
+		Su(e || {}), this._config = Eu(e || {}), this._areaEntityCache = null;
 	}
 	_t(e) {
 		return Y(this.hass, e);
@@ -13467,8 +13467,8 @@ var ld = class extends O {
 			let e = this.hass?.states?.[this._config?.entity];
 			return e ? [e] : [];
 		}
-		let e = this._config?.domain || "", t = this._config?.area, n = this._config?.device_class || "", r = bu(e);
-		return !this.hass || !t || !e || r.requiresDeviceClass && !n ? [] : this._getAreaEntityIds().map((e) => this.hass.states?.[e]).filter((t) => t && (!r.requiresDeviceClass || Du(t, e) === n) && !wu(this.hass, t.entity_id, this._config));
+		let e = this._config?.domain || "", t = this._config?.area, n = this._config?.device_class || "", r = xu(e);
+		return !this.hass || !t || !e || r.requiresDeviceClass && !n ? [] : this._getAreaEntityIds().map((e) => this.hass.states?.[e]).filter((t) => t && (!r.requiresDeviceClass || Ou(t, e) === n) && !Tu(this.hass, t.entity_id, this._config));
 	}
 	_getAreaEntityIds() {
 		let e = this.hass, t = this._config?.area || "", n = this._config?.domain || "", r = e?.entities || {}, i = e?.devices || {}, a = this._areaEntityCache;
@@ -13484,7 +13484,7 @@ var ld = class extends O {
 		}, s;
 	}
 	_getModel() {
-		let e = $(this._config), t = this._getEntities(), n = t.filter((e) => Zt(e)), r = e === "template" ? P.call(this, this._config?.state_template, "") ?? "unavailable" : "", i = this._config?.active_template?.trim() || "", a = e === "template" && i ? P.call(this, i, "") : null, o = this._config?.inactive_template?.trim() || "", s = e === "template" && o ? P.call(this, o, "") : null, c = !!o && zt(s), l = e === "template" ? zt(a ?? r) : n.length > 0, u = this._config?.display_style === "badge" && !this._config?.card_visibility ? !0 : l, d = t[0], f = d?.entity_id.split(".")[0] || this._config?.domain || "", p = bu(f), m = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), ee = this._config?.icon || "", h = u ? this._config?.icon_on || ee : this._config?.icon_off || ee, te = m === "custom" && h || p.icon, g = u ? this._config?.accent_on_color ?? this._config?.color : this._config?.accent_off_color, ne = !!(g && ![
+		let e = $(this._config), t = this._getEntities(), n = t.filter((e) => Zt(e)), r = e === "template" ? P.call(this, this._config?.state_template, "") ?? "unavailable" : "", i = this._config?.active_template?.trim() || "", a = e === "template" && i ? P.call(this, i, "") : null, o = this._config?.inactive_template?.trim() || "", s = e === "template" && o ? P.call(this, o, "") : null, c = !!o && zt(s), l = e === "template" ? zt(a ?? r) : n.length > 0, u = this._config?.display_style === "badge" && !this._config?.card_visibility ? !0 : l, d = t[0], f = d?.entity_id.split(".")[0] || this._config?.domain || "", p = xu(f), m = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), ee = this._config?.icon || "", h = u ? this._config?.icon_on || ee : this._config?.icon_off || ee, te = m === "custom" && h || p.icon, g = u ? this._config?.accent_on_color ?? this._config?.color : this._config?.accent_off_color, ne = !!(g && ![
 			"theme",
 			"state",
 			"state-active",
@@ -13506,7 +13506,7 @@ var ld = class extends O {
 			entity_id: `${f}.orbit_status_badge`,
 			state: v.state,
 			attributes: this._config?.device_class ? { device_class: this._config.device_class } : {}
-		}, se = this.hass?.areas?.[this._config?.area]?.name || "", ce = this._config?.name, y = this._config?.device_class ? Eu(this._config.device_class) : "", le = (d && this.hass?.formatEntityName ? this.hass.formatEntityName(d) : "") || (e === "template" ? "Template" : se || y || p.label), ue = ce && this.hass?.formatEntityName && this.hass.formatEntityName(v, dd(ce, ae)) || le, de = m === "custom" ? u && this._config?.icon_on ? "icon_on" : !u && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : "";
+		}, se = this.hass?.areas?.[this._config?.area]?.name || "", ce = this._config?.name, y = this._config?.device_class ? Du(this._config.device_class) : "", le = (d && this.hass?.formatEntityName ? this.hass.formatEntityName(d) : "") || (e === "template" ? "Template" : se || y || p.label), ue = ce && this.hass?.formatEntityName && this.hass.formatEntityName(v, fd(ce, ae)) || le, de = m === "custom" ? u && this._config?.icon_on ? "icon_on" : !u && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : "";
 		return {
 			entities: t,
 			activeEntities: n,
@@ -13534,7 +13534,7 @@ var ld = class extends O {
 			},
 			defaultStateContent: e === "area_count" ? "count" : "state",
 			hasIconColorOverride: ne,
-			iconColor: _ === "theme" ? Ou(v, u) : N(_)
+			iconColor: _ === "theme" ? ku(v, u) : N(_)
 		};
 	}
 	_handleAction(e, t = null) {
@@ -13582,7 +13582,7 @@ var ld = class extends O {
 			this._longPressTriggered = !1;
 			return;
 		}
-		let n = ud(this._config);
+		let n = dd(this._config);
 		return j.call(this, e, t, this._config?.tap_action || n, this._config?.double_tap_action);
 	}
 	_handleDoubleTap(e, t) {
@@ -13628,15 +13628,15 @@ var ld = class extends O {
 	}
 	_renderActiveEntitiesDialog(e) {
 		if (!this._activeEntitiesOpen) return T;
-		let t = zu(this.hass), n = e.activeEntities.map((e) => {
-			let t = Iu(this.hass, e);
+		let t = Bu(this.hass), n = e.activeEntities.map((e) => {
+			let t = Lu(this.hass, e);
 			return {
 				stateObj: e,
 				control: t,
-				name: Ru(this.hass, e),
-				serviceName: t ? Uu(this.hass, t) : ""
+				name: zu(this.hass, e),
+				serviceName: t ? Wu(this.hass, t) : ""
 			};
-		}).sort((e, n) => Bu(t, e, n)), r = n.filter((e) => e.control), i = Lu(r), a = i ? Uu(this.hass, i) : "", o = Vu(n, i);
+		}).sort((e, n) => Vu(t, e, n)), r = n.filter((e) => e.control), i = Ru(r), a = i ? Wu(this.hass, i) : "", o = Hu(n, i);
 		return C`
       <ha-adaptive-dialog
         .open=${!0}
@@ -13686,14 +13686,14 @@ var ld = class extends O {
                           <ha-state-icon
                             .hass=${this.hass}
                             .stateObj=${e}
-                            style=${Wu(e)}
+                            style=${Gu(e)}
                           ></ha-state-icon>
                         </button>
                       ` : C`
                         <ha-state-icon
                           .hass=${this.hass}
                           .stateObj=${e}
-                          style=${Wu(e)}
+                          style=${Gu(e)}
                         ></ha-state-icon>
                       `}
                   <button
@@ -13710,7 +13710,7 @@ var ld = class extends O {
                         .stateObj=${e}
                       ></state-display>
                       <span aria-hidden="true">-</span>
-                      <span>${Hu(this.hass, e, this._activeEntitiesDurationNow)}</span>
+                      <span>${Uu(this.hass, e, this._activeEntitiesDurationNow)}</span>
                     </span>
                   </button>
                 </div>
@@ -13736,7 +13736,7 @@ var ld = class extends O {
 		});
 	}
 	render() {
-		let e = this._getModel(), t = e.activeEntities[0]?.entity_id || e.entities[0]?.entity_id || null, n = k(this._config?.tap_action || ud(this._config)) || k(this._config?.hold_action) || k(this._config?.double_tap_action), r = this._config?.display_style === "badge", i = this._config?.card_visibility || "always", a = i === "always" || i === "state" && e.isOn || i === "template" && (e.isOn || e.inactiveTemplateActive), o = !r && this._config?.show_state !== !1, s = !r && this._config?.show_name === !0, c = r || this._config?.show_icon !== !1, l = this._config?.card_color ? N(this._config.card_color) : "var(--primary-color)", u = `--badge-color:${e.iconColor};`, d = [
+		let e = this._getModel(), t = e.activeEntities[0]?.entity_id || e.entities[0]?.entity_id || null, n = k(this._config?.tap_action || dd(this._config)) || k(this._config?.hold_action) || k(this._config?.double_tap_action), r = this._config?.display_style === "badge", i = this._config?.card_visibility || "always", a = i === "always" || i === "state" && e.isOn || i === "template" && (e.isOn || e.inactiveTemplateActive), o = !r && this._config?.show_state !== !1, s = !r && this._config?.show_name === !0, c = r || this._config?.show_icon !== !1, l = this._config?.card_color ? N(this._config.card_color) : "var(--primary-color)", u = `--badge-color:${e.iconColor};`, d = [
 			`--tile-badge-background-color:${l}`,
 			`--tile-badge-icon-color:${e.hasIconColorOverride ? e.iconColor : "var(--white-color, #fff)"}`,
 			"--mdc-icon-size:12px"
@@ -13989,20 +13989,20 @@ var ld = class extends O {
     }
   `;
 };
-function ud(e = {}) {
+function dd(e = {}) {
 	let t = $(e);
 	return t === "entity" ? { action: "more-info" } : t === "area_count" ? { action: "active-entities" } : { action: "none" };
 }
-function dd(e, t) {
+function fd(e, t) {
 	let n = (e) => e?.type === "template" ? {
 		type: "text",
 		text: t
 	} : e;
 	return Array.isArray(e) ? e.map(n) : n(e);
 }
-_u({
+vu({
 	tag: "orbit-status-badge-dev",
-	badgeClass: ld,
+	badgeClass: ud,
 	name: "Orbit Status Badge (Dev)",
 	description: "Displays an entity, area count, or template state",
 	version: t.statusBadge
