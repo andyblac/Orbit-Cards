@@ -2658,7 +2658,7 @@ function mi(e, t = []) {
 	return U([e, ...t.map((t) => `${e}${t}`)]);
 }
 //#endregion
-//#region src/common/editor/helpers/renders.js
+//#region src/common/editor/helpers/labels.js
 function G(e, t, n) {
 	return Array.isArray(t) ? hi(e, t.map((t) => G(e, t, n))) : e._t ? e._t(t, n) : t;
 }
@@ -2668,66 +2668,15 @@ function hi(e, t) {
 function gi(e = "") {
 	return e.replace(/^(\p{L})/u, (e) => e.toLocaleLowerCase());
 }
-function K(e, t) {
-	return yi(e?.hass, t) || bi[t] || t;
-}
-function _i(e, t) {
-	return xi(e?.hass, t) || t;
-}
-function vi(e) {
-	e.stopPropagation();
-}
-function yi(e, t) {
-	if (!e?.localize || !t) return null;
-	let n = [t, t.replaceAll("-", "_")].flatMap((e) => [
-		`ui.panel.lovelace.editor.action-editor.actions.${e}`,
-		`ui.panel.lovelace.editor.card.generic.action.actions.${e}`,
-		`ui.panel.lovelace.editor.card.generic.action.${e}`,
-		`ui.panel.lovelace.editor.card.config.action.actions.${e}`,
-		`ui.panel.lovelace.editor.card.config.action.${e}`,
-		`ui.components.action-input.editor.action.${e}`
-	]);
-	for (let r of n) {
-		let n = e.localize(r);
-		if (n && n !== r && n !== t) return n;
-	}
-	return null;
-}
-var bi = {
-	"active-entities": "Active entities",
-	"call-service": "Perform action",
-	"more-info": "More info",
-	navigate: "Navigate",
-	none: "Nothing",
-	popup: "Popup",
-	"perform-action": "Perform action",
-	toggle: "Toggle",
-	url: "URL"
-};
-function xi(e, t) {
-	if (!e?.localize || !t) return null;
-	let n = Si[t] || [];
-	for (let t of n) {
-		let n = e.localize(t);
-		if (n && n !== t) return n;
-	}
-	return null;
-}
-var Si = {
-	content: ["ui.panel.lovelace.editor.card.markdown.content"],
-	entity_id: ["ui.dialogs.entity_registry.editor.entity_id", "ui.panel.lovelace.unused_entities.entity_id"],
-	path: ["ui.panel.lovelace.editor.action-editor.navigation_path", "ui.panel.lovelace.editor.edit_view.path"],
-	service: ["ui.panel.developer-tools.tabs.actions.actions.call_service", "ui.panel.config.devices.type.service_heading"],
-	title: ["ui.panel.lovelace.editor.edit_lovelace.title", "ui.panel.lovelace.dashboards.picker.headers.title"],
-	url: ["ui.panel.lovelace.editor.action-editor.url_path"]
-};
-function Ci(e, t, n) {
+//#endregion
+//#region src/common/editor/helpers/color-picker.js
+function _i(e, t, n) {
 	let r = this._config?.[t] || "";
-	return wi.call(this, e, t, r, (e) => this._handleConfigUpdate(t, e), n);
+	return vi.call(this, e, t, r, (e) => this._handleConfigUpdate(t, e), n);
 }
-function wi(e, t, n, r, i) {
-	Ii.call(this);
-	let a = Ti.call(this, n, i), o = ra(n || a), s = this._colorPickerKey === t && this._colorPickerTab || o;
+function vi(e, t, n, r, i) {
+	Ai.call(this);
+	let a = yi.call(this, n, i), o = Zi(n || a), s = this._colorPickerKey === t && this._colorPickerTab || o;
 	return C`
     <div class="field">
       <div class="color-row">
@@ -2742,7 +2691,7 @@ function wi(e, t, n, r, i) {
               @click=${() => {
 		this._colorPickerKey = t, this._colorPickerTab = "picker", this._themeColorPickerOpen = !1;
 		let e = n || a;
-		if (e && !ia(e)) {
+		if (e && !Qi(e)) {
 			let t = this._getColorPickerValue(e);
 			t && r(t);
 		}
@@ -2762,20 +2711,20 @@ function wi(e, t, n, r, i) {
           </div>
 
           ${s === "theme" ? C`
-                ${Di.call(this, e, n, r, a, t)}
+                ${xi.call(this, e, n, r, a, t)}
               ` : C`
-                ${Ei.call(this, e, n, r, a)}
+                ${bi.call(this, e, n, r, a)}
               `}
         </div>
       </div>
     </div>
   `;
 }
-function Ti(e, t) {
+function yi(e, t) {
 	return t || e || "theme";
 }
-function Ei(e, t, n, r = t) {
-	let i = ia(t) ? this._getColorPickerValue(t) : "", a = i || (ia(t) ? this._getColorPickerValue(t) : this._getColorPickerValue(t || r)) || "#000000";
+function bi(e, t, n, r = t) {
+	let i = Qi(t) ? this._getColorPickerValue(t) : "", a = i || (Qi(t) ? this._getColorPickerValue(t) : this._getColorPickerValue(t || r)) || "#000000";
 	return C`
     <div
       class="native-color-picker-field ${i ? "has-value" : ""}"
@@ -2836,19 +2785,19 @@ function Ei(e, t, n, r = t) {
     </div>
   `;
 }
-function Di(e, t, n, r = t, i = "") {
-	let a = t || r, o = ra(a) === "theme" ? Bi(a) || "theme" : "", s = Fi.call(this), c = Oi.call(this, s, o);
+function xi(e, t, n, r = t, i = "") {
+	let a = t || r, o = Zi(a) === "theme" ? Pi(a) || "theme" : "", s = ki.call(this), c = Si.call(this, s, o);
 	return C`
     <div
       class="theme-color-picker"
       @click=${(e) => e.stopPropagation()}
     >
       <ha-generic-picker
-        .getItems=${ki.call(this, i, c)}
+        .getItems=${Ci.call(this, i, c)}
         .label=${e ? G(this, e) : ""}
         .value=${o}
-        .rowRenderer=${(e) => Ai.call(this, e)}
-        .valueRenderer=${(e) => ji.call(this, c.find((t) => t.id === e))}
+        .rowRenderer=${(e) => wi.call(this, e)}
+        .valueRenderer=${(e) => Ti.call(this, c.find((t) => t.id === e))}
         .notFoundLabel=${G(this, "No matching colors")}
         .emptyLabel=${""}
         .noSort=${!0}
@@ -2859,13 +2808,13 @@ function Di(e, t, n, r = t, i = "") {
     </div>
   `;
 }
-function Oi(e, t) {
-	return !t || e.some((e) => e.id === t) ? e : [...e, Ri.call(this, {
+function Si(e, t) {
+	return !t || e.some((e) => e.id === t) ? e : [...e, Mi.call(this, {
 		id: t,
 		source: "theme"
 	})];
 }
-function ki(e, t) {
+function Ci(e, t) {
 	this._themeColorItemGetters ||= /* @__PURE__ */ new Map();
 	let n = this._themeColorItemGetters.get(e);
 	return n ? n.items = t : (n = {
@@ -2873,23 +2822,23 @@ function ki(e, t) {
 		getItems: () => n.items
 	}, this._themeColorItemGetters.set(e, n)), n.getItems;
 }
-function Ai(e) {
+function wi(e) {
 	return C`
     <ha-combo-box-item type="button" compact>
-      ${Mi.call(this, e)}
+      ${Ei.call(this, e)}
       <span slot="headline">${e.primary}</span>
-      ${Ni(e)}
+      ${Di(e)}
     </ha-combo-box-item>
   `;
 }
-function ji(e) {
+function Ti(e) {
 	return e ? C`
-    ${Mi.call(this, e)}
+    ${Ei.call(this, e)}
     <span slot="headline">${e.primary}</span>
-    ${Ni(e)}
+    ${Di(e)}
   ` : "";
 }
-function Mi(e) {
+function Ei(e) {
 	return e.id === "theme" ? C`
       <ha-icon
         slot="start"
@@ -2912,7 +2861,7 @@ function Mi(e) {
     ></span>
   `;
 }
-function Ni(e) {
+function Di(e) {
 	return e.isThemeColor ? C`
       <span
         slot="end"
@@ -2927,30 +2876,30 @@ function Ni(e) {
         >S</span>
       ` : "";
 }
-function Pi() {
+function Oi() {
 	let e = [], t = /* @__PURE__ */ new Set();
-	for (let n of na) {
-		let r = Ri.call(this, n);
+	for (let n of Xi) {
+		let r = Mi.call(this, n);
 		!r || t.has(r.id) || (t.add(r.id), e.push(r));
 	}
-	for (let n of Vi.call(this)) {
-		let r = Ri.call(this, n);
+	for (let n of Fi.call(this)) {
+		let r = Mi.call(this, n);
 		!r || t.has(r.id) || (t.add(r.id), e.push(r));
 	}
 	return e;
 }
-function Fi() {
-	let e = Li.call(this);
+function ki() {
+	let e = ji.call(this);
 	if (this._themeColorItemsCache && this._themeColorItemsCacheKey === e) return this._themeColorItemsCache;
-	let t = Pi.call(this);
+	let t = Oi.call(this);
 	return this._themeColorItemsCache = t, this._themeColorItemsCacheKey = e, t;
 }
-function Ii() {
-	let e = Li.call(this);
+function Ai() {
+	let e = ji.call(this);
 	if (this._themeColorItemsCacheKey === e || this._themeColorWarmupScheduled === e) return;
 	this._themeColorWarmupScheduled = e;
 	let t = () => {
-		this._themeColorWarmupScheduled === e && (Fi.call(this), this._themeColorWarmupScheduled = "");
+		this._themeColorWarmupScheduled === e && (ki.call(this), this._themeColorWarmupScheduled = "");
 	};
 	if (window.requestIdleCallback) {
 		window.requestIdleCallback(t, { timeout: 500 });
@@ -2958,11 +2907,11 @@ function Ii() {
 	}
 	window.setTimeout(t, 0);
 }
-function Li() {
-	return `${this?.hass?.locale?.language || this?.hass?.language || ""}|${this?.hass?.selectedTheme?.theme || this?.hass?.themes?.theme || ""}|${this?.hass?.themes?.darkMode ?? this?.hass?.selectedTheme?.dark ?? ""}|${Hi.call(this)}`;
+function ji() {
+	return `${this?.hass?.locale?.language || this?.hass?.language || ""}|${this?.hass?.selectedTheme?.theme || this?.hass?.themes?.theme || ""}|${this?.hass?.themes?.darkMode ?? this?.hass?.selectedTheme?.dark ?? ""}|${Ii.call(this)}`;
 }
-function Ri(e) {
-	let t = zi(typeof e == "string" ? { id: e } : e), n = Qi(t.id), r = n && $i(t.id), i = !r && (t.source === "theme" || Xi.call(this, t.id)), a = t.label ? G(this, t.label) : ea.call(this, t.id);
+function Mi(e) {
+	let t = Ni(typeof e == "string" ? { id: e } : e), n = Ki(t.id), r = n && qi(t.id), i = !r && (t.source === "theme" || Wi.call(this, t.id)), a = t.label ? G(this, t.label) : Ji.call(this, t.id);
 	return {
 		id: t.id,
 		primary: a,
@@ -2977,39 +2926,39 @@ function Ri(e) {
 		}
 	};
 }
-function zi(e) {
+function Ni(e) {
 	return {
 		...e,
-		id: Bi(e.id),
+		id: Pi(e.id),
 		label: e.label || null
 	};
 }
-function Bi(e) {
+function Pi(e) {
 	if (!e) return "";
 	let t = e.toString().trim().toLowerCase().replace(/[^a-z0-9-_]/g, ""), n = t.startsWith("color-") ? t.slice(6) : t;
-	return ta[n] || n;
+	return Yi[n] || n;
 }
-function Vi() {
-	return Ui.call(this).map((e) => Ki(e)).filter(qi).map((e) => ({
+function Fi() {
+	return Li.call(this).map((e) => Bi(e)).filter(Vi).map((e) => ({
 		id: e,
 		source: "theme"
-	})).sort((e, t) => ea.call(this, e.id).localeCompare(ea.call(this, t.id), this?.hass?.locale?.language || this?.hass?.language || void 0, { sensitivity: "base" }));
+	})).sort((e, t) => Ji.call(this, e.id).localeCompare(Ji.call(this, t.id), this?.hass?.locale?.language || this?.hass?.language || void 0, { sensitivity: "base" }));
 }
-function Hi() {
-	return Wi.call(this).map(([e, t]) => `${e}:${t}`).join(",");
+function Ii() {
+	return Ri.call(this).map(([e, t]) => `${e}:${t}`).join(",");
 }
-function Ui() {
-	return Wi.call(this).map(([e]) => e).sort();
+function Li() {
+	return Ri.call(this).map(([e]) => e).sort();
 }
-function Wi() {
-	let e = /* @__PURE__ */ new Set(), t = [], n = Gi.call(this);
+function Ri() {
+	let e = /* @__PURE__ */ new Set(), t = [], n = zi.call(this);
 	for (let [r, i] of Object.entries(n)) {
 		let n = r.toLowerCase();
-		Ji(n, i) && (e.has(n) || (e.add(n), t.push([n, i])));
+		Hi(n, i) && (e.has(n) || (e.add(n), t.push([n, i])));
 	}
 	return t.sort(([e], [t]) => e.localeCompare(t));
 }
-function Gi() {
+function zi() {
 	let e = this?.hass?.selectedTheme?.theme || this?.hass?.themes?.theme || "", t = e ? this?.hass?.themes?.themes?.[e] : null;
 	if (!t) return {};
 	let { modes: n, ...r } = t, i = this?.hass?.themes?.darkMode ?? this?.hass?.selectedTheme?.dark ?? !1 ? n?.dark : n?.light;
@@ -3018,39 +2967,39 @@ function Gi() {
 		...i || {}
 	};
 }
-function Ki(e) {
+function Bi(e) {
 	return e.startsWith("color-") ? e.slice(6) : e;
 }
-function qi(e) {
+function Vi(e) {
 	return !!e && !/^\d+$/.test(e);
 }
-function Ji(e, t) {
-	return !e || !(e.startsWith("color-") || e.startsWith("google-") || e.endsWith("-color") || e.includes("-color-")) ? !1 : Yi(t);
+function Hi(e, t) {
+	return !e || !(e.startsWith("color-") || e.startsWith("google-") || e.endsWith("-color") || e.includes("-color-")) ? !1 : Ui(t);
 }
-function Yi(e) {
+function Ui(e) {
 	let t = e == null ? "" : e.toString().trim();
 	return t ? /^#[0-9a-f]{3,8}$/i.test(t) || /^(rgb|rgba|hsl|hsla)\(/i.test(t) || /^var\(\s*--[a-z0-9-_]*color[a-z0-9-_]*/i.test(t) || /^\d+\s*,\s*\d+\s*,\s*\d+/.test(t) : !1;
 }
-function Xi(e) {
-	let t = new Set(Ui.call(this));
-	return Zi(e).some((e) => t.has(e));
+function Wi(e) {
+	let t = new Set(Li.call(this));
+	return Gi(e).some((e) => t.has(e));
 }
-function Zi(e) {
-	let t = Bi(e);
+function Gi(e) {
+	let t = Pi(e);
 	if (!t) return [];
 	let n = t.startsWith("color-") ? t : `color-${t}`;
 	return t.endsWith("-color") ? [t, n] : [n, t];
 }
-function Qi(e) {
+function Ki(e) {
 	return e === "theme" || e === "primary-color" || e === "accent-color" || ut(e);
 }
-function $i(e) {
+function qi(e) {
 	return ut(e) && !ft(e);
 }
-function ea(e) {
+function Ji(e) {
 	return e === "theme" ? G(this, "State color (default)") : e === "light" ? G(this, "State Light color") : e === "primary-color" ? G(this, "Primary") : e === "primary-text-color" ? G(this, "Primary text color") : e === "card-background-color" ? G(this, "Card background") : e === "secondary-background-color" ? G(this, "Secondary background color") : e === "accent-color" ? G(this, "Accent") : e.replaceAll("-", " ").replace(/\b\w/g, (e) => e.toUpperCase());
 }
-var ta = {
+var Yi = {
 	bluegrey: "blue-grey",
 	darkgrey: "dark-grey",
 	deeporange: "deep-orange",
@@ -3058,7 +3007,7 @@ var ta = {
 	lightblue: "light-blue",
 	lightgreen: "light-green",
 	lightgrey: "light-grey"
-}, na = [
+}, Xi = [
 	{
 		id: "theme",
 		label: "State color (default)"
@@ -3119,14 +3068,69 @@ var ta = {
 	"color-gold",
 	"color-brown"
 ];
-function ra(e) {
+function Zi(e) {
 	let t = e?.toString().trim();
-	return t && ia(t) ? "picker" : "theme";
+	return t && Qi(t) ? "picker" : "theme";
 }
-function ia(e) {
+function Qi(e) {
 	let t = e?.toString().trim().toLowerCase();
 	return !!(t && (t.startsWith("#") || t.startsWith("rgb") || t.startsWith("hsl")));
 }
+//#endregion
+//#region src/common/editor/helpers/renders.js
+function K(e, t) {
+	return ta(e?.hass, t) || na[t] || t;
+}
+function $i(e, t) {
+	return ra(e?.hass, t) || t;
+}
+function ea(e) {
+	e.stopPropagation();
+}
+function ta(e, t) {
+	if (!e?.localize || !t) return null;
+	let n = [t, t.replaceAll("-", "_")].flatMap((e) => [
+		`ui.panel.lovelace.editor.action-editor.actions.${e}`,
+		`ui.panel.lovelace.editor.card.generic.action.actions.${e}`,
+		`ui.panel.lovelace.editor.card.generic.action.${e}`,
+		`ui.panel.lovelace.editor.card.config.action.actions.${e}`,
+		`ui.panel.lovelace.editor.card.config.action.${e}`,
+		`ui.components.action-input.editor.action.${e}`
+	]);
+	for (let r of n) {
+		let n = e.localize(r);
+		if (n && n !== r && n !== t) return n;
+	}
+	return null;
+}
+var na = {
+	"active-entities": "Active entities",
+	"call-service": "Perform action",
+	"more-info": "More info",
+	navigate: "Navigate",
+	none: "Nothing",
+	popup: "Popup",
+	"perform-action": "Perform action",
+	toggle: "Toggle",
+	url: "URL"
+};
+function ra(e, t) {
+	if (!e?.localize || !t) return null;
+	let n = ia[t] || [];
+	for (let t of n) {
+		let n = e.localize(t);
+		if (n && n !== t) return n;
+	}
+	return null;
+}
+var ia = {
+	content: ["ui.panel.lovelace.editor.card.markdown.content"],
+	entity_id: ["ui.dialogs.entity_registry.editor.entity_id", "ui.panel.lovelace.unused_entities.entity_id"],
+	path: ["ui.panel.lovelace.editor.action-editor.navigation_path", "ui.panel.lovelace.editor.edit_view.path"],
+	service: ["ui.panel.developer-tools.tabs.actions.actions.call_service", "ui.panel.config.devices.type.service_heading"],
+	title: ["ui.panel.lovelace.editor.edit_lovelace.title", "ui.panel.lovelace.dashboards.picker.headers.title"],
+	url: ["ui.panel.lovelace.editor.action-editor.url_path"]
+};
 function aa(e, t, n, { extraActions: r = [] } = {}) {
 	let i = this._config?.[t], a = typeof n == "object" ? n : { action: n || "none" }, o = i && typeof i == "object" ? Da(i, a) : a, s = o.action || a.action || "none", c = new Set(r.map((e) => e.id)), l = [...r, ...va(this).filter((e) => !c.has(e.id))];
 	return C`
@@ -3335,10 +3339,10 @@ function Sa(e, t) {
 	return Wa(), C`
     <div class="inline-field action-subfield">
       <ha-navigation-picker
-        @click=${vi}
-        @pointerdown=${vi}
-        @wheel=${vi}
-        @touchmove=${vi}
+        @click=${ea}
+        @pointerdown=${ea}
+        @wheel=${ea}
+        @touchmove=${ea}
         @picker-opened=${(e) => {
 		e.currentTarget.__orbitSuppressSectionScroll = !0;
 	}}
@@ -3384,7 +3388,7 @@ function wa(e, t) {
 	return C`
     <div class="inline-field action-subfield">
       <ha-input
-        .label=${_i(this, "url")}
+        .label=${$i(this, "url")}
         .value=${t.url_path || ""}
         @input=${(n) => {
 		n.stopPropagation(), this._updateConfig({ [e]: J({
@@ -3400,7 +3404,7 @@ function Ta(e, t) {
 	return C`
     <div class="inline-field action-subfield">
       <ha-input
-        .label=${_i(this, "title")}
+        .label=${$i(this, "title")}
         .value=${t.popup_title || ""}
         .placeholder=${"Security"}
         @input=${(n) => {
@@ -3414,7 +3418,7 @@ function Ta(e, t) {
 
     <div class="inline-field action-subfield">
       <ha-input
-        .label=${_i(this, "content")}
+        .label=${$i(this, "content")}
         .value=${typeof t.popup_content == "string" ? t.popup_content : t.popup_content ? JSON.stringify(t.popup_content) : ""}
         @input=${(n) => {
 		n.stopPropagation(), this._updateConfig({ [e]: J({
@@ -6734,10 +6738,10 @@ var xs = class extends O {
 		this._updateConfig({ [e]: t });
 	}
 	_renderColor(e, t, n) {
-		return Ci.call(this, e, t, n);
+		return _i.call(this, e, t, n);
 	}
 	_renderColorControl(e, t, n, r, i = n) {
-		return wi.call(this, e, t, n, r, i);
+		return vi.call(this, e, t, n, r, i);
 	}
 	_renderIconInput(e, t, n = "mdi:lightbulb or icon.svg") {
 		return B.call(this, e, t, n);
@@ -8747,10 +8751,10 @@ var Sc = [
 		return pi.call(this, e, t, n);
 	}
 	_renderColor(e, t, n) {
-		return Ci.call(this, e, t, n);
+		return _i.call(this, e, t, n);
 	}
 	_renderColorControl(e, t, n, r, i) {
-		return wi.call(this, e, t, n, r, i);
+		return vi.call(this, e, t, n, r, i);
 	}
 	_renderEntity(e, t, n) {
 		return eo.call(this, e, t, n);
@@ -10147,10 +10151,10 @@ var $c = d`
 		});
 	}
 	_renderColor(e, t, n) {
-		return Ci.call(this, e, t, n);
+		return _i.call(this, e, t, n);
 	}
 	_renderColorControl(e, t, n, r, i) {
-		return wi.call(this, e, t, n, r, i);
+		return vi.call(this, e, t, n, r, i);
 	}
 	_renderEntity(e, t, n) {
 		return eo.call(this, e, t, n);
@@ -10850,7 +10854,7 @@ var bl = d`
 		return pi.call(this, e, t, n);
 	}
 	_renderColorControl(e, t, n, r, i = n) {
-		return wi.call(this, e, t, n, r, i);
+		return vi.call(this, e, t, n, r, i);
 	}
 	_renderSubTabs() {
 		return C`
@@ -12737,7 +12741,7 @@ var qu = "sensor.orbit_status_badge_preview", Ju = class extends O {
 		this._updateConfig({ [e]: n || t === "" ? void 0 : t });
 	}
 	_renderColor(e, t, n) {
-		return Ci.call(this, e, t, n);
+		return _i.call(this, e, t, n);
 	}
 	_renderIconInput(e, t, n = "mdi:lightbulb or icon.svg") {
 		return B.call(this, e, t, n);
