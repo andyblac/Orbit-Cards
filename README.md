@@ -105,9 +105,8 @@ badges:
 ```
 
 Area Count counts active entities in the selected area and domain. The
-`state_source: area_count` setting can be supplied explicitly and is inferred
-when an area or domain is configured without an entity. A device-class filter is offered when Home Assistant reports
-device classes for that domain, allowing
+`state_source: area_count` setting is required. A device-class filter is offered
+when Home Assistant reports device classes for that domain, allowing
 semantic types such as sockets and motion sensors to be counted separately:
 
 ```yaml

@@ -32,13 +32,7 @@ export function getStatusBadgeDomainConfig(domain = "") {
 }
 
 export function getStatusBadgeStateSource(config = {}) {
-  const inferredStateSource =
-    config.state_template
-      ? "template"
-      : !config.entity && (config.area || config.domain || config.device_class)
-        ? "area_count"
-        : "entity";
-  const stateSource = config.state_source || inferredStateSource;
+  const stateSource = config.state_source || "entity";
 
   if (["entity", "area_count", "template"].includes(stateSource)) {
     return stateSource;
@@ -122,13 +116,7 @@ export function shouldHideStatusBadgeEntity(hass, entityId, config = {}) {
 }
 
 export function normalizeStatusBadgeColors(config = {}) {
-  let stateSource = getStatusBadgeStateSource(config);
-  const legacyExampleColors =
-    config.accent_on_color === "amber" &&
-    config.accent_off_color === "grey";
-  const useDefaults =
-    config.color_mode === "native" ||
-    legacyExampleColors;
+  const stateSource = getStatusBadgeStateSource(config);
   const normalized = { ...config };
 
   Object.keys(normalized).forEach((key) => {
@@ -145,12 +133,6 @@ export function normalizeStatusBadgeColors(config = {}) {
   if (normalized.show_entity_picture === false) {
     delete normalized.show_entity_picture;
   }
-  if (
-    normalized.display_style &&
-    normalized.display_style !== "badge"
-  ) {
-    delete normalized.display_style;
-  }
   if (Object.prototype.hasOwnProperty.call(normalized, "hide")) {
     const hideItems = getStatusBadgeHideItems(normalized);
 
@@ -165,24 +147,6 @@ export function normalizeStatusBadgeColors(config = {}) {
   if (normalized.card_visibility === "always") {
     delete normalized.card_visibility;
   }
-  if (
-    normalized.card_visibility === "template" &&
-    normalized.card_visibility_template
-  ) {
-    normalized.active_template = normalized.card_visibility_template;
-    normalized.state_source = "template";
-    delete normalized.entity;
-    delete normalized.area;
-    delete normalized.domain;
-    delete normalized.device_class;
-    delete normalized.state_template;
-    delete normalized.name_template;
-  }
-  delete normalized.card_visibility_template;
-  stateSource = getStatusBadgeStateSource(normalized);
-  delete normalized.remove_shadow;
-  delete normalized.badge_size;
-
   if (stateSource === "entity") {
     delete normalized.state_source;
     delete normalized.area;
@@ -246,7 +210,6 @@ export function normalizeStatusBadgeColors(config = {}) {
   // Native state colours are runtime defaults. Keep the YAML clean unless a
   // real colour override has been selected.
   if (
-    useDefaults ||
     ["", "theme", "state", "state-active"].includes(
       normalized.accent_on_color
     )
@@ -255,15 +218,12 @@ export function normalizeStatusBadgeColors(config = {}) {
   }
 
   if (
-    useDefaults ||
     ["", "theme", "state", "state-inactive"].includes(
       normalized.accent_off_color
     )
   ) {
     delete normalized.accent_off_color;
   }
-
-  delete normalized.color_mode;
 
   return normalized;
 }

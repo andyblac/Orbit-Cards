@@ -12510,13 +12510,13 @@ function am(e = "") {
 	};
 }
 function $(e = {}) {
-	let t = e.state_template ? "template" : !e.entity && (e.area || e.domain || e.device_class) ? "area_count" : "entity", n = e.state_source || t;
+	let t = e.state_source || "entity";
 	if ([
 		"entity",
 		"area_count",
 		"template"
-	].includes(n)) return n;
-	throw Error(`Invalid state_source "${n}". Expected "entity", "area_count", or "template".`);
+	].includes(t)) return t;
+	throw Error(`Invalid state_source "${t}". Expected "entity", "area_count", or "template".`);
 }
 function om(e = {}) {
 	let t = $(e), n = e.domain ? am(e.domain) : void 0;
@@ -12547,20 +12547,20 @@ function lm(e, t, n = {}) {
 	return r.some((e) => e.type === "hidden" ? !!(i?.hidden || i?.hidden_by) : e.type === "label" && Array.isArray(i?.labels) && i.labels.includes(e.label));
 }
 function um(e = {}) {
-	let t = $(e), n = e.accent_on_color === "amber" && e.accent_off_color === "grey", r = e.color_mode === "native" || n, i = { ...e };
-	return Object.keys(i).forEach((e) => {
-		(i[e] === "" || i[e] === void 0) && delete i[e];
-	}), i.show_state === !0 && delete i.show_state, i.show_icon === !0 && delete i.show_icon, i.show_name === !1 && delete i.show_name, i.show_entity_picture === !1 && delete i.show_entity_picture, i.display_style && i.display_style !== "badge" && delete i.display_style, Object.prototype.hasOwnProperty.call(i, "hide") && (i.hide = cm(sm(i)), i.hide.length === 1 && i.hide[0] === "hidden" && delete i.hide), i.card_visibility === "always" && delete i.card_visibility, i.card_visibility === "template" && i.card_visibility_template && (i.active_template = i.card_visibility_template, i.state_source = "template", delete i.entity, delete i.area, delete i.domain, delete i.device_class, delete i.state_template, delete i.name_template), delete i.card_visibility_template, t = $(i), delete i.remove_shadow, delete i.badge_size, t === "entity" ? (delete i.state_source, delete i.area, delete i.domain, delete i.device_class, delete i.state_template, delete i.active_template, delete i.inactive_template, delete i.name_template, delete i.hide, i.state_content === "state" && delete i.state_content, i.tap_action?.action === "more-info" && delete i.tap_action) : t === "area_count" ? (i.state_source = "area_count", delete i.entity, delete i.state_template, delete i.active_template, delete i.inactive_template, delete i.name_template, i.state_content === "count" && delete i.state_content, i.tap_action?.action === "active-entities" && delete i.tap_action) : (i.state_source = "template", i.display_style !== "badge" && delete i.entity, delete i.area, delete i.domain, delete i.device_class, delete i.hide, i.state_content === "state" && delete i.state_content, i.tap_action?.action === "none" && delete i.tap_action), i.hold_action?.action === "none" && delete i.hold_action, i.double_tap_action?.action === "none" && delete i.double_tap_action, i.icon_source === "domain" && (delete i.icon_source, delete i.icon, delete i.icon_on, delete i.icon_off), (r || [
+	let t = $(e), n = { ...e };
+	return Object.keys(n).forEach((e) => {
+		(n[e] === "" || n[e] === void 0) && delete n[e];
+	}), n.show_state === !0 && delete n.show_state, n.show_icon === !0 && delete n.show_icon, n.show_name === !1 && delete n.show_name, n.show_entity_picture === !1 && delete n.show_entity_picture, Object.prototype.hasOwnProperty.call(n, "hide") && (n.hide = cm(sm(n)), n.hide.length === 1 && n.hide[0] === "hidden" && delete n.hide), n.card_visibility === "always" && delete n.card_visibility, t === "entity" ? (delete n.state_source, delete n.area, delete n.domain, delete n.device_class, delete n.state_template, delete n.active_template, delete n.inactive_template, delete n.name_template, delete n.hide, n.state_content === "state" && delete n.state_content, n.tap_action?.action === "more-info" && delete n.tap_action) : t === "area_count" ? (n.state_source = "area_count", delete n.entity, delete n.state_template, delete n.active_template, delete n.inactive_template, delete n.name_template, n.state_content === "count" && delete n.state_content, n.tap_action?.action === "active-entities" && delete n.tap_action) : (n.state_source = "template", n.display_style !== "badge" && delete n.entity, delete n.area, delete n.domain, delete n.device_class, delete n.hide, n.state_content === "state" && delete n.state_content, n.tap_action?.action === "none" && delete n.tap_action), n.hold_action?.action === "none" && delete n.hold_action, n.double_tap_action?.action === "none" && delete n.double_tap_action, n.icon_source === "domain" && (delete n.icon_source, delete n.icon, delete n.icon_on, delete n.icon_off), [
 		"",
 		"theme",
 		"state",
 		"state-active"
-	].includes(i.accent_on_color)) && delete i.accent_on_color, (r || [
+	].includes(n.accent_on_color) && delete n.accent_on_color, [
 		"",
 		"theme",
 		"state",
 		"state-inactive"
-	].includes(i.accent_off_color)) && delete i.accent_off_color, delete i.color_mode, i;
+	].includes(n.accent_off_color) && delete n.accent_off_color, n;
 }
 function dm(e, t = !1) {
 	if (e.state === "unavailable") return "var(--state-unavailable-color)";
@@ -12755,13 +12755,7 @@ var gm, _m, vm = e((() => {
 			}, t.requestUpdate());
 		}
 		setConfig(e) {
-			let t = e || {}, n = um(t), r = JSON.stringify(t) !== JSON.stringify(n);
-			if (this._config = n, r) {
-				let e = n;
-				this.updateComplete.then(() => {
-					this._config === e && this._dispatchConfigChanged(e);
-				});
-			}
+			this._config = um(e || {});
 		}
 		_t(e, t) {
 			return Y(this.hass, e, t);

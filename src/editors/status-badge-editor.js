@@ -240,20 +240,7 @@ class OrbitStatusBadgeEditor extends LitElement {
   }
 
   setConfig(config) {
-    const sourceConfig = config || {};
-    const normalizedConfig = normalizeStatusBadgeColors(sourceConfig);
-    const needsSanitizing =
-      JSON.stringify(sourceConfig) !== JSON.stringify(normalizedConfig);
-
-    this._config = normalizedConfig;
-
-    if (needsSanitizing) {
-      const pendingConfig = normalizedConfig;
-      this.updateComplete.then(() => {
-        if (this._config !== pendingConfig) return;
-        this._dispatchConfigChanged(pendingConfig);
-      });
-    }
+    this._config = normalizeStatusBadgeColors(config || {});
   }
 
   _t(key, replacements) {
