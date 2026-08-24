@@ -12645,373 +12645,8 @@ function Ku(e) {
 	return e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 //#endregion
-//#region src/editors/status-badge-editor.js
-var qu = "sensor.orbit_status_badge_preview", Ju = class extends O {
-	static svgCache = I;
-	static properties = {
-		hass: { attribute: !1 },
-		_config: { state: !0 },
-		_colorPickerKey: { state: !0 },
-		_colorPickerTab: { state: !0 },
-		_iconPickerKey: { state: !0 },
-		_iconPickerTab: { state: !0 },
-		_orbitIconFiles: { state: !0 },
-		_orbitIconFilesLoading: { state: !0 },
-		_localIconFiles: { state: !0 },
-		_localIconFilesLoading: { state: !0 },
-		_contentExpanded: { state: !0 },
-		_stateTypeExpanded: { state: !0 },
-		_interactionsExpanded: { state: !0 },
-		_templateRevision: { state: !0 }
-	};
-	constructor() {
-		super(), this._config = {}, this._colorPickerKey = "", this._colorPickerTab = "picker", this._iconPickerKey = "", this._iconPickerTab = "ha", this._orbitIconFiles = [], this._orbitIconFilesLoading = !1, this._localIconFiles = [], this._localIconFilesLoading = !1, this._contentExpanded = !1, this._stateTypeExpanded = !1, this._interactionsExpanded = !1, this._namePickerEnhanceFrame = void 0, this._namePickerEnhanceAttempts = 0;
-	}
-	connectedCallback() {
-		super.connectedCallback(), no(this), kt(this, "orbit-status-badge"), queueMicrotask(() => this._syncTemplateSubscriptions());
-	}
-	disconnectedCallback() {
-		this._namePickerEnhanceFrame !== void 0 && (cancelAnimationFrame(this._namePickerEnhanceFrame), this._namePickerEnhanceFrame = void 0), Lt.call(this), ro(this), super.disconnectedCallback();
-	}
-	updated(e) {
-		(e.has("hass") || e.has("_config")) && (this._syncTemplateSubscriptions(), this._namePickerEnhanceAttempts = 0), this._scheduleNamePickerEnhancement();
-	}
-	_scheduleNamePickerEnhancement() {
-		$(this._config) !== "template" || this._namePickerEnhanceFrame !== void 0 || (this._namePickerEnhanceFrame = requestAnimationFrame(() => {
-			this._namePickerEnhanceFrame = void 0, this._namePickerEnhanceAttempts += 1, this._enhanceNamePicker();
-		}));
-	}
-	_syncTemplateSubscriptions() {
-		let e = $(this._config), t = [
-			this._config?.state_template,
-			this._config?.active_template,
-			this._config?.inactive_template,
-			this._config?.name_template
-		], n = this._config?.display_style === "badge", r = (e === "template" ? n ? [this._config?.active_template, this._config?.inactive_template] : t : []).filter(Boolean).map((e) => ({
-			template: e,
-			entityId: ""
-		}));
-		It.call(this, r);
-	}
-	_enhanceNamePicker() {
-		let e = this.shadowRoot?.querySelector(".status-badge-name-selector"), t = td(e, "ha-entity-name-picker");
-		if (!t) {
-			this._namePickerEnhanceAttempts < 10 && this._scheduleNamePickerEnhancement();
-			return;
-		}
-		if (this._namePickerEnhanceAttempts = 0, t.__orbitTemplateNameEnhanced) return;
-		let n = t._getFilteredItems, r = t._validTypes, i = t._formatItem, a = t._pickerValueChanged;
-		typeof n != "function" || typeof r != "function" || typeof i != "function" || typeof a != "function" || (t.__orbitTemplateNameEnhanced = !0, t._validTypes = (e) => new Set([...r.call(t, e), "template"]), t._formatItem = (e) => e?.type === "template" ? this._t("Template") : i.call(t, e), t._getFilteredItems = () => {
-			let e = n.call(t), r = ed(t.value), i = t._editIndex != null && r[t._editIndex]?.type === "template";
-			if (!r.some((e) => e?.type === "template") || i) {
-				let t = String(P.call(this, this._config?.name_template, "") ?? "").trim(), n = this._t("Template"), r = t || this._t("Not configured");
-				e.push({
-					id: "___template___",
-					primary: n,
-					secondary: r,
-					search_labels: {
-						id: "___template___",
-						primary: n,
-						secondary: r
-					},
-					sorting_label: n
-				});
-			}
-			return e;
-		}, t._pickerValueChanged = (e) => {
-			if (e.detail?.value !== "___template___") {
-				a.call(t, e);
-				return;
-			}
-			if (e.stopPropagation(), t.disabled) return;
-			let n = ed(t.value), r = { type: "template" };
-			t._editIndex == null ? n.push(r) : (n[t._editIndex] = r, t._editIndex = void 0), t._setValue(n), t._picker && (t._picker.value = void 0);
-		}, t.requestUpdate());
-	}
-	setConfig(e) {
-		this._config = Tu(e || {});
-	}
-	_t(e, t) {
-		return Y(this.hass, e, t);
-	}
-	_updateConfig(e) {
-		this._config = Tu(H(this._config, e)), this._dispatchConfigChanged(this._config);
-	}
-	_dispatchConfigChanged(e) {
-		this.dispatchEvent(new CustomEvent("config-changed", {
-			detail: { config: e },
-			bubbles: !0,
-			composed: !0
-		}));
-	}
-	_handleConfigUpdate(e, t) {
-		let n = ["accent_on_color", "accent_off_color"].includes(e) && (!t || t === "theme");
-		this._updateConfig({ [e]: n || t === "" ? void 0 : t });
-	}
-	_renderColor(e, t, n) {
-		return _i.call(this, e, t, n);
-	}
-	_renderIconInput(e, t, n = "mdi:lightbulb or icon.svg") {
-		return B.call(this, e, t, n);
-	}
-	_getColorStyle(e) {
-		return ao(e);
-	}
-	_getColorPickerValue(e) {
-		return oo(e);
-	}
-	_loadLocalIconFiles(e = "") {
-		return Rr.call(this, e);
-	}
-	_isImageIcon(e) {
-		return Fr(e);
-	}
-	_resolveIconPath(e) {
-		return Ir(e);
-	}
-	_getInlineSvg(e) {
-		return F.call(this, e, { forceColor: !0 });
-	}
-	_getDeviceClassOptions() {
-		let e = this._config?.domain || "", t = this._config?.device_class || "", n = /* @__PURE__ */ new Set();
-		return e ? (Object.values(this.hass?.states || {}).forEach((t) => {
-			if (!t.entity_id.startsWith(`${e}.`)) return;
-			let r = t.attributes?.device_class;
-			r && n.add(r);
-		}), t && n.add(t), [...n].sort((e, t) => e.localeCompare(t)).map((e) => ({
-			value: e,
-			label: Eu(e)
-		}))) : [];
-	}
-	_getStateContentHass() {
-		let e = (/* @__PURE__ */ new Date()).toISOString(), t = this.hass?.areas?.[this._config?.area]?.name, n = this._config?.name_template?.trim() || "", r = {
-			entity_id: qu,
-			state: "on",
-			attributes: {
-				count: 2,
-				friendly_name: ($(this._config) === "template" ? String(P.call(this, n, "") ?? "").trim() : "") || t || "Orbit status"
-			},
-			last_changed: e,
-			last_updated: e,
-			context: {
-				id: "",
-				parent_id: null,
-				user_id: null
-			}
-		};
-		return {
-			...this.hass,
-			entities: {
-				...this.hass?.entities || {},
-				[qu]: {
-					entity_id: qu,
-					platform: "orbit",
-					area_id: this._config?.area || null,
-					device_id: null
-				}
-			},
-			states: {
-				...this.hass?.states || {},
-				[qu]: r
-			}
-		};
-	}
-	render() {
-		let e = this._config?.display_style === "badge", n = this._getDeviceClassOptions(), r = vu.find((e) => e.value === this._config?.domain), i = [
-			...this._config?.show_name === !0 ? ["name"] : [],
-			...this._config?.show_state === !1 ? [] : ["state"],
-			...this._config?.show_icon === !1 ? [] : ["icon"]
-		], a = $(this._config), o = this._config?.entity || "", s = a === "entity" && o ? this.hass : this._getStateContentHass(), c = a === "entity" && o ? o : qu;
-		return C`
-      <div class="wrapper">
-        <div class="section">
-          <div class="field editor-button-toggle-field mode-field">
-            <div class="field-header">
-              <label>${this._t("Mode")}</label>
-              <ha-selector
-                class="editor-header-button-toggle"
-                .hass=${this.hass}
-                .selector=${{ button_toggle: { options: [{
-			label: this._t("Header"),
-			value: "header"
-		}, {
-			label: this._t("Badge"),
-			value: "badge"
-		}] } }}
-                .value=${e ? "badge" : "header"}
-                @value-changed=${(e) => this._handleConfigUpdate("display_style", e.detail.value === "badge" ? "badge" : void 0)}
-              ></ha-selector>
-            </div>
-          </div>
-
-          <ha-expansion-panel
-            class="state-type-panel"
-            outlined
-            .expanded=${this._stateTypeExpanded}
-            @expanded-changed=${(e) => {
-			this._stateTypeExpanded = e.detail.expanded;
-		}}
-          >
-            <ha-icon
-              slot="leading-icon"
-              icon="mdi:format-list-bulleted-type"
-            ></ha-icon>
-            <div slot="header" role="heading" aria-level="3">
-              ${this._t("State type")}
-            </div>
-            <div class="content-panel-body">
-              ${Zu.call(this, {
-			stateSource: a,
-			domainConfig: r,
-			deviceClassOptions: n,
-			badgeMode: e
-		})}
-            </div>
-          </ha-expansion-panel>
-
-          <ha-expansion-panel
-            class="content-panel"
-            outlined
-            .expanded=${this._contentExpanded}
-            @expanded-changed=${(e) => {
-			this._contentExpanded = e.detail.expanded;
-		}}
-          >
-            <ha-icon slot="leading-icon" icon="mdi:text-short"></ha-icon>
-            <div slot="header" role="heading" aria-level="3">
-              ${this._t("Content")}
-            </div>
-            <div class="content-panel-body">
-              ${e ? this._renderColor(["Background", "Color"], "card_color", "primary-color") : C`
-                    <div class="field">
-                      <ha-selector
-                        class=${a === "template" ? "status-badge-name-selector" : ""}
-                        .hass=${s}
-                        .label=${this.hass?.localize("ui.panel.lovelace.editor.card.generic.name") || this._t("Name")}
-                        .helper=${this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.name_helper") || this._t("Visible if selected in state content")}
-                        .selector=${{ entity_name: { entity_id: c } }}
-                        .value=${this._config?.name}
-                        @value-changed=${(e) => this._handleConfigUpdate("name", e.detail.value)}
-                      ></ha-selector>
-                    </div>
-                  `}
-
-              <div class="color-pair">
-                ${this._renderColor(["Active", "Color"], "accent_on_color", e ? "white" : "theme")}
-                ${this._renderColor(["Inactive", "Color"], "accent_off_color", e ? "white" : "theme")}
-              </div>
-
-              ${Xu.call(this, a)}
-
-              ${e ? "" : C`
-                    <div class="field">
-                      <label>${this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements") || this._t("Displayed elements")}</label>
-                      <ha-selector
-                        .hass=${this.hass}
-                        .selector=${{ select: {
-			mode: "list",
-			multiple: !0,
-			options: [
-				{
-					value: "name",
-					label: this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.name") || this._t("Name")
-				},
-				{
-					value: "state",
-					label: this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.state") || this._t("State")
-				},
-				{
-					value: "icon",
-					label: this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.icon") || this._t("Icon")
-				}
-			]
-		} }}
-                        .value=${i}
-                        @value-changed=${(e) => {
-			let t = e.detail.value || [];
-			this._updateConfig({
-				show_name: t.includes("name") ? !0 : void 0,
-				show_state: t.includes("state") ? void 0 : !1,
-				show_icon: t.includes("icon") ? void 0 : !1
-			});
-		}}
-                      ></ha-selector>
-                    </div>
-                    ${a === "template" ? "" : C`
-                          <div class="field">
-                            <ha-selector
-                              .hass=${s}
-                              .label=${this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.state_content") || this._t("State content")}
-                              .selector=${{ ui_state_content: {
-			entity_id: c,
-			allow_name: !0
-		} }}
-                              .value=${this._config?.state_content || (a === "entity" ? "state" : "count")}
-                              @value-changed=${(e) => this._handleConfigUpdate("state_content", (() => {
-			let t = e.detail.value;
-			return !t || t === (a === "entity" ? "state" : "count") ? void 0 : t;
-		})())}
-                            ></ha-selector>
-                          </div>
-                        `}
-                  `}
-            </div>
-          </ha-expansion-panel>
-
-          ${Yu.call(this, a)}
-        </div>
-
-        <div class="editor-version">
-          ${this._t("Orbit Status Badge v{version}", { version: t.statusBadge })}
-        </div>
-      </div>
-    `;
-	}
-	static styles = [...ss, d`
-      .content-panel,
-      .state-type-panel,
-      .badge-interactions-panel {
-        display: block;
-        --expansion-panel-content-padding: 0;
-        border-radius: var(--ha-border-radius-md);
-        --ha-card-border-radius: var(--ha-border-radius-md);
-      }
-
-      .content-panel > [slot="header"],
-      .state-type-panel > [slot="header"],
-      .badge-interactions-panel > [slot="header"] {
-        margin: 0;
-        font-size: inherit;
-        font-weight: inherit;
-      }
-
-      .content-panel ha-icon,
-      .state-type-panel ha-icon,
-      .badge-interactions-panel > ha-icon {
-        color: var(--secondary-text-color);
-      }
-
-      .content-panel-body {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        padding: 12px;
-      }
-
-      .native-picker-label {
-        display: block;
-      }
-
-      .badge-interactions-content {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        padding: 12px;
-      }
-    `];
-};
-customElements.define("orbit-status-badge-editor", Ju);
-function Yu(e) {
+//#region src/editors/status-badge/sections.js
+function qu(e) {
 	let t = e === "entity" ? "more-info" : e === "area_count" ? "active-entities" : "none", n = {
 		id: "active-entities",
 		primary: this._t("Active entities"),
@@ -13038,7 +12673,7 @@ function Yu(e) {
     </ha-expansion-panel>
   `;
 }
-function Xu(e = "entity") {
+function Ju(e = "entity") {
 	let t = this._config?.icon_source || (this._config?.icon ? "custom" : "domain");
 	return C`
     <div class="field main-entity-icon-source-field">
@@ -13074,7 +12709,7 @@ function Xu(e = "entity") {
     </div>
   `;
 }
-function Zu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode: r }) {
+function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode: r }) {
 	let i = this._config?.domain || "", a = r ? this._config?.card_visibility || "always" : e, o = r ? [
 		{
 			label: this._t("Always"),
@@ -13216,9 +12851,9 @@ function Zu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                 .label=${this._t("Domain")}
                 .placeholder=${this._t("Domain")}
                 use-top-label
-                .getItems=${() => nd.call(this)}
-                .valueRenderer=${(e) => rd.call(this, e)}
-                .rowRenderer=${id}
+                .getItems=${() => Qu.call(this)}
+                .valueRenderer=${(e) => $u.call(this, e)}
+                .rowRenderer=${ed}
                 @value-changed=${(e) => this._updateConfig({
 		domain: e.detail.value || void 0,
 		device_class: void 0
@@ -13234,15 +12869,15 @@ function Zu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                       .label=${this._t("Device class")}
                       .placeholder=${this._t("Device class")}
                       use-top-label
-                      .getItems=${() => ad.call(this, i, n)}
-                      .valueRenderer=${(e) => od.call(this, i, e)}
-                      .rowRenderer=${(e, t) => sd(e, t)}
+                      .getItems=${() => td.call(this, i, n)}
+                      .valueRenderer=${(e) => nd.call(this, i, e)}
+                      .rowRenderer=${(e, t) => rd(e, t)}
                       @value-changed=${(e) => this._handleConfigUpdate("device_class", e.detail.value || void 0)}
                     ></ha-generic-picker>
                   </div>
                 ` : ""}
 
-            ${$u.call(this)}
+            ${Zu.call(this)}
           ` : a === "template" ? C`
               ${r ? "" : C`
                     <div class="field">
@@ -13253,7 +12888,7 @@ function Zu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                         .value=${this._config?.state_template || ""}
                         @value-changed=${(e) => this._handleConfigUpdate("state_template", e.detail.value || "")}
                       ></ha-selector>
-                      ${Qu.call(this, this._config?.state_template)}
+                      ${Xu.call(this, this._config?.state_template)}
                     </div>
                   `}
               <div class="field">
@@ -13264,7 +12899,7 @@ function Zu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                   .value=${this._config?.active_template || ""}
                   @value-changed=${(e) => this._handleConfigUpdate("active_template", e.detail.value || void 0)}
                 ></ha-selector>
-                ${Qu.call(this, this._config?.active_template)}
+                ${Xu.call(this, this._config?.active_template)}
               </div>
               ${r ? C`
                     <div class="field">
@@ -13275,7 +12910,7 @@ function Zu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                         .value=${this._config?.inactive_template || ""}
                         @value-changed=${(e) => this._handleConfigUpdate("inactive_template", e.detail.value || void 0)}
                       ></ha-selector>
-                      ${Qu.call(this, this._config?.inactive_template)}
+                      ${Xu.call(this, this._config?.inactive_template)}
                     </div>
                   ` : ""}
               ${r ? "" : C`
@@ -13287,18 +12922,18 @@ function Zu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                         .value=${this._config?.name_template || ""}
                         @value-changed=${(e) => this._handleConfigUpdate("name_template", e.detail.value || void 0)}
                       ></ha-selector>
-                      ${Qu.call(this, this._config?.name_template)}
+                      ${Xu.call(this, this._config?.name_template)}
                     </div>
                   `}
             ` : ""}
     </div>
   `;
 }
-function Qu(e, t = "") {
+function Xu(e, t = "") {
 	let n = Rt.call(this, e, t);
 	return n ? C`<ha-alert alert-type="error">${n}</ha-alert>` : "";
 }
-function $u() {
+function Zu() {
 	let e = Su(this._config), t = e.some((e) => e.type === "hidden"), n = e.filter((e) => e.type === "label").map((e) => e.label), r = ({ hidden: e = t, labels: r = n } = {}) => {
 		this._updateConfig({ hide: Cu([...e ? [{ type: "hidden" }] : [], ...r.map((e) => ({
 			type: "label",
@@ -13333,23 +12968,7 @@ function $u() {
     </div>
   `;
 }
-function ed(e) {
-	return e ? typeof e == "string" ? [{
-		type: "text",
-		text: e
-	}] : Array.isArray(e) ? [...e] : [e] : [];
-}
-function td(e, t) {
-	if (!e) return;
-	if (e.matches?.(t)) return e;
-	let n = e.shadowRoot?.querySelector(t);
-	if (n) return n;
-	for (let n of e.shadowRoot?.querySelectorAll("*") || []) {
-		let e = td(n, t);
-		if (e) return e;
-	}
-}
-function nd() {
+function Qu() {
 	return vu.map((e) => ({
 		id: e.value,
 		primary: this._t(e.label),
@@ -13357,14 +12976,14 @@ function nd() {
 		icon: e.icon
 	}));
 }
-function rd(e) {
+function $u(e) {
 	let t = vu.find((t) => t.value === e);
 	return t ? C`
     <ha-icon slot="start" .icon=${t.icon}></ha-icon>
     <span slot="headline">${this._t(t.label)}</span>
   ` : "";
 }
-function id(e, t) {
+function ed(e, t) {
 	return C`
     <ha-combo-box-item type="button" compact .borderTop=${t !== 0}>
       <ha-icon slot="start" .icon=${e.icon}></ha-icon>
@@ -13372,24 +12991,24 @@ function id(e, t) {
     </ha-combo-box-item>
   `;
 }
-function ad(e, t) {
+function td(e, t) {
 	return t.filter((e) => e.value).map((t) => ({
 		id: t.value,
 		primary: t.label,
 		sorting_label: t.label,
-		stateObj: cd(e, t.value)
+		stateObj: id(e, t.value)
 	}));
 }
-function od(e, t) {
+function nd(e, t) {
 	return t ? C`
     <ha-state-icon
       slot="start"
-      .stateObj=${cd(e, t)}
+      .stateObj=${id(e, t)}
     ></ha-state-icon>
     <span slot="headline">${Eu(t)}</span>
   ` : "";
 }
-function sd(e, t) {
+function rd(e, t) {
 	return C`
     <ha-combo-box-item type="button" compact .borderTop=${t !== 0}>
       <ha-state-icon slot="start" .stateObj=${e.stateObj}></ha-state-icon>
@@ -13397,12 +13016,395 @@ function sd(e, t) {
     </ha-combo-box-item>
   `;
 }
-function cd(e, t) {
+function id(e, t) {
 	return {
 		entity_id: `${e}.orbit_status_badge_picker`,
 		state: "off",
 		attributes: { device_class: t }
 	};
+}
+//#endregion
+//#region src/editors/status-badge-editor.js
+var ad = "sensor.orbit_status_badge_preview", od = class extends O {
+	static svgCache = I;
+	static properties = {
+		hass: { attribute: !1 },
+		_config: { state: !0 },
+		_colorPickerKey: { state: !0 },
+		_colorPickerTab: { state: !0 },
+		_iconPickerKey: { state: !0 },
+		_iconPickerTab: { state: !0 },
+		_orbitIconFiles: { state: !0 },
+		_orbitIconFilesLoading: { state: !0 },
+		_localIconFiles: { state: !0 },
+		_localIconFilesLoading: { state: !0 },
+		_contentExpanded: { state: !0 },
+		_stateTypeExpanded: { state: !0 },
+		_interactionsExpanded: { state: !0 },
+		_templateRevision: { state: !0 }
+	};
+	constructor() {
+		super(), this._config = {}, this._colorPickerKey = "", this._colorPickerTab = "picker", this._iconPickerKey = "", this._iconPickerTab = "ha", this._orbitIconFiles = [], this._orbitIconFilesLoading = !1, this._localIconFiles = [], this._localIconFilesLoading = !1, this._contentExpanded = !1, this._stateTypeExpanded = !1, this._interactionsExpanded = !1, this._namePickerEnhanceFrame = void 0, this._namePickerEnhanceAttempts = 0;
+	}
+	connectedCallback() {
+		super.connectedCallback(), no(this), kt(this, "orbit-status-badge"), queueMicrotask(() => this._syncTemplateSubscriptions());
+	}
+	disconnectedCallback() {
+		this._namePickerEnhanceFrame !== void 0 && (cancelAnimationFrame(this._namePickerEnhanceFrame), this._namePickerEnhanceFrame = void 0), Lt.call(this), ro(this), super.disconnectedCallback();
+	}
+	updated(e) {
+		(e.has("hass") || e.has("_config")) && (this._syncTemplateSubscriptions(), this._namePickerEnhanceAttempts = 0), this._scheduleNamePickerEnhancement();
+	}
+	_scheduleNamePickerEnhancement() {
+		$(this._config) !== "template" || this._namePickerEnhanceFrame !== void 0 || (this._namePickerEnhanceFrame = requestAnimationFrame(() => {
+			this._namePickerEnhanceFrame = void 0, this._namePickerEnhanceAttempts += 1, this._enhanceNamePicker();
+		}));
+	}
+	_syncTemplateSubscriptions() {
+		let e = $(this._config), t = [
+			this._config?.state_template,
+			this._config?.active_template,
+			this._config?.inactive_template,
+			this._config?.name_template
+		], n = this._config?.display_style === "badge", r = (e === "template" ? n ? [this._config?.active_template, this._config?.inactive_template] : t : []).filter(Boolean).map((e) => ({
+			template: e,
+			entityId: ""
+		}));
+		It.call(this, r);
+	}
+	_enhanceNamePicker() {
+		let e = this.shadowRoot?.querySelector(".status-badge-name-selector"), t = cd(e, "ha-entity-name-picker");
+		if (!t) {
+			this._namePickerEnhanceAttempts < 10 && this._scheduleNamePickerEnhancement();
+			return;
+		}
+		if (this._namePickerEnhanceAttempts = 0, t.__orbitTemplateNameEnhanced) return;
+		let n = t._getFilteredItems, r = t._validTypes, i = t._formatItem, a = t._pickerValueChanged;
+		typeof n != "function" || typeof r != "function" || typeof i != "function" || typeof a != "function" || (t.__orbitTemplateNameEnhanced = !0, t._validTypes = (e) => new Set([...r.call(t, e), "template"]), t._formatItem = (e) => e?.type === "template" ? this._t("Template") : i.call(t, e), t._getFilteredItems = () => {
+			let e = n.call(t), r = sd(t.value), i = t._editIndex != null && r[t._editIndex]?.type === "template";
+			if (!r.some((e) => e?.type === "template") || i) {
+				let t = String(P.call(this, this._config?.name_template, "") ?? "").trim(), n = this._t("Template"), r = t || this._t("Not configured");
+				e.push({
+					id: "___template___",
+					primary: n,
+					secondary: r,
+					search_labels: {
+						id: "___template___",
+						primary: n,
+						secondary: r
+					},
+					sorting_label: n
+				});
+			}
+			return e;
+		}, t._pickerValueChanged = (e) => {
+			if (e.detail?.value !== "___template___") {
+				a.call(t, e);
+				return;
+			}
+			if (e.stopPropagation(), t.disabled) return;
+			let n = sd(t.value), r = { type: "template" };
+			t._editIndex == null ? n.push(r) : (n[t._editIndex] = r, t._editIndex = void 0), t._setValue(n), t._picker && (t._picker.value = void 0);
+		}, t.requestUpdate());
+	}
+	setConfig(e) {
+		this._config = Tu(e || {});
+	}
+	_t(e, t) {
+		return Y(this.hass, e, t);
+	}
+	_updateConfig(e) {
+		this._config = Tu(H(this._config, e)), this._dispatchConfigChanged(this._config);
+	}
+	_dispatchConfigChanged(e) {
+		this.dispatchEvent(new CustomEvent("config-changed", {
+			detail: { config: e },
+			bubbles: !0,
+			composed: !0
+		}));
+	}
+	_handleConfigUpdate(e, t) {
+		let n = ["accent_on_color", "accent_off_color"].includes(e) && (!t || t === "theme");
+		this._updateConfig({ [e]: n || t === "" ? void 0 : t });
+	}
+	_renderColor(e, t, n) {
+		return _i.call(this, e, t, n);
+	}
+	_renderIconInput(e, t, n = "mdi:lightbulb or icon.svg") {
+		return B.call(this, e, t, n);
+	}
+	_getColorStyle(e) {
+		return ao(e);
+	}
+	_getColorPickerValue(e) {
+		return oo(e);
+	}
+	_loadLocalIconFiles(e = "") {
+		return Rr.call(this, e);
+	}
+	_isImageIcon(e) {
+		return Fr(e);
+	}
+	_resolveIconPath(e) {
+		return Ir(e);
+	}
+	_getInlineSvg(e) {
+		return F.call(this, e, { forceColor: !0 });
+	}
+	_getDeviceClassOptions() {
+		let e = this._config?.domain || "", t = this._config?.device_class || "", n = /* @__PURE__ */ new Set();
+		return e ? (Object.values(this.hass?.states || {}).forEach((t) => {
+			if (!t.entity_id.startsWith(`${e}.`)) return;
+			let r = t.attributes?.device_class;
+			r && n.add(r);
+		}), t && n.add(t), [...n].sort((e, t) => e.localeCompare(t)).map((e) => ({
+			value: e,
+			label: Eu(e)
+		}))) : [];
+	}
+	_getStateContentHass() {
+		let e = (/* @__PURE__ */ new Date()).toISOString(), t = this.hass?.areas?.[this._config?.area]?.name, n = this._config?.name_template?.trim() || "", r = {
+			entity_id: ad,
+			state: "on",
+			attributes: {
+				count: 2,
+				friendly_name: ($(this._config) === "template" ? String(P.call(this, n, "") ?? "").trim() : "") || t || "Orbit status"
+			},
+			last_changed: e,
+			last_updated: e,
+			context: {
+				id: "",
+				parent_id: null,
+				user_id: null
+			}
+		};
+		return {
+			...this.hass,
+			entities: {
+				...this.hass?.entities || {},
+				[ad]: {
+					entity_id: ad,
+					platform: "orbit",
+					area_id: this._config?.area || null,
+					device_id: null
+				}
+			},
+			states: {
+				...this.hass?.states || {},
+				[ad]: r
+			}
+		};
+	}
+	render() {
+		let e = this._config?.display_style === "badge", n = this._getDeviceClassOptions(), r = vu.find((e) => e.value === this._config?.domain), i = [
+			...this._config?.show_name === !0 ? ["name"] : [],
+			...this._config?.show_state === !1 ? [] : ["state"],
+			...this._config?.show_icon === !1 ? [] : ["icon"]
+		], a = $(this._config), o = this._config?.entity || "", s = a === "entity" && o ? this.hass : this._getStateContentHass(), c = a === "entity" && o ? o : ad;
+		return C`
+      <div class="wrapper">
+        <div class="section">
+          <div class="field editor-button-toggle-field mode-field">
+            <div class="field-header">
+              <label>${this._t("Mode")}</label>
+              <ha-selector
+                class="editor-header-button-toggle"
+                .hass=${this.hass}
+                .selector=${{ button_toggle: { options: [{
+			label: this._t("Header"),
+			value: "header"
+		}, {
+			label: this._t("Badge"),
+			value: "badge"
+		}] } }}
+                .value=${e ? "badge" : "header"}
+                @value-changed=${(e) => this._handleConfigUpdate("display_style", e.detail.value === "badge" ? "badge" : void 0)}
+              ></ha-selector>
+            </div>
+          </div>
+
+          <ha-expansion-panel
+            class="state-type-panel"
+            outlined
+            .expanded=${this._stateTypeExpanded}
+            @expanded-changed=${(e) => {
+			this._stateTypeExpanded = e.detail.expanded;
+		}}
+          >
+            <ha-icon
+              slot="leading-icon"
+              icon="mdi:format-list-bulleted-type"
+            ></ha-icon>
+            <div slot="header" role="heading" aria-level="3">
+              ${this._t("State type")}
+            </div>
+            <div class="content-panel-body">
+              ${Yu.call(this, {
+			stateSource: a,
+			domainConfig: r,
+			deviceClassOptions: n,
+			badgeMode: e
+		})}
+            </div>
+          </ha-expansion-panel>
+
+          <ha-expansion-panel
+            class="content-panel"
+            outlined
+            .expanded=${this._contentExpanded}
+            @expanded-changed=${(e) => {
+			this._contentExpanded = e.detail.expanded;
+		}}
+          >
+            <ha-icon slot="leading-icon" icon="mdi:text-short"></ha-icon>
+            <div slot="header" role="heading" aria-level="3">
+              ${this._t("Content")}
+            </div>
+            <div class="content-panel-body">
+              ${e ? this._renderColor(["Background", "Color"], "card_color", "primary-color") : C`
+                    <div class="field">
+                      <ha-selector
+                        class=${a === "template" ? "status-badge-name-selector" : ""}
+                        .hass=${s}
+                        .label=${this.hass?.localize("ui.panel.lovelace.editor.card.generic.name") || this._t("Name")}
+                        .helper=${this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.name_helper") || this._t("Visible if selected in state content")}
+                        .selector=${{ entity_name: { entity_id: c } }}
+                        .value=${this._config?.name}
+                        @value-changed=${(e) => this._handleConfigUpdate("name", e.detail.value)}
+                      ></ha-selector>
+                    </div>
+                  `}
+
+              <div class="color-pair">
+                ${this._renderColor(["Active", "Color"], "accent_on_color", e ? "white" : "theme")}
+                ${this._renderColor(["Inactive", "Color"], "accent_off_color", e ? "white" : "theme")}
+              </div>
+
+              ${Ju.call(this, a)}
+
+              ${e ? "" : C`
+                    <div class="field">
+                      <label>${this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements") || this._t("Displayed elements")}</label>
+                      <ha-selector
+                        .hass=${this.hass}
+                        .selector=${{ select: {
+			mode: "list",
+			multiple: !0,
+			options: [
+				{
+					value: "name",
+					label: this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.name") || this._t("Name")
+				},
+				{
+					value: "state",
+					label: this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.state") || this._t("State")
+				},
+				{
+					value: "icon",
+					label: this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.displayed_elements_options.icon") || this._t("Icon")
+				}
+			]
+		} }}
+                        .value=${i}
+                        @value-changed=${(e) => {
+			let t = e.detail.value || [];
+			this._updateConfig({
+				show_name: t.includes("name") ? !0 : void 0,
+				show_state: t.includes("state") ? void 0 : !1,
+				show_icon: t.includes("icon") ? void 0 : !1
+			});
+		}}
+                      ></ha-selector>
+                    </div>
+                    ${a === "template" ? "" : C`
+                          <div class="field">
+                            <ha-selector
+                              .hass=${s}
+                              .label=${this.hass?.localize("ui.panel.lovelace.editor.card.heading.entity_config.state_content") || this._t("State content")}
+                              .selector=${{ ui_state_content: {
+			entity_id: c,
+			allow_name: !0
+		} }}
+                              .value=${this._config?.state_content || (a === "entity" ? "state" : "count")}
+                              @value-changed=${(e) => this._handleConfigUpdate("state_content", (() => {
+			let t = e.detail.value;
+			return !t || t === (a === "entity" ? "state" : "count") ? void 0 : t;
+		})())}
+                            ></ha-selector>
+                          </div>
+                        `}
+                  `}
+            </div>
+          </ha-expansion-panel>
+
+          ${qu.call(this, a)}
+        </div>
+
+        <div class="editor-version">
+          ${this._t("Orbit Status Badge v{version}", { version: t.statusBadge })}
+        </div>
+      </div>
+    `;
+	}
+	static styles = [...ss, d`
+      .content-panel,
+      .state-type-panel,
+      .badge-interactions-panel {
+        display: block;
+        --expansion-panel-content-padding: 0;
+        border-radius: var(--ha-border-radius-md);
+        --ha-card-border-radius: var(--ha-border-radius-md);
+      }
+
+      .content-panel > [slot="header"],
+      .state-type-panel > [slot="header"],
+      .badge-interactions-panel > [slot="header"] {
+        margin: 0;
+        font-size: inherit;
+        font-weight: inherit;
+      }
+
+      .content-panel ha-icon,
+      .state-type-panel ha-icon,
+      .badge-interactions-panel > ha-icon {
+        color: var(--secondary-text-color);
+      }
+
+      .content-panel-body {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+      }
+
+      .native-picker-label {
+        display: block;
+      }
+
+      .badge-interactions-content {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 12px;
+      }
+    `];
+};
+customElements.define("orbit-status-badge-editor", od);
+function sd(e) {
+	return e ? typeof e == "string" ? [{
+		type: "text",
+		text: e
+	}] : Array.isArray(e) ? [...e] : [e] : [];
+}
+function cd(e, t) {
+	if (!e) return;
+	if (e.matches?.(t)) return e;
+	let n = e.shadowRoot?.querySelector(t);
+	if (n) return n;
+	for (let n of e.shadowRoot?.querySelectorAll("*") || []) {
+		let e = cd(n, t);
+		if (e) return e;
+	}
 }
 //#endregion
 //#region src/badges/status-badge.js
