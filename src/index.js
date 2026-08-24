@@ -3,12 +3,9 @@
 // ==============================
 
 import { ORBIT_CARDS_VERSION } from "./version.js";
+import { logOrbitVersion } from "./common/helpers/version-log.js";
 
-console.info(
-  `%c Orbit Cards %c v${ORBIT_CARDS_VERSION} `,
-  "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;",
-  "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;"
-);
+logOrbitVersion("Orbit Cards", ORBIT_CARDS_VERSION);
 
 import "./cards/area-card.js";
 import "./cards/status-card.js";

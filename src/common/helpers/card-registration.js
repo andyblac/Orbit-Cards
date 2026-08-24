@@ -1,4 +1,5 @@
 import { getOrbitDocumentationURL } from "./documentation.js";
+import { logOrbitVersion } from "./version-log.js";
 
 export function registerOrbitCard({
   tag,
@@ -43,9 +44,5 @@ export function registerOrbitCard({
     getEntitySuggestion,
   });
 
-  console.info(
-    `%c ${name} %c v${version} `,
-    "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;",
-    "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;"
-  );
+  logOrbitVersion(name, version);
 }
