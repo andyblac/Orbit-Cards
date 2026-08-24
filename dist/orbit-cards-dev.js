@@ -1,4 +1,3 @@
-console.info("Orbit Cards development namespace active (-dev)");
 //#region src/version.js
 var e = "1.1.0-beta.1", t = {
 	area: "0.9.0",
@@ -13958,13 +13957,11 @@ function ad(e, t) {
 	} : e;
 	return Array.isArray(e) ? e.map(n) : n(e);
 }
-//#endregion
-//#region src/index.js
 du({
 	tag: "orbit-status-badge-dev",
 	badgeClass: rd,
 	name: "Orbit Status Badge (Dev)",
 	description: "Displays an entity, area count, or template state",
 	version: t.statusBadge
-}), console.info(`%c Orbit Cards %c v${e} `, "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;", "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;");
+}), console.info("Orbit Cards development namespace active (-dev)"), console.info(`%c Orbit Cards %c v${e} `, "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;", "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;");
 //#endregion

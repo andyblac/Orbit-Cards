@@ -43,12 +43,23 @@ const DEV_DISPLAY_NAMES = [
   "Orbit Status Badge",
 ];
 
-function namespaceOrbitDevBuild(enabled) {
+function namespaceOrbitDevSource(enabled) {
+  const sourceRoot = `${resolve("src")}/`;
+  const entry = resolve("src/index.js");
+
   return {
-    name: "namespace-orbit-dev-build",
-    enforce: "post",
-    renderChunk(code) {
-      if (!enabled) return null;
+    name: "namespace-orbit-dev-source",
+    enforce: "pre",
+    transform(code, id) {
+      const sourcePath = id.split("?", 1)[0];
+
+      if (
+        !enabled ||
+        !sourcePath.startsWith(sourceRoot) ||
+        !/\.(?:js|json)$/.test(sourcePath)
+      ) {
+        return null;
+      }
 
       let namespacedCode = code;
 
@@ -66,10 +77,11 @@ function namespaceOrbitDevBuild(enabled) {
         );
       }
 
-      return {
-        code: `console.info("Orbit Cards development namespace active (-dev)");\n${namespacedCode}`,
-        map: null,
-      };
+      if (sourcePath === entry) {
+        namespacedCode = `console.info("Orbit Cards development namespace active (-dev)");\n${namespacedCode}`;
+      }
+
+      return { code: namespacedCode, map: null };
     },
   };
 }
@@ -80,7 +92,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       copyOrbitDevIcons(),
-      namespaceOrbitDevBuild(isDevNamespace),
+      namespaceOrbitDevSource(isDevNamespace),
     ],
 
     build: {
