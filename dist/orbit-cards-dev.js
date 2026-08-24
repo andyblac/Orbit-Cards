@@ -12649,8 +12649,183 @@ function Ku(e) {
 	return e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 //#endregion
+//#region src/badges/styles/status-badge-styles.js
+var qu = d`
+  .card-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: var(--ha-border-radius-md);
+    background-color: var(--tile-badge-background-color);
+    transition: background-color 280ms ease-in-out;
+    box-sizing: border-box;
+    user-select: none;
+  }
+
+  .card-badge[role="button"] {
+    cursor: pointer;
+  }
+
+  .card-badge:focus-visible {
+    outline: 2px solid var(--tile-badge-background-color);
+    outline-offset: 2px;
+  }
+
+  .card-badge > * {
+    color: var(--tile-badge-icon-color);
+  }
+
+  .card-badge .image-icon {
+    width: 12px;
+    height: 12px;
+    color: var(--tile-badge-icon-color);
+  }
+
+  .image-icon {
+    width: var(--ha-badge-icon-size, 18px);
+    height: var(--ha-badge-icon-size, 18px);
+    display: block;
+    line-height: 0;
+    color: var(--icon-color, var(--badge-color));
+  }
+
+  :host([heading-badge]) .image-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  :host([heading-badge]) .entity-picture {
+    width: 18px;
+    height: 18px;
+    border-radius: var(--ha-border-radius-circle);
+    object-fit: cover;
+  }
+
+  :host([heading-badge]) ha-state-icon {
+    --mdc-icon-size: 18px;
+  }
+
+  .image-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .template-state {
+    white-space: pre-line;
+  }
+
+  ha-adaptive-dialog {
+    --ha-dialog-min-height: auto;
+    --ha-bottom-sheet-height: auto;
+  }
+
+  .active-entities-dialog-content {
+    min-width: 0;
+    padding: 0 var(--ha-space-4, 16px);
+  }
+
+  .active-entity-row {
+    display: flex;
+    align-items: center;
+    gap: var(--ha-space-3, 12px);
+    min-height: 56px;
+    padding: var(--ha-space-2, 8px) 0;
+    border-top: 1px solid var(--divider-color);
+  }
+
+  .active-entity-row > ha-state-icon {
+    flex: 0 0 auto;
+    margin: 12px;
+  }
+
+  .active-entity-row ha-state-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    line-height: 0;
+    --mdc-icon-size: 36px;
+  }
+
+  .active-entity-control-button {
+    display: grid;
+    flex: 0 0 auto;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    outline: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .active-entity-control-button ha-state-icon {
+    pointer-events: none;
+  }
+
+  .active-entity-control-button:focus-visible,
+  .active-entity-control-button:hover {
+    background: var(--secondary-background-color);
+  }
+
+  .active-entity-info {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--ha-space-2, 8px) 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .active-entity-info:focus-visible {
+    border-radius: var(--ha-border-radius-md);
+    background: var(--secondary-background-color);
+  }
+
+  .active-entity-name {
+    overflow: hidden;
+    color: var(--primary-text-color);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .active-entity-state-line {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    color: var(--secondary-text-color);
+    font-size: var(--ha-font-size-s, 12px);
+  }
+
+  .active-entity-state-line state-display {
+    color: var(--secondary-text-color);
+    font-size: var(--ha-font-size-s, 12px);
+  }
+
+  .active-entities-empty {
+    padding: var(--ha-space-5, 20px) 0;
+    color: var(--secondary-text-color);
+    text-align: center;
+  }
+`;
+//#endregion
 //#region src/editors/status-badge/sections.js
-function qu(e) {
+function Ju(e) {
 	let t = e === "entity" ? "more-info" : e === "area_count" ? "active-entities" : "none", n = {
 		id: "active-entities",
 		primary: this._t("Active entities"),
@@ -12677,7 +12852,7 @@ function qu(e) {
     </ha-expansion-panel>
   `;
 }
-function Ju(e = "entity") {
+function Yu(e = "entity") {
 	let t = this._config?.icon_source || (this._config?.icon ? "custom" : "domain");
 	return C`
     <div class="field main-entity-icon-source-field">
@@ -12713,7 +12888,7 @@ function Ju(e = "entity") {
     </div>
   `;
 }
-function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode: r }) {
+function Xu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode: r }) {
 	let i = this._config?.domain || "", a = r ? this._config?.card_visibility || "always" : e, o = r ? [
 		{
 			label: this._t("Always"),
@@ -12855,9 +13030,9 @@ function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                 .label=${this._t("Domain")}
                 .placeholder=${this._t("Domain")}
                 use-top-label
-                .getItems=${() => Qu.call(this)}
-                .valueRenderer=${(e) => $u.call(this, e)}
-                .rowRenderer=${ed}
+                .getItems=${() => $u.call(this)}
+                .valueRenderer=${(e) => ed.call(this, e)}
+                .rowRenderer=${td}
                 @value-changed=${(e) => this._updateConfig({
 		domain: e.detail.value || void 0,
 		device_class: void 0
@@ -12873,15 +13048,15 @@ function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                       .label=${this._t("Device class")}
                       .placeholder=${this._t("Device class")}
                       use-top-label
-                      .getItems=${() => td.call(this, i, n)}
-                      .valueRenderer=${(e) => nd.call(this, i, e)}
-                      .rowRenderer=${(e, t) => rd(e, t)}
+                      .getItems=${() => nd.call(this, i, n)}
+                      .valueRenderer=${(e) => rd.call(this, i, e)}
+                      .rowRenderer=${(e, t) => id(e, t)}
                       @value-changed=${(e) => this._handleConfigUpdate("device_class", e.detail.value || void 0)}
                     ></ha-generic-picker>
                   </div>
                 ` : ""}
 
-            ${Zu.call(this)}
+            ${Qu.call(this)}
           ` : a === "template" ? C`
               ${r ? "" : C`
                     <div class="field">
@@ -12892,7 +13067,7 @@ function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                         .value=${this._config?.state_template || ""}
                         @value-changed=${(e) => this._handleConfigUpdate("state_template", e.detail.value || "")}
                       ></ha-selector>
-                      ${Xu.call(this, this._config?.state_template)}
+                      ${Zu.call(this, this._config?.state_template)}
                     </div>
                   `}
               <div class="field">
@@ -12903,7 +13078,7 @@ function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                   .value=${this._config?.active_template || ""}
                   @value-changed=${(e) => this._handleConfigUpdate("active_template", e.detail.value || void 0)}
                 ></ha-selector>
-                ${Xu.call(this, this._config?.active_template)}
+                ${Zu.call(this, this._config?.active_template)}
               </div>
               ${r ? C`
                     <div class="field">
@@ -12914,7 +13089,7 @@ function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                         .value=${this._config?.inactive_template || ""}
                         @value-changed=${(e) => this._handleConfigUpdate("inactive_template", e.detail.value || void 0)}
                       ></ha-selector>
-                      ${Xu.call(this, this._config?.inactive_template)}
+                      ${Zu.call(this, this._config?.inactive_template)}
                     </div>
                   ` : ""}
               ${r ? "" : C`
@@ -12926,18 +13101,18 @@ function Yu({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                         .value=${this._config?.name_template || ""}
                         @value-changed=${(e) => this._handleConfigUpdate("name_template", e.detail.value || void 0)}
                       ></ha-selector>
-                      ${Xu.call(this, this._config?.name_template)}
+                      ${Zu.call(this, this._config?.name_template)}
                     </div>
                   `}
             ` : ""}
     </div>
   `;
 }
-function Xu(e, t = "") {
+function Zu(e, t = "") {
 	let n = Lt.call(this, e, t);
 	return n ? C`<ha-alert alert-type="error">${n}</ha-alert>` : "";
 }
-function Zu() {
+function Qu() {
 	let e = Su(this._config), t = e.some((e) => e.type === "hidden"), n = e.filter((e) => e.type === "label").map((e) => e.label), r = ({ hidden: e = t, labels: r = n } = {}) => {
 		this._updateConfig({ hide: Cu([...e ? [{ type: "hidden" }] : [], ...r.map((e) => ({
 			type: "label",
@@ -12972,7 +13147,7 @@ function Zu() {
     </div>
   `;
 }
-function Qu() {
+function $u() {
 	return vu.map((e) => ({
 		id: e.value,
 		primary: this._t(e.label),
@@ -12980,14 +13155,14 @@ function Qu() {
 		icon: e.icon
 	}));
 }
-function $u(e) {
+function ed(e) {
 	let t = vu.find((t) => t.value === e);
 	return t ? C`
     <ha-icon slot="start" .icon=${t.icon}></ha-icon>
     <span slot="headline">${this._t(t.label)}</span>
   ` : "";
 }
-function ed(e, t) {
+function td(e, t) {
 	return C`
     <ha-combo-box-item type="button" compact .borderTop=${t !== 0}>
       <ha-icon slot="start" .icon=${e.icon}></ha-icon>
@@ -12995,24 +13170,24 @@ function ed(e, t) {
     </ha-combo-box-item>
   `;
 }
-function td(e, t) {
+function nd(e, t) {
 	return t.filter((e) => e.value).map((t) => ({
 		id: t.value,
 		primary: t.label,
 		sorting_label: t.label,
-		stateObj: id(e, t.value)
+		stateObj: ad(e, t.value)
 	}));
 }
-function nd(e, t) {
+function rd(e, t) {
 	return t ? C`
     <ha-state-icon
       slot="start"
-      .stateObj=${id(e, t)}
+      .stateObj=${ad(e, t)}
     ></ha-state-icon>
     <span slot="headline">${Eu(t)}</span>
   ` : "";
 }
-function rd(e, t) {
+function id(e, t) {
 	return C`
     <ha-combo-box-item type="button" compact .borderTop=${t !== 0}>
       <ha-state-icon slot="start" .stateObj=${e.stateObj}></ha-state-icon>
@@ -13020,7 +13195,7 @@ function rd(e, t) {
     </ha-combo-box-item>
   `;
 }
-function id(e, t) {
+function ad(e, t) {
 	return {
 		entity_id: `${e}.orbit_status_badge_picker`,
 		state: "off",
@@ -13029,7 +13204,7 @@ function id(e, t) {
 }
 //#endregion
 //#region src/editors/status-badge-editor.js
-var ad = "sensor.orbit_status_badge_preview", od = class extends O {
+var od = "sensor.orbit_status_badge_preview", sd = class extends O {
 	static svgCache = L;
 	static properties = {
 		hass: { attribute: !1 },
@@ -13077,7 +13252,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
 		Ft.call(this, r);
 	}
 	_enhanceNamePicker() {
-		let e = this.shadowRoot?.querySelector(".status-badge-name-selector"), t = cd(e, "ha-entity-name-picker");
+		let e = this.shadowRoot?.querySelector(".status-badge-name-selector"), t = ld(e, "ha-entity-name-picker");
 		if (!t) {
 			this._namePickerEnhanceAttempts < 10 && this._scheduleNamePickerEnhancement();
 			return;
@@ -13085,7 +13260,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
 		if (this._namePickerEnhanceAttempts = 0, t.__orbitTemplateNameEnhanced) return;
 		let n = t._getFilteredItems, r = t._validTypes, i = t._formatItem, a = t._pickerValueChanged;
 		typeof n != "function" || typeof r != "function" || typeof i != "function" || typeof a != "function" || (t.__orbitTemplateNameEnhanced = !0, t._validTypes = (e) => new Set([...r.call(t, e), "template"]), t._formatItem = (e) => e?.type === "template" ? this._t("Template") : i.call(t, e), t._getFilteredItems = () => {
-			let e = n.call(t), r = sd(t.value), i = t._editIndex != null && r[t._editIndex]?.type === "template";
+			let e = n.call(t), r = cd(t.value), i = t._editIndex != null && r[t._editIndex]?.type === "template";
 			if (!r.some((e) => e?.type === "template") || i) {
 				let t = String(F.call(this, this._config?.name_template, "") ?? "").trim(), n = this._t("Template"), r = t || this._t("Not configured");
 				e.push({
@@ -13107,7 +13282,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
 				return;
 			}
 			if (e.stopPropagation(), t.disabled) return;
-			let n = sd(t.value), r = { type: "template" };
+			let n = cd(t.value), r = { type: "template" };
 			t._editIndex == null ? n.push(r) : (n[t._editIndex] = r, t._editIndex = void 0), t._setValue(n), t._picker && (t._picker.value = void 0);
 		}, t.requestUpdate());
 	}
@@ -13168,7 +13343,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
 	}
 	_getStateContentHass() {
 		let e = (/* @__PURE__ */ new Date()).toISOString(), t = this.hass?.areas?.[this._config?.area]?.name, n = this._config?.name_template?.trim() || "", r = {
-			entity_id: ad,
+			entity_id: od,
 			state: "on",
 			attributes: {
 				count: 2,
@@ -13186,8 +13361,8 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
 			...this.hass,
 			entities: {
 				...this.hass?.entities || {},
-				[ad]: {
-					entity_id: ad,
+				[od]: {
+					entity_id: od,
 					platform: "orbit",
 					area_id: this._config?.area || null,
 					device_id: null
@@ -13195,7 +13370,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
 			},
 			states: {
 				...this.hass?.states || {},
-				[ad]: r
+				[od]: r
 			}
 		};
 	}
@@ -13204,7 +13379,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
 			...this._config?.show_name === !0 ? ["name"] : [],
 			...this._config?.show_state === !1 ? [] : ["state"],
 			...this._config?.show_icon === !1 ? [] : ["icon"]
-		], a = $(this._config), o = this._config?.entity || "", s = a === "entity" && o ? this.hass : this._getStateContentHass(), c = a === "entity" && o ? o : ad;
+		], a = $(this._config), o = this._config?.entity || "", s = a === "entity" && o ? this.hass : this._getStateContentHass(), c = a === "entity" && o ? o : od;
 		return C`
       <div class="wrapper">
         <div class="section">
@@ -13243,7 +13418,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
               ${this._t("State type")}
             </div>
             <div class="content-panel-body">
-              ${Yu.call(this, {
+              ${Xu.call(this, {
 			stateSource: a,
 			domainConfig: r,
 			deviceClassOptions: n,
@@ -13284,7 +13459,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
                 ${this._renderColor(["Inactive", "Color"], "accent_off_color", e ? "white" : "theme")}
               </div>
 
-              ${Ju.call(this, a)}
+              ${Yu.call(this, a)}
 
               ${e ? "" : C`
                     <div class="field">
@@ -13341,7 +13516,7 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
             </div>
           </ha-expansion-panel>
 
-          ${qu.call(this, a)}
+          ${Ju.call(this, a)}
         </div>
 
         <div class="editor-version">
@@ -13393,26 +13568,26 @@ var ad = "sensor.orbit_status_badge_preview", od = class extends O {
       }
     `];
 };
-customElements.define("orbit-status-badge-dev-editor", od);
-function sd(e) {
+customElements.define("orbit-status-badge-dev-editor", sd);
+function cd(e) {
 	return e ? typeof e == "string" ? [{
 		type: "text",
 		text: e
 	}] : Array.isArray(e) ? [...e] : [e] : [];
 }
-function cd(e, t) {
+function ld(e, t) {
 	if (!e) return;
 	if (e.matches?.(t)) return e;
 	let n = e.shadowRoot?.querySelector(t);
 	if (n) return n;
 	for (let n of e.shadowRoot?.querySelectorAll("*") || []) {
-		let e = cd(n, t);
+		let e = ld(n, t);
 		if (e) return e;
 	}
 }
 //#endregion
 //#region src/badges/status-badge.js
-var ld = class extends O {
+var ud = class extends O {
 	static svgCache = L;
 	static properties = {
 		hass: { attribute: !1 },
@@ -13510,7 +13685,7 @@ var ld = class extends O {
 			entity_id: `${f}.orbit_status_badge`,
 			state: v.state,
 			attributes: this._config?.device_class ? { device_class: this._config.device_class } : {}
-		}, se = this.hass?.areas?.[this._config?.area]?.name || "", ce = this._config?.name, y = this._config?.device_class ? Eu(this._config.device_class) : "", le = (d && this.hass?.formatEntityName ? this.hass.formatEntityName(d) : "") || (e === "template" ? "Template" : se || y || p.label), ue = ce && this.hass?.formatEntityName && this.hass.formatEntityName(v, dd(ce, ae)) || le, de = m === "custom" ? u && this._config?.icon_on ? "icon_on" : !u && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : "";
+		}, se = this.hass?.areas?.[this._config?.area]?.name || "", ce = this._config?.name, y = this._config?.device_class ? Eu(this._config.device_class) : "", le = (d && this.hass?.formatEntityName ? this.hass.formatEntityName(d) : "") || (e === "template" ? "Template" : se || y || p.label), ue = ce && this.hass?.formatEntityName && this.hass.formatEntityName(v, fd(ce, ae)) || le, de = m === "custom" ? u && this._config?.icon_on ? "icon_on" : !u && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : "";
 		return {
 			entities: t,
 			activeEntities: n,
@@ -13586,7 +13761,7 @@ var ld = class extends O {
 			this._longPressTriggered = !1;
 			return;
 		}
-		let n = ud(this._config);
+		let n = dd(this._config);
 		return j.call(this, e, t, this._config?.tap_action || n, this._config?.double_tap_action);
 	}
 	_handleDoubleTap(e, t) {
@@ -13740,7 +13915,7 @@ var ld = class extends O {
 		});
 	}
 	render() {
-		let e = this._getModel(), t = e.activeEntities[0]?.entity_id || e.entities[0]?.entity_id || null, n = k(this._config?.tap_action || ud(this._config)) || k(this._config?.hold_action) || k(this._config?.double_tap_action), r = this._config?.display_style === "badge", i = this._config?.card_visibility || "always", a = i === "always" || i === "state" && e.isOn || i === "template" && (e.isOn || e.inactiveTemplateActive), o = !r && this._config?.show_state !== !1, s = !r && this._config?.show_name === !0, c = r || this._config?.show_icon !== !1, l = this._config?.card_color ? N(this._config.card_color) : "var(--primary-color)", u = `--badge-color:${e.iconColor};`, d = [
+		let e = this._getModel(), t = e.activeEntities[0]?.entity_id || e.entities[0]?.entity_id || null, n = k(this._config?.tap_action || dd(this._config)) || k(this._config?.hold_action) || k(this._config?.double_tap_action), r = this._config?.display_style === "badge", i = this._config?.card_visibility || "always", a = i === "always" || i === "state" && e.isOn || i === "template" && (e.isOn || e.inactiveTemplateActive), o = !r && this._config?.show_state !== !1, s = !r && this._config?.show_name === !0, c = r || this._config?.show_icon !== !1, l = this._config?.card_color ? N(this._config.card_color) : "var(--primary-color)", u = `--badge-color:${e.iconColor};`, d = [
 			`--tile-badge-background-color:${l}`,
 			`--tile-badge-icon-color:${e.hasIconColorOverride ? e.iconColor : "var(--white-color, #fff)"}`,
 			"--mdc-icon-size:12px"
@@ -13819,185 +13994,13 @@ var ld = class extends O {
           </ha-badge>
         `}${m}`;
 	}
-	static styles = d`
-    .card-badge {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 0;
-      width: 16px;
-      height: 16px;
-      border-radius: var(--ha-border-radius-md);
-      background-color: var(--tile-badge-background-color);
-      transition: background-color 280ms ease-in-out;
-      box-sizing: border-box;
-      user-select: none;
-    }
-
-    .card-badge[role="button"] {
-      cursor: pointer;
-    }
-
-    .card-badge:focus-visible {
-      outline: 2px solid var(--tile-badge-background-color);
-      outline-offset: 2px;
-    }
-
-    .card-badge > * {
-      color: var(--tile-badge-icon-color);
-    }
-
-    .card-badge .image-icon {
-      width: 12px;
-      height: 12px;
-      color: var(--tile-badge-icon-color);
-    }
-
-    .image-icon {
-      width: var(--ha-badge-icon-size, 18px);
-      height: var(--ha-badge-icon-size, 18px);
-      display: block;
-      line-height: 0;
-      color: var(--icon-color, var(--badge-color));
-    }
-
-    :host([heading-badge]) .image-icon {
-      width: 18px;
-      height: 18px;
-    }
-
-    :host([heading-badge]) .entity-picture {
-      width: 18px;
-      height: 18px;
-      border-radius: var(--ha-border-radius-circle);
-      object-fit: cover;
-    }
-
-    :host([heading-badge]) ha-state-icon {
-      --mdc-icon-size: 18px;
-    }
-
-    .image-icon svg {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-
-    .template-state {
-      white-space: pre-line;
-    }
-
-    ha-adaptive-dialog {
-      --ha-dialog-min-height: auto;
-      --ha-bottom-sheet-height: auto;
-    }
-
-    .active-entities-dialog-content {
-      min-width: 0;
-      padding: 0 var(--ha-space-4, 16px);
-    }
-
-    .active-entity-row {
-      display: flex;
-      align-items: center;
-      gap: var(--ha-space-3, 12px);
-      min-height: 56px;
-      padding: var(--ha-space-2, 8px) 0;
-      border-top: 1px solid var(--divider-color);
-    }
-
-    .active-entity-row > ha-state-icon {
-      flex: 0 0 auto;
-      margin: 12px;
-    }
-
-    .active-entity-row ha-state-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      line-height: 0;
-      --mdc-icon-size: 36px;
-    }
-
-    .active-entity-control-button {
-      display: grid;
-      flex: 0 0 auto;
-      width: 48px;
-      height: 48px;
-      padding: 0;
-      place-items: center;
-      border: 0;
-      border-radius: 50%;
-      outline: 0;
-      background: transparent;
-      color: inherit;
-      cursor: pointer;
-    }
-
-    .active-entity-control-button ha-state-icon {
-      pointer-events: none;
-    }
-
-    .active-entity-control-button:focus-visible,
-    .active-entity-control-button:hover {
-      background: var(--secondary-background-color);
-    }
-
-    .active-entity-info {
-      display: flex;
-      flex: 1 1 auto;
-      min-width: 0;
-      flex-direction: column;
-      gap: 2px;
-      padding: var(--ha-space-2, 8px) 0;
-      border: 0;
-      outline: 0;
-      background: transparent;
-      color: inherit;
-      font: inherit;
-      text-align: start;
-      cursor: pointer;
-    }
-
-    .active-entity-info:focus-visible {
-      border-radius: var(--ha-border-radius-md);
-      background: var(--secondary-background-color);
-    }
-
-    .active-entity-name {
-      overflow: hidden;
-      color: var(--primary-text-color);
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .active-entity-state-line {
-      display: flex;
-      align-items: baseline;
-      gap: 5px;
-      color: var(--secondary-text-color);
-      font-size: var(--ha-font-size-s, 12px);
-    }
-
-    .active-entity-state-line state-display {
-      color: var(--secondary-text-color);
-      font-size: var(--ha-font-size-s, 12px);
-    }
-
-    .active-entities-empty {
-      padding: var(--ha-space-5, 20px) 0;
-      color: var(--secondary-text-color);
-      text-align: center;
-    }
-  `;
+	static styles = qu;
 };
-function ud(e = {}) {
+function dd(e = {}) {
 	let t = $(e);
 	return t === "entity" ? { action: "more-info" } : t === "area_count" ? { action: "active-entities" } : { action: "none" };
 }
-function dd(e, t) {
+function fd(e, t) {
 	let n = (e) => e?.type === "template" ? {
 		type: "text",
 		text: t
@@ -14006,7 +14009,7 @@ function dd(e, t) {
 }
 _u({
 	tag: "orbit-status-badge-dev",
-	badgeClass: ld,
+	badgeClass: ud,
 	name: "Orbit Status Badge (Dev)",
 	description: "Displays an entity, area count, or template state",
 	version: t.statusBadge
