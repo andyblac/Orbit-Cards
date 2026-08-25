@@ -36,6 +36,8 @@ export function migrateStatusCardConfig(config = {}) {
   const nextConfig = { ...(config || {}) };
   let migrated = migrateTemplateKeys(nextConfig);
 
+  migrated = migrateStatusName(nextConfig) || migrated;
+
   if (Object.prototype.hasOwnProperty.call(nextConfig, "main_entity")) {
     if (
       nextConfig.entity === undefined &&
@@ -54,7 +56,9 @@ export function migrateStatusCardConfig(config = {}) {
       if (!item || typeof item === "string") return item;
 
       const nextItem = { ...item };
-      const itemMigrated = migrateTemplateKeys(nextItem);
+      const templateMigrated = migrateTemplateKeys(nextItem);
+      const nameMigrated = migrateStatusName(nextItem);
+      const itemMigrated = templateMigrated || nameMigrated;
 
       migrated ||= itemMigrated;
       return itemMigrated ? nextItem : item;
@@ -69,6 +73,23 @@ export function migrateStatusCardConfig(config = {}) {
     config: migrated ? nextConfig : config,
     migrated,
   };
+}
+
+function migrateStatusName(config) {
+  if (!Object.prototype.hasOwnProperty.call(config, "status_name")) {
+    return false;
+  }
+
+  if (
+    config.name === undefined &&
+    config.status_name !== undefined &&
+    config.status_name !== ""
+  ) {
+    config.name = config.status_name;
+  }
+
+  delete config.status_name;
+  return true;
 }
 
 function migrateTemplateKeys(config) {
