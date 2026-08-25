@@ -43,6 +43,7 @@ import {
 } from "../common/helpers/documentation.js";
 import {
   CURRENT_STATE_ACTION,
+  getStatusBadgeStateSource,
   pickStatusSourceConfig,
   STATUS_SOURCE_CONFIG_KEYS,
 } from "../common/helpers/status-badge.js";
@@ -176,7 +177,15 @@ class OrbitStatusCardEditor extends LitElement {
       return;
     }
 
-    if (key === "main_entity") {
+    if (
+      key === "entity" &&
+      getStatusBadgeStateSource(this._config) !== "entity"
+    ) {
+      this._handleConfigUpdate(key, value);
+      return;
+    }
+
+    if (key === "entity") {
       this._clearMainEntity();
       return;
     }
@@ -195,14 +204,14 @@ class OrbitStatusCardEditor extends LitElement {
   _clearMainEntity() {
     if (this._config?.mode === "person") {
       this._updateConfig(clearEntityConfig(
-        "main_entity",
+        "entity",
         PERSON_ENTITY_DEPENDENT_KEYS
       ));
       return;
     }
 
     this._updateConfig(clearEntityConfig(
-      "main_entity",
+      "entity",
       STATUS_ENTITY_DEPENDENT_KEYS
     ));
   }
@@ -218,7 +227,7 @@ class OrbitStatusCardEditor extends LitElement {
 
     return [
       {
-        entity: config?.main_entity || "",
+        entity: config?.entity || "",
         ...pickStatusSourceConfig(config),
         accent_on_color: config?.accent_on_color || "",
         accent_off_color: config?.accent_off_color || "",
@@ -227,7 +236,7 @@ class OrbitStatusCardEditor extends LitElement {
         main_entity_icon_on: config?.main_entity_icon_on || "",
         main_entity_icon_off: config?.main_entity_icon_off || "",
         state_template: config?.state_template || "",
-        label_template: config?.label_template || "",
+        name_template: config?.name_template || "",
         tap_action: config?.tap_action,
         hold_action: config?.hold_action,
         double_tap_action: config?.double_tap_action,
@@ -237,6 +246,46 @@ class OrbitStatusCardEditor extends LitElement {
           config?.main_entity_double_tap_action,
       },
     ];
+  }
+
+  _handleStatusModeChange(nextMode) {
+    if (this._config?.mode === "icon_only" && nextMode === "standard") {
+      const items = this._getStatusItems();
+      const selectedIndex = Math.min(
+        this._selectedStatusIndex || 0,
+        items.length - 1
+      );
+      const item = items[selectedIndex] || {};
+
+      this._updateConfig({
+        ...clearKeys(STATUS_GROUP_ROOT_KEYS),
+        mode: nextMode,
+        entities: undefined,
+        entity: item.entity || undefined,
+        ...pickStatusSourceConfig(item),
+        accent_on_color: item.accent_on_color,
+        accent_off_color: item.accent_off_color,
+        main_entity_icon_source: item.main_entity_icon_source,
+        main_entity_icon: item.main_entity_icon,
+        main_entity_icon_on: item.main_entity_icon_on,
+        main_entity_icon_off: item.main_entity_icon_off,
+        state_template: item.state_template,
+        name_template: item.name_template,
+        tap_action: item.tap_action,
+        hold_action: item.hold_action,
+        double_tap_action: item.double_tap_action,
+        main_entity_tap_action: item.main_entity_tap_action,
+        main_entity_hold_action: item.main_entity_hold_action,
+        main_entity_double_tap_action:
+          item.main_entity_double_tap_action,
+      });
+      return;
+    }
+
+    this._updateConfig({
+      mode: nextMode,
+      ...(nextMode === "icon_only" ? {} : { entities: undefined }),
+    });
   }
 
   _selectStatusItem(index) {
@@ -283,7 +332,7 @@ class OrbitStatusCardEditor extends LitElement {
 
     if (items.length <= 1) {
       this._updateConfig(clearEntityConfig(
-        "main_entity",
+        "entity",
         STATUS_ENTITY_DEPENDENT_KEYS
       ));
       return;
@@ -329,7 +378,10 @@ class OrbitStatusCardEditor extends LitElement {
       ...changes,
     };
 
-    if (changes.entity === "") {
+    if (
+      changes.entity === "" &&
+      getStatusBadgeStateSource(nextItem) === "entity"
+    ) {
       cleanClearedStatusItem(nextItem);
     }
 
@@ -352,16 +404,19 @@ class OrbitStatusCardEditor extends LitElement {
       return;
     }
 
-    if (changes.entity === "") {
+    if (
+      changes.entity === "" &&
+      getStatusBadgeStateSource(nextItem) === "entity"
+    ) {
       this._updateConfig(clearEntityConfig(
-        "main_entity",
+        "entity",
         STATUS_ENTITY_DEPENDENT_KEYS
       ));
       return;
     }
 
     this._updateConfig({
-      main_entity: nextItem.entity || "",
+      entity: nextItem.entity || "",
       ...pickStatusSourceConfig(nextItem),
       accent_on_color: nextItem.accent_on_color || "",
       accent_off_color: nextItem.accent_off_color || "",
@@ -370,7 +425,7 @@ class OrbitStatusCardEditor extends LitElement {
       main_entity_icon_on: nextItem.main_entity_icon_on || "",
       main_entity_icon_off: nextItem.main_entity_icon_off || "",
       state_template: nextItem.state_template || "",
-      label_template: nextItem.label_template || "",
+      name_template: nextItem.name_template || "",
       tap_action: nextItem.tap_action,
       hold_action: nextItem.hold_action,
       double_tap_action: nextItem.double_tap_action,
@@ -619,7 +674,7 @@ const STATUS_ENTITY_DEPENDENT_KEYS = [
   "main_entity_icon_on",
   "main_entity_icon_off",
   "state_template",
-  "label_template",
+  "name_template",
   "tap_action",
   "hold_action",
   "double_tap_action",
@@ -629,7 +684,7 @@ const STATUS_ENTITY_DEPENDENT_KEYS = [
 ];
 
 const STATUS_GROUP_ROOT_KEYS = [
-  "main_entity",
+  "entity",
   ...STATUS_ENTITY_DEPENDENT_KEYS,
 ];
 
@@ -665,7 +720,7 @@ const STATUS_ITEM_KEYS = [
   "main_entity_icon_on_svg_color_override",
   "main_entity_icon_off_svg_color_override",
   "state_template",
-  "label_template",
+  "name_template",
   "tap_action",
   "hold_action",
   "double_tap_action",
@@ -677,8 +732,8 @@ const STATUS_ITEM_KEYS = [
 const STATUS_CONFIG_ORDER = [
   "type",
   "mode",
-  "status_name",
-  "main_entity",
+  "name",
+  "entity",
   ...STATUS_SOURCE_CONFIG_KEYS,
   "tracker_entity",
   "eta_entity",
@@ -694,7 +749,7 @@ const STATUS_CONFIG_ORDER = [
   "main_entity_icon_on_svg_color_override",
   "main_entity_icon_off_svg_color_override",
   "state_template",
-  "label_template",
+  "name_template",
   "tap_action",
   "hold_action",
   "double_tap_action",
@@ -711,6 +766,7 @@ const STATUS_CONFIG_ORDER = [
 
 function orderStatusConfig(config) {
   const cleanedConfig = cleanEmptyStatusValues(config);
+  if (cleanedConfig.mode !== "icon_only") delete cleanedConfig.entities;
   moveRootAreaCountToStatusItems(cleanedConfig);
   cleanAreaCountEntity(cleanedConfig);
   cleanDefaultStatusActions(cleanedConfig);

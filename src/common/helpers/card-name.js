@@ -17,15 +17,6 @@ export function getCardName(config, hass, fallback = "Card") {
       fallback
     );
   }
-  if (config.status_name) {
-    return formatCardNameValue(
-      config.status_name,
-      config,
-      hass,
-      fallback
-    );
-  }
-
   const areaId = config.area;
 
   if (areaId && hass?.areas?.[areaId]) {

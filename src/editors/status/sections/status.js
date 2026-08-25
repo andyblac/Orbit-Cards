@@ -28,7 +28,7 @@ export function renderStatusSection() {
     ? "entity"
     : getStatusBadgeStateSource(this._config);
   const cardActionDefault =
-    stateSource === "area_count"
+    stateSource === "area_count" || stateSource === "template"
       ? "more-info"
       : isIconOnly || isPerson
       ? "more-info"
@@ -59,9 +59,9 @@ export function renderStatusSection() {
             }}
             .value=${mode}
             @value-changed=${(e) =>
-              this._updateConfig({
-                mode: e.detail.value || "standard",
-              })}
+              this._handleStatusModeChange(
+                e.detail.value || "standard"
+              )}
           ></ha-selector>
         </div>
       </div>
@@ -77,7 +77,7 @@ export function renderStatusSection() {
             ${isPerson
               ? renderStatusContentPanel.call(this, html`
                   ${renderStatusNamePicker.call(this)}
-                  ${this._renderEntity("Person entity", "main_entity")}
+                  ${this._renderEntity("Person entity", "entity")}
                   ${this._renderEntity("Tracker entity", "tracker_entity")}
                   ${this._renderEntity("ETA entity", "eta_entity")}
                   ${this._renderEntity("Battery entity {index}", "battery_entity_1", { index: 1 })}
@@ -91,10 +91,10 @@ export function renderStatusSection() {
                   ${renderStatusStateType.call(
                     this,
                     this._config,
-                    "main_entity",
+                    "entity",
                     (changes) => this._updateConfig(changes),
                     (value) => this._handleEntityUpdate(
-                      "main_entity",
+                      "entity",
                       value
                     )
                   )}
@@ -112,15 +112,11 @@ export function renderStatusSection() {
                             "State template",
                             "state_template"
                           )}
-                          ${this._renderTemplateInput(
-                            "Label template",
-                            "label_template"
-                          )}
                         `}
                   `)}
                 `}
 
-            ${this._config?.main_entity || stateSource === "area_count"
+            ${this._config?.entity || stateSource !== "entity"
               ? renderInteractionsSection.call(this, {
                   interactions: [
                     {
@@ -167,7 +163,7 @@ export function renderStatusSection() {
                     },
                   ],
                   context: {
-                    entity_id: this._config.main_entity,
+                    entity_id: this._config.entity,
                     area_id: this._config.area,
                   },
                 })
@@ -179,10 +175,12 @@ export function renderStatusSection() {
 
 function renderStatusNamePicker() {
   return renderNamePicker.call(this, {
-    label: "Status name",
-    valueKey: "status_name",
-    entityKey: "main_entity",
+    label: "Name",
+    valueKey: "name",
+    entityKey: "entity",
     defaultType: "entity",
+    defaultMode: "template",
+    templateKey: "name_template",
   });
 }
 
@@ -196,8 +194,8 @@ function renderIconOnlyStatusConfig({
     items.length - 1
   );
   const selectedItem = items[selectedIndex] || {};
-  const selectedIsAreaCount =
-    getStatusBadgeStateSource(selectedItem) === "area_count";
+  const selectedStateSource = getStatusBadgeStateSource(selectedItem);
+  const selectedIsAreaCount = selectedStateSource === "area_count";
   const selectedCardActionDefault = selectedIsAreaCount
     ? "more-info"
     : cardActionDefault;
@@ -345,17 +343,10 @@ function renderIconOnlyStatusConfig({
                 selectedIndex,
                 selectedItem
               )}
-              ${renderStatusItemInput.call(
-                this,
-                "Label template",
-                "label_template",
-                selectedIndex,
-                selectedItem
-              )}
             `}
       `)}
 
-      ${selectedItem.entity || selectedIsAreaCount
+      ${selectedItem.entity || selectedStateSource !== "entity"
         ? this._renderStatusItemInteractions(
             selectedIndex,
             selectedItem,
@@ -422,9 +413,9 @@ function renderStatusStateType(
             config,
             updateConfig,
           }),
-          renderEntityPicker: () => html`
+          renderEntityPicker: (label = "Main entity") => html`
             <div class="field">
-              <label>${this._t("Main entity")}</label>
+              ${label ? html`<label>${this._t(label)}</label>` : ""}
               ${renderEntitySelector.call(this, {
                 value: config?.[entityKey] || "",
                 filterOptions: STATUS_MAIN_ENTITY_DOMAIN_FILTERS,
@@ -494,7 +485,7 @@ function renderStatusIconSource() {
   return renderIconSourceControl.call(this, {
     label: "Icon",
     sourceKey: "main_entity_icon_source",
-    entityKey: "main_entity",
+    entityKey: "entity",
     customIconKeys: [
       "main_entity_icon",
       "main_entity_icon_on",

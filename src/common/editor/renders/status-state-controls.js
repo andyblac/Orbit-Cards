@@ -362,25 +362,22 @@ export function renderBadgeStateControl({
           : selectedType === "template"
             ? html`
               ${!badgeMode
-                ? html`
-                    <div class="field">
-                      <ha-selector
-                        .hass=${this.hass}
-                        .label=${this._t("Display template")}
-                        .selector=${{ template: {} }}
-                        .value=${this._config?.state_template || ""}
-                        @value-changed=${(e) =>
-                          this._handleConfigUpdate(
-                            "state_template",
-                            e.detail.value || ""
-                          )}
-                      ></ha-selector>
-                      ${renderTemplateError.call(
-                        this,
-                        this._config?.state_template
-                      )}
-                    </div>
-                  `
+                ? renderEntityPicker
+                  ? renderEntityPicker("")
+                  : html`
+                    <ha-selector
+                      .hass=${this.hass}
+                      .label=${""}
+                      .selector=${{ entity: {} }}
+                      .required=${false}
+                      .value=${this._config?.entity || ""}
+                      @value-changed=${(e) =>
+                        this._handleConfigUpdate(
+                          "entity",
+                          e.detail.value || ""
+                        )}
+                    ></ha-selector>
+                    `
                 : ""}
               <div class="field">
                 <ha-selector
@@ -396,7 +393,8 @@ export function renderBadgeStateControl({
                 ></ha-selector>
                 ${renderTemplateError.call(
                   this,
-                  this._config?.active_template
+                  this._config?.active_template,
+                  this._config?.entity || ""
                 )}
               </div>
               ${showInactiveTemplate
@@ -415,7 +413,8 @@ export function renderBadgeStateControl({
                       ></ha-selector>
                       ${renderTemplateError.call(
                         this,
-                        this._config?.inactive_template
+                        this._config?.inactive_template,
+                        this._config?.entity || ""
                       )}
                     </div>
                   `

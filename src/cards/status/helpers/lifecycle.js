@@ -45,7 +45,7 @@ export function updateStatusCard(changedProps) {
     return;
   }
 
-  const entityId = this._config.main_entity;
+  const entityId = this._config.entity;
   const statusState = getStatusState.call(
     this,
     {
@@ -72,7 +72,7 @@ export function getIconOnlyStatusItems(config = {}) {
 
   return [
     {
-      entity: config.main_entity,
+      entity: config.entity,
       ...pickStatusSourceConfig(config),
       accent_on_color: config.accent_on_color,
       accent_off_color: config.accent_off_color,
@@ -87,7 +87,7 @@ export function getIconOnlyStatusItems(config = {}) {
       main_entity_icon_off_svg_color_override:
         config.main_entity_icon_off_svg_color_override,
       state_template: config.state_template,
-      label_template: config.label_template,
+      name_template: config.name_template,
       tap_action: config.tap_action,
       hold_action: config.hold_action,
       double_tap_action: config.double_tap_action,
@@ -105,7 +105,7 @@ function getStatusState(item, rootConfig = {}) {
     ...item,
   };
   const stateSource = getStatusBadgeStateSource(config);
-  const configuredEntityId = item.entity || rootConfig.main_entity;
+  const configuredEntityId = item.entity || rootConfig.entity;
   const areaEntities = stateSource === "area_count"
     ? getStatusBadgeAreaEntities(this.hass, config)
     : [];
@@ -118,55 +118,60 @@ function getStatusState(item, rootConfig = {}) {
       ? this.hass.states[configuredEntityId]
       : null;
   const entityId = configuredEntityId || stateObj?.entity_id || "";
-  config.main_entity = entityId;
+  config.entity = entityId;
 
   const isIconOnly =
     config.mode === "icon_only";
 
   const hasConfiguredName =
     !isIconOnly &&
-    Object.prototype.hasOwnProperty.call(config, "status_name") &&
-    config.status_name !== undefined &&
-    config.status_name !== "";
-  const cardName = hasConfiguredName
-    ? formatCardNameValue(config.status_name, config, this.hass)
-    : getStatusAttribute(stateObj, "friendly_name") ||
-      entityId ||
-      localize(this.hass, "Status");
+    Object.prototype.hasOwnProperty.call(config, "name") &&
+    config.name !== undefined &&
+    config.name !== "";
 
   const templatedState = stateSource !== "area_count" && config.state_template
       ? this._evaluateStateTemplate(
           config.state_template,
-          stateSource === "template" ? "" : entityId
+          entityId
         )
       : null;
   const activeTemplate = stateSource === "template" && config.active_template
-    ? this._evaluateStateTemplate(config.active_template, "")
+    ? this._evaluateStateTemplate(config.active_template, entityId)
     : null;
   const inactiveTemplate = stateSource === "template" &&
       config.inactive_template
-    ? this._evaluateStateTemplate(config.inactive_template, "")
+    ? this._evaluateStateTemplate(config.inactive_template, entityId)
     : null;
 
-  const templatedLabel =
-    stateSource !== "area_count" && config.label_template
+  const templatedName =
+    stateSource !== "area_count" && config.name_template
       ? this._evaluateStateTemplate(
-          config.label_template,
+          config.name_template,
           entityId
         )
       : null;
 
-  const statusText =
-    templatedLabel ??
-    (stateSource === "template"
+  const cardName = templatedName !== null
+    ? String(templatedName)
+    : hasConfiguredName
+      ? formatCardNameValue(config.name, config, this.hass)
+      : getStatusAttribute(stateObj, "friendly_name") ||
+        entityId ||
+        localize(this.hass, "Status");
+
+  const statusText = stateSource === "template"
+    ? config.state_template
       ? String(templatedState ?? "")
-      : stateSource === "area_count"
-        ? String(activeAreaEntities.length)
-        :
-      getStatusAttribute(stateObj, "label") ||
-      (stateObj
-        ? this.formatState(stateObj)
-        : ""));
+      : stateObj
+        ? getStatusAttribute(stateObj, "label") ||
+          this.formatState(stateObj)
+        : ""
+    : stateSource === "area_count"
+      ? String(activeAreaEntities.length)
+      : getStatusAttribute(stateObj, "label") ||
+        (stateObj
+          ? this.formatState(stateObj)
+          : "");
 
   const customIcon =
     config.main_entity_icon;
@@ -177,12 +182,21 @@ function getStatusState(item, rootConfig = {}) {
   const customIconOff =
     config.main_entity_icon_off;
 
+  const hasConfiguredStateTemplate = Boolean(
+    config.state_template ||
+    config.active_template ||
+    config.inactive_template
+  );
   const isOn = stateSource === "template"
-    ? getTemplateResultActiveState(activeTemplate)
-      ? true
-      : getTemplateResultActiveState(inactiveTemplate)
-        ? false
-        : getTemplateResultActiveState(templatedState)
+    ? hasConfiguredStateTemplate
+      ? getTemplateResultActiveState(activeTemplate)
+        ? true
+        : getTemplateResultActiveState(inactiveTemplate)
+          ? false
+          : getTemplateResultActiveState(templatedState)
+      : stateObj
+        ? this._getEntityActiveState(stateObj)
+        : false
     : stateSource === "area_count"
       ? activeAreaEntities.length > 0
       : getStatusActiveState(
@@ -233,7 +247,7 @@ function getStatusState(item, rootConfig = {}) {
     ...item,
     entityId,
     stateObj,
-    useStateIcon: stateSource === "entity" && Boolean(stateObj) &&
+    useStateIcon: stateSource !== "area_count" && Boolean(stateObj) &&
       !customStateIcon,
     cardName,
     statusText,
@@ -283,7 +297,7 @@ function applyStatusState(state) {
 }
 
 function updatePersonStatusCard() {
-  const personId = this._config.main_entity;
+  const personId = this._config.entity;
   const trackerId = this._config.tracker_entity;
   const etaId = this._config.eta_entity;
 
@@ -303,13 +317,13 @@ function updatePersonStatusCard() {
       : null;
 
   const hasConfiguredName =
-    Object.prototype.hasOwnProperty.call(this._config, "status_name") &&
-    this._config.status_name !== undefined &&
-    this._config.status_name !== "";
+    Object.prototype.hasOwnProperty.call(this._config, "name") &&
+    this._config.name !== undefined &&
+    this._config.name !== "";
 
   this._cardName = hasConfiguredName
     ? formatCardNameValue(
-        this._config.status_name,
+        this._config.name,
         this._config,
         this.hass
       )
@@ -319,21 +333,22 @@ function updatePersonStatusCard() {
       trackerId ||
       localize(this.hass, "Person");
 
-  const templatedLabel =
-    this._config.label_template
+  const templatedName =
+    this._config.name_template
       ? this._evaluateStateTemplate(
-          this._config.label_template,
+          this._config.name_template,
           trackerId
         )
       : null;
 
+  if (templatedName !== null) {
+    this._cardName = String(templatedName);
+  }
+
   const baseStatus =
-    templatedLabel ??
-    (
-      trackerObj
-        ? formatPersonTrackerState.call(this, trackerObj)
-        : ""
-    );
+    trackerObj
+      ? formatPersonTrackerState.call(this, trackerObj)
+      : "";
 
   const eta =
     etaObj &&

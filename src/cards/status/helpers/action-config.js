@@ -48,7 +48,9 @@ export function getMainEntityDoubleTapAction() {
 export function getCardTapAction() {
   const sourceConfig = getPrimaryStatusConfig(this);
 
-  if (getStatusBadgeStateSource(sourceConfig) === "area_count") {
+  const stateSource = getStatusBadgeStateSource(sourceConfig);
+
+  if (stateSource === "area_count" || stateSource === "template") {
     return sourceConfig.tap_action?.action
       ? sourceConfig.tap_action
       : { action: "more-info" };

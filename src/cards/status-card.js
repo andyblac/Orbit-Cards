@@ -139,7 +139,7 @@ class OrbitStatusCard extends LitElement {
     return {
       type: "custom:orbit-status-card",
       mode: "standard",
-      main_entity: "",
+      entity: "",
     };
   }
 
@@ -259,7 +259,7 @@ class OrbitStatusCard extends LitElement {
     handleDoubleTapAction.call(
       this,
       ev,
-      this._config.main_entity,
+      this._config.entity,
       this._getCardDoubleTapAction()
     );
   }
@@ -331,7 +331,7 @@ class OrbitStatusCard extends LitElement {
     handleDoubleTapAction.call(
       this,
       ev,
-      this._config.main_entity,
+      this._config.entity,
       this._getMainEntityDoubleTapAction()
     );
   }
@@ -369,7 +369,7 @@ class OrbitStatusCard extends LitElement {
 
       this._handleAction(
         holdAction,
-        this._config.main_entity
+        this._config.entity
       );
     }, this._LONG_PRESS_DELAY);
   }
@@ -402,7 +402,7 @@ class OrbitStatusCard extends LitElement {
 
     this._handleAction(
       holdAction,
-      this._config.main_entity
+      this._config.entity
     );
   }
 
@@ -561,7 +561,7 @@ class OrbitStatusCard extends LitElement {
   }
 
   _getMainStateObj() {
-    const entityId = this._config.main_entity;
+    const entityId = this._config.entity;
 
     return entityId && this.hass
       ? this.hass.states[entityId]
@@ -607,23 +607,19 @@ class OrbitStatusCard extends LitElement {
               item.state_template,
               item.active_template,
               item.inactive_template,
-              item.label_template,
+              item.name_template,
             ])
           .filter(Boolean)
           .map((template) => ({
             template,
-            entityId: getStatusBadgeStateSource(item) === "template"
-              ? ""
-              : item.entity || item.main_entity || "",
+            entityId: item.entity || "",
           }))
       );
     }
 
     const entityId = this._config?.mode === "person"
       ? this._config?.tracker_entity || ""
-      : getStatusBadgeStateSource(this._config) === "template"
-        ? ""
-        : this._config?.main_entity || "";
+      : this._config?.entity || "";
 
     return (getStatusBadgeStateSource(this._config) === "area_count"
       ? []
@@ -631,7 +627,7 @@ class OrbitStatusCard extends LitElement {
           this._config?.state_template,
           this._config?.active_template,
           this._config?.inactive_template,
-          this._config?.label_template,
+          this._config?.name_template,
         ])
       .filter(Boolean)
       .map((template) => ({ template, entityId }));
@@ -642,7 +638,7 @@ class OrbitStatusCard extends LitElement {
       return getIconOnlyStatusItems(this._config).flatMap((item) =>
         getStatusBadgeStateSource(item) === "area_count"
           ? getStatusBadgeAreaEntityIds(this.hass, item)
-          : [item.entity || item.main_entity]
+          : [item.entity]
       );
     }
 
@@ -651,7 +647,7 @@ class OrbitStatusCard extends LitElement {
     }
 
     return [
-      this._config?.main_entity,
+      this._config?.entity,
       this._config?.tracker_entity,
       this._config?.eta_entity,
       this._config?.battery_entity_1,
@@ -692,7 +688,7 @@ class OrbitStatusCard extends LitElement {
 
       this._handleAction(
         holdAction,
-        this._config.main_entity
+        this._config.entity
       );
     }, this._LONG_PRESS_DELAY);
   }
@@ -765,7 +761,7 @@ class OrbitStatusCard extends LitElement {
 
       this._handleAction(
         holdAction,
-        this._config.main_entity
+        this._config.entity
       );
     }
   }
@@ -847,7 +843,7 @@ class OrbitStatusCard extends LitElement {
   _getStatusItemEntityId(index = 0) {
     const item = this._statusItems?.[index];
 
-    return item?.entityId || item?.entity || this._config.main_entity;
+    return item?.entityId || item?.entity || this._config.entity;
   }
 
   _getStatusColumnCount(count = this._statusItems?.length || 1) {
@@ -950,7 +946,7 @@ function getStatusEntitySuggestion(hass, entityId) {
       config: {
         type: "custom:orbit-status-card",
         mode: "person",
-        main_entity: entityId,
+        entity: entityId,
       },
     };
   }
@@ -964,7 +960,7 @@ function getStatusEntitySuggestion(hass, entityId) {
     config: {
       type: "custom:orbit-status-card",
       mode: "standard",
-      main_entity: entityId,
+      entity: entityId,
     },
   };
 
@@ -981,7 +977,7 @@ function getStatusEntitySuggestion(hass, entityId) {
       config: {
         type: "custom:orbit-status-card",
         mode: "icon_only",
-        main_entity: entityId,
+        entity: entityId,
       },
     },
   ];

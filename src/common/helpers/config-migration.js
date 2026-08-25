@@ -36,6 +36,19 @@ export function migrateStatusCardConfig(config = {}) {
   const nextConfig = { ...(config || {}) };
   let migrated = migrateTemplateKeys(nextConfig);
 
+  if (Object.prototype.hasOwnProperty.call(nextConfig, "main_entity")) {
+    if (
+      nextConfig.entity === undefined &&
+      nextConfig.main_entity !== undefined &&
+      nextConfig.main_entity !== ""
+    ) {
+      nextConfig.entity = nextConfig.main_entity;
+    }
+
+    delete nextConfig.main_entity;
+    migrated = true;
+  }
+
   if (Array.isArray(nextConfig.entities)) {
     const migratedEntities = nextConfig.entities.map((item) => {
       if (!item || typeof item === "string") return item;

@@ -7,18 +7,24 @@ export function renderNamePicker({
   entityKey = "main_entity",
   areaKey = "area",
   defaultType = "",
+  defaultMode = "composed",
   modeKey = valueKey,
+  templateKey = "",
+  templateLabel = "Template",
 } = {}) {
   queueNativeNamePickerRender.call(this);
 
-  if (!customElements.get("ha-entity-name-picker")) {
+  if (templateKey || !customElements.get("ha-entity-name-picker")) {
     return renderNamePickerFallback.call(this, {
       label,
       valueKey,
       entityKey,
       areaKey,
       defaultType,
+      defaultMode,
       modeKey,
+      templateKey,
+      templateLabel,
     });
   }
 
@@ -90,6 +96,12 @@ function renderNamePickerFallback(options) {
           .selector=${{
             button_toggle: {
               options: [
+                ...(options.templateKey
+                  ? [{
+                      label: this._t("Template"),
+                      value: "template",
+                    }]
+                  : []),
                 {
                   label: localizeEntityNamePickerMode(this, "composed"),
                   value: "composed",
@@ -106,6 +118,22 @@ function renderNamePickerFallback(options) {
             e.stopPropagation();
             const nextMode = e.detail.value || "composed";
             setNamePickerModeOverride(this, options.modeKey, nextMode);
+
+            if (options.templateKey) {
+              this._updateConfig({
+                [options.valueKey]: undefined,
+                ...(options.legacyValueKey
+                  ? { [options.legacyValueKey]: undefined }
+                  : {}),
+                [options.templateKey]: nextMode === "template"
+                  ? this._config?.[options.templateKey]
+                  : undefined,
+              });
+
+              if (nextMode === "template" || nextMode === "composed") {
+                return;
+              }
+            }
 
             if (nextMode === "composed") {
               updateNameConfig.call(this, {
@@ -130,9 +158,15 @@ function renderNamePickerFallback(options) {
         ></ha-selector>
       </div>
 
-      ${mode === "custom"
-        ? renderNameCustomInput.call(this, options)
-        : renderNameComposedPicker.call(this, options)}
+      ${mode === "template"
+        ? this._renderTemplateInput(
+            options.templateLabel,
+            options.templateKey,
+            { hideLabel: true }
+          )
+        : mode === "custom"
+          ? renderNameCustomInput.call(this, options)
+          : renderNameComposedPicker.call(this, options)}
     </div>
   `;
 }
@@ -260,12 +294,19 @@ function openNamePicker(event) {
 }
 
 function getNamePickerMode(config = {}, overrideMode, options) {
+  if (
+    options.templateKey &&
+    hasConfiguredName(config, options.templateKey)
+  ) {
+    return "template";
+  }
+
   const configuredValue = getConfiguredName(config, options);
 
   if (typeof configuredValue === "string") return "custom";
   if (configuredValue) return "composed";
 
-  return overrideMode || "composed";
+  return overrideMode || options.defaultMode || "composed";
 }
 
 function getNamePickerModeOverride(editor, modeKey) {
