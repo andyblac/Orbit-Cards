@@ -107,6 +107,12 @@ class OrbitActionCard extends LitElement {
     return updateActionCard.call(this, changedProps);
   }
 
+  disconnectedCallback() {
+    this._clearHoldTimer();
+    this._clearDoubleTapTimer();
+    super.disconnectedCallback();
+  }
+
   shouldUpdate(changedProps) {
     return shouldUpdateForEntities.call(
       this,

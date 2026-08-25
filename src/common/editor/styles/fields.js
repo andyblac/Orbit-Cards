@@ -107,6 +107,25 @@ export const fieldStyles = css`
   margin-right: -4px;
 }
 
+.status-badge-hide-hidden-row {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.status-badge-device-class-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 8px;
+  min-height: 40px;
+}
+
+.status-badge-device-class-options ha-checkbox {
+  display: inline-flex;
+}
+
 .color-pair,
 .selector-pair,
 .icon-pair {

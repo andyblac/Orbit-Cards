@@ -53,7 +53,9 @@ import {
   startLongPress,
 } from "../common/helpers/long-press.js";
 import {
+  disconnectTemplateSubscriptions,
   evaluateStateTemplate,
+  syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
 import {
   hasTemplateConfig,
@@ -96,6 +98,7 @@ class OrbitAreaCard extends LitElement {
       _statusColor: { type: String },
       _iconColor: { type: String },
       _circleColor: { type: String },
+      _templateRevision: { type: Number },
     };
   }
 
@@ -141,7 +144,18 @@ class OrbitAreaCard extends LitElement {
   }
 
   willUpdate(changedProps) {
+    if (changedProps.has("_config") || changedProps.has("hass")) {
+      syncTemplateSubscriptions.call(this, this._getTemplateEntries());
+    }
+
     return updateAreaCard.call(this, changedProps);
+  }
+
+  disconnectedCallback() {
+    disconnectTemplateSubscriptions.call(this);
+    this._cancelLongPress();
+    this._clearDoubleTapTimer();
+    super.disconnectedCallback();
   }
 
   shouldUpdate(changedProps) {
@@ -314,6 +328,36 @@ class OrbitAreaCard extends LitElement {
 
   _evaluateStateTemplate(template, entityId) {
     return evaluateStateTemplate.call(this, template, entityId);
+  }
+
+  _getTemplateEntries() {
+    const entries = [];
+    const keys = [
+      "button1",
+      "button2",
+      "button3",
+      "button4",
+      "curve_button1",
+      "curve_button2",
+      "curve_button3",
+      "curve_button4",
+      "curve_button5",
+      "curve_button6",
+      "action_button",
+    ];
+
+    for (const key of keys) {
+      const template = this._config?.[`${key}_state_template`];
+
+      if (template) {
+        entries.push({
+          template,
+          entityId: this._config?.[key] || "",
+        });
+      }
+    }
+
+    return entries;
   }
 
   _getRelevantEntities() {

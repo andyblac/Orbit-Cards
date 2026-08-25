@@ -11,6 +11,8 @@
 
 Orbit Cards is a collection of modern Home Assistant dashboard cards with a shared visual style, shared editor controls, and support for custom icons, dynamic colours, popups, navigation, and compact grouped layouts.
 
+It also includes the `custom:orbit-status-badge`, which counts active entities of a selected domain in an area.
+
 Orbit Cards is available directly from the default HACS repository. Search for `Orbit Cards` in HACS to install it.
 
 ---
@@ -61,8 +63,118 @@ Orbit Cards is available directly from the default HACS repository. Search for `
 - Material Design Icons and local SVG/image icons.
 - Tap, hold, navigation, service, popup, and Browser Mod actions.
 - Dynamic entity state updates scoped to only the entities used by each card.
+- Native Home Assistant Jinja rendering shared by every Orbit component that
+  supports templates.
 - Grouped compact layouts for Status Icon only and Action Card.
 - Deck Card layouts for wrapping Lovelace cards into rows, showing them as tabs, or overlaying compact controls on a main card.
+- Entity-compatible status badges plus area/domain active counts, live Home
+  Assistant Jinja templates, native state content, basic/on/off custom icons,
+  and separate active/inactive colours.
+
+## Status Badge
+
+The Orbit Status Badge can be used anywhere Home Assistant accepts badges. Entity is the default state type, so a native Entity badge can be converted by changing only its type:
+
+```yaml
+type: custom:orbit-status-badge
+entity: binary_sensor.front_door_contact_sensor
+```
+
+Native Entity badge options such as `entity`, `name`, `icon`, `color`,
+`show_name`, `show_state`, `show_icon`, `show_entity_picture`,
+`state_content`, `time_format`, and tap/hold/double-tap actions are supported.
+Set Mode to Badge (`display_style: badge`) for a circular, icon-only badge suited
+to card overlays such as an Orbit Deck Card. Set its
+background with `card_color`. In Badge mode, State type controls visibility:
+Always, Entity state, or Template. Template visibility uses `active_template`
+and `inactive_template`. A truthy active template shows active styling; a
+truthy inactive template shows inactive styling. The badge is hidden when
+neither template renders a truthy result, and active takes priority if both do.
+
+Area Count is the Orbit-specific state type and can also be used inside a Heading card:
+
+```yaml
+type: heading
+heading: Room Trends
+icon: mdi:chart-line
+badges:
+  - type: custom:orbit-status-badge
+    state_source: area_count
+    area: landing
+    domain: light
+```
+
+Area Count counts active entities in the selected area and domain. The
+`state_source: area_count` setting is required. A device-class filter is offered
+when Home Assistant reports device classes for that domain, allowing
+semantic types such as sockets and motion sensors to be counted separately:
+
+```yaml
+# Sockets
+domain: switch
+device_class: outlet
+
+# Motion sensors
+domain: binary_sensor
+device_class: motion
+```
+
+Hidden entities are excluded from Area Count by default. The visual editor's
+Hide control can also exclude entities with one or more Home Assistant labels:
+
+```yaml
+hide:
+  - hidden
+  - label: maintenance
+```
+
+Remove `hidden` in the editor to include entities hidden by Home Assistant.
+
+Lights use `domain: light` without a device-class filter. Both Orbit colour pickers are pre-populated with the shared `State colour (default)` palette option; inside the badge, that option resolves from the representative entity's domain, device class, and exact state, followed by Home Assistant's domain and global active/inactive fallbacks. The editor also provides basic, active, and inactive custom icons.
+
+Template is the third state type and accepts any Home Assistant Jinja template.
+The rendered value updates automatically when an entity referenced by the
+template changes:
+
+```yaml
+type: custom:orbit-status-badge
+state_source: template
+name: Net power
+state_template: >-
+  {{ (states('sensor.consumer_unit_power') | float(0)
+      - states('sensor.boiler_power') | float(0)) | round(2) }} kW
+active_template: >-
+  {{ (states('sensor.consumer_unit_power') | float(0)
+      - states('sensor.boiler_power') | float(0)) > 50 }}
+name_template: >-
+  {{ 'High usage' if states('sensor.consumer_unit_power') | float(0) > 50
+     else 'Net power' }}
+```
+
+The display template controls the badge text. The optional active template
+independently controls the badge colour and active/inactive icon selection.
+When no active template is configured, rendered numeric zero and common off
+values are treated as inactive; non-zero numbers and other rendered values are
+treated as active.
+
+For the Template state type, the optional name template supplies a rendered
+Template name source that can be selected and combined in the composed Name
+picker. The source remains visible as `Not configured` until a template is set.
+
+Area Card button state templates and Status Card state/label templates use the
+same native Home Assistant renderer. Legacy bare expressions are migrated
+automatically when their card is loaded in the visual editor. For example:
+
+```yaml
+# Legacy
+state_template: state_attr('fan.wetroom_extractor_fan', 'percentage') | int > 50
+
+# Migrated native Home Assistant template
+state_template: >-
+  {{ state_attr('fan.wetroom_extractor_fan', 'percentage') | int > 50 }}
+```
+
+Existing templates that already contain Jinja delimiters are left unchanged.
 
 ## Installation
 

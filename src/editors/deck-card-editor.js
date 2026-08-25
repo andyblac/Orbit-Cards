@@ -2,7 +2,7 @@
 // Orbit Deck Card Editor
 // ==========================================
 
-import { LitElement, html, css } from "lit";
+import { LitElement, html } from "lit";
 import {
   connectEditorPopoverClose,
   disconnectEditorPopoverClose,
@@ -20,13 +20,37 @@ import {
 import {
   renderInteractionsSection,
 } from "../common/editor/helpers/renders.js";
-import { editorStyles } from "../common/editor/styles/editor-styles.js";
-import { actionEditorStyles } from "../common/editor/styles/action-editor.js";
 import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
 import {
   updateEditorDocumentationContext,
 } from "../common/helpers/documentation.js";
+import {
+  normalizeDeckAttributeLabels,
+  normalizeDeckItem,
+  orderDeckConfig,
+} from "./deck/config.js";
+import {
+  getDeckChildActionDefault,
+  getDeckChildConfig,
+  getDeckChildTypeName,
+  isVisibleDeckActionDefault,
+} from "./deck/item-helpers.js";
+import {
+  ensureNativeBadgeEditor,
+  ensureNativeBadgePicker,
+  ensureNativeCardPicker,
+  findElementInShadowRoots,
+  loadNativeBadgeModule,
+} from "./deck/native-pickers.js";
+import {
+  renderBadgePicker,
+  renderCardPicker,
+  renderChildPicker,
+  renderChildTypeTabs,
+} from "./deck/sections/child-picker.js";
+import { renderDeckStyleControls } from "./deck/sections/style.js";
+import { deckCardEditorStyles } from "./deck/styles.js";
 
 export const DECK_PREVIEW_SELECTED_INDEX = Symbol.for(
   "orbit-deck-card-preview-selected-index"
@@ -546,295 +570,24 @@ class OrbitDeckCardEditor extends LitElement {
     `;
   }
 
-  _renderChildTypeTabs(item) {
-    const selectedType = this._childPickerType;
-
-    return html`
-      <div class="editor-tabs deck-child-type-tabs" role="tablist">
-        ${[
-          ["badge", "Badges"],
-          ["card", "Cards"],
-        ].map(([type, label]) => html`
-          <button
-            type="button"
-            class="editor-tab ${selectedType === type ? "active" : ""}"
-            role="tab"
-            aria-selected=${selectedType === type ? "true" : "false"}
-            @click=${() => {
-              this._childPickerType = type;
-            }}
-          >
-            ${this._t(label)}
-          </button>
-        `)}
-      </div>
-    `;
+  _renderChildTypeTabs() {
+    return renderChildTypeTabs.call(this);
   }
 
   _renderChildPicker(index, item) {
-    return this._childPickerType === "badge"
-      ? this._renderBadgePicker(index, item)
-      : this._renderCardPicker(index, item);
+    return renderChildPicker.call(this, index, item);
   }
 
   _renderBadgePicker(index, item) {
-    if (item?.badge?.type) {
-      if (!customElements.get("hui-badge-element-editor")) {
-        this._ensureNativeBadgeEditor();
-        return html`
-          <div class="deck-card-picker-loading">
-            <ha-spinner></ha-spinner>
-          </div>
-        `;
-      }
-
-      return html`
-        <hui-badge-element-editor
-          .hass=${this.hass}
-          .lovelace=${this.lovelace}
-          .value=${item.badge}
-          @config-changed=${(ev) => {
-            ev.stopPropagation();
-            this._updateDeckBadge(index, ev.detail.config);
-          }}
-        ></hui-badge-element-editor>
-      `;
-    }
-
-    if (!this.hass || !this.lovelace) {
-      return html``;
-    }
-
-    if (!customElements.get("hui-badge-picker")) {
-      this._ensureNativeBadgePicker();
-      return html`
-        <div class="deck-card-picker-loading">
-          <ha-spinner></ha-spinner>
-        </div>
-      `;
-    }
-
-    return html`
-      <hui-badge-picker
-        .hass=${this.hass}
-        .lovelace=${this.lovelace}
-        .badgePicked=${(badge) => this._updateDeckBadge(index, badge)}
-        @config-changed=${(ev) => {
-          ev.stopPropagation();
-          this._updateDeckBadge(index, ev.detail.config);
-        }}
-      ></hui-badge-picker>
-    `;
+    return renderBadgePicker.call(this, index, item);
   }
 
   _renderCardPicker(index, item) {
-    if (item?.card?.type) {
-      return html`
-        <hui-card-element-editor
-          .hass=${this.hass}
-          .lovelace=${this.lovelace}
-          .value=${item.card}
-          @config-changed=${(ev) => {
-            ev.stopPropagation();
-            this._updateDeckCard(index, ev.detail.config);
-          }}
-        ></hui-card-element-editor>
-      `;
-    }
-
-    if (!this.hass || !this.lovelace) {
-      return html``;
-    }
-
-    if (!customElements.get("hui-card-picker")) {
-      this._ensureNativeCardPicker();
-      return html`
-        <hui-card-element-editor
-          class="native-picker-preloader"
-          .hass=${this.hass}
-          .lovelace=${this.lovelace}
-          .value=${{ type: "vertical-stack", cards: [] }}
-          @config-changed=${(ev) => ev.stopPropagation()}
-        ></hui-card-element-editor>
-        <div class="deck-card-picker-loading">
-          <ha-spinner></ha-spinner>
-        </div>
-      `;
-    }
-
-    return html`
-      <hui-card-picker
-        .hass=${this.hass}
-        .lovelace=${this.lovelace}
-        .cardPicked=${(card) => this._updateDeckCard(index, card)}
-        @config-changed=${(ev) => {
-          ev.stopPropagation();
-          this._updateDeckCard(index, ev.detail.config);
-        }}
-      ></hui-card-picker>
-    `;
+    return renderCardPicker.call(this, index, item);
   }
 
   _renderDeckStyleControls(index, item) {
-    const attributes = item?.attributes || {};
-    const isTabs = this._config?.layout === "tabs";
-    const isOverlaySecondary =
-      this._config?.layout === "overlay" && index > 0;
-    const expanded = this._styleSectionExpanded === true;
-
-    return html`
-      <ha-expansion-panel
-        class="deck-card-section deck-style-section"
-        outlined
-        .expanded=${expanded}
-        @expanded-changed=${(ev) => {
-          this._styleSectionExpanded = ev.detail.expanded;
-        }}
-      >
-        <ha-icon slot="leading-icon" icon="mdi:palette"></ha-icon>
-        <div slot="header" role="heading" aria-level="3">
-          ${this._t("Style")}
-        </div>
-        <div class="deck-card-section-content deck-style-content">
-          ${isTabs
-            ? html`
-                <div class="field-grid two-columns">
-                  ${this._renderAttributeSelector(index, {
-                    label: "Icon",
-                    selector: { icon: {} },
-                    value: attributes.icon || "",
-                    changeKey: "icon",
-                  })}
-                  ${this._renderAttributeSelector(index, {
-                    label: "Name",
-                    selector: { text: {} },
-                    value: attributes.name || attributes.label || "",
-                    changeKey: "name",
-                  })}
-                </div>
-              `
-            : ""}
-
-          ${isTabs && this._config?.tab_width_mode === "custom"
-            ? this._renderAttributeSelector(index, {
-                label: "Tab width",
-                selector: { text: {} },
-                value: attributes.width || "",
-                changeKey: "width",
-              })
-            : ""}
-
-          ${isOverlaySecondary
-            ? html`
-                <div class="field editor-button-toggle-field">
-                  <div class="field-header">
-                    <label>${this._t("Mode")}</label>
-                    <ha-selector
-                      class="editor-header-button-toggle deck-overlay-fit-toggle"
-                      .hass=${this.hass}
-                      .selector=${{
-                        button_toggle: {
-                          options: [
-                            {
-                              label: this._t("Crop"),
-                              value: "crop",
-                            },
-                            {
-                              label: this._t("Resize"),
-                              value: "resize",
-                            },
-                          ],
-                        },
-                      }}
-                      .value=${attributes.fit || "resize"}
-                      @value-changed=${(ev) =>
-                        this._updateDeckAttributes(index, {
-                          fit: ev.detail.value === "resize"
-                            ? undefined
-                            : ev.detail.value,
-                        })}
-                    ></ha-selector>
-                  </div>
-                </div>
-                <div class="field-grid four-columns deck-overlay-layout-grid">
-                  ${this._renderOverlayNumberSelector(index, {
-                    label: "Left",
-                    value: attributes.left,
-                    changeKey: "left",
-                    min: -10000,
-                  })}
-                  ${this._renderOverlayNumberSelector(index, {
-                    label: "Top",
-                    value: attributes.top,
-                    changeKey: "top",
-                    min: -10000,
-                  })}
-                  ${this._renderOverlayNumberSelector(index, {
-                    label: "Width",
-                    value: attributes.width,
-                    changeKey: "width",
-                  })}
-                  ${this._renderOverlayNumberSelector(index, {
-                    label: "Height",
-                    value: attributes.height,
-                    changeKey: "height",
-                  })}
-                </div>
-                <label class="deck-force-padding-row">
-                  <span>${this._t("Transparent background")}</span>
-                  <ha-switch
-                    .checked=${attributes.transparent_background === true}
-                    @change=${(ev) =>
-                      this._updateDeckAttributes(index, {
-                        transparent_background: ev.target.checked
-                          ? true
-                          : undefined,
-                      })}
-                  ></ha-switch>
-                </label>
-              `
-            : ""}
-
-          <label class="deck-force-padding-row">
-            <span>${this._t("Force padding")}</span>
-            <ha-switch
-              .checked=${attributes.force_padding === true}
-              @change=${(ev) =>
-                this._updateDeckAttributes(index, {
-                  force_padding: ev.target.checked ? true : undefined,
-                })}
-            ></ha-switch>
-          </label>
-
-          <div class="field-grid four-columns deck-padding-grid">
-            ${this._renderAttributeSelector(index, {
-              label: "Top",
-              selector: { text: {} },
-              value: attributes.padding_top || "",
-              changeKey: "padding_top",
-            })}
-            ${this._renderAttributeSelector(index, {
-              label: "Bottom",
-              selector: { text: {} },
-              value: attributes.padding_bottom || "",
-              changeKey: "padding_bottom",
-            })}
-            ${this._renderAttributeSelector(index, {
-              label: "Left",
-              selector: { text: {} },
-              value: attributes.padding_left || "",
-              changeKey: "padding_left",
-            })}
-            ${this._renderAttributeSelector(index, {
-              label: "Right",
-              selector: { text: {} },
-              value: attributes.padding_right || "",
-              changeKey: "padding_right",
-            })}
-          </div>
-        </div>
-      </ha-expansion-panel>
-    `;
+    return renderDeckStyleControls.call(this, index, item);
   }
 
   _renderAttributeSelector(index, { label, selector, value, changeKey }) {
@@ -877,15 +630,18 @@ class OrbitDeckCardEditor extends LitElement {
         outlined
         .expanded=${expanded}
         @expanded-changed=${(ev) => {
+          if (ev.target !== ev.currentTarget) return;
           this._cardSectionExpanded = ev.detail.expanded;
         }}
       >
         <ha-icon slot="leading-icon" icon="mdi:cards-outline"></ha-icon>
         <div slot="header" role="heading" aria-level="3">
-          ${this._t("Card")}
+          ${getDeckChildTypeName(item, this.hass, this._t("Card"))}
         </div>
         <div class="deck-card-section-content">
-          ${this._renderChildTypeTabs(item)}
+          ${item?.badge?.type || item?.card?.type
+            ? ""
+            : this._renderChildTypeTabs()}
           <div class="deck-card-editor-frame">
             ${this._renderChildPicker(index, item)}
           </div>
@@ -940,167 +696,23 @@ class OrbitDeckCardEditor extends LitElement {
   }
 
   async _ensureNativeBadgePicker() {
-    if (this._badgePickerLoadRequested) {
-      return;
-    }
-
-    this._badgePickerLoadRequested = true;
-
-    try {
-      if (window.loadCardHelpers) {
-        await window.loadCardHelpers();
-      }
-
-      if (!customElements.get("hui-badge-picker")) {
-        await this._loadNativeBadgeModule({
-          eventName: "ll-create-badge",
-          dialogTag: "hui-dialog-create-badge",
-        });
-      }
-
-      await Promise.race([
-        customElements.whenDefined("hui-badge-picker"),
-        new Promise((resolve) => setTimeout(resolve, 1500)),
-      ]);
-    } catch (_err) {
-      // Keep the editor usable if HA changes its internal badge loader.
-    } finally {
-      this._badgePickerLoadRequested = false;
-      this.requestUpdate();
-    }
+    return ensureNativeBadgePicker.call(this);
   }
 
   async _ensureNativeBadgeEditor() {
-    if (this._badgeEditorLoadRequested) {
-      return;
-    }
-
-    this._badgeEditorLoadRequested = true;
-
-    try {
-      if (window.loadCardHelpers) {
-        await window.loadCardHelpers();
-      }
-
-      if (!customElements.get("hui-badge-element-editor")) {
-        const huiView = this._findElementInShadowRoots(
-          document,
-          (element) =>
-            element.localName === "hui-view" && element._layoutElement
-        );
-        const viewIndex = Number.isInteger(huiView?.index)
-          ? huiView.index
-          : 0;
-
-        await this._loadNativeBadgeModule({
-          eventName: "ll-edit-badge",
-          dialogTag: "hui-dialog-edit-badge",
-          detail: { path: [viewIndex, 0] },
-          huiView,
-        });
-      }
-
-      await Promise.race([
-        customElements.whenDefined("hui-badge-element-editor"),
-        new Promise((resolve) => setTimeout(resolve, 1500)),
-      ]);
-    } catch (_err) {
-      // Keep the editor usable if HA changes its internal badge loader.
-    } finally {
-      this._badgeEditorLoadRequested = false;
-      this.requestUpdate();
-    }
+    return ensureNativeBadgeEditor.call(this);
   }
 
-  async _loadNativeBadgeModule({
-    eventName,
-    dialogTag,
-    detail,
-    huiView: providedHuiView,
-  }) {
-    const huiView = providedHuiView || this._findElementInShadowRoots(
-      document,
-      (element) =>
-        element.localName === "hui-view" && element._layoutElement
-    );
-
-    if (!huiView) {
-      return;
-    }
-
-    let badgeDialogImport;
-    const captureBadgeLoader = (event) => {
-      if (event.detail?.dialogTag !== dialogTag) {
-        return;
-      }
-
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      badgeDialogImport = event.detail.dialogImport;
-    };
-
-    huiView.addEventListener("show-dialog", captureBadgeLoader);
-    try {
-      huiView._layoutElement.dispatchEvent(
-        new CustomEvent(eventName, {
-          detail,
-          bubbles: false,
-          composed: true,
-        })
-      );
-    } finally {
-      huiView.removeEventListener("show-dialog", captureBadgeLoader);
-    }
-
-    if (typeof badgeDialogImport === "function") {
-      await badgeDialogImport();
-    }
+  async _loadNativeBadgeModule(options) {
+    return loadNativeBadgeModule.call(this, options);
   }
 
   _findElementInShadowRoots(root, predicate) {
-    const elements = root.querySelectorAll?.("*") || [];
-
-    for (const element of elements) {
-      if (predicate(element)) {
-        return element;
-      }
-
-      if (element.shadowRoot) {
-        const match = this._findElementInShadowRoots(
-          element.shadowRoot,
-          predicate
-        );
-        if (match) {
-          return match;
-        }
-      }
-    }
-
-    return undefined;
+    return findElementInShadowRoots.call(this, root, predicate);
   }
 
   async _ensureNativeCardPicker() {
-    if (this._cardPickerLoadRequested) {
-      return;
-    }
-
-    this._cardPickerLoadRequested = true;
-
-    try {
-      if (window.loadCardHelpers) {
-        await window.loadCardHelpers();
-      }
-
-      await Promise.race([
-        customElements.whenDefined("hui-card-picker"),
-        new Promise((resolve) => setTimeout(resolve, 1500)),
-      ]);
-    } catch (_err) {
-      // HA does not expose a public card picker loader for custom editors.
-    } finally {
-      this._cardPickerLoadRequested = false;
-      this.requestUpdate();
-    }
+    return ensureNativeCardPicker.call(this);
   }
 
   _renderCard() {
@@ -1178,344 +790,10 @@ class OrbitDeckCardEditor extends LitElement {
     `;
   }
 
-  static styles = [
-    editorStyles,
-    actionEditorStyles,
-    css`
-      .deck-subtabs-row {
-        display: flex;
-        align-items: end;
-        gap: 12px;
-        border-bottom: 1px solid var(--orbit-editor-border);
-        margin-bottom: 12px;
-      }
-
-      .deck-subtabs {
-        flex: 1 1 auto;
-        border-bottom: none;
-      }
-
-      .deck-layout-toggle {
-        display: flex;
-        justify-content: flex-end;
-        margin-left: auto;
-        width: auto;
-        min-width: 270px;
-        margin-bottom: 6px;
-      }
-
-      .deck-tab-width-toggle {
-        width: auto;
-        min-width: 260px;
-      }
-
-      .deck-overlay-fit-toggle {
-        width: min(360px, 100%);
-        min-width: 0;
-      }
-
-      .field-grid.two-columns {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-        margin-bottom: 12px;
-      }
-
-      .field-grid.four-columns {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 8px;
-      }
-
-      .deck-tab-colors {
-        margin-top: 12px;
-      }
-
-      .deck-tab-divider-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        min-height: 36px;
-        margin-top: 4px;
-        font-size: var(--ha-font-size-m, 14px);
-        font-weight: var(--ha-font-weight-normal, 400);
-        line-height: var(--ha-line-height-normal, 20px);
-      }
-
-      .deck-card-tab-section {
-        gap: 4px;
-      }
-
-      .deck-style-section {
-        margin-top: 4px;
-      }
-
-      .deck-style-content {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        padding-bottom: 0;
-      }
-
-      .deck-style-content .field-grid.two-columns {
-        margin-bottom: 0;
-      }
-
-      .deck-force-padding-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        min-height: 36px;
-        margin: 0;
-        font-size: var(--ha-font-size-m, 14px);
-        font-weight: var(--ha-font-weight-normal, 400);
-        line-height: var(--ha-line-height-normal, 20px);
-      }
-
-      .deck-padding-grid {
-        margin-top: -4px;
-        margin-bottom: -26px;
-      }
-
-      .deck-interactions-section .interactions-form {
-        margin-top: 0;
-      }
-
-      .deck-default-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        margin: 6px 0 16px;
-      }
-
-      .deck-card-editor-frame {
-        min-height: 160px;
-      }
-
-      .deck-child-type-tabs {
-        margin: -4px 0 12px;
-      }
-
-      hui-badge-picker {
-        display: block;
-        min-height: 320px;
-      }
-
-      .deck-card-section {
-        display: block;
-        margin: 0;
-        --expansion-panel-content-padding: 0;
-        border-radius: var(--ha-border-radius-md);
-        --ha-card-border-radius: var(--ha-border-radius-md);
-      }
-
-      .deck-card-section-content {
-        padding: 12px;
-      }
-
-      .deck-card-section ha-icon {
-        color: var(--secondary-text-color);
-      }
-
-      .deck-card-picker-loading {
-        width: 100%;
-        min-height: 56px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .native-picker-preloader {
-        display: none;
-      }
-
-      .deck-empty-editor {
-        color: var(--secondary-text-color);
-        padding: 24px 0;
-      }
-    `,
-  ];
+  static styles = deckCardEditorStyles;
 }
 
 customElements.define(
   "orbit-deck-card-editor",
   OrbitDeckCardEditor
 );
-
-const DECK_CONFIG_ORDER = [
-  "type",
-  "layout",
-  "items_per_row",
-  "separate_cards",
-  "tab_font_size",
-  "tab_divider",
-  "tab_width_mode",
-  "tab_color",
-  "tab_active_color",
-  "tab_background_color",
-  "decks",
-  "grid_options",
-  "view_layout",
-];
-
-const DECK_ITEM_KEYS = [
-  "attributes",
-  "badge",
-  "card",
-];
-
-function orderDeckConfig(config) {
-  const ordered = {};
-  const usedKeys = new Set();
-
-  DECK_CONFIG_ORDER.forEach((key) => {
-    if (Object.prototype.hasOwnProperty.call(config, key)) {
-      ordered[key] = key === "decks" && Array.isArray(config[key])
-        ? config[key].map(orderDeckItem)
-        : config[key];
-      usedKeys.add(key);
-    }
-  });
-
-  Object.keys(config).forEach((key) => {
-    if (!usedKeys.has(key)) {
-      ordered[key] = config[key];
-    }
-  });
-
-  return ordered;
-}
-
-function normalizeDeckAttributeLabels(config) {
-  if (!Array.isArray(config?.decks)) {
-    return { config, changed: false };
-  }
-
-  let changed = false;
-  const decks = config.decks.map((item) => {
-    const attributes = item?.attributes || {};
-
-    if (!Object.prototype.hasOwnProperty.call(attributes, "label")) {
-      return item;
-    }
-
-    changed = true;
-    const {
-      label,
-      ...restAttributes
-    } = attributes;
-
-    return {
-      ...item,
-      attributes: {
-        ...restAttributes,
-        name: attributes.name || label,
-      },
-    };
-  });
-
-  return changed
-    ? {
-        config: {
-          ...config,
-          decks,
-        },
-        changed,
-      }
-    : { config, changed };
-}
-
-function orderDeckItem(item) {
-  if (!item || typeof item !== "object" || Array.isArray(item)) {
-    return item;
-  }
-
-  const ordered = {};
-  const usedKeys = new Set();
-
-  const cleanedItem = {
-    ...item,
-    attributes: cleanObject(item.attributes || {}),
-  };
-
-  if (item.badge?.type) {
-    cleanedItem.badge = item.badge;
-    delete cleanedItem.card;
-  } else if (item.card?.type) {
-    cleanedItem.card = item.card;
-    delete cleanedItem.badge;
-  } else {
-    delete cleanedItem.badge;
-    delete cleanedItem.card;
-  }
-
-  DECK_ITEM_KEYS.forEach((key) => {
-    if (Object.prototype.hasOwnProperty.call(cleanedItem, key)) {
-      ordered[key] = cleanedItem[key];
-      usedKeys.add(key);
-    }
-  });
-
-  Object.keys(cleanedItem).forEach((key) => {
-    if (!usedKeys.has(key)) {
-      ordered[key] = cleanedItem[key];
-    }
-  });
-
-  return ordered;
-}
-
-function cleanObject(value = {}) {
-  return Object.entries(value).reduce((result, [key, itemValue]) => {
-    if (itemValue !== undefined && itemValue !== "") {
-      result[key] = itemValue;
-    }
-
-    return result;
-  }, {});
-}
-
-function getDeckChildActionDefault(item = {}, key) {
-  const child = getDeckChildConfig(item);
-
-  if (child?.[key]?.action) {
-    return child[key];
-  }
-
-  if (key === "tap_action" && child?.entity) {
-    return "more-info";
-  }
-
-  return "none";
-}
-
-function normalizeDeckItem(item = {}) {
-  if (item?.badge) {
-    return {
-      attributes: item.attributes || {},
-      badge: item.badge || {},
-    };
-  }
-
-  return {
-    attributes: item?.attributes || {},
-    card: item?.card || {},
-  };
-}
-
-function getDeckChildConfig(item = {}) {
-  return item?.badge || item?.card || {};
-}
-
-function isVisibleDeckActionDefault(action) {
-  return getDeckActionName(action) !== "none";
-}
-
-function getDeckActionName(action) {
-  return typeof action === "string"
-    ? action
-    : action?.action || "none";
-}

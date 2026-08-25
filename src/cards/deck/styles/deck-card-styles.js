@@ -22,14 +22,8 @@ export const deckCardStyles = css`
     box-shadow: none;
   }
 
-  ha-card.deck-card.wrap:not(.separate-cards) .deck-item,
-  ha-card.deck-card.wrap:not(.separate-cards) .deck-item > *,
-  ha-card.deck-card.wrap:not(.separate-cards) .deck-item-interaction > * {
-    --ha-card-background: transparent;
-    --card-background-color: transparent;
-    --ha-card-box-shadow: none;
-    --ha-card-border-color: transparent;
-    --ha-card-backdrop-filter: none;
+  .deck-item-interaction.transparent-background,
+  .deck-item-interaction.transparent-background > * {
     background: transparent;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
@@ -76,6 +70,10 @@ export const deckCardStyles = css`
   .deck-spacer {
     visibility: hidden;
     pointer-events: none;
+  }
+
+  .deck-visibility-observers {
+    display: none !important;
   }
 
   .deck-tabs {
@@ -189,15 +187,10 @@ export const deckCardStyles = css`
   .deck-overlay-item.transparent-background .deck-overlay-content,
   .deck-overlay-item.transparent-background .deck-item-interaction,
   .deck-overlay-item.transparent-background .deck-item-interaction > * {
-    --ha-card-background: transparent;
-    --card-background-color: transparent;
-    --ha-card-box-shadow: none;
-    --ha-card-border-width: 0;
-    --ha-card-border-color: transparent;
-    --ha-card-backdrop-filter: none;
     background: transparent;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    border-width: 0;
     border-color: transparent;
     box-shadow: none;
   }

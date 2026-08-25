@@ -105,7 +105,8 @@ export const actionCardStyles = [
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      overflow: visible;
+      position: relative;
       pointer-events: none;
     }
 

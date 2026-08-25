@@ -5,12 +5,9 @@
 import { LitElement, html } from "lit";
 import { registerOrbitCard } from "../common/helpers/card-registration.js";
 import { CARD_VERSIONS } from "../version.js";
-import { computeFullColor } from "../common/helpers/colors.js";
 import {
   getDeckItemPadding,
-  isDeckItemPaddingForced,
   shouldApplyDeckItemPadding,
-  shouldStripChildPaddingConfig,
 } from "../common/helpers/deck-padding.js";
 import {
   clearDoubleTapTimer,
@@ -26,15 +23,55 @@ import {
   finishLongPress,
   startLongPress,
 } from "../common/helpers/long-press.js";
+import {
+  getDeckItems,
+  getDeckItemAction,
+  getDeckItemEntity,
+  getDeckItemKind,
+  getDeckItemRenderConfig,
+  getDefaultDeckIndex,
+  getDefaultSelectionKey,
+  hasDeckItemActions,
+} from "./deck/items.js";
+import {
+  chunkItems,
+  getOverlayFit,
+  getOverlayGeometry,
+  getOverlayItemStyle,
+  getTabStyleVariables,
+  getTabWidthMode,
+  normalizeOverlayDimension,
+  renderRowSpacers,
+} from "./deck/layout.js";
+import {
+  applyDeckCardSurface,
+  applyPaddingTarget,
+  connectDeckPaddingObserver,
+  disconnectDeckPaddingObserver,
+  getCardElements,
+  getDeckItemWrapper,
+  getDeckPaddingApplyKey,
+  shouldFlattenDeckCardSurface,
+} from "./deck/surface.js";
 import { deckCardStyles } from "./deck/styles/deck-card-styles.js";
 import { DECK_PREVIEW_SELECTED_INDEX } from "../editors/deck-card-editor.js";
 
 import "../editors/deck-card-editor.js";
 
+const DECK_INTERACTION_EVENTS = [
+  "pointerdown",
+  "click",
+  "dblclick",
+  "pointerup",
+  "pointerleave",
+  "pointercancel",
+];
+
 class OrbitDeckCard extends LitElement {
   static get properties() {
     return {
       hass: {},
+      preview: { type: Boolean },
       _config: { type: Object },
       _deckCards: { state: true },
       _selectedIndex: { state: true },
@@ -44,6 +81,7 @@ class OrbitDeckCard extends LitElement {
   constructor() {
     super();
     this._config = {};
+    this.preview = false;
     this._deckCards = [];
     this._selectedIndex = 0;
     this._cardHelpers = null;
@@ -54,11 +92,25 @@ class OrbitDeckCard extends LitElement {
     this._overlayGeometryObserver = null;
     this._overlayObservedTargets = new Set();
     this._overlayGeometryToken = 0;
+    this._deckEntryGeneration = 0;
+    this._deckInteractionListener = (event) =>
+      this._handleDeckInteractionEvent(event);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._bindDeckItemActionListeners();
+    this._paddingApplyKey = "";
+    this.requestUpdate();
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
+    this._cancelLongPress();
+    this._clearDoubleTapTimer();
     this._clearOverlayGeometryObserver();
+    this._disconnectDeckEntryObservers();
+    this._unbindDeckItemActionListeners();
+    super.disconnectedCallback();
   }
 
   static getConfigElement() {
@@ -118,17 +170,22 @@ class OrbitDeckCard extends LitElement {
   }
 
   updated(changedProps) {
-    if (changedProps.has("hass")) {
+    if (changedProps.has("hass") || changedProps.has("preview")) {
       this._deckCards.forEach((entry) => {
         if (entry.element) {
-          entry.element.hass = this.hass;
+          if (changedProps.has("hass")) {
+            entry.element.hass = this.hass;
+          }
+          if (changedProps.has("preview")) {
+            entry.element.preview = this.preview;
+            entry.element.editMode = this.preview;
+          }
         }
       });
     }
 
     if (changedProps.has("_deckCards") || changedProps.has("_config")) {
       this._applyDeckPaddingToEntries();
-      this._bindDeckItemActionListeners();
     }
 
     if (this._config?.layout === "overlay") {
@@ -296,6 +353,7 @@ class OrbitDeckCard extends LitElement {
     }
 
     this._cardBuildKey = buildKey;
+    this._disconnectDeckEntryObservers();
     this._deckCards = decks.map((item, index) => ({ item, index }));
 
     const helpers = await this._loadCardHelpers();
@@ -334,22 +392,56 @@ class OrbitDeckCard extends LitElement {
     }
 
     try {
-      const element = kind === "badge"
-        ? helpers.createBadgeElement(childConfig)
-        : helpers.createCardElement(childConfig);
+      const usesNativeVisibility =
+        this._config?.layout !== "overlay" &&
+        Array.isArray(childConfig.visibility) &&
+        childConfig.visibility.length > 0;
+      const element = usesNativeVisibility
+        ? this._createVisibilityAwareElement(kind, childConfig)
+        : kind === "badge"
+          ? helpers.createBadgeElement(childConfig)
+          : helpers.createCardElement(childConfig);
       element.hass = this.hass;
+      element.preview = this.preview;
+      element.editMode = this.preview;
       element.addEventListener(
         "ll-rebuild",
         () => this._scheduleCardBuild(),
         { once: true }
       );
 
-      return {
+      const entry = {
         item,
         index,
         kind,
         element,
+        visible: !element.hidden,
       };
+
+      if (usesNativeVisibility) {
+        const eventName = kind === "badge"
+          ? "badge-visibility-changed"
+          : "card-visibility-changed";
+
+        element.addEventListener(eventName, (ev) => {
+          ev.stopPropagation();
+          const visible = ev.detail?.value !== false && !element.hidden;
+          const currentEntry = this._deckCards.find(
+            (candidate) => candidate.element === element
+          ) || entry;
+
+          if (currentEntry.visible === visible) return;
+
+          currentEntry.visible = visible;
+          this.requestUpdate();
+          this.updateComplete.then(() => {
+            if (visible) this._applyDeckCardPadding(currentEntry);
+          });
+        });
+        element.load();
+      }
+
+      return entry;
     } catch (err) {
       return {
         item,
@@ -357,6 +449,41 @@ class OrbitDeckCard extends LitElement {
         error: err?.message || "Unable to create card",
       };
     }
+  }
+
+  _createVisibilityAwareElement(kind, config) {
+    const element = document.createElement(
+      kind === "badge" ? "hui-badge" : "hui-card"
+    );
+
+    element.hass = this.hass;
+    element.preview = this.preview;
+    element.editMode = this.preview;
+    element.config = config;
+
+    return element;
+  }
+
+  _disconnectDeckEntryObservers(entries = this._deckCards) {
+    this._deckEntryGeneration += 1;
+
+    entries.forEach((entry) => {
+      const element = entry?.element;
+
+      if (!element) return;
+
+      const observedElements = new Set([element, ...getCardElements(element)]);
+      observedElements.forEach((observedElement) => {
+        disconnectDeckCardSurfaceObserver(observedElement);
+        disconnectDeckPaddingObserver(observedElement);
+      });
+    });
+  }
+
+  _isDeckEntryActive(entry, generation) {
+    return this.isConnected &&
+      generation === this._deckEntryGeneration &&
+      this._deckCards.includes(entry);
   }
 
   _selectTab(index) {
@@ -400,39 +527,48 @@ class OrbitDeckCard extends LitElement {
   }
 
   _bindDeckItemActionListeners() {
-    this.renderRoot.querySelectorAll(".deck-item-interaction").forEach((el) => {
-      if (el._orbitDeckActionHost === this) return;
-
-      const listeners = {
-        pointerdown: (ev) => this._handleDeckItemPointerDown(
-          ev,
-          this._getDeckEntryFromEventTarget(el)
-        ),
-        click: (ev) => this._handleDeckItemClick(
-          ev,
-          this._getDeckEntryFromEventTarget(el)
-        ),
-        dblclick: (ev) => this._handleDeckItemDoubleClick(
-          ev,
-          this._getDeckEntryFromEventTarget(el)
-        ),
-        pointerup: (ev) => this._finishLongPress(ev),
-        pointerleave: () => this._cancelLongPress(),
-        pointercancel: () => this._cancelLongPress(),
-      };
-
-      el.addEventListener("pointerdown", listeners.pointerdown, {
-        capture: true,
-      });
-      el.addEventListener("click", listeners.click, { capture: true });
-      el.addEventListener("dblclick", listeners.dblclick, { capture: true });
-      el.addEventListener("pointerup", listeners.pointerup, {
-        capture: true,
-      });
-      el.addEventListener("pointerleave", listeners.pointerleave);
-      el.addEventListener("pointercancel", listeners.pointercancel);
-      el._orbitDeckActionHost = this;
+    DECK_INTERACTION_EVENTS.forEach((eventName) => {
+      this.renderRoot.addEventListener(
+        eventName,
+        this._deckInteractionListener,
+        true
+      );
     });
+  }
+
+  _unbindDeckItemActionListeners() {
+    DECK_INTERACTION_EVENTS.forEach((eventName) => {
+      this.renderRoot.removeEventListener(
+        eventName,
+        this._deckInteractionListener,
+        true
+      );
+    });
+  }
+
+  _handleDeckInteractionEvent(event) {
+    const target = event.composedPath().find((element) =>
+      element?.classList?.contains("deck-item-interaction") &&
+      element.getRootNode() === this.renderRoot
+    );
+
+    if (!target) return;
+
+    const entry = this._getDeckEntryFromEventTarget(target);
+
+    if (event.type === "pointerdown") {
+      this._handleDeckItemPointerDown(event, entry);
+    } else if (event.type === "click") {
+      this._handleDeckItemClick(event, entry);
+    } else if (event.type === "dblclick") {
+      this._handleDeckItemDoubleClick(event, entry);
+    } else if (event.type === "pointerup") {
+      this._finishLongPress(event);
+    } else if (event.type === "pointercancel") {
+      this._cancelLongPress();
+    } else if (event.type === "pointerleave" && event.target === target) {
+      this._cancelLongPress();
+    }
   }
 
   _handleDeckItemPointerDown(ev, entry) {
@@ -494,10 +630,17 @@ class OrbitDeckCard extends LitElement {
 
   _renderInteractiveDeckEntry(entry) {
     const hasActions = hasDeckItemActions(entry?.item);
+    const transparentBackground = shouldFlattenDeckCardSurface(
+      this._config,
+      entry?.item,
+      entry?.index
+    );
 
     return html`
       <div
-        class="deck-item-interaction ${hasActions ? "has-actions" : ""}"
+        class="deck-item-interaction ${hasActions ? "has-actions" : ""} ${
+          transparentBackground ? "transparent-background" : ""
+        }"
         data-deck-index=${entry?.index ?? ""}
       >
         ${this._renderDeckEntry(entry)}
@@ -539,6 +682,7 @@ class OrbitDeckCard extends LitElement {
 
     if (!element) return;
 
+    const generation = this._deckEntryGeneration;
     const padding = getDeckItemPadding(entry.item);
     const shouldApplyPadding = shouldApplyDeckItemPadding(entry.item);
     const waitForRender =
@@ -549,6 +693,8 @@ class OrbitDeckCard extends LitElement {
     waitForRender
       .then(() => new Promise((resolve) => requestAnimationFrame(resolve)))
       .then(() => {
+        if (!this._isDeckEntryActive(entry, generation)) return;
+
         const cardElements = getCardElements(element);
         const cardElement = cardElements[0] || null;
         const wrapperElement = getDeckItemWrapper(this.renderRoot, entry.index);
@@ -587,6 +733,8 @@ class OrbitDeckCard extends LitElement {
         if (shouldApplyPadding && cardElement) {
           connectDeckPaddingObserver(cardElement, padding);
           requestAnimationFrame(() => {
+            if (!this._isDeckEntryActive(entry, generation)) return;
+
             if (wrapperElement) applyPaddingTarget(wrapperElement, padding, false);
             applyPaddingTarget(cardElement, padding, true);
           });
@@ -598,8 +746,12 @@ class OrbitDeckCard extends LitElement {
   }
 
   _renderWrap(decks) {
-    const columns = this._getColumnCount(decks.length || 1);
-    const rows = chunkItems(this._deckCards, columns);
+    const visibleEntries = this._getVisibleDeckEntries();
+    const hiddenEntries = this._deckCards.filter(
+      (entry) => entry.visible === false
+    );
+    const columns = this._getColumnCount(visibleEntries.length || 1);
+    const rows = chunkItems(visibleEntries, columns);
 
     return html`
       <ha-card
@@ -618,16 +770,24 @@ class OrbitDeckCard extends LitElement {
             </div>
           `)}
         </div>
+        ${this._renderVisibilityObservers(hiddenEntries)}
       </ha-card>
     `;
   }
 
   _renderTabs(decks) {
-    const selectedIndex = Math.min(
+    const configuredIndex = Math.min(
       this._selectedIndex || 0,
       Math.max(0, decks.length - 1)
     );
-    const selectedEntry = this._deckCards[selectedIndex];
+    const visibleEntries = this._getVisibleDeckEntries();
+    const selectedEntry = visibleEntries.find(
+      (entry) => entry.index === configuredIndex
+    ) || visibleEntries[0];
+    const selectedIndex = selectedEntry?.index ?? configuredIndex;
+    const observerEntries = this._deckCards.filter(
+      (entry) => entry !== selectedEntry
+    );
     const tabWidthMode = getTabWidthMode(this._config);
     const tabStyles = getTabStyleVariables(this._config);
 
@@ -639,28 +799,45 @@ class OrbitDeckCard extends LitElement {
         style=${tabStyles}
       >
         <div class="deck-tabs" role="tablist">
-          ${decks.map((item, index) => html`
+          ${visibleEntries.map((entry) => html`
             <button
               type="button"
-              class="deck-tab ${index === selectedIndex ? "active" : ""}"
+              class="deck-tab ${entry.index === selectedIndex ? "active" : ""}"
               role="tab"
-              aria-selected=${index === selectedIndex ? "true" : "false"}
+              aria-selected=${entry.index === selectedIndex ? "true" : "false"}
               style=${tabWidthMode === "custom"
-                ? `--orbit-deck-tab-width:${item.attributes?.width || "120px"};`
+                ? `--orbit-deck-tab-width:${entry.item.attributes?.width || "120px"};`
                 : ""}
-              @click=${() => this._selectTab(index)}
+              @click=${() => this._selectTab(entry.index)}
             >
-              ${item.attributes?.icon
-                ? html`<ha-icon .icon=${item.attributes.icon}></ha-icon>`
+              ${entry.item.attributes?.icon
+                ? html`<ha-icon .icon=${entry.item.attributes.icon}></ha-icon>`
                 : ""}
-              <span>${item.attributes?.name || item.attributes?.label || `Card ${index + 1}`}</span>
+              <span>${entry.item.attributes?.name || entry.item.attributes?.label || `Card ${entry.index + 1}`}</span>
             </button>
           `)}
         </div>
         <div class="deck-tab-content">
-          ${this._renderInteractiveDeckEntry(selectedEntry)}
+          ${selectedEntry
+            ? this._renderInteractiveDeckEntry(selectedEntry)
+            : ""}
         </div>
+        ${this._renderVisibilityObservers(observerEntries)}
       </ha-card>
+    `;
+  }
+
+  _getVisibleDeckEntries() {
+    return this._deckCards.filter((entry) => entry.visible !== false);
+  }
+
+  _renderVisibilityObservers(entries) {
+    if (!entries.length) return "";
+
+    return html`
+      <div class="deck-visibility-observers" aria-hidden="true">
+        ${entries.map((entry) => this._renderDeckEntry(entry))}
+      </div>
     `;
   }
 
@@ -722,456 +899,6 @@ class OrbitDeckCard extends LitElement {
   static styles = deckCardStyles;
 }
 
-function getDeckItems(config = {}) {
-  return Array.isArray(config?.decks)
-    ? config.decks.map((item) => item?.badge
-      ? {
-          attributes: item?.attributes || {},
-          badge: item.badge || {},
-        }
-      : {
-          attributes: item?.attributes || {},
-          card: item?.card || {},
-        })
-    : [];
-}
-
-function getOverlayItemStyle(item = {}, index = 0) {
-  const attributes = item?.attributes || {};
-  const left = normalizeOverlayNumber(attributes.left, 0);
-  const top = normalizeOverlayNumber(attributes.top, 0);
-  const declarations = [
-    `--orbit-deck-overlay-left:${left}px`,
-    `--orbit-deck-overlay-top:${top}px`,
-    `--orbit-deck-overlay-z-index:${index + 1}`,
-  ];
-
-  return `${declarations.join(";")};`;
-}
-
-function normalizeOverlayNumber(value, fallback) {
-  if (value === undefined || value === null || value === "") {
-    return fallback;
-  }
-
-  const number = Number(value);
-  return Number.isFinite(number) ? number : fallback;
-}
-
-function normalizeOverlayDimension(value) {
-  const number = normalizeOverlayNumber(value, null);
-  return number === null ? null : Math.max(0, number);
-}
-
-function getOverlayFit(item = {}) {
-  return item?.attributes?.fit === "crop" ? "crop" : "resize";
-}
-
-function getOverlayGeometry(
-  naturalWidth,
-  naturalHeight,
-  configuredWidth,
-  configuredHeight,
-  isCrop
-) {
-  if (isCrop) {
-    return {
-      width: configuredWidth ?? naturalWidth,
-      height: configuredHeight ?? naturalHeight,
-      scaleX: 1,
-      scaleY: 1,
-    };
-  }
-
-  if (configuredWidth === null && configuredHeight === null) {
-    return {
-      width: naturalWidth,
-      height: naturalHeight,
-      scaleX: 1,
-      scaleY: 1,
-    };
-  }
-
-  if (configuredWidth !== null && configuredHeight === null) {
-    const scale = configuredWidth / naturalWidth;
-    return {
-      width: configuredWidth,
-      height: naturalHeight * scale,
-      scaleX: scale,
-      scaleY: scale,
-    };
-  }
-
-  if (configuredWidth === null && configuredHeight !== null) {
-    const scale = configuredHeight / naturalHeight;
-    return {
-      width: naturalWidth * scale,
-      height: configuredHeight,
-      scaleX: scale,
-      scaleY: scale,
-    };
-  }
-
-  return {
-    width: configuredWidth,
-    height: configuredHeight,
-    scaleX: configuredWidth / naturalWidth,
-    scaleY: configuredHeight / naturalHeight,
-  };
-}
-
-function hasDeckItemActions(item = {}) {
-  return [
-    getDeckItemAction(item, "tap_action"),
-    getDeckItemAction(item, "hold_action"),
-    getDeckItemAction(item, "double_tap_action"),
-  ].some(isActionEnabled);
-}
-
-function getDeckItemAction(item = {}, key) {
-  const child = getDeckItemConfig(item);
-  const action =
-    item?.attributes?.[key] ||
-    child?.[key];
-
-  return action?.action ? action : null;
-}
-
-function getDeckItemEntity(item = {}) {
-  const child = getDeckItemConfig(item);
-
-  return (
-    item?.attributes?.entity ||
-    getActionEntity(item?.attributes?.tap_action) ||
-    getActionEntity(item?.attributes?.hold_action) ||
-    getActionEntity(item?.attributes?.double_tap_action) ||
-    getActionEntity(child?.tap_action) ||
-    getActionEntity(child?.hold_action) ||
-    getActionEntity(child?.double_tap_action) ||
-    child?.entity ||
-    null
-  );
-}
-
-function getDeckItemRenderConfig(item = {}, flattenSurface = false) {
-  const child = getDeckItemConfig(item);
-  const renderChild = shouldStripChildPaddingConfig(item)
-    ? removeChildPaddingConfig(child)
-    : child;
-  let renderConfig = renderChild;
-
-  if (hasDeckItemActions(item)) {
-    const {
-      tap_action,
-      hold_action,
-      double_tap_action,
-      ...actionlessConfig
-    } = renderChild;
-
-    renderConfig = actionlessConfig;
-  }
-
-  // Some custom cards paint their surface through their own configuration
-  // instead of the standard ha-card variables. Pass the common native switch
-  // to every embedded card in combined mode; cards that do not support it
-  // simply ignore the additional configuration key.
-  if (flattenSurface) {
-    return {
-      ...renderConfig,
-      hide_background: true,
-    };
-  }
-
-  return renderConfig;
-}
-
-function getDeckItemKind(item = {}) {
-  return item?.badge ? "badge" : "card";
-}
-
-function getDeckItemConfig(item = {}) {
-  return item?.badge || item?.card || {};
-}
-
-function removeChildPaddingConfig(value) {
-  if (Array.isArray(value)) {
-    return value.map((item) => removeChildPaddingConfig(item));
-  }
-
-  if (!value || typeof value !== "object") {
-    return value;
-  }
-
-  return Object.entries(value).reduce((result, [key, itemValue]) => {
-    if (key.toLowerCase().includes("padding")) {
-      return result;
-    }
-
-    result[key] = removeChildPaddingConfig(itemValue);
-
-    return result;
-  }, {});
-}
-
-function getActionEntity(actionConfig) {
-  return actionConfig?.entity || actionConfig?.entity_id || null;
-}
-
-function getDefaultDeckIndex(decks = []) {
-  return Math.max(
-    0,
-    decks.findIndex((item) => item.attributes?.default)
-  );
-}
-
-function getDefaultSelectionKey(decks = []) {
-  return decks
-    .map((item, index) => item.attributes?.default ? index : "")
-    .join(":");
-}
-
-function getTabWidthMode(config = {}) {
-  return ["equal", "dynamic", "custom"].includes(config?.tab_width_mode)
-    ? config.tab_width_mode
-    : "equal";
-}
-
-function getTabStyleVariables(config = {}) {
-  return [
-    config.tab_font_size
-      ? `--orbit-deck-tab-font-size:${config.tab_font_size};`
-      : "",
-    colorVariable("--orbit-deck-tab-color", config.tab_color),
-    colorVariable("--orbit-deck-tab-active-color", config.tab_active_color),
-    colorVariable("--orbit-deck-tab-background-color", config.tab_background_color),
-  ].filter(Boolean).join("");
-}
-
-function colorVariable(name, color) {
-  return color
-    ? `${name}:${computeFullColor(color)};`
-    : "";
-}
-
-function chunkItems(items, size = 1) {
-  const chunkSize = Math.max(1, size);
-  const rows = [];
-
-  for (let index = 0; index < items.length; index += chunkSize) {
-    rows.push(items.slice(index, index + chunkSize));
-  }
-
-  return rows;
-}
-
-function renderRowSpacers(itemCount, columnCount) {
-  return Array.from({ length: Math.max(0, columnCount - itemCount) }, () => html`
-    <div class="deck-spacer"></div>
-  `);
-}
-
-function getDeckPaddingApplyKey(entries = []) {
-  return entries.map((entry) => {
-    if (!entry?.element) {
-      return `${entry?.index ?? ""}:none`;
-    }
-
-    const padding = getDeckItemPadding(entry.item);
-    const forcePadding = isDeckItemPaddingForced(entry.item);
-    const activePadding = shouldApplyDeckItemPadding(entry.item);
-
-    return [
-      entry.index,
-      entry.kind || getDeckItemKind(entry.item),
-      getDeckItemConfig(entry.item)?.type || "",
-      forcePadding ? "force" : "child",
-      activePadding ? padding.top : "",
-      activePadding ? padding.right : "",
-      activePadding ? padding.bottom : "",
-      activePadding ? padding.left : "",
-    ].join(":");
-  }).join("|");
-}
-
-function getDeckItemWrapper(root, index) {
-  return root?.querySelector?.(`.deck-item-interaction[data-deck-index="${index}"]`);
-}
-
-function shouldFlattenDeckCardSurface(config = {}, item = {}, index = 0) {
-  if (config?.layout === "wrap") {
-    return !config?.separate_cards;
-  }
-
-  if (config?.layout === "overlay") {
-    return index > 0 && item?.attributes?.transparent_background === true;
-  }
-
-  return config?.layout === "tabs";
-}
-
-const DECK_CARD_SURFACE_STYLES = {
-  "--ha-card-background": "transparent",
-  "--card-background-color": "transparent",
-  "--ha-card-box-shadow": "none",
-  "--ha-card-border-color": "transparent",
-  "--ha-card-backdrop-filter": "none",
-  background: "transparent",
-  "backdrop-filter": "none",
-  "-webkit-backdrop-filter": "none",
-  "border-color": "transparent",
-  "box-shadow": "none",
-};
-
-function applyDeckCardSurface(element, flatten) {
-  if (flatten) {
-    if (!element._orbitDeckSurfaceStyles) {
-      element._orbitDeckSurfaceStyles = Object.fromEntries(
-        Object.keys(DECK_CARD_SURFACE_STYLES).map((property) => [
-          property,
-          {
-            value: element.style.getPropertyValue(property),
-            priority: element.style.getPropertyPriority(property),
-          },
-        ])
-      );
-    }
-
-    applyDeckCardSurfaceStyles(element);
-    connectDeckCardSurfaceObserver(element);
-    return;
-  }
-
-  const previousStyles = element._orbitDeckSurfaceStyles;
-
-  if (!previousStyles) return;
-
-  disconnectDeckCardSurfaceObserver(element);
-
-  Object.entries(previousStyles).forEach(([property, previous]) => {
-    if (previous.value) {
-      element.style.setProperty(property, previous.value, previous.priority);
-    } else {
-      element.style.removeProperty(property);
-    }
-  });
-  delete element._orbitDeckSurfaceStyles;
-}
-
-function applyDeckCardSurfaceStyles(element) {
-  Object.entries(DECK_CARD_SURFACE_STYLES).forEach(([property, value]) => {
-    if (
-      element.style.getPropertyValue(property) !== value ||
-      element.style.getPropertyPriority(property) !== "important"
-    ) {
-      element.style.setProperty(property, value, "important");
-    }
-  });
-}
-
-function connectDeckCardSurfaceObserver(element) {
-  if (element._orbitDeckSurfaceObserver) return;
-
-  element._orbitDeckSurfaceObserver = new MutationObserver(() => {
-    if (!element._orbitDeckSurfaceStyles) return;
-
-    applyDeckCardSurfaceStyles(element);
-  });
-
-  element._orbitDeckSurfaceObserver.observe(element, {
-    attributes: true,
-    attributeFilter: ["style"],
-  });
-}
-
-function disconnectDeckCardSurfaceObserver(element) {
-  element._orbitDeckSurfaceObserver?.disconnect();
-  element._orbitDeckSurfaceObserver = null;
-}
-
-function getCardElements(element) {
-  const cards = [];
-
-  collectCardElements(element, cards, new WeakSet());
-  return cards;
-}
-
-function collectCardElements(element, cards, seen) {
-  if (!element || seen.has(element)) return;
-
-  seen.add(element);
-
-  if (element.localName === "ha-card" && !cards.includes(element)) {
-    cards.push(element);
-  }
-
-  const roots = [element.shadowRoot, element].filter(Boolean);
-
-  roots.forEach((root) => {
-    const children = root.querySelectorAll?.("*") || [];
-
-    for (const child of children) {
-      if (child.localName === "ha-card" && !cards.includes(child)) {
-        cards.push(child);
-      }
-      if (child.shadowRoot) {
-        collectCardElements(child, cards, seen);
-      }
-    }
-  });
-}
-
-function applyPaddingTarget(element, padding, applied) {
-  applyPaddingStyles(
-    element,
-    applied
-      ? padding
-      : { top: "", right: "", bottom: "", left: "" }
-  );
-  element._orbitDeckPaddingApplied = applied;
-}
-
-function applyPaddingStyles(element, padding) {
-  setPaddingStyle(element, "padding-top", padding.top);
-  setPaddingStyle(element, "padding-right", padding.right);
-  setPaddingStyle(element, "padding-bottom", padding.bottom);
-  setPaddingStyle(element, "padding-left", padding.left);
-}
-
-function setPaddingStyle(element, property, value) {
-  if (value) {
-    if (
-      element.style.getPropertyValue(property) !== value ||
-      element.style.getPropertyPriority(property) !== "important"
-    ) {
-      element.style.setProperty(property, value, "important");
-    }
-  } else {
-    element.style.removeProperty(property);
-  }
-}
-
-function connectDeckPaddingObserver(element, padding) {
-  element._orbitDeckPadding = padding;
-
-  if (element._orbitDeckPaddingObserver) return;
-
-  element._orbitDeckPaddingObserver = new MutationObserver(() => {
-    if (!element._orbitDeckPadding) return;
-
-    applyPaddingStyles(element, element._orbitDeckPadding);
-  });
-
-  element._orbitDeckPaddingObserver.observe(element, {
-    attributes: true,
-    attributeFilter: ["style"],
-  });
-}
-
-function disconnectDeckPaddingObserver(element) {
-  element._orbitDeckPadding = null;
-  element._orbitDeckPaddingObserver?.disconnect();
-  element._orbitDeckPaddingObserver = null;
-}
 
 registerOrbitCard({
   tag: "orbit-deck-card",

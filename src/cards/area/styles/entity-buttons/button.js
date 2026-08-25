@@ -18,6 +18,8 @@ export const EntityButtonStyles = css`
     justify-content: center;
     cursor: pointer;
     transition: transform 0.2s ease, background 0.2s ease;
+    position: relative;
+    overflow: visible;
   }
 
   .entity-button:hover {

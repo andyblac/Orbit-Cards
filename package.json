@@ -1,16 +1,15 @@
 {
   "name": "orbit-cards",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "scripts": {
     "build": "vite build",
     "watch": "vite build --watch"
   },
   "description": "A modern, highly configurable Home Assistant area card designed to provide a clean area overview with quick access to devices, scenes, sensors, and navigation.",
-  "main": "jest.config.js",
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "lit": "^3.3.3"
   },

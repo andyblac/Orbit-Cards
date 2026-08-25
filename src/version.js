@@ -1,8 +1,9 @@
-export const ORBIT_CARDS_VERSION = "1.0.5";
+export const ORBIT_CARDS_VERSION = "1.1.0";
 
 export const CARD_VERSIONS = {
-  area: "0.8.5",
-  status: "0.13.6",
-  action: "0.6.5",
-  deck: "0.4.1",
+  area: "1.0.0",
+  status: "1.0.0",
+  action: "1.0.0",
+  deck: "1.0.0",
+  statusBadge: "0.5.0",
 };

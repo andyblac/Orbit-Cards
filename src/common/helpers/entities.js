@@ -56,3 +56,7 @@ export function getEntityActiveState(stateObj) {
       return state === "on";
   }
 }
+
+export function isEntityUnavailable(stateObj) {
+  return stateObj?.state?.toString().toLowerCase() === "unavailable";
+}

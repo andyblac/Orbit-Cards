@@ -2,9 +2,16 @@ import {
   getColorMix,
 } from "../../../common/helpers/colors.js";
 import { getDefaultEntityAction } from "../../../common/helpers/default-actions.js";
+import {
+  getTemplateResultActiveState,
+} from "../../../common/helpers/templates.js";
 
 export function updateAreaCard(changedProps) {
-  if (!changedProps.has("_config") && !changedProps.has("hass")) return;
+  if (
+    !changedProps.has("_config") &&
+    !changedProps.has("hass") &&
+    !changedProps.has("_templateRevision")
+  ) return;
 
   this._cardName = this._getCardName("");
 
@@ -263,11 +270,9 @@ function getAreaButtonModel(prefix, entityId, index, options) {
     entityId
   );
 
-  const isOn =
-    evaluatedState === null || evaluatedState === undefined
-      ? this._getEntityActiveState(stateObj)
-      : evaluatedState === true ||
-        evaluatedState === "on";
+  const isOn = stateTemplate
+    ? getTemplateResultActiveState(evaluatedState)
+    : this._getEntityActiveState(stateObj);
 
   const iconSource = getButtonIconSource.call(
     this,

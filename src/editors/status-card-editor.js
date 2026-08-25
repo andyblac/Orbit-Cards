@@ -33,6 +33,9 @@ import { statusEditorStyles } from "../common/editor/styles/status-editor.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import {
+  migrateStatusCardConfig,
+} from "../common/helpers/config-migration.js";
 import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
 import {
@@ -98,11 +101,37 @@ class OrbitStatusCardEditor extends LitElement {
   }
 
   setConfig(config) {
-    this._config = config || {};
+    const {
+      config: migratedConfig,
+      migrated,
+    } = migrateStatusCardConfig(config || {});
+
+    this._config = migratedConfig || {};
     this._selectedStatusIndex = Math.min(
       this._selectedStatusIndex || 0,
-      this._getStatusItems(config).length - 1
+      this._getStatusItems(this._config).length - 1
     );
+
+    if (migrated) {
+      this._queueConfigMigration();
+    }
+  }
+
+  _queueConfigMigration() {
+    if (this._configMigrationQueued) return;
+
+    this._configMigrationQueued = true;
+    Promise.resolve().then(() => {
+      this._configMigrationQueued = false;
+
+      this.dispatchEvent(new CustomEvent("config-changed", {
+        detail: {
+          config: orderStatusConfig(this._config),
+        },
+        bubbles: true,
+        composed: true,
+      }));
+    });
   }
 
   _updateConfig(changes) {
