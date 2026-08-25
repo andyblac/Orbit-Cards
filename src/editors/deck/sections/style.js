@@ -21,6 +21,7 @@ export function renderDeckStyleControls(index, item) {
       outlined
       .expanded=${expanded}
       @expanded-changed=${(ev) => {
+        if (ev.target !== ev.currentTarget) return;
         this._styleSectionExpanded = ev.detail.expanded;
       }}
     >

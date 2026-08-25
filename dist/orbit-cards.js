@@ -11380,7 +11380,7 @@ function Lu(e, t) {
       outlined
       .expanded=${this._styleSectionExpanded === !0}
       @expanded-changed=${(e) => {
-		this._styleSectionExpanded = e.detail.expanded;
+		e.target === e.currentTarget && (this._styleSectionExpanded = e.detail.expanded);
 	}}
     >
       <ha-icon slot="leading-icon" icon="mdi:palette"></ha-icon>
@@ -12040,7 +12040,7 @@ var Ru = [
         outlined
         .expanded=${this._cardSectionExpanded !== !1}
         @expanded-changed=${(e) => {
-			this._cardSectionExpanded = e.detail.expanded;
+			e.target === e.currentTarget && (this._cardSectionExpanded = e.detail.expanded);
 		}}
       >
         <ha-icon slot="leading-icon" icon="mdi:cards-outline"></ha-icon>

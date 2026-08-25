@@ -630,6 +630,7 @@ class OrbitDeckCardEditor extends LitElement {
         outlined
         .expanded=${expanded}
         @expanded-changed=${(ev) => {
+          if (ev.target !== ev.currentTarget) return;
           this._cardSectionExpanded = ev.detail.expanded;
         }}
       >
