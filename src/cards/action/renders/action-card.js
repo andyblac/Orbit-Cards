@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { isEntityUnavailable } from "../../../common/helpers/entities.js";
 
 export function renderActionCard() {
   const actions = this._actions || [];
@@ -66,6 +67,17 @@ function renderActionButton(action, index) {
               .icon=${action.icon}
             ></ha-icon>
           `}
+      ${isEntityUnavailable(action.stateObj)
+        ? html`
+            <ha-tile-badge
+              class="entity-unavailable-badge"
+              title="Unavailable"
+              aria-label="Unavailable"
+            >
+              <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
+            </ha-tile-badge>
+          `
+        : ""}
     </div>
   `;
   const isFlattenedGroup =

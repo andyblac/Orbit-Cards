@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { isEntityUnavailable } from "../../../common/helpers/entities.js";
 
 export function renderAreaCard() {
   const buttons = this._buttonModels || [];
@@ -56,32 +57,46 @@ export function renderAreaCard() {
 
           ${this._renderCurveButtons()}
 
-          ${this._isImageIcon(this._icon)
-            ? html`
-                <div
-                  class="main-image-icon"
-                  style="color:${this._iconColor};"
-                >
-                  ${inlineSvg
-                    ? unsafeHTML(inlineSvg)
-                    : html`<img src=${iconPath} alt="" />`}
-                </div>
-              `
-            : this._useNativeMainIcon && this._mainStateObj
+          <div class="main-icon-badge-anchor">
+            ${this._isImageIcon(this._icon)
               ? html`
-                  <ha-state-icon
-                    class="main-icon"
-                    .stateObj=${this._mainStateObj}
-                    style="color:${this._iconColor}"
-                  ></ha-state-icon>
+                  <div
+                    class="main-image-icon"
+                    style="color:${this._iconColor};"
+                  >
+                    ${inlineSvg
+                      ? unsafeHTML(inlineSvg)
+                      : html`<img src=${iconPath} alt="" />`}
+                  </div>
                 `
-            : html`
-                <ha-icon
-                  class="main-icon"
-                  .icon=${this._icon}
-                  style="color:${this._iconColor}"
-                ></ha-icon>
-              `}
+              : this._useNativeMainIcon && this._mainStateObj
+                ? html`
+                    <ha-state-icon
+                      class="main-icon"
+                      .stateObj=${this._mainStateObj}
+                      style="color:${this._iconColor}"
+                    ></ha-state-icon>
+                  `
+              : html`
+                  <ha-icon
+                    class="main-icon"
+                    .icon=${this._icon}
+                    style="color:${this._iconColor}"
+                  ></ha-icon>
+                `}
+
+            ${isEntityUnavailable(this._mainStateObj)
+              ? html`
+                  <ha-tile-badge
+                    class="entity-unavailable-badge"
+                    title="Unavailable"
+                    aria-label="Unavailable"
+                  >
+                    <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
+                  </ha-tile-badge>
+                `
+              : ""}
+          </div>
 
         </div>
 

@@ -61,7 +61,7 @@ export const statusCardStyles = [
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow: visible;
     touch-action: manipulation;
     z-index: 3;
   }

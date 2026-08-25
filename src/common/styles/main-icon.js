@@ -40,4 +40,33 @@ export const MainIconStyles = css`
     filter: brightness(0) invert(1);
     opacity: 0.8;
   }
+
+  .main-icon-badge-anchor {
+    position: relative;
+    width: 45%;
+    height: 45%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .main-icon-badge-anchor .main-icon {
+    --orbit-main-icon-size: 100%;
+  }
+
+  .main-icon-badge-anchor ha-state-icon.main-icon,
+  .main-icon-badge-anchor .main-image-icon {
+    width: 100%;
+    height: 100%;
+  }
+
+  .entity-unavailable-badge {
+    --tile-badge-background-color: var(--orange-color);
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(22%, -22%);
+    pointer-events: none;
+    z-index: 10;
+  }
 `;

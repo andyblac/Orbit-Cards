@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { isEntityUnavailable } from "../../../common/helpers/entities.js";
 
 /* ==========================================
  *  BUTTONS
@@ -54,6 +55,17 @@ export function renderButtons(button) {
                 style="color:${button.iconColor};"
               ></ha-icon>
             `}
+        ${isEntityUnavailable(button.stateObj)
+          ? html`
+              <ha-tile-badge
+                class="entity-unavailable-badge"
+                title="Unavailable"
+                aria-label="Unavailable"
+              >
+                <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
+              </ha-tile-badge>
+            `
+          : ""}
       </button>
     `;
   }

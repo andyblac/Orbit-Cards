@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { isEntityUnavailable } from "../../../common/helpers/entities.js";
 
 export function renderStatusCard() {
   const mode = this._config?.mode || "standard";
@@ -84,6 +85,7 @@ export function renderStatusCard() {
                   .icon=${this._icon}
                 ></ha-icon>
             `}
+          ${renderUnavailableBadge(this._mainStateObj)}
         </div>
 
         ${mode === "icon_only"
@@ -166,6 +168,7 @@ function renderIconOnlyStatusItem(item, index) {
               .icon=${item.icon}
             ></ha-icon>
           `}
+      ${renderUnavailableBadge(item.stateObj)}
     </div>
 
     <div
@@ -302,8 +305,23 @@ function renderPersonBadge(
             `
           : html`<ha-icon .icon=${icon}></ha-icon>`}
       </span>
+      ${renderUnavailableBadge(stateObj)}
     </span>
   `;
+}
+
+function renderUnavailableBadge(stateObj) {
+  return isEntityUnavailable(stateObj)
+    ? html`
+        <ha-tile-badge
+          class="entity-unavailable-badge"
+          title="Unavailable"
+          aria-label="Unavailable"
+        >
+          <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
+        </ha-tile-badge>
+      `
+    : "";
 }
 
 function isChargingBatteryState(stateObj) {
