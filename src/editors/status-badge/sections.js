@@ -3,7 +3,7 @@ import {
   renderActionSelector,
 } from "../../common/editor/helpers/helpers.js";
 import {
-  formatDeviceClass,
+  getStatusBadgeDeviceClasses,
   getStatusBadgeHideItems,
   serializeStatusBadgeHideItems,
   STATUS_BADGE_DOMAINS,
@@ -126,6 +126,7 @@ export function renderBadgeStateControl({
   badgeMode,
 }) {
   const domainValue = this._config?.domain || "";
+  const selectedDeviceClasses = getStatusBadgeDeviceClasses(this._config);
   const selectedType = badgeMode
     ? this._config?.card_visibility || "always"
     : stateSource;
@@ -297,32 +298,34 @@ export function renderBadgeStateControl({
               deviceClassOptions.length > 0
               ? html`
                   <div class="field">
-                    <ha-generic-picker
-                      .hass=${this.hass}
-                      .value=${this._config?.device_class || ""}
-                      .label=${this._t("Device class")}
-                      .placeholder=${this._t("Device class")}
-                      use-top-label
-                      .getItems=${() =>
-                        getDeviceClassPickerItems.call(
-                          this,
-                          domainValue,
-                          deviceClassOptions
-                        )}
-                      .valueRenderer=${(deviceClass) =>
-                        renderDeviceClassPickerValue.call(
-                          this,
-                          domainValue,
-                          deviceClass
-                        )}
-                      .rowRenderer=${(item, index) =>
-                        renderDeviceClassPickerRow(item, index)}
-                      @value-changed=${(e) =>
-                        this._handleConfigUpdate(
-                          "device_class",
-                          e.detail.value || undefined
-                        )}
-                    ></ha-generic-picker>
+                    <label>${this._t("Device class")}</label>
+                    <div class="status-badge-device-class-options">
+                      ${deviceClassOptions.map((option) => {
+                        return html`
+                          <ha-checkbox
+                            .checked=${selectedDeviceClasses.includes(
+                              option.value
+                            )}
+                            .value=${option.value}
+                            @change=${(e) => {
+                              const value = e.target.checked
+                                ? [...new Set([
+                                    ...selectedDeviceClasses,
+                                    option.value,
+                                  ])]
+                                : selectedDeviceClasses.filter(
+                                    (item) => item !== option.value
+                                  );
+
+                              this._handleConfigUpdate(
+                                "device_class",
+                                value.length ? value : undefined
+                              );
+                            }}
+                          >${option.label}</ha-checkbox>
+                        `;
+                      })}
+                    </div>
                   </div>
                 `
               : ""}
@@ -519,44 +522,4 @@ function renderDomainPickerRow(item, index) {
       <span slot="headline">${item.primary}</span>
     </ha-combo-box-item>
   `;
-}
-
-function getDeviceClassPickerItems(domain, options) {
-  return options
-    .filter((option) => option.value)
-    .map((option) => ({
-      id: option.value,
-      primary: option.label,
-      sorting_label: option.label,
-      stateObj: createDeviceClassPickerState(domain, option.value),
-    }));
-}
-
-function renderDeviceClassPickerValue(domain, deviceClass) {
-  if (!deviceClass) return "";
-
-  return html`
-    <ha-state-icon
-      slot="start"
-      .stateObj=${createDeviceClassPickerState(domain, deviceClass)}
-    ></ha-state-icon>
-    <span slot="headline">${formatDeviceClass(deviceClass)}</span>
-  `;
-}
-
-function renderDeviceClassPickerRow(item, index) {
-  return html`
-    <ha-combo-box-item type="button" compact .borderTop=${index !== 0}>
-      <ha-state-icon slot="start" .stateObj=${item.stateObj}></ha-state-icon>
-      <span slot="headline">${item.primary}</span>
-    </ha-combo-box-item>
-  `;
-}
-
-function createDeviceClassPickerState(domain, deviceClass) {
-  return {
-    entity_id: `${domain}.orbit_status_badge_picker`,
-    state: "off",
-    attributes: { device_class: deviceClass },
-  };
 }

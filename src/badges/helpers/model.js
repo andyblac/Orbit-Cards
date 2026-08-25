@@ -3,6 +3,7 @@ import { getEntityActiveState } from "../../common/helpers/entities.js";
 import {
   formatDeviceClass,
   getNativeEntityBadgeColor,
+  getStatusBadgeDeviceClasses,
   getStatusBadgeDomainConfig,
   getStatusBadgeStateSource,
 } from "../../common/helpers/status-badge.js";
@@ -45,6 +46,8 @@ export function getStatusBadgeModel() {
     ? true
     : computedIsOn;
   const selectedEntity = entities[0];
+  const deviceClasses = getStatusBadgeDeviceClasses(this._config);
+  const primaryDeviceClass = deviceClasses[0] || "";
   const domain = selectedEntity?.entity_id.split(".")[0] ||
     this._config?.domain || "";
   const domainConfig = getStatusBadgeDomainConfig(domain);
@@ -93,8 +96,8 @@ export function getStatusBadgeModel() {
     : activeEntities[0] || entities[0] || {
         entity_id: `${domain || "sensor"}.orbit_status_badge`,
         state: isOn ? "on" : "off",
-        attributes: this._config?.device_class
-          ? { device_class: this._config.device_class }
+        attributes: primaryDeviceClass
+          ? { device_class: primaryDeviceClass }
           : {},
       };
   const iconStateObj = ["entity", "template"].includes(stateSource)
@@ -102,15 +105,15 @@ export function getStatusBadgeModel() {
     : {
         entity_id: `${domain}.orbit_status_badge`,
         state: representativeStateObj.state,
-        attributes: this._config?.device_class
-          ? { device_class: this._config.device_class }
+        attributes: primaryDeviceClass
+          ? { device_class: primaryDeviceClass }
           : {},
       };
   const areaName = this.hass?.areas?.[this._config?.area]?.name || "";
   const configuredName = this._config?.name;
-  const deviceClassLabel = this._config?.device_class
-    ? formatDeviceClass(this._config.device_class)
-    : "";
+  const deviceClassLabel = deviceClasses
+    .map((deviceClass) => formatDeviceClass(deviceClass))
+    .join(", ");
   const entityLabel = selectedEntity && this.hass?.formatEntityName
     ? this.hass.formatEntityName(selectedEntity)
     : "";

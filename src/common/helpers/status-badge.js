@@ -52,7 +52,7 @@ export function validateStatusBadgeConfig(config = {}) {
   if (
     stateSource === "area_count" &&
     domainConfig?.requiresDeviceClass &&
-    !config.device_class
+    getStatusBadgeDeviceClasses(config).length === 0
   ) {
     throw new Error(
       `Orbit Status Badge requires "device_class" for domain "${config.domain}".`
@@ -122,6 +122,16 @@ export function normalizeStatusBadgeConfig(config = {}) {
       delete normalized[key];
     }
   });
+
+  const deviceClasses = getStatusBadgeDeviceClasses(normalized);
+
+  if (deviceClasses.length === 0) {
+    delete normalized.device_class;
+  } else {
+    normalized.device_class = deviceClasses.length === 1
+      ? deviceClasses[0]
+      : deviceClasses;
+  }
 
   // Match native badge config behaviour: only persist values that differ from
   // the runtime defaults.
@@ -230,6 +240,19 @@ export function formatDeviceClass(deviceClass = "") {
   return deviceClass
     .replaceAll("_", " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+export function getStatusBadgeDeviceClasses(config = {}) {
+  const configured = Array.isArray(config?.device_class)
+    ? config.device_class
+    : [config?.device_class];
+
+  return [...new Set(
+    configured
+      .filter((deviceClass) => typeof deviceClass === "string")
+      .map((deviceClass) => deviceClass.trim())
+      .filter(Boolean)
+  )];
 }
 
 export function getStatusBadgeEntityDeviceClass(stateObj, domain) {

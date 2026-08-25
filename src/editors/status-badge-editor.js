@@ -19,6 +19,8 @@ import { sharedSvgCache } from "../common/helpers/svg-cache.js";
 import { localize } from "../common/localize.js";
 import {
   formatDeviceClass,
+  getStatusBadgeDeviceClasses,
+  getStatusBadgeEntityDeviceClass,
   getStatusBadgeStateSource,
   normalizeStatusBadgeConfig,
   STATUS_BADGE_DOMAINS,
@@ -307,7 +309,7 @@ class OrbitStatusBadgeEditor extends LitElement {
 
   _getDeviceClassOptions() {
     const domain = this._config?.domain || "";
-    const configured = this._config?.device_class || "";
+    const configured = getStatusBadgeDeviceClasses(this._config);
     const deviceClasses = new Set();
 
     if (!domain) return [];
@@ -315,11 +317,11 @@ class OrbitStatusBadgeEditor extends LitElement {
     Object.values(this.hass?.states || {}).forEach((stateObj) => {
       if (!stateObj.entity_id.startsWith(`${domain}.`)) return;
 
-      const deviceClass = stateObj.attributes?.device_class;
+      const deviceClass = getStatusBadgeEntityDeviceClass(stateObj, domain);
       if (deviceClass) deviceClasses.add(deviceClass);
     });
 
-    if (configured) deviceClasses.add(configured);
+    configured.forEach((deviceClass) => deviceClasses.add(deviceClass));
 
     return [...deviceClasses]
       .sort((left, right) => left.localeCompare(right))

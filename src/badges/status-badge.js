@@ -28,6 +28,7 @@ import {
 import { getEntityAreaId } from "../common/helpers/suggestions.js";
 import {
   shouldHideStatusBadgeEntity,
+  getStatusBadgeDeviceClasses,
   getStatusBadgeDomainConfig,
   getStatusBadgeEntityDeviceClass,
   getStatusBadgeStateSource,
@@ -186,19 +187,22 @@ class OrbitStatusBadge extends LitElement {
 
     const domain = this._config?.domain || "";
     const areaId = this._config?.area;
-    const deviceClass = this._config?.device_class || "";
+    const deviceClasses = getStatusBadgeDeviceClasses(this._config);
     const domainConfig = getStatusBadgeDomainConfig(domain);
 
     if (!this.hass || !areaId || !domain) return [];
-    if (domainConfig.requiresDeviceClass && !deviceClass) return [];
+    if (domainConfig.requiresDeviceClass && deviceClasses.length === 0) {
+      return [];
+    }
 
     return this._getAreaEntityIds().map((entityId) =>
       this.hass.states?.[entityId]
     ).filter((stateObj) =>
       stateObj &&
       (!domainConfig.requiresDeviceClass ||
-        getStatusBadgeEntityDeviceClass(stateObj, domain) ===
-          deviceClass) &&
+        deviceClasses.includes(
+          getStatusBadgeEntityDeviceClass(stateObj, domain)
+        )) &&
       !shouldHideStatusBadgeEntity(
         this.hass,
         stateObj.entity_id,
