@@ -711,6 +711,8 @@ const STATUS_CONFIG_ORDER = [
 
 function orderStatusConfig(config) {
   const cleanedConfig = cleanEmptyStatusValues(config);
+  moveRootAreaCountToStatusItems(cleanedConfig);
+  cleanAreaCountEntity(cleanedConfig);
   cleanDefaultStatusActions(cleanedConfig);
   const ordered = {};
   const usedKeys = new Set();
@@ -734,14 +736,52 @@ function orderStatusConfig(config) {
   return ordered;
 }
 
+function moveRootAreaCountToStatusItems(config) {
+  if (
+    config?.mode !== "icon_only" ||
+    config.state_source !== "area_count" ||
+    !Array.isArray(config.entities) ||
+    config.entities.length === 0
+  ) {
+    return;
+  }
+
+  const areaCountConfig = pickStatusSourceConfig(config);
+
+  config.entities = config.entities.map((item) => {
+    const normalizedItem = typeof item === "string"
+      ? { entity: item }
+      : { ...(item || {}) };
+
+    if (normalizedItem.state_source === undefined) {
+      Object.assign(normalizedItem, areaCountConfig);
+      cleanAreaCountEntity(normalizedItem);
+    }
+
+    return normalizedItem;
+  });
+
+  STATUS_SOURCE_CONFIG_KEYS.forEach((key) => {
+    delete config[key];
+  });
+}
+
 function orderStatusItem(item) {
   if (!item || typeof item !== "object" || Array.isArray(item)) {
     return item;
   }
 
   const cleanedItem = cleanEmptyStatusValues(item);
+  cleanAreaCountEntity(cleanedItem);
   cleanDefaultStatusActions(cleanedItem);
   return orderObjectKeys(cleanedItem, STATUS_ITEM_KEYS);
+}
+
+function cleanAreaCountEntity(config) {
+  if (config?.state_source !== "area_count") return;
+
+  delete config.entity;
+  delete config.main_entity;
 }
 
 function cleanDefaultStatusActions(config) {
