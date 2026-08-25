@@ -26,6 +26,9 @@ import {
   updateEditorDocumentationContext,
 } from "../common/helpers/documentation.js";
 import {
+  migrateDeckCardConfig,
+} from "../common/helpers/config-migration.js";
+import {
   normalizeDeckAttributeLabels,
   normalizeDeckItem,
   orderDeckConfig,
@@ -94,12 +97,13 @@ class OrbitDeckCardEditor extends LitElement {
   }
 
   setConfig(config) {
-    const normalized = normalizeDeckAttributeLabels(config || {});
+    const migrated = migrateDeckCardConfig(config || {});
+    const normalized = normalizeDeckAttributeLabels(migrated.config);
 
     this._config = {
       ...normalized.config,
-      layout: ["tabs", "overlay"].includes(config?.layout)
-        ? config.layout
+      layout: ["tabs", "overlay"].includes(migrated.config?.layout)
+        ? migrated.config.layout
         : "wrap",
     };
     this._selectedDeckIndex = Math.min(
@@ -110,7 +114,7 @@ class OrbitDeckCardEditor extends LitElement {
     this._childPickerType = selectedItem?.badge ? "badge" : "card";
     this._updateDocumentationContext();
 
-    if (normalized.changed) {
+    if (migrated.migrated || normalized.changed) {
       queueMicrotask(() => this._dispatchConfigChanged());
     }
   }

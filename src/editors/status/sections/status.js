@@ -139,7 +139,7 @@ export function renderStatusSection() {
                       defaultAction: "none",
                     },
                     {
-                      key: "main_entity_tap_action",
+                      key: "entity_tap_action",
                       formKey: "icon_tap_action",
                       label: "Icon tap behavior",
                       defaultAction: mainEntityActionDefault,
@@ -150,13 +150,13 @@ export function renderStatusSection() {
                           : undefined,
                     },
                     {
-                      key: "main_entity_hold_action",
+                      key: "entity_hold_action",
                       formKey: "icon_hold_action",
                       label: "Icon hold behavior",
                       defaultAction: "none",
                     },
                     {
-                      key: "main_entity_double_tap_action",
+                      key: "entity_double_tap_action",
                       formKey: "icon_double_tap_action",
                       label: "Icon double tap behavior",
                       defaultAction: "none",
@@ -486,24 +486,24 @@ function renderStatusItemColor(label, key, index, item) {
 function renderStatusIconSource() {
   return renderIconSourceControl.call(this, {
     label: "Icon",
-    sourceKey: "main_entity_icon_source",
+    sourceKey: "entity_icon_source",
     entityKey: "entity",
     customIconKeys: [
-      "main_entity_icon",
-      "main_entity_icon_on",
-      "main_entity_icon_off",
+      "entity_icon",
+      "entity_icon_on",
+      "entity_icon_off",
     ],
     renderCustom() {
       return html`
-        ${this._renderIconInput("", "main_entity_icon")}
+        ${this._renderIconInput("", "entity_icon")}
         <div class="icon-pair">
           ${this._renderIconInput(
             ["Active", "Icon"],
-            "main_entity_icon_on"
+            "entity_icon_on"
           )}
           ${this._renderIconInput(
             ["Inactive", "Icon"],
-            "main_entity_icon_off"
+            "entity_icon_off"
           )}
         </div>
       `;
@@ -528,24 +528,24 @@ function renderStatusItemIconSource(index, item) {
 
   return renderIconSourceControl.call(scopedEditor, {
     label: "Icon",
-    sourceKey: "main_entity_icon_source",
+    sourceKey: "entity_icon_source",
     entityKey: "entity",
     customIconKeys: [
-      "main_entity_icon",
-      "main_entity_icon_on",
-      "main_entity_icon_off",
+      "entity_icon",
+      "entity_icon_on",
+      "entity_icon_off",
     ],
     renderCustom() {
       return html`
-        ${this._renderIconInput("", "main_entity_icon")}
+        ${this._renderIconInput("", "entity_icon")}
         <div class="icon-pair">
           ${this._renderIconInput(
             ["Active", "Icon"],
-            "main_entity_icon_on"
+            "entity_icon_on"
           )}
           ${this._renderIconInput(
             ["Inactive", "Icon"],
-            "main_entity_icon_off"
+            "entity_icon_off"
           )}
         </div>
       `;

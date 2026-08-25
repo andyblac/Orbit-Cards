@@ -231,19 +231,19 @@ class OrbitStatusCardEditor extends LitElement {
         ...pickStatusSourceConfig(config),
         accent_on_color: config?.accent_on_color || "",
         accent_off_color: config?.accent_off_color || "",
-        main_entity_icon_source: config?.main_entity_icon_source || "",
-        main_entity_icon: config?.main_entity_icon || "",
-        main_entity_icon_on: config?.main_entity_icon_on || "",
-        main_entity_icon_off: config?.main_entity_icon_off || "",
+        entity_icon_source: config?.entity_icon_source || "",
+        entity_icon: config?.entity_icon || "",
+        entity_icon_on: config?.entity_icon_on || "",
+        entity_icon_off: config?.entity_icon_off || "",
         state_template: config?.state_template || "",
         name_template: config?.name_template || "",
         tap_action: config?.tap_action,
         hold_action: config?.hold_action,
         double_tap_action: config?.double_tap_action,
-        main_entity_tap_action: config?.main_entity_tap_action,
-        main_entity_hold_action: config?.main_entity_hold_action,
-        main_entity_double_tap_action:
-          config?.main_entity_double_tap_action,
+        entity_tap_action: config?.entity_tap_action,
+        entity_hold_action: config?.entity_hold_action,
+        entity_double_tap_action:
+          config?.entity_double_tap_action,
       },
     ];
   }
@@ -265,19 +265,19 @@ class OrbitStatusCardEditor extends LitElement {
         ...pickStatusSourceConfig(item),
         accent_on_color: item.accent_on_color,
         accent_off_color: item.accent_off_color,
-        main_entity_icon_source: item.main_entity_icon_source,
-        main_entity_icon: item.main_entity_icon,
-        main_entity_icon_on: item.main_entity_icon_on,
-        main_entity_icon_off: item.main_entity_icon_off,
+        entity_icon_source: item.entity_icon_source,
+        entity_icon: item.entity_icon,
+        entity_icon_on: item.entity_icon_on,
+        entity_icon_off: item.entity_icon_off,
         state_template: item.state_template,
         name_template: item.name_template,
         tap_action: item.tap_action,
         hold_action: item.hold_action,
         double_tap_action: item.double_tap_action,
-        main_entity_tap_action: item.main_entity_tap_action,
-        main_entity_hold_action: item.main_entity_hold_action,
-        main_entity_double_tap_action:
-          item.main_entity_double_tap_action,
+        entity_tap_action: item.entity_tap_action,
+        entity_hold_action: item.entity_hold_action,
+        entity_double_tap_action:
+          item.entity_double_tap_action,
       });
       return;
     }
@@ -420,19 +420,19 @@ class OrbitStatusCardEditor extends LitElement {
       ...pickStatusSourceConfig(nextItem),
       accent_on_color: nextItem.accent_on_color || "",
       accent_off_color: nextItem.accent_off_color || "",
-      main_entity_icon_source: nextItem.main_entity_icon_source || "",
-      main_entity_icon: nextItem.main_entity_icon || "",
-      main_entity_icon_on: nextItem.main_entity_icon_on || "",
-      main_entity_icon_off: nextItem.main_entity_icon_off || "",
+      entity_icon_source: nextItem.entity_icon_source || "",
+      entity_icon: nextItem.entity_icon || "",
+      entity_icon_on: nextItem.entity_icon_on || "",
+      entity_icon_off: nextItem.entity_icon_off || "",
       state_template: nextItem.state_template || "",
       name_template: nextItem.name_template || "",
       tap_action: nextItem.tap_action,
       hold_action: nextItem.hold_action,
       double_tap_action: nextItem.double_tap_action,
-      main_entity_tap_action: nextItem.main_entity_tap_action,
-      main_entity_hold_action: nextItem.main_entity_hold_action,
-      main_entity_double_tap_action:
-        nextItem.main_entity_double_tap_action,
+      entity_tap_action: nextItem.entity_tap_action,
+      entity_hold_action: nextItem.entity_hold_action,
+      entity_double_tap_action:
+        nextItem.entity_double_tap_action,
     });
   }
 
@@ -505,7 +505,7 @@ class OrbitStatusCardEditor extends LitElement {
           defaultAction: "none",
         },
         {
-          key: "main_entity_tap_action",
+          key: "entity_tap_action",
           formKey: "icon_tap_action",
           label: "Icon tap behavior",
           defaultAction: mainEntityActionDefault,
@@ -516,13 +516,13 @@ class OrbitStatusCardEditor extends LitElement {
               : undefined,
         },
         {
-          key: "main_entity_hold_action",
+          key: "entity_hold_action",
           formKey: "icon_hold_action",
           label: "Icon hold behavior",
           defaultAction: "none",
         },
         {
-          key: "main_entity_double_tap_action",
+          key: "entity_double_tap_action",
           formKey: "icon_double_tap_action",
           label: "Icon double tap behavior",
           defaultAction: "none",
@@ -669,18 +669,18 @@ const STATUS_ENTITY_DEPENDENT_KEYS = [
   ...STATUS_SOURCE_CONFIG_KEYS,
   "accent_on_color",
   "accent_off_color",
-  "main_entity_icon_source",
-  "main_entity_icon",
-  "main_entity_icon_on",
-  "main_entity_icon_off",
+  "entity_icon_source",
+  "entity_icon",
+  "entity_icon_on",
+  "entity_icon_off",
   "state_template",
   "name_template",
   "tap_action",
   "hold_action",
   "double_tap_action",
-  "main_entity_tap_action",
-  "main_entity_hold_action",
-  "main_entity_double_tap_action",
+  "entity_tap_action",
+  "entity_hold_action",
+  "entity_double_tap_action",
 ];
 
 const STATUS_GROUP_ROOT_KEYS = [
@@ -698,9 +698,9 @@ const PERSON_ENTITY_DEPENDENT_KEYS = [
   "tap_action",
   "hold_action",
   "double_tap_action",
-  "main_entity_tap_action",
-  "main_entity_hold_action",
-  "main_entity_double_tap_action",
+  "entity_tap_action",
+  "entity_hold_action",
+  "entity_double_tap_action",
 ];
 
 const TRACKER_ENTITY_DEPENDENT_KEYS = [
@@ -712,21 +712,21 @@ const STATUS_ITEM_KEYS = [
   ...STATUS_SOURCE_CONFIG_KEYS,
   "accent_on_color",
   "accent_off_color",
-  "main_entity_icon_source",
-  "main_entity_icon",
-  "main_entity_icon_on",
-  "main_entity_icon_off",
-  "main_entity_icon_svg_color_override",
-  "main_entity_icon_on_svg_color_override",
-  "main_entity_icon_off_svg_color_override",
+  "entity_icon_source",
+  "entity_icon",
+  "entity_icon_on",
+  "entity_icon_off",
+  "entity_icon_svg_color_override",
+  "entity_icon_on_svg_color_override",
+  "entity_icon_off_svg_color_override",
   "state_template",
   "name_template",
   "tap_action",
   "hold_action",
   "double_tap_action",
-  "main_entity_tap_action",
-  "main_entity_hold_action",
-  "main_entity_double_tap_action",
+  "entity_tap_action",
+  "entity_hold_action",
+  "entity_double_tap_action",
 ];
 
 const STATUS_CONFIG_ORDER = [
@@ -741,21 +741,21 @@ const STATUS_CONFIG_ORDER = [
   "battery_entity_2",
   "accent_on_color",
   "accent_off_color",
-  "main_entity_icon_source",
-  "main_entity_icon",
-  "main_entity_icon_on",
-  "main_entity_icon_off",
-  "main_entity_icon_svg_color_override",
-  "main_entity_icon_on_svg_color_override",
-  "main_entity_icon_off_svg_color_override",
+  "entity_icon_source",
+  "entity_icon",
+  "entity_icon_on",
+  "entity_icon_off",
+  "entity_icon_svg_color_override",
+  "entity_icon_on_svg_color_override",
+  "entity_icon_off_svg_color_override",
   "state_template",
   "name_template",
   "tap_action",
   "hold_action",
   "double_tap_action",
-  "main_entity_tap_action",
-  "main_entity_hold_action",
-  "main_entity_double_tap_action",
+  "entity_tap_action",
+  "entity_hold_action",
+  "entity_double_tap_action",
   "wrap",
   "items_per_row",
   "separate_cards",
@@ -846,8 +846,8 @@ function cleanDefaultStatusActions(config) {
   if (config.tap_action?.action === "more-info") {
     delete config.tap_action;
   }
-  if (config.main_entity_tap_action?.action === CURRENT_STATE_ACTION) {
-    delete config.main_entity_tap_action;
+  if (config.entity_tap_action?.action === CURRENT_STATE_ACTION) {
+    delete config.entity_tap_action;
   }
 }
 

@@ -17,14 +17,14 @@ export function getCardDoubleTapAction() {
 }
 
 export function getMainEntityHoldAction() {
-  return isActionEnabled(this._config.main_entity_hold_action)
-    ? this._config.main_entity_hold_action
+  return isActionEnabled(this._config.entity_hold_action)
+    ? this._config.entity_hold_action
     : null;
 }
 
 export function getMainEntityTapAction() {
   const sourceConfig = getPrimaryStatusConfig(this);
-  const actionConfig = sourceConfig.main_entity_tap_action;
+  const actionConfig = sourceConfig.entity_tap_action;
 
   if (actionConfig?.action === "none") return null;
   if (actionConfig?.action) return actionConfig;
@@ -40,8 +40,8 @@ export function getMainEntityTapAction() {
 }
 
 export function getMainEntityDoubleTapAction() {
-  return isActionEnabled(this._config.main_entity_double_tap_action)
-    ? this._config.main_entity_double_tap_action
+  return isActionEnabled(this._config.entity_double_tap_action)
+    ? this._config.entity_double_tap_action
     : null;
 }
 
@@ -132,17 +132,17 @@ export function getStatusItemMainEntityTapAction(index = 0) {
   const item = this._statusItems?.[index];
 
   if (
-    item?.main_entity_tap_action?.action &&
-    item.main_entity_tap_action.action !== "none"
+    item?.entity_tap_action?.action &&
+    item.entity_tap_action.action !== "none"
   ) {
-    return item.main_entity_tap_action;
+    return item.entity_tap_action;
   }
 
   if (
-    this._config.main_entity_tap_action?.action &&
-    this._config.main_entity_tap_action.action !== "none"
+    this._config.entity_tap_action?.action &&
+    this._config.entity_tap_action.action !== "none"
   ) {
-    return this._config.main_entity_tap_action;
+    return this._config.entity_tap_action;
   }
 
   if (getStatusBadgeStateSource(item) === "area_count") {
@@ -155,12 +155,12 @@ export function getStatusItemMainEntityTapAction(index = 0) {
 export function getStatusItemMainEntityDoubleTapAction(index = 0) {
   const item = this._statusItems?.[index];
 
-  if (isActionEnabled(item?.main_entity_double_tap_action)) {
-    return item.main_entity_double_tap_action;
+  if (isActionEnabled(item?.entity_double_tap_action)) {
+    return item.entity_double_tap_action;
   }
 
-  if (isActionEnabled(this._config.main_entity_double_tap_action)) {
-    return this._config.main_entity_double_tap_action;
+  if (isActionEnabled(this._config.entity_double_tap_action)) {
+    return this._config.entity_double_tap_action;
   }
 
   return null;
@@ -169,16 +169,16 @@ export function getStatusItemMainEntityDoubleTapAction(index = 0) {
 export function getStatusItemMainEntityHoldAction(index = 0) {
   const item = this._statusItems?.[index];
 
-  if (item?.main_entity_hold_action?.action) {
-    return item.main_entity_hold_action.action === "none"
+  if (item?.entity_hold_action?.action) {
+    return item.entity_hold_action.action === "none"
       ? null
-      : item.main_entity_hold_action;
+      : item.entity_hold_action;
   }
 
-  if (this._config.main_entity_hold_action?.action) {
-    return this._config.main_entity_hold_action.action === "none"
+  if (this._config.entity_hold_action?.action) {
+    return this._config.entity_hold_action.action === "none"
       ? null
-      : this._config.main_entity_hold_action;
+      : this._config.entity_hold_action;
   }
 
   return null;

@@ -10,6 +10,9 @@ import {
   shouldApplyDeckItemPadding,
 } from "../common/helpers/deck-padding.js";
 import {
+  migrateDeckCardConfig,
+} from "../common/helpers/config-migration.js";
+import {
   clearDoubleTapTimer,
   handleAction,
   handleDoubleTapAction,
@@ -138,12 +141,13 @@ class OrbitDeckCard extends LitElement {
   }
 
   setConfig(config) {
-    const layout = ["tabs", "overlay"].includes(config?.layout)
-      ? config.layout
+    const migrated = migrateDeckCardConfig(config || {});
+    const layout = ["tabs", "overlay"].includes(migrated.config?.layout)
+      ? migrated.config.layout
       : "wrap";
 
     this._config = {
-      ...config,
+      ...migrated.config,
       layout,
     };
 

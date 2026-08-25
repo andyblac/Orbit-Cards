@@ -76,25 +76,25 @@ export function getIconOnlyStatusItems(config = {}) {
       ...pickStatusSourceConfig(config),
       accent_on_color: config.accent_on_color,
       accent_off_color: config.accent_off_color,
-      main_entity_icon_source: config.main_entity_icon_source,
-      main_entity_icon: config.main_entity_icon,
-      main_entity_icon_on: config.main_entity_icon_on,
-      main_entity_icon_off: config.main_entity_icon_off,
-      main_entity_icon_svg_color_override:
-        config.main_entity_icon_svg_color_override,
-      main_entity_icon_on_svg_color_override:
-        config.main_entity_icon_on_svg_color_override,
-      main_entity_icon_off_svg_color_override:
-        config.main_entity_icon_off_svg_color_override,
+      entity_icon_source: config.entity_icon_source,
+      entity_icon: config.entity_icon,
+      entity_icon_on: config.entity_icon_on,
+      entity_icon_off: config.entity_icon_off,
+      entity_icon_svg_color_override:
+        config.entity_icon_svg_color_override,
+      entity_icon_on_svg_color_override:
+        config.entity_icon_on_svg_color_override,
+      entity_icon_off_svg_color_override:
+        config.entity_icon_off_svg_color_override,
       state_template: config.state_template,
       name_template: config.name_template,
       tap_action: config.tap_action,
       hold_action: config.hold_action,
       double_tap_action: config.double_tap_action,
-      main_entity_tap_action: config.main_entity_tap_action,
-      main_entity_hold_action: config.main_entity_hold_action,
-      main_entity_double_tap_action:
-        config.main_entity_double_tap_action,
+      entity_tap_action: config.entity_tap_action,
+      entity_hold_action: config.entity_hold_action,
+      entity_double_tap_action:
+        config.entity_double_tap_action,
     },
   ];
 }
@@ -174,13 +174,13 @@ function getStatusState(item, rootConfig = {}) {
           : "");
 
   const customIcon =
-    config.main_entity_icon;
+    config.entity_icon;
 
   const customIconOn =
-    config.main_entity_icon_on;
+    config.entity_icon_on;
 
   const customIconOff =
-    config.main_entity_icon_off;
+    config.entity_icon_off;
 
   const hasConfiguredStateTemplate = Boolean(
     config.state_template ||
@@ -218,11 +218,11 @@ function getStatusState(item, rootConfig = {}) {
 
   const selectedIconKey =
     iconSource === "custom" && isOn && customIconOn
-      ? "main_entity_icon_on"
+      ? "entity_icon_on"
       : iconSource === "custom" && !isOn && customIconOff
-        ? "main_entity_icon_off"
+        ? "entity_icon_off"
         : iconSource === "custom" && customIcon
-          ? "main_entity_icon"
+          ? "entity_icon"
           : "";
 
   const statusColor = getStatusColor(
@@ -264,12 +264,12 @@ function getStatusState(item, rootConfig = {}) {
 }
 
 function getStatusIconSource(config, entityId) {
-  const savedSource = config.main_entity_icon_source;
+  const savedSource = config.entity_icon_source;
   const hasEntity = Boolean(entityId);
   const hasCustomIcon = Boolean(
-    config.main_entity_icon ||
-    config.main_entity_icon_on ||
-    config.main_entity_icon_off
+    config.entity_icon ||
+    config.entity_icon_on ||
+    config.entity_icon_off
   );
 
   if (savedSource === "custom") return "custom";
