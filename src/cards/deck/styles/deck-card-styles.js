@@ -24,11 +24,6 @@ export const deckCardStyles = css`
 
   .deck-item-interaction.transparent-background,
   .deck-item-interaction.transparent-background > * {
-    --ha-card-background: transparent;
-    --card-background-color: transparent;
-    --ha-card-box-shadow: none;
-    --ha-card-border-color: transparent;
-    --ha-card-backdrop-filter: none;
     background: transparent;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
@@ -192,15 +187,10 @@ export const deckCardStyles = css`
   .deck-overlay-item.transparent-background .deck-overlay-content,
   .deck-overlay-item.transparent-background .deck-item-interaction,
   .deck-overlay-item.transparent-background .deck-item-interaction > * {
-    --ha-card-background: transparent;
-    --card-background-color: transparent;
-    --ha-card-box-shadow: none;
-    --ha-card-border-width: 0;
-    --ha-card-border-color: transparent;
-    --ha-card-backdrop-filter: none;
     background: transparent;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    border-width: 0;
     border-color: transparent;
     box-shadow: none;
   }

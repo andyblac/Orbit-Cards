@@ -10809,11 +10809,6 @@ function nu(e = {}, t = {}, n = 0) {
 	return e?.layout === "wrap" ? typeof r == "boolean" ? r : !e?.separate_cards : e?.layout === "overlay" ? n > 0 && r === !0 : e?.layout === "tabs" && r !== !1;
 }
 var ru = {
-	"--ha-card-background": "transparent",
-	"--card-background-color": "transparent",
-	"--ha-card-box-shadow": "none",
-	"--ha-card-border-color": "transparent",
-	"--ha-card-backdrop-filter": "none",
 	background: "transparent",
 	"backdrop-filter": "none",
 	"-webkit-backdrop-filter": "none",
@@ -10910,11 +10905,6 @@ var hu = d`
 
   .deck-item-interaction.transparent-background,
   .deck-item-interaction.transparent-background > * {
-    --ha-card-background: transparent;
-    --card-background-color: transparent;
-    --ha-card-box-shadow: none;
-    --ha-card-border-color: transparent;
-    --ha-card-backdrop-filter: none;
     background: transparent;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
@@ -11078,15 +11068,10 @@ var hu = d`
   .deck-overlay-item.transparent-background .deck-overlay-content,
   .deck-overlay-item.transparent-background .deck-item-interaction,
   .deck-overlay-item.transparent-background .deck-item-interaction > * {
-    --ha-card-background: transparent;
-    --card-background-color: transparent;
-    --ha-card-box-shadow: none;
-    --ha-card-border-width: 0;
-    --ha-card-border-color: transparent;
-    --ha-card-backdrop-filter: none;
     background: transparent;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    border-width: 0;
     border-color: transparent;
     box-shadow: none;
   }

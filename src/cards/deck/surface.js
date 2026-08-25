@@ -52,11 +52,6 @@ export function shouldFlattenDeckCardSurface(config = {}, item = {}, index = 0) 
 }
 
 const DECK_CARD_SURFACE_STYLES = {
-  "--ha-card-background": "transparent",
-  "--card-background-color": "transparent",
-  "--ha-card-box-shadow": "none",
-  "--ha-card-border-color": "transparent",
-  "--ha-card-backdrop-filter": "none",
   background: "transparent",
   "backdrop-filter": "none",
   "-webkit-backdrop-filter": "none",
