@@ -85,7 +85,7 @@ export function renderStatusCard() {
                   .icon=${this._icon}
                 ></ha-icon>
             `}
-          ${renderUnavailableBadge(this._mainStateObj)}
+          ${renderUnavailableBadge.call(this, this._mainStateObj)}
         </div>
 
         ${mode === "icon_only"
@@ -169,7 +169,7 @@ function renderIconOnlyStatusItem(item, index) {
               .icon=${item.icon}
             ></ha-icon>
           `}
-      ${renderUnavailableBadge(item.stateObj)}
+      ${renderUnavailableBadge.call(this, item.stateObj)}
     </div>
 
     <div
@@ -306,7 +306,7 @@ function renderPersonBadge(
             `
           : html`<ha-icon .icon=${icon}></ha-icon>`}
       </span>
-      ${renderUnavailableBadge(stateObj)}
+      ${renderUnavailableBadge.call(this, stateObj)}
     </span>
   `;
 }
@@ -316,8 +316,8 @@ function renderUnavailableBadge(stateObj) {
     ? html`
         <ha-tile-badge
           class="entity-unavailable-badge"
-          title="Unavailable"
-          aria-label="Unavailable"
+          title=${this._t("Unavailable")}
+          aria-label=${this._t("Unavailable")}
         >
           <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
         </ha-tile-badge>

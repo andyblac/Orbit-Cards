@@ -292,7 +292,7 @@ function renderThemeColorPickerRow(item) {
     <ha-combo-box-item type="button" compact>
       ${renderThemeColorPickerStart.call(this, item)}
       <span slot="headline">${item.primary}</span>
-      ${renderThemeColorPickerBadge(item)}
+      ${renderThemeColorPickerBadge.call(this, item)}
     </ha-combo-box-item>
   `;
 }
@@ -303,7 +303,7 @@ function renderThemeColorPickerValue(item) {
   return html`
     ${renderThemeColorPickerStart.call(this, item)}
     <span slot="headline">${item.primary}</span>
-    ${renderThemeColorPickerBadge(item)}
+    ${renderThemeColorPickerBadge.call(this, item)}
   `;
 }
 
@@ -341,7 +341,7 @@ function renderThemeColorPickerBadge(item) {
       <span
         slot="end"
         class="theme-source-badge theme-source-badge-theme"
-        aria-label="Theme"
+        aria-label=${t(this, "Theme")}
       >T</span>
     `;
   }
@@ -351,7 +351,7 @@ function renderThemeColorPickerBadge(item) {
         <span
           slot="end"
           class="theme-source-badge theme-source-badge-standard"
-          aria-label="Standard"
+          aria-label=${t(this, "Standard")}
         >S</span>
       `
     : "";
@@ -758,4 +758,3 @@ function isNativeColorValue(value) {
     )
   );
 }
-

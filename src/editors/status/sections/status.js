@@ -174,8 +174,10 @@ export function renderStatusSection() {
 }
 
 function renderStatusNamePicker() {
+  const nativeNameKey = "ui.panel.lovelace.editor.card.generic.name";
+
   return renderNamePicker.call(this, {
-    label: "Name",
+    label: this.hass.localize(nativeNameKey),
     valueKey: "name",
     entityKey: "entity",
     defaultType: "entity",

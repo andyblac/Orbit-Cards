@@ -58,6 +58,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Add: [
     "ui.common.add",
   ],
+  "Add card": [
+    "ui.panel.lovelace.editor.edit_card.add",
+  ],
   All: [
     "ui.components.selectors.automation_behavior.trigger.options.all.label",
     "ui.panel.config.backup.data.apps_all",
@@ -72,9 +75,18 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.components.entity.entity-name-picker.types.area",
     "ui.components.area-picker.area",
   ],
+  Areas: [
+    "ui.components.area-filter.title",
+  ],
   Background: [
     "ui.panel.lovelace.editor.card.tile.background",
     "ui.panel.lovelace.editor.card.generic.background",
+  ],
+  "Binary sensors": [
+    "component.binary_sensor.entity_component._.name_plural",
+  ],
+  "Binary Sensors": [
+    "component.binary_sensor.entity_component._.name_plural",
   ],
   Badges: [
     "ui.panel.lovelace.editor.card.heading.badges",
@@ -93,6 +105,15 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.panel.config.backup.setup.custom_heading",
     "ui.panel.config.backup.schedule.time_options.custom",
     "ui.panel.config.backup.data.apps_custom",
+  ],
+  Content: [
+    "ui.panel.lovelace.editor.card.generic.content",
+  ],
+  "Configuration error": [
+    "ui.errors.config.configuration_error",
+  ],
+  Domain: [
+    "ui.panel.config.entities.picker.headers.domain",
   ],
   Entity: [
     "ui.components.selectors.selector.types.entity",
@@ -123,6 +144,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.components.selectors.selector.types.icon",
     "ui.panel.lovelace.editor.card.generic.icon",
   ],
+  Hide: [
+    "ui.common.hide",
+  ],
   Inactive: [
     "ui.components.color-picker.colors.inactive",
   ],
@@ -135,6 +159,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   ],
   Accent: [
     "ui.components.color-picker.colors.accent",
+  ],
+  "Accent color": [
+    "ui.panel.profile.themes.accent_color",
   ],
   Automations: [
     "ui.panel.config.automation.caption",
@@ -149,14 +176,36 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Card: [
     "ui.panel.lovelace.editor.card.conditional.card",
   ],
+  Cameras: [
+    "component.camera.entity_component._.name_plural",
+  ],
+  Climate: [
+    "component.climate.entity_component._.name_plural",
+    "panel.climate",
+  ],
+  Covers: [
+    "component.cover.entity_component._.name_plural",
+  ],
+  Crop: [
+    "ui.dialogs.image_cropper.crop",
+  ],
   "Display precision": [
     "ui.dialogs.entity_registry.editor.precision",
+  ],
+  "Displayed elements": [
+    "ui.panel.lovelace.editor.badge.entity.displayed_elements",
   ],
   "Double tap behavior": [
     "ui.panel.lovelace.editor.card.generic.double_tap_action",
   ],
   Home: [
     "state_badge.person.home",
+  ],
+  Fans: [
+    "component.fan.entity_component._.name_plural",
+  ],
+  Header: [
+    "ui.panel.lovelace.editor.header-footer.header",
   ],
   Icons: [
     "ui.panel.lovelace.editor.features.types.climate-preset-modes.style_list.icons",
@@ -176,6 +225,12 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Mode: [
     "ui.card.climate.mode",
   ],
+  Multiple: [
+    "ui.components.selectors.selector.multiple",
+  ],
+  "Navigation path": [
+    "ui.panel.lovelace.editor.action-editor.navigation_path",
+  ],
   Person: [
     "component.person.entity_component._.name",
   ],
@@ -192,6 +247,18 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Name: [
     "ui.common.name",
   ],
+  Labels: [
+    "ui.components.label-picker.labels",
+  ],
+  Lights: [
+    "component.light.entity_component._.name_plural",
+  ],
+  Locks: [
+    "component.lock.entity_component._.name_plural",
+  ],
+  "Media players": [
+    "component.media_player.entity_component._.name_plural",
+  ],
   Remove: [
     "ui.common.remove",
   ],
@@ -202,14 +269,35 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Scenes: [
     "ui.panel.config.scene.caption",
   ],
+  Sensors: [
+    "component.sensor.entity_component._.name_plural",
+  ],
   Scripts: [
     "ui.panel.config.script.caption",
   ],
   Security: [
     "panel.security",
   ],
+  Separator: [
+    "ui.panel.lovelace.editor.card.clock.date.sections.separator",
+  ],
   Standard: [
     "ui.panel.config.energy.battery.dialog.type_standard",
+  ],
+  State: [
+    "ui.panel.lovelace.editor.card.generic.state",
+  ],
+  Switches: [
+    "component.switch.entity_component._.name_plural",
+  ],
+  "State color": [
+    "ui.components.color-picker.state",
+  ],
+  "State content": [
+    "ui.panel.lovelace.editor.badge.entity.state_content",
+  ],
+  "Entity state": [
+    "ui.panel.lovelace.editor.condition-editor.condition.state.label",
   ],
   Status: [
     "ui.panel.config.entities.picker.headers.status",
@@ -224,6 +312,15 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Theme: [
     "ui.components.selectors.selector.types.theme",
     "ui.components.theme-picker.theme",
+  ],
+  Template: [
+    "ui.components.selectors.selector.types.template",
+  ],
+  Type: [
+    "ui.components.selectors.selector.type",
+  ],
+  Unavailable: [
+    "state.default.unavailable",
   ],
   Top: [
     "ui.panel.lovelace.editor.edit_view_header.settings.badges_position_options.top",
@@ -240,6 +337,12 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   ],
   Width: [
     "ui.panel.lovelace.editor.edit_section.settings.column_span",
+  ],
+  Visibility: [
+    "ui.panel.lovelace.editor.edit_card.tab_visibility",
+  ],
+  "Visible if selected in state content": [
+    "ui.panel.lovelace.editor.card.heading.entity_config.name_helper",
   ],
   Wrap: [
     "ui.panel.lovelace.editor.edit_view_header.settings.badges_wrap_options.wrap",

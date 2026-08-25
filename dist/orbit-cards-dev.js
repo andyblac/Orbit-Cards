@@ -1577,8 +1577,8 @@ function ir(e) {
         ${Xt(e.stateObj) ? T`
               <ha-tile-badge
                 class="entity-unavailable-badge"
-                title="Unavailable"
-                aria-label="Unavailable"
+                title=${this._t("Unavailable")}
+                aria-label=${this._t("Unavailable")}
               >
                 <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
               </ha-tile-badge>
@@ -1659,8 +1659,8 @@ function ar() {
             ${Xt(this._mainStateObj) ? T`
                   <ha-tile-badge
                     class="entity-unavailable-badge"
-                    title="Unavailable"
-                    aria-label="Unavailable"
+                    title=${this._t("Unavailable")}
+                    aria-label=${this._t("Unavailable")}
                   >
                     <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
                   </ha-tile-badge>
@@ -1826,7 +1826,7 @@ function vr() {
                       style="color:${e.iconColor};"
                     ></ha-icon>
                   `}
-              ${br(e.stateObj)}
+              ${br.call(this, e.stateObj)}
             </button>
           `)}
 
@@ -1870,7 +1870,7 @@ function yr(e) {
               style="color:${e.iconColor};"
             ></ha-icon>
           `}
-      ${br(e.stateObj)}
+      ${br.call(this, e.stateObj)}
     </button>
   `;
 }
@@ -1878,8 +1878,8 @@ function br(e) {
 	return Xt(e) ? T`
         <ha-tile-badge
           class="entity-unavailable-badge"
-          title="Unavailable"
-          aria-label="Unavailable"
+          title=${this._t("Unavailable")}
+          aria-label=${this._t("Unavailable")}
         >
           <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
         </ha-tile-badge>
@@ -2894,7 +2894,7 @@ function Ei(e) {
     <ha-combo-box-item type="button" compact>
       ${Oi.call(this, e)}
       <span slot="headline">${e.primary}</span>
-      ${ki(e)}
+      ${ki.call(this, e)}
     </ha-combo-box-item>
   `;
 }
@@ -2902,7 +2902,7 @@ function Di(e) {
 	return e ? T`
     ${Oi.call(this, e)}
     <span slot="headline">${e.primary}</span>
-    ${ki(e)}
+    ${ki.call(this, e)}
   ` : "";
 }
 function Oi(e) {
@@ -2933,13 +2933,13 @@ function ki(e) {
       <span
         slot="end"
         class="theme-source-badge theme-source-badge-theme"
-        aria-label="Theme"
+        aria-label=${G(this, "Theme")}
       >T</span>
     ` : e.isStandardFallback ? T`
         <span
           slot="end"
           class="theme-source-badge theme-source-badge-standard"
-          aria-label="Standard"
+          aria-label=${G(this, "Standard")}
         >S</span>
       ` : "";
 }
@@ -5933,29 +5933,13 @@ select {
 	Always: "Always",
 	"Area Count": "Area Count",
 	Badge: "Badge",
-	Content: "Content",
 	"Device class": "Device class",
-	"Displayed elements": "Displayed elements",
-	Domain: "Domain",
-	"Entity state": "Entity state",
-	Hide: "Hide",
 	"Hidden entities": "Hidden entities",
-	Header: "Header",
-	Labels: "Labels",
-	Name: "Name",
 	"Name template": "Name template",
 	"Not configured": "Not configured",
-	State: "State",
-	"State content": "State content",
 	"State type": "State type",
-	Template: "Template",
-	"Display template": "Display template",
 	"Active template": "Active template",
 	"Inactive template": "Inactive template",
-	Type: "Type",
-	Visibility: "Visibility",
-	"Visible if selected in state content": "Visible if selected in state content",
-	"Accent color": "Accent color",
 	"Action button": "Action button",
 	"Actions per row": "Actions per row",
 	"Add a card to start.": "Add a card to start.",
@@ -5970,14 +5954,12 @@ select {
 	Files: "Files",
 	"Icon only": "Icon only",
 	"Items per row": "Items per row",
-	"Label template": "Label template",
 	"Loading files...": "Loading files...",
 	"Local Icons": "Local Icons",
 	"Lock curve button positions": "Lock curve button positions",
 	"Main entity": "Main entity",
 	"Move left": "Move left",
 	"Move right": "Move right",
-	"Navigation path": "Navigation path",
 	"Native active state color": "Native active state color",
 	"Native inactive state color": "Native inactive state color",
 	"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.",
@@ -5992,20 +5974,16 @@ select {
 	"Orbit Status Badge (Dev) v{version}": "Orbit Status Badge (Dev) v{version}",
 	"Person entity": "Person entity",
 	"Separate cards": "Separate cards",
-	Separator: "Separator",
 	"State light color": "State light color",
 	"State color (default)": "State color (default)",
-	"State color": "State color",
 	"State template": "State template",
 	"Status {index}": "Status {index}",
 	"Status color": "Status color",
-	"Status name": "Status name",
 	"Status sensors": "Status sensors",
 	"Card background": "Card background",
 	"Force padding": "Force padding",
 	Main: "Main",
 	Overlay: "Overlay",
-	Crop: "Crop",
 	Resize: "Resize",
 	Height: "Height",
 	"Transparent background": "Transparent background",
@@ -6022,29 +6000,13 @@ select {
 	Always: "Always",
 	"Area Count": "Area Count",
 	Badge: "Badge",
-	Content: "Content",
 	"Device class": "Device class",
-	"Displayed elements": "Displayed elements",
-	Domain: "Domain",
-	"Entity state": "Entity state",
-	Hide: "Hide",
 	"Hidden entities": "Hidden entities",
-	Header: "Header",
-	Labels: "Labels",
-	Name: "Name",
 	"Name template": "Name template",
 	"Not configured": "Not configured",
-	State: "State",
-	"State content": "State content",
 	"State type": "State type",
-	Template: "Template",
-	"Display template": "Display template",
 	"Active template": "Active template",
 	"Inactive template": "Inactive template",
-	Type: "Type",
-	Visibility: "Visibility",
-	"Visible if selected in state content": "Visible if selected in state content",
-	"Accent color": "Accent colour",
 	"Action button": "Action button",
 	"Actions per row": "Actions per row",
 	"Add a card to start.": "Add a card to start.",
@@ -6059,14 +6021,12 @@ select {
 	Files: "Files",
 	"Icon only": "Icon only",
 	"Items per row": "Items per row",
-	"Label template": "Label template",
 	"Loading files...": "Loading files...",
 	"Local Icons": "Local Icons",
 	"Lock curve button positions": "Lock curve button positions",
 	"Main entity": "Main entity",
 	"Move left": "Move left",
 	"Move right": "Move right",
-	"Navigation path": "Navigation path",
 	"Native active state color": "Native active state colour",
 	"Native inactive state color": "Native inactive state colour",
 	"No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.": "No files found. Add a local icon manifest at /local/icons/manifest.json or type the filename manually.",
@@ -6081,20 +6041,16 @@ select {
 	"Orbit Status Badge (Dev) v{version}": "Orbit Status Badge (Dev) v{version}",
 	"Person entity": "Person entity",
 	"Separate cards": "Separate cards",
-	Separator: "Separator",
 	"State light color": "State light colour",
 	"State color (default)": "State colour (default)",
-	"State color": "State colour",
 	"State template": "State template",
 	"Status {index}": "Status {index}",
 	"Status color": "Status colour",
-	"Status name": "Status name",
 	"Status sensors": "Status sensors",
 	"Card background": "Card background",
 	"Force padding": "Force padding",
 	Main: "Main",
 	Overlay: "Overlay",
-	Crop: "Crop",
 	Resize: "Resize",
 	Height: "Height",
 	"Transparent background": "Transparent background",
@@ -6111,29 +6067,13 @@ select {
 	Always: "Immer",
 	"Area Count": "Bereichszähler",
 	Badge: "Abzeichen",
-	Content: "Inhalt",
 	"Device class": "Geräteklasse",
-	"Displayed elements": "Angezeigte Elemente",
-	Domain: "Domäne",
-	"Entity state": "Entitätszustand",
-	Hide: "Ausblenden",
 	"Hidden entities": "Ausgeblendete Entitäten",
-	Header: "Kopfzeile",
-	Labels: "Bezeichnungen",
-	Name: "Name",
 	"Name template": "Namensvorlage",
 	"Not configured": "Nicht konfiguriert",
-	State: "Zustand",
-	"State content": "Zustandsinhalt",
 	"State type": "Zustandstyp",
-	Template: "Vorlage",
-	"Display template": "Anzeigevorlage",
 	"Active template": "Aktivierungsvorlage",
 	"Inactive template": "Inaktivitätsvorlage",
-	Type: "Typ",
-	Visibility: "Sichtbarkeit",
-	"Visible if selected in state content": "Sichtbar, wenn im Zustandsinhalt ausgewählt",
-	"Accent color": "Akzentfarbe",
 	"Action button": "Aktionstaste",
 	"Actions per row": "Aktionen pro Zeile",
 	"Add a card to start.": "Füge eine Karte hinzu, um zu beginnen.",
@@ -6148,14 +6088,12 @@ select {
 	Files: "Dateien",
 	"Icon only": "Nur Symbol",
 	"Items per row": "Elemente pro Zeile",
-	"Label template": "Beschriftungsvorlage",
 	"Loading files...": "Dateien werden geladen...",
 	"Local Icons": "Lokale Symbole",
 	"Lock curve button positions": "Bogen-Tastenpositionen sperren",
 	"Main entity": "Hauptentität",
 	"Move left": "Nach links verschieben",
 	"Move right": "Nach rechts verschieben",
-	"Navigation path": "Navigationspfad",
 	"Native active state color": "Native Farbe für aktiven Zustand",
 	"Native inactive state color": "Native Farbe für inaktiven Zustand",
 	"No matching colors": "Keine passenden Farben",
@@ -6163,20 +6101,16 @@ select {
 	"No matching files": "Keine passenden Dateien",
 	"Person entity": "Personen-Entität",
 	"Separate cards": "Separate Karten",
-	Separator: "Trennzeichen",
 	"State light color": "Lichtstatusfarbe",
 	"State color (default)": "Statusfarbe (Standard)",
-	"State color": "Statusfarbe",
 	"State template": "Zustandsvorlage",
 	"Status {index}": "Status {index}",
 	"Status color": "Statusfarbe",
-	"Status name": "Statusname",
 	"Status sensors": "Statussensoren",
 	"Card background": "Kartenhintergrund",
 	"Force padding": "Padding erzwingen",
 	Main: "Hauptkarte",
 	Overlay: "Überlagerung",
-	Crop: "Zuschneiden",
 	Resize: "Größe ändern",
 	Height: "Höhe",
 	"Transparent background": "Transparenter Hintergrund",
@@ -6200,29 +6134,13 @@ select {
 	Always: "Siempre",
 	"Area Count": "Recuento de área",
 	Badge: "Insignia",
-	Content: "Contenido",
 	"Device class": "Clase de dispositivo",
-	"Displayed elements": "Elementos mostrados",
-	Domain: "Dominio",
-	"Entity state": "Estado de entidad",
-	Hide: "Ocultar",
 	"Hidden entities": "Entidades ocultas",
-	Header: "Encabezado",
-	Labels: "Etiquetas",
-	Name: "Nombre",
 	"Name template": "Plantilla de nombre",
 	"Not configured": "Sin configurar",
-	State: "Estado",
-	"State content": "Contenido del estado",
 	"State type": "Tipo de estado",
-	Template: "Plantilla",
-	"Display template": "Plantilla de visualización",
 	"Active template": "Plantilla de activación",
 	"Inactive template": "Plantilla de inactividad",
-	Type: "Tipo",
-	Visibility: "Visibilidad",
-	"Visible if selected in state content": "Visible si se selecciona en el contenido del estado",
-	"Accent color": "Color de acento",
 	"Action button": "Botón de acción",
 	"Actions per row": "Acciones por fila",
 	"Add a card to start.": "Añade una tarjeta para empezar.",
@@ -6237,14 +6155,12 @@ select {
 	Files: "Archivos",
 	"Icon only": "Solo icono",
 	"Items per row": "Elementos por fila",
-	"Label template": "Plantilla de etiqueta",
 	"Loading files...": "Cargando archivos...",
 	"Local Icons": "Iconos locales",
 	"Lock curve button positions": "Bloquear posiciones de botones curvos",
 	"Main entity": "Entidad principal",
 	"Move left": "Mover a la izquierda",
 	"Move right": "Mover a la derecha",
-	"Navigation path": "Ruta de navegación",
 	"Native active state color": "Color nativo del estado activo",
 	"Native inactive state color": "Color nativo del estado inactivo",
 	"No matching colors": "No hay colores coincidentes",
@@ -6252,20 +6168,16 @@ select {
 	"No matching files": "No hay archivos coincidentes",
 	"Person entity": "Entidad de persona",
 	"Separate cards": "Tarjetas separadas",
-	Separator: "Separador",
 	"State light color": "Color de luz de estado",
 	"State color (default)": "Color de estado (predeterminado)",
-	"State color": "Color de estado",
 	"State template": "Plantilla de estado",
 	"Status {index}": "Estado {index}",
 	"Status color": "Color de estado",
-	"Status name": "Nombre de estado",
 	"Status sensors": "Sensores de estado",
 	"Card background": "Fondo de tarjeta",
 	"Force padding": "Forzar relleno",
 	Main: "Principal",
 	Overlay: "Superposición",
-	Crop: "Recortar",
 	Resize: "Redimensionar",
 	Height: "Alto",
 	"Transparent background": "Fondo transparente",
@@ -6289,29 +6201,13 @@ select {
 	Always: "Toujours",
 	"Area Count": "Comptage de zone",
 	Badge: "Badge",
-	Content: "Contenu",
 	"Device class": "Classe d’appareil",
-	"Displayed elements": "Éléments affichés",
-	Domain: "Domaine",
-	"Entity state": "État de l’entité",
-	Hide: "Masquer",
 	"Hidden entities": "Entités masquées",
-	Header: "En-tête",
-	Labels: "Étiquettes",
-	Name: "Nom",
 	"Name template": "Modèle de nom",
 	"Not configured": "Non configuré",
-	State: "État",
-	"State content": "Contenu de l’état",
 	"State type": "Type d’état",
-	Template: "Modèle",
-	"Display template": "Modèle d’affichage",
 	"Active template": "Modèle d’activation",
 	"Inactive template": "Modèle d’inactivité",
-	Type: "Type",
-	Visibility: "Visibilité",
-	"Visible if selected in state content": "Visible si sélectionné dans le contenu de l’état",
-	"Accent color": "Couleur d'accent",
 	"Action button": "Bouton d'action",
 	"Actions per row": "Actions par ligne",
 	"Add a card to start.": "Ajoutez une carte pour commencer.",
@@ -6326,14 +6222,12 @@ select {
 	Files: "Fichiers",
 	"Icon only": "Icône seule",
 	"Items per row": "Éléments par ligne",
-	"Label template": "Modèle de libellé",
 	"Loading files...": "Chargement des fichiers...",
 	"Local Icons": "Icônes locales",
 	"Lock curve button positions": "Verrouiller les positions des boutons courbes",
 	"Main entity": "Entité principale",
 	"Move left": "Déplacer à gauche",
 	"Move right": "Déplacer à droite",
-	"Navigation path": "Chemin de navigation",
 	"Native active state color": "Couleur native de l’état actif",
 	"Native inactive state color": "Couleur native de l’état inactif",
 	"No matching colors": "Aucune couleur correspondante",
@@ -6341,20 +6235,16 @@ select {
 	"No matching files": "Aucun fichier correspondant",
 	"Person entity": "Entité personne",
 	"Separate cards": "Cartes séparées",
-	Separator: "Séparateur",
 	"State light color": "Couleur d’état de lumière",
 	"State color (default)": "Couleur d’état (par défaut)",
-	"State color": "Couleur d’état",
 	"State template": "Modèle d'état",
 	"Status {index}": "Statut {index}",
 	"Status color": "Couleur du statut",
-	"Status name": "Nom du statut",
 	"Status sensors": "Capteurs de statut",
 	"Card background": "Arrière-plan de la carte",
 	"Force padding": "Forcer le remplissage",
 	Main: "Principal",
 	Overlay: "Superposition",
-	Crop: "Recadrer",
 	Resize: "Redimensionner",
 	Height: "Hauteur",
 	"Transparent background": "Arrière-plan transparent",
@@ -6378,29 +6268,13 @@ select {
 	Always: "Sempre",
 	"Area Count": "Conteggio area",
 	Badge: "Badge",
-	Content: "Contenuto",
 	"Device class": "Classe dispositivo",
-	"Displayed elements": "Elementi visualizzati",
-	Domain: "Dominio",
-	"Entity state": "Stato entità",
-	Hide: "Nascondi",
 	"Hidden entities": "Entità nascoste",
-	Header: "Intestazione",
-	Labels: "Etichette",
-	Name: "Nome",
 	"Name template": "Modello del nome",
 	"Not configured": "Non configurato",
-	State: "Stato",
-	"State content": "Contenuto dello stato",
 	"State type": "Tipo di stato",
-	Template: "Modello",
-	"Display template": "Modello di visualizzazione",
 	"Active template": "Modello di attivazione",
 	"Inactive template": "Modello di inattività",
-	Type: "Tipo",
-	Visibility: "Visibilità",
-	"Visible if selected in state content": "Visibile se selezionato nel contenuto dello stato",
-	"Accent color": "Colore accento",
 	"Action button": "Pulsante azione",
 	"Actions per row": "Azioni per riga",
 	"Add a card to start.": "Aggiungi una scheda per iniziare.",
@@ -6415,14 +6289,12 @@ select {
 	Files: "File",
 	"Icon only": "Solo icona",
 	"Items per row": "Elementi per riga",
-	"Label template": "Template etichetta",
 	"Loading files...": "Caricamento file...",
 	"Local Icons": "Icone locali",
 	"Lock curve button positions": "Blocca posizioni dei pulsanti curvi",
 	"Main entity": "Entità principale",
 	"Move left": "Sposta a sinistra",
 	"Move right": "Sposta a destra",
-	"Navigation path": "Percorso navigazione",
 	"Native active state color": "Colore nativo dello stato attivo",
 	"Native inactive state color": "Colore nativo dello stato inattivo",
 	"No matching colors": "Nessun colore corrispondente",
@@ -6430,20 +6302,16 @@ select {
 	"No matching files": "Nessun file corrispondente",
 	"Person entity": "Entità persona",
 	"Separate cards": "Schede separate",
-	Separator: "Separatore",
 	"State light color": "Colore stato luce",
 	"State color (default)": "Colore stato (predefinito)",
-	"State color": "Colore stato",
 	"State template": "Template stato",
 	"Status {index}": "Stato {index}",
 	"Status color": "Colore stato",
-	"Status name": "Nome stato",
 	"Status sensors": "Sensori stato",
 	"Card background": "Sfondo scheda",
 	"Force padding": "Forza padding",
 	Main: "Principale",
 	Overlay: "Sovrapposizione",
-	Crop: "Ritaglia",
 	Resize: "Ridimensiona",
 	Height: "Altezza",
 	"Transparent background": "Sfondo trasparente",
@@ -6467,29 +6335,13 @@ select {
 	Always: "Altijd",
 	"Area Count": "Gebiedstelling",
 	Badge: "Badge",
-	Content: "Inhoud",
 	"Device class": "Apparaatklasse",
-	"Displayed elements": "Weergegeven elementen",
-	Domain: "Domein",
-	"Entity state": "Entiteitsstatus",
-	Hide: "Verbergen",
 	"Hidden entities": "Verborgen entiteiten",
-	Header: "Koptekst",
-	Labels: "Labels",
-	Name: "Naam",
 	"Name template": "Naamsjabloon",
 	"Not configured": "Niet geconfigureerd",
-	State: "Status",
-	"State content": "Statusinhoud",
 	"State type": "Statustype",
-	Template: "Sjabloon",
-	"Display template": "Weergavesjabloon",
 	"Active template": "Activeringssjabloon",
 	"Inactive template": "Deactiveringssjabloon",
-	Type: "Type",
-	Visibility: "Zichtbaarheid",
-	"Visible if selected in state content": "Zichtbaar indien geselecteerd in statusinhoud",
-	"Accent color": "Accentkleur",
 	"Action button": "Actieknop",
 	"Actions per row": "Acties per rij",
 	"Add a card to start.": "Voeg een kaart toe om te beginnen.",
@@ -6504,14 +6356,12 @@ select {
 	Files: "Bestanden",
 	"Icon only": "Alleen icoon",
 	"Items per row": "Items per rij",
-	"Label template": "Labelsjabloon",
 	"Loading files...": "Bestanden laden...",
 	"Local Icons": "Lokale iconen",
 	"Lock curve button positions": "Posities van gebogen knoppen vergrendelen",
 	"Main entity": "Hoofdentiteit",
 	"Move left": "Naar links verplaatsen",
 	"Move right": "Naar rechts verplaatsen",
-	"Navigation path": "Navigatiepad",
 	"Native active state color": "Systeemeigen kleur voor actieve status",
 	"Native inactive state color": "Systeemeigen kleur voor inactieve status",
 	"No matching colors": "Geen overeenkomende kleuren",
@@ -6519,20 +6369,16 @@ select {
 	"No matching files": "Geen overeenkomende bestanden",
 	"Person entity": "Persoon-entiteit",
 	"Separate cards": "Aparte kaarten",
-	Separator: "Scheidingsteken",
 	"State light color": "Statuskleur licht",
 	"State color (default)": "Statuskleur (standaard)",
-	"State color": "Statuskleur",
 	"State template": "Statussjabloon",
 	"Status {index}": "Status {index}",
 	"Status color": "Statuskleur",
-	"Status name": "Statusnaam",
 	"Status sensors": "Statussensoren",
 	"Card background": "Kaartachtergrond",
 	"Force padding": "Padding afdwingen",
 	Main: "Hoofdkaart",
 	Overlay: "Overlay",
-	Crop: "Bijsnijden",
 	Resize: "Formaat wijzigen",
 	Height: "Hoogte",
 	"Transparent background": "Transparante achtergrond",
@@ -6556,29 +6402,13 @@ select {
 	Always: "Sempre",
 	"Area Count": "Contagem da área",
 	Badge: "Emblema",
-	Content: "Conteúdo",
 	"Device class": "Classe do dispositivo",
-	"Displayed elements": "Elementos exibidos",
-	Domain: "Domínio",
-	"Entity state": "Estado da entidade",
-	Hide: "Ocultar",
 	"Hidden entities": "Entidades ocultas",
-	Header: "Cabeçalho",
-	Labels: "Rótulos",
-	Name: "Nome",
 	"Name template": "Modelo de nome",
 	"Not configured": "Não configurado",
-	State: "Estado",
-	"State content": "Conteúdo do estado",
 	"State type": "Tipo de estado",
-	Template: "Modelo",
-	"Display template": "Modelo de exibição",
 	"Active template": "Modelo de ativação",
 	"Inactive template": "Modelo de inatividade",
-	Type: "Tipo",
-	Visibility: "Visibilidade",
-	"Visible if selected in state content": "Visível se selecionado no conteúdo do estado",
-	"Accent color": "Cor de destaque",
 	"Action button": "Botão de ação",
 	"Actions per row": "Ações por linha",
 	"Add a card to start.": "Adicione um cartão para começar.",
@@ -6593,14 +6423,12 @@ select {
 	Files: "Arquivos",
 	"Icon only": "Somente ícone",
 	"Items per row": "Itens por linha",
-	"Label template": "Modelo de rótulo",
 	"Loading files...": "Carregando arquivos...",
 	"Local Icons": "Ícones locais",
 	"Lock curve button positions": "Bloquear posições dos botões curvos",
 	"Main entity": "Entidade principal",
 	"Move left": "Mover para a esquerda",
 	"Move right": "Mover para a direita",
-	"Navigation path": "Caminho de navegação",
 	"Native active state color": "Cor nativa do estado ativo",
 	"Native inactive state color": "Cor nativa do estado inativo",
 	"No matching colors": "Nenhuma cor correspondente",
@@ -6608,20 +6436,16 @@ select {
 	"No matching files": "Nenhum arquivo correspondente",
 	"Person entity": "Entidade de pessoa",
 	"Separate cards": "Cartões separados",
-	Separator: "Separador",
 	"State light color": "Cor de estado da luz",
 	"State color (default)": "Cor de estado (padrão)",
-	"State color": "Cor de estado",
 	"State template": "Modelo de estado",
 	"Status {index}": "Status {index}",
 	"Status color": "Cor do status",
-	"Status name": "Nome do status",
 	"Status sensors": "Sensores de status",
 	"Card background": "Fundo do cartão",
 	"Force padding": "Forçar preenchimento",
 	Main: "Principal",
 	Overlay: "Sobreposição",
-	Crop: "Recortar",
 	Resize: "Redimensionar",
 	Height: "Altura",
 	"Transparent background": "Fundo transparente",
@@ -6665,6 +6489,7 @@ function ys(e, t) {
 }
 var bs = {
 	Add: ["ui.common.add"],
+	"Add card": ["ui.panel.lovelace.editor.edit_card.add"],
 	All: ["ui.components.selectors.automation_behavior.trigger.options.all.label", "ui.panel.config.backup.data.apps_all"],
 	Active: [
 		"ui.panel.config.users.editor.active",
@@ -6676,7 +6501,10 @@ var bs = {
 		"ui.components.entity.entity-name-picker.types.area",
 		"ui.components.area-picker.area"
 	],
+	Areas: ["ui.components.area-filter.title"],
 	Background: ["ui.panel.lovelace.editor.card.tile.background", "ui.panel.lovelace.editor.card.generic.background"],
+	"Binary sensors": ["component.binary_sensor.entity_component._.name_plural"],
+	"Binary Sensors": ["component.binary_sensor.entity_component._.name_plural"],
 	Badges: ["ui.panel.lovelace.editor.card.heading.badges", "ui.panel.lovelace.editor.badges.name"],
 	Color: ["ui.panel.lovelace.editor.card.tile.color", "ui.dialogs.label-detail.color"],
 	Clear: ["ui.common.clear"],
@@ -6687,6 +6515,9 @@ var bs = {
 		"ui.panel.config.backup.schedule.time_options.custom",
 		"ui.panel.config.backup.data.apps_custom"
 	],
+	Content: ["ui.panel.lovelace.editor.card.generic.content"],
+	"Configuration error": ["ui.errors.config.configuration_error"],
+	Domain: ["ui.panel.config.entities.picker.headers.domain"],
 	Entity: [
 		"ui.components.selectors.selector.types.entity",
 		"ui.components.entity.entity-picker.entity",
@@ -6699,43 +6530,70 @@ var bs = {
 	Enabled: ["ui.dialogs.entity_registry.editor.enabled_label", "ui.panel.config.entities.picker.status.enabled"],
 	Equal: ["ui.components.selectors.select.options.equal"],
 	Icon: ["ui.components.selectors.selector.types.icon", "ui.panel.lovelace.editor.card.generic.icon"],
+	Hide: ["ui.common.hide"],
 	Inactive: ["ui.components.color-picker.colors.inactive"],
 	Interactions: ["ui.panel.lovelace.editor.card.tile.interactions", "ui.panel.lovelace.editor.card.generic.interactions"],
 	None: ["ui.common.none"],
 	Accent: ["ui.components.color-picker.colors.accent"],
+	"Accent color": ["ui.panel.profile.themes.accent_color"],
 	Automations: ["ui.panel.config.automation.caption", "ui.dialogs.more_info_control.add_to.automations_heading"],
 	Away: ["state_badge.person.not_home"],
 	Buttons: ["ui.panel.lovelace.editor.card.entities.entity_row.buttons"],
 	Card: ["ui.panel.lovelace.editor.card.conditional.card"],
+	Cameras: ["component.camera.entity_component._.name_plural"],
+	Climate: ["component.climate.entity_component._.name_plural", "panel.climate"],
+	Covers: ["component.cover.entity_component._.name_plural"],
+	Crop: ["ui.dialogs.image_cropper.crop"],
 	"Display precision": ["ui.dialogs.entity_registry.editor.precision"],
+	"Displayed elements": ["ui.panel.lovelace.editor.badge.entity.displayed_elements"],
 	"Double tap behavior": ["ui.panel.lovelace.editor.card.generic.double_tap_action"],
 	Home: ["state_badge.person.home"],
+	Fans: ["component.fan.entity_component._.name_plural"],
+	Header: ["ui.panel.lovelace.editor.header-footer.header"],
 	Icons: ["ui.panel.lovelace.editor.features.types.climate-preset-modes.style_list.icons"],
 	"Icon tap behavior": ["ui.panel.lovelace.editor.card.tile.icon_tap_action"],
 	"Hold behavior": ["ui.panel.lovelace.editor.card.generic.hold_action"],
 	"Icon hold behavior": ["ui.panel.lovelace.editor.card.tile.icon_hold_action"],
 	"Icon double tap behavior": ["ui.panel.lovelace.editor.card.tile.icon_double_tap_action"],
 	Mode: ["ui.card.climate.mode"],
+	Multiple: ["ui.components.selectors.selector.multiple"],
+	"Navigation path": ["ui.panel.lovelace.editor.action-editor.navigation_path"],
 	Person: ["component.person.entity_component._.name"],
 	Position: ["ui.panel.lovelace.editor.card.entities.secondary_info_values.position", "ui.card.cover.position"],
 	Prefix: ["ui.panel.lovelace.editor.elements.prefix"],
 	Primary: ["ui.components.color-picker.colors.primary"],
 	Name: ["ui.common.name"],
+	Labels: ["ui.components.label-picker.labels"],
+	Lights: ["component.light.entity_component._.name_plural"],
+	Locks: ["component.lock.entity_component._.name_plural"],
+	"Media players": ["component.media_player.entity_component._.name_plural"],
 	Remove: ["ui.common.remove"],
 	Search: ["ui.components.data-table.search", "ui.panel.lovelace.editor.card.generic.search"],
 	Scenes: ["ui.panel.config.scene.caption"],
+	Sensors: ["component.sensor.entity_component._.name_plural"],
 	Scripts: ["ui.panel.config.script.caption"],
 	Security: ["panel.security"],
+	Separator: ["ui.panel.lovelace.editor.card.clock.date.sections.separator"],
 	Standard: ["ui.panel.config.energy.battery.dialog.type_standard"],
+	State: ["ui.panel.lovelace.editor.card.generic.state"],
+	Switches: ["component.switch.entity_component._.name_plural"],
+	"State color": ["ui.components.color-picker.state"],
+	"State content": ["ui.panel.lovelace.editor.badge.entity.state_content"],
+	"Entity state": ["ui.panel.lovelace.editor.condition-editor.condition.state.label"],
 	Status: ["ui.panel.config.entities.picker.headers.status"],
 	Style: ["ui.panel.lovelace.editor.features.types.climate-preset-modes.style", "ui.panel.lovelace.editor.features.types.numeric-input.style"],
 	"Tap behavior": ["ui.panel.lovelace.editor.card.generic.tap_action"],
 	Theme: ["ui.components.selectors.selector.types.theme", "ui.components.theme-picker.theme"],
+	Template: ["ui.components.selectors.selector.types.template"],
+	Type: ["ui.components.selectors.selector.type"],
+	Unavailable: ["state.default.unavailable"],
 	Top: ["ui.panel.lovelace.editor.edit_view_header.settings.badges_position_options.top"],
 	Right: ["ui.panel.lovelace.editor.card.energy-date-selection.opening_directions.right"],
 	Bottom: ["ui.panel.lovelace.editor.card.tile.features_position_options.bottom", "ui.panel.lovelace.editor.edit_view_header.settings.badges_position_options.bottom"],
 	Left: ["ui.panel.lovelace.editor.card.energy-date-selection.opening_directions.left"],
 	Width: ["ui.panel.lovelace.editor.edit_section.settings.column_span"],
+	Visibility: ["ui.panel.lovelace.editor.edit_card.tab_visibility"],
+	"Visible if selected in state content": ["ui.panel.lovelace.editor.card.heading.entity_config.name_helper"],
 	Wrap: ["ui.panel.lovelace.editor.edit_view_header.settings.badges_wrap_options.wrap"]
 };
 function xs(e, t) {
@@ -8203,7 +8061,7 @@ function pl() {
                   .icon=${this._icon}
                 ></ha-icon>
             `}
-          ${vl(this._mainStateObj)}
+          ${vl.call(this, this._mainStateObj)}
         </div>
 
         ${e === "icon_only" ? T`
@@ -8262,7 +8120,7 @@ function hl(e, t) {
               .icon=${e.icon}
             ></ha-icon>
           `}
-      ${vl(e.stateObj)}
+      ${vl.call(this, e.stateObj)}
     </div>
 
     <div
@@ -8356,7 +8214,7 @@ function _l(e, t, n, r = null, i = null) {
               ></ha-state-icon>
             ` : T`<ha-icon .icon=${t}></ha-icon>`}
       </span>
-      ${vl(i)}
+      ${vl.call(this, i)}
     </span>
   `;
 }
@@ -8364,8 +8222,8 @@ function vl(e) {
 	return Xt(e) ? T`
         <ha-tile-badge
           class="entity-unavailable-badge"
-          title="Unavailable"
-          aria-label="Unavailable"
+          title=${this._t("Unavailable")}
+          aria-label=${this._t("Unavailable")}
         >
           <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
         </ha-tile-badge>
@@ -9366,7 +9224,7 @@ function Il() {
 }
 function Ll() {
 	return _o.call(this, {
-		label: "Name",
+		label: this.hass.localize("ui.panel.lovelace.editor.card.generic.name"),
 		valueKey: "name",
 		entityKey: "entity",
 		defaultType: "entity",
@@ -10892,8 +10750,8 @@ function xu(e, t) {
       ${Xt(e.stateObj) ? T`
             <ha-tile-badge
               class="entity-unavailable-badge"
-              title="Unavailable"
-              aria-label="Unavailable"
+              title=${this._t("Unavailable")}
+              aria-label=${this._t("Unavailable")}
             >
               <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
             </ha-tile-badge>
@@ -13665,7 +13523,7 @@ At({
 		_renderDeckEntry(e) {
 			return e?.element ? e.element : T`
       <ha-card class="deck-error-card">
-        <div class="deck-error-title">Configuration error</div>
+        <div class="deck-error-title">${this._t("Configuration error")}</div>
         <div>${e?.error || "No card configured"}</div>
       </ha-card>
     `;
@@ -13782,7 +13640,7 @@ At({
 			let e = Yu(this._config);
 			return e.length ? this._config?.layout === "tabs" ? this._renderTabs(e) : this._config?.layout === "overlay" ? this._renderOverlay() : this._renderWrap(e) : T`
         <ha-card class="deck-card empty">
-          <div>Add card</div>
+          <div>${this._t("Add card")}</div>
         </ha-card>
       `;
 		}

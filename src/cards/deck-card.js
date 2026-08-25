@@ -655,7 +655,7 @@ class OrbitDeckCard extends LitElement {
 
     return html`
       <ha-card class="deck-error-card">
-        <div class="deck-error-title">Configuration error</div>
+        <div class="deck-error-title">${this._t("Configuration error")}</div>
         <div>${entry?.error || "No card configured"}</div>
       </ha-card>
     `;
@@ -880,7 +880,7 @@ class OrbitDeckCard extends LitElement {
     if (!decks.length) {
       return html`
         <ha-card class="deck-card empty">
-          <div>Add card</div>
+          <div>${this._t("Add card")}</div>
         </ha-card>
       `;
     }
