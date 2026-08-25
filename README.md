@@ -9,15 +9,15 @@
 [![GitHub Stars](https://img.shields.io/github/stars/Andyblac/Orbit-Cards?style=social)](https://github.com/Andyblac/Orbit-Cards)
 [![GitHub Issues](https://img.shields.io/github/issues/Andyblac/Orbit-Cards?style=flat-square)](https://github.com/Andyblac/Orbit-Cards/issues)
 
-Orbit Cards is a collection of modern Home Assistant dashboard cards with a shared visual style, shared editor controls, and support for custom icons, dynamic colours, popups, navigation, and compact grouped layouts.
+Orbit Cards is a collection of modern Home Assistant dashboard cards and badges. Every component shares the same visual language and editor experience, with flexible layouts, dynamic colours, custom icons, templates, and configurable interactions.
 
-It also includes the `custom:orbit-status-badge`, which counts active entities of a selected domain in an area.
+Install Orbit Cards directly from the default HACS repository, then configure its cards and badges from Home Assistant's dashboard editor.
 
-Orbit Cards is available directly from the default HACS repository. Search for `Orbit Cards` in HACS to install it.
+**[Documentation](https://github.com/Andyblac/Orbit-Cards/wiki)** · **[Installation guide](https://github.com/Andyblac/Orbit-Cards/wiki/Installation)** · **[Examples](https://github.com/Andyblac/Orbit-Cards/wiki/Examples)** · **[Screenshots](https://github.com/Andyblac/Orbit-Cards/wiki/Screenshots)**
 
 ---
 
-## Cards
+## Cards and badges
 
 <table>
   <tr>
@@ -26,12 +26,14 @@ Orbit Cards is available directly from the default HACS repository. Search for `
       <p><code>custom:orbit-area-card</code></p>
       <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/area-card-light.png" alt="Orbit Area Card" width="300">
       <p align="left">An area overview with status text, a main entity, side buttons, curved quick actions, and navigation.</p>
+      <p><a href="https://github.com/Andyblac/Orbit-Cards/wiki/Area-Card">Area Card guide</a></p>
     </td>
     <td width="50%" valign="top" align="center">
       <h3>Status Card</h3>
       <p><code>custom:orbit-status-card</code></p>
       <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/status-card-modes-light.png" alt="Orbit Status Card modes" width="380">
       <p align="left">Visual entity summaries in Standard, Person, Icon only, and compact grouped Icon only modes.</p>
+      <p><a href="https://github.com/Andyblac/Orbit-Cards/wiki/Status-Card">Status Card guide</a></p>
     </td>
   </tr>
   <tr>
@@ -40,6 +42,7 @@ Orbit Cards is available directly from the default HACS repository. Search for `
       <p><code>custom:orbit-action-card</code></p>
       <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/action-card-grouped-light.png" alt="Orbit Action Card group" width="380">
       <p align="left">Compact controls for scenes, scripts, automations, buttons, cameras, and grouped shortcuts.</p>
+      <p><a href="https://github.com/Andyblac/Orbit-Cards/wiki/Action-Card">Action Card guide</a></p>
     </td>
     <td width="50%" valign="top" align="center">
       <h3>Deck Card</h3>
@@ -49,184 +52,82 @@ Orbit Cards is available directly from the default HACS repository. Search for `
       <p><strong>Tabs</strong></p>
       <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/deck-card-tabs-home-light.png" alt="Orbit Deck Card tabs layout" width="360">
       <p align="left">A generic container that wraps Lovelace cards into rows, switches between them with tabs, or places compact cards over a main card.</p>
+      <p><a href="https://github.com/Andyblac/Orbit-Cards/wiki/Deck-Card">Deck Card guide</a></p>
     </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top" align="center">
+      <h3>Status Badge</h3>
+      <p><code>custom:orbit-status-badge</code></p>
+      <p><strong>Heading badges</strong></p>
+      <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/status-badge-heading-light.png" alt="Orbit Status Badges in a Heading card" width="500">
+      <p><strong>Active entities</strong></p>
+      <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/status-badge-active-entities-light.png" alt="Orbit Status Badge active entities dialog" width="360">
+      <p align="left">Flexible entity, area-count, and template-driven status indicators for Home Assistant badge rows and card layouts.</p>
+      <p><a href="https://github.com/Andyblac/Orbit-Cards/wiki/Status-Badge">Status Badge guide</a></p>
+    </td>
+    <td width="50%"></td>
   </tr>
 </table>
 
 ## Features
 
-- Built-in visual editors for all cards.
-- Tabbed editor sections with grouped controls for area/card settings, status fields, buttons, curved buttons, and action buttons.
-- Shared colour handling across cards.
-- Named colours, theme colours, hex colours, `rgb()`, `hsl()`, and light colour support where supported.
-- Colour preview swatches with a native colour picker and selectable theme colour previews.
-- Material Design Icons and local SVG/image icons.
-- Tap, hold, navigation, service, popup, and Browser Mod actions.
-- Dynamic entity state updates scoped to only the entities used by each card.
-- Native Home Assistant Jinja rendering shared by every Orbit component that
-  supports templates.
-- Grouped compact layouts for Status Icon only and Action Card.
-- Deck Card layouts for wrapping Lovelace cards into rows, showing them as tabs, or overlaying compact controls on a main card.
-- Entity-compatible status badges plus area/domain active counts, live Home
-  Assistant Jinja templates, native state content, basic/on/off custom icons,
-  and separate active/inactive colours.
+- Built-in visual editors with grouped, Home Assistant-style controls.
+- Shared colour handling with theme colours, named colours, CSS colour values, preview swatches, and light-derived colours where supported.
+- Material Design Icons, bundled `orbit:` icons, local SVG/image icons, and configurable active and inactive icon states.
+- Tap, hold, and double-tap interactions with more-info, navigation, service calls, popups, and optional Browser Mod and Bubble Card integrations.
+- Native Home Assistant Jinja rendering and live entity updates for components that support templates.
+- Compact grouped layouts for Status and Action cards, plus Deck Card Wrap, Tabs, and Overlay layouts for any Lovelace card.
+- Deck Card child visibility, automatic layout reflow, transparent backgrounds, and per-item padding controls.
+- Unavailable-entity indicators across Area, Status, and Action cards.
+- Translations for English, British English, German, Spanish, French, Italian, Dutch, and Brazilian Portuguese.
 
-## Status Badge
-
-The Orbit Status Badge can be used anywhere Home Assistant accepts badges. Entity is the default state type, so a native Entity badge can be converted by changing only its type:
-
-```yaml
-type: custom:orbit-status-badge
-entity: binary_sensor.front_door_contact_sensor
-```
-
-Native Entity badge options such as `entity`, `name`, `icon`, `color`,
-`show_name`, `show_state`, `show_icon`, `show_entity_picture`,
-`state_content`, `time_format`, and tap/hold/double-tap actions are supported.
-Set Mode to Badge (`display_style: badge`) for a circular, icon-only badge suited
-to card overlays such as an Orbit Deck Card. Set its
-background with `card_color`. In Badge mode, State type controls visibility:
-Always, Entity state, or Template. Template visibility uses `active_template`
-and `inactive_template`. A truthy active template shows active styling; a
-truthy inactive template shows inactive styling. The badge is hidden when
-neither template renders a truthy result, and active takes priority if both do.
-
-Area Count is the Orbit-specific state type and can also be used inside a Heading card:
-
-```yaml
-type: heading
-heading: Room Trends
-icon: mdi:chart-line
-badges:
-  - type: custom:orbit-status-badge
-    state_source: area_count
-    area: landing
-    domain: light
-```
-
-Area Count counts active entities in the selected area and domain. The
-`state_source: area_count` setting is required. A device-class filter is offered
-when Home Assistant reports device classes for that domain, allowing
-semantic types such as sockets and motion sensors to be counted separately:
-
-```yaml
-# Sockets
-domain: switch
-device_class: outlet
-
-# Motion sensors
-domain: binary_sensor
-device_class: motion
-```
-
-Hidden entities are excluded from Area Count by default. The visual editor's
-Hide control can also exclude entities with one or more Home Assistant labels:
-
-```yaml
-hide:
-  - hidden
-  - label: maintenance
-```
-
-Remove `hidden` in the editor to include entities hidden by Home Assistant.
-
-Lights use `domain: light` without a device-class filter. Both Orbit colour pickers are pre-populated with the shared `State colour (default)` palette option; inside the badge, that option resolves from the representative entity's domain, device class, and exact state, followed by Home Assistant's domain and global active/inactive fallbacks. The editor also provides basic, active, and inactive custom icons.
-
-Template is the third state type and accepts any Home Assistant Jinja template.
-The rendered value updates automatically when an entity referenced by the
-template changes:
-
-```yaml
-type: custom:orbit-status-badge
-state_source: template
-name: Net power
-state_template: >-
-  {{ (states('sensor.consumer_unit_power') | float(0)
-      - states('sensor.boiler_power') | float(0)) | round(2) }} kW
-active_template: >-
-  {{ (states('sensor.consumer_unit_power') | float(0)
-      - states('sensor.boiler_power') | float(0)) > 50 }}
-name_template: >-
-  {{ 'High usage' if states('sensor.consumer_unit_power') | float(0) > 50
-     else 'Net power' }}
-```
-
-The display template controls the badge text. The optional active template
-independently controls the badge colour and active/inactive icon selection.
-When no active template is configured, rendered numeric zero and common off
-values are treated as inactive; non-zero numbers and other rendered values are
-treated as active.
-
-For the Template state type, the optional name template supplies a rendered
-Template name source that can be selected and combined in the composed Name
-picker. The source remains visible as `Not configured` until a template is set.
-
-Area Card button state templates and Status Card state/label templates use the
-same native Home Assistant renderer. Legacy bare expressions are migrated
-automatically when their card is loaded in the visual editor. For example:
-
-```yaml
-# Legacy
-state_template: state_attr('fan.wetroom_extractor_fan', 'percentage') | int > 50
-
-# Migrated native Home Assistant template
-state_template: >-
-  {{ state_attr('fan.wetroom_extractor_fan', 'percentage') | int > 50 }}
-```
-
-Existing templates that already contain Jinja delimiters are left unchanged.
+Full configuration references and YAML examples are available in the **[Wiki](https://github.com/Andyblac/Orbit-Cards/wiki)**.
 
 ## Installation
 
 ### HACS
 
 1. Open HACS in Home Assistant.
-
 2. Search for `Orbit Cards`.
-
 3. Select `Orbit Cards`, then choose `Download`.
-
 4. Refresh Home Assistant when the download is complete.
-
-5. Add one of the Orbit cards from the dashboard card picker.
+5. Add an Orbit card or badge from the appropriate dashboard picker.
 
 ### Manual
 
-1. Download `dist/orbit-cards.js` from the repository.
-
+1. Download `orbit-cards.js` from the latest release.
 2. Copy it to:
-   
+
    ```text
    /config/www/orbit-cards.js
    ```
 
-3. Optional: to use bundled `orbit:` icons with a manual install, copy
-   `dist/manifest.json` and the `dist/*.svg` files beside `orbit-cards.js` in:
-   
+3. Optional: to use bundled `orbit:` icons, copy `manifest.json` and the bundled `.svg` files beside `orbit-cards.js` in:
+
    ```text
    /config/www
    ```
 
-4. In Home Assistant, go to `Settings` -> `Dashboards` -> `Resources`.
-
+4. In Home Assistant, go to `Settings` → `Dashboards` → `Resources`.
 5. Add this resource:
-   
+
    ```text
    /local/orbit-cards.js
    ```
 
 6. Set the resource type to `JavaScript module`.
-
 7. Refresh Home Assistant.
+
+See the **[installation guide](https://github.com/Andyblac/Orbit-Cards/wiki/Installation)** for more information.
 
 ## Updating
 
-After updating the JavaScript file, refresh the browser or reload Home Assistant frontend resources. Some browsers and Home Assistant apps cache frontend resources aggressively, so a hard refresh may be needed after manual updates.
+After updating, refresh the browser or reload Home Assistant frontend resources. Some browsers and Home Assistant apps cache frontend modules aggressively, so a hard refresh may be needed before changes appear.
 
 ## Compatibility
 
-- Home Assistant Lovelace dashboards.
-- Home Assistant 2025.6.0 and newer recommended.
+- Home Assistant Lovelace dashboards running Home Assistant 2025.6.0 or newer.
 - Available from the default HACS repository, with manual resource installation as a fallback.
 - Browser Mod is required only for Browser Mod popup actions.
 - Bubble Card is required only for Bubble Card hash popups.
@@ -234,13 +135,15 @@ After updating the JavaScript file, refresh the browser or reload Home Assistant
 - `room_name` remains supported as a legacy alias for `area_name`.
 - Legacy Area Card configs are migrated when the editor opens: `custom:orbit-room-card` is rewritten to `custom:orbit-area-card`, and `room_name` is rewritten to `area_name`.
 
+See the **[migration guide](https://github.com/Andyblac/Orbit-Cards/wiki/Migration-Guide)** for legacy configuration details.
+
 ## Support
 
-For bugs, feature requests, and releases, use the GitHub repository:
-[andyblac/Orbit-Cards](https://github.com/andyblac/Orbit-Cards)
+- Read the **[Wiki](https://github.com/Andyblac/Orbit-Cards/wiki)** for configuration guides and examples.
+- Check **[Troubleshooting](https://github.com/Andyblac/Orbit-Cards/wiki/Troubleshooting)** for common setup and caching problems.
+- Use **[GitHub Issues](https://github.com/Andyblac/Orbit-Cards/issues)** for bugs and feature requests.
+- See **[GitHub Releases](https://github.com/Andyblac/Orbit-Cards/releases)** for downloads and release notes.
 
-A WiKi guide is available:
-[Here](https://github.com/andyblac/Orbit-Cards/wiki)
 ## Credits
 
-Created by AndyBlac.
+Created by AndyBlac and released under the [MIT License](LICENSE).
