@@ -1,4 +1,8 @@
 import { isActionEnabled } from "../../../common/helpers/actions.js";
+import {
+  CURRENT_STATE_ACTION,
+  getStatusBadgeStateSource,
+} from "../../../common/helpers/status-badge.js";
 
 export function getCardHoldAction() {
   return isActionEnabled(this._config.hold_action)
@@ -19,10 +23,14 @@ export function getMainEntityHoldAction() {
 }
 
 export function getMainEntityTapAction() {
-  const actionConfig = this._config.main_entity_tap_action;
+  const sourceConfig = getPrimaryStatusConfig(this);
+  const actionConfig = sourceConfig.main_entity_tap_action;
 
   if (actionConfig?.action === "none") return null;
   if (actionConfig?.action) return actionConfig;
+  if (getStatusBadgeStateSource(sourceConfig) === "area_count") {
+    return { action: CURRENT_STATE_ACTION };
+  }
 
   return this._isIconOnlyMode() || this._isPersonMode()
     ? null
@@ -38,6 +46,14 @@ export function getMainEntityDoubleTapAction() {
 }
 
 export function getCardTapAction() {
+  const sourceConfig = getPrimaryStatusConfig(this);
+
+  if (getStatusBadgeStateSource(sourceConfig) === "area_count") {
+    return sourceConfig.tap_action?.action
+      ? sourceConfig.tap_action
+      : { action: "more-info" };
+  }
+
   const defaultAction = {
     action: this._isIconOnlyMode() || this._isPersonMode()
       ? "more-info"
@@ -52,6 +68,18 @@ export function getCardTapAction() {
   if (!actionConfig?.action) return defaultAction;
 
   return actionConfig;
+}
+
+function getPrimaryStatusConfig(card) {
+  if (card._config?.mode !== "icon_only") return card._config || {};
+
+  const firstItem = Array.isArray(card._config?.entities)
+    ? card._config.entities[0]
+    : null;
+
+  return firstItem && typeof firstItem === "object"
+    ? { ...card._config, ...firstItem }
+    : card._config || {};
 }
 
 export function getStatusItemCardTapAction(index = 0) {
@@ -113,6 +141,10 @@ export function getStatusItemMainEntityTapAction(index = 0) {
     this._config.main_entity_tap_action.action !== "none"
   ) {
     return this._config.main_entity_tap_action;
+  }
+
+  if (getStatusBadgeStateSource(item) === "area_count") {
+    return { action: CURRENT_STATE_ACTION, status_index: index };
   }
 
   return this._getStatusItemCardTapAction(index);

@@ -54,6 +54,20 @@ import {
   isNumericEntity,
 } from "../common/helpers/suggestions.js";
 import {
+  CURRENT_STATE_ACTION,
+  getStatusBadgeAreaEntityIds,
+  getStatusBadgeEntities,
+  getStatusBadgeStateSource,
+} from "../common/helpers/status-badge.js";
+import { renderActiveEntitiesDialog } from "../common/renders/active-entities-dialog.js";
+import {
+  activeEntitiesDialogProperties,
+  getActiveEntities,
+  initializeActiveEntitiesDialog,
+  openActiveEntitiesDialog,
+  stopActiveEntitiesDurationTimer,
+} from "../common/helpers/active-entities-dialog.js";
+import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
 import { localize } from "../common/localize.js";
@@ -78,6 +92,7 @@ import {
 } from "./status/helpers/action-config.js";
 import { renderStatusCard } from "./status/renders/status-card.js";
 import { statusCardStyles } from "./status/styles/status-card-styles.js";
+import { activeEntitiesDialogStyles } from "../common/styles/active-entities-dialog-styles.js";
 
 import "../editors/status-card-editor.js";
 
@@ -104,7 +119,14 @@ class OrbitStatusCard extends LitElement {
       _personBattery2: { type: Object },
       _statusItems: { type: Array },
       _templateRevision: { type: Number },
+      ...activeEntitiesDialogProperties,
     };
+  }
+
+  constructor() {
+    super();
+    initializeActiveEntitiesDialog.call(this);
+    this._activeEntitiesStatusIndex = 0;
   }
 
   static getConfigElement() {
@@ -164,6 +186,7 @@ class OrbitStatusCard extends LitElement {
     this._clearMainIconHoldTimer();
     this._clearStatusItemHoldTimer();
     this._clearDoubleTapTimer();
+    stopActiveEntitiesDurationTimer.call(this);
     super.disconnectedCallback();
   }
 
@@ -180,7 +203,29 @@ class OrbitStatusCard extends LitElement {
   }
 
   _handleAction(actionConfig, entityId = null) {
+    if (actionConfig?.action === CURRENT_STATE_ACTION) {
+      this._activeEntitiesStatusIndex = actionConfig.status_index ?? 0;
+      openActiveEntitiesDialog.call(this);
+      return;
+    }
+
     return handleAction.call(this, actionConfig, entityId);
+  }
+
+  _renderActiveEntitiesDialog() {
+    const config = this._config?.mode === "icon_only"
+      ? getIconOnlyStatusItems(this._config)[
+          this._activeEntitiesStatusIndex
+        ] || {}
+      : this._config;
+    return renderActiveEntitiesDialog.call(
+      this,
+      getActiveEntities(getStatusBadgeEntities(this.hass, config))
+    );
+  }
+
+  _t(key, replacements) {
+    return localize(this.hass, key, replacements);
   }
 
   _handleTap(ev) {
@@ -199,7 +244,7 @@ class OrbitStatusCard extends LitElement {
     handleTapAction.call(
       this,
       ev,
-      this._config.main_entity,
+      this._getStatusItemEntityId(0),
       this._getCardTapAction(),
       this._getCardDoubleTapAction()
     );
@@ -263,9 +308,15 @@ class OrbitStatusCard extends LitElement {
       return;
     }
 
-    const mainEntity = this._config.main_entity;
+    const mainEntity = this._getStatusItemEntityId(0);
+    const sourceConfig = this._config?.mode === "icon_only"
+      ? getIconOnlyStatusItems(this._config)[0] || {}
+      : this._config;
 
-    if (!mainEntity) return;
+    if (
+      !mainEntity &&
+      getStatusBadgeStateSource(sourceConfig) !== "area_count"
+    ) return;
 
     handleTapAction.call(
       this,
@@ -287,7 +338,7 @@ class OrbitStatusCard extends LitElement {
 
   _handleCardTapAction() {
     const cardAction = this._getCardTapAction();
-    const mainEntity = this._config.main_entity;
+    const mainEntity = this._getStatusItemEntityId(0);
 
     if (cardAction.action && cardAction.action !== "navigate") {
       this._handleAction(cardAction, mainEntity);
@@ -362,9 +413,12 @@ class OrbitStatusCard extends LitElement {
       return;
     }
 
+    const isAreaCount = getStatusBadgeStateSource(
+      this._statusItems?.[index]
+    ) === "area_count";
     const entityId = this._getStatusItemEntityId(index);
 
-    if (!entityId) return;
+    if (!entityId && !isAreaCount) return;
 
     const actionConfig = this._isStatusItemMainIconEvent(ev)
       ? this._getStatusItemMainEntityTapAction(index)
@@ -378,7 +432,9 @@ class OrbitStatusCard extends LitElement {
       ev,
       entityId,
       actionConfig?.action
-        ? actionConfig
+        ? actionConfig.action === CURRENT_STATE_ACTION
+          ? { ...actionConfig, status_index: index }
+          : actionConfig
         : { action: "more-info" },
       doubleTapAction
     );
@@ -545,32 +601,53 @@ class OrbitStatusCard extends LitElement {
   _getTemplateEntries() {
     if (this._config?.mode === "icon_only") {
       return getIconOnlyStatusItems(this._config).flatMap((item) =>
-        [item.state_template, item.label_template]
+        (getStatusBadgeStateSource(item) === "area_count"
+          ? []
+          : [
+              item.state_template,
+              item.active_template,
+              item.inactive_template,
+              item.label_template,
+            ])
           .filter(Boolean)
           .map((template) => ({
             template,
-            entityId: item.entity || item.main_entity || "",
+            entityId: getStatusBadgeStateSource(item) === "template"
+              ? ""
+              : item.entity || item.main_entity || "",
           }))
       );
     }
 
     const entityId = this._config?.mode === "person"
       ? this._config?.tracker_entity || ""
-      : this._config?.main_entity || "";
+      : getStatusBadgeStateSource(this._config) === "template"
+        ? ""
+        : this._config?.main_entity || "";
 
-    return [
-      this._config?.state_template,
-      this._config?.label_template,
-    ]
+    return (getStatusBadgeStateSource(this._config) === "area_count"
+      ? []
+      : [
+          this._config?.state_template,
+          this._config?.active_template,
+          this._config?.inactive_template,
+          this._config?.label_template,
+        ])
       .filter(Boolean)
       .map((template) => ({ template, entityId }));
   }
 
   _getRelevantEntities() {
     if (this._config?.mode === "icon_only") {
-      return getIconOnlyStatusItems(this._config).map((item) =>
-        item.entity || item.main_entity
+      return getIconOnlyStatusItems(this._config).flatMap((item) =>
+        getStatusBadgeStateSource(item) === "area_count"
+          ? getStatusBadgeAreaEntityIds(this.hass, item)
+          : [item.entity || item.main_entity]
       );
+    }
+
+    if (getStatusBadgeStateSource(this._config) === "area_count") {
+      return getStatusBadgeAreaEntityIds(this.hass, this._config);
     }
 
     return [
@@ -829,7 +906,7 @@ class OrbitStatusCard extends LitElement {
     return renderStatusCard.call(this);
   }
 
-  static styles = statusCardStyles;
+  static styles = [...statusCardStyles, activeEntitiesDialogStyles];
 }
 
 function getStatusColumnCount(config = {}, count = 1) {

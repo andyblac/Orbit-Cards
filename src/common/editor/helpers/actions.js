@@ -47,7 +47,7 @@ function localizeHomeAssistantAction(hass, action) {
 }
 
 const ACTION_LABELS = {
-  "active-entities": "Active entities",
+  "Current state": "Current state",
   "call-service": "Perform action",
   "more-info": "More info",
   navigate: "Navigate",
@@ -201,14 +201,14 @@ export function renderInteractionsSection({
       icon: "mdi:gesture-tap-button",
       schema: [
         ...defaultInteractions.map((interaction) =>
-          getInteractionSchema(interaction, context)
+          getInteractionSchema(interaction, context, config, this)
         ),
         {
           name: "",
           type: "optional_actions",
           flatten: true,
           schema: optionalInteractions.map((interaction) =>
-            getInteractionSchema(interaction, context)
+            getInteractionSchema(interaction, context, config, this)
           ),
         },
       ],
@@ -253,8 +253,35 @@ function shouldDisplayDefaultInteraction(config = {}, interaction) {
   );
 }
 
-function getInteractionSchema(interaction, context) {
+function getInteractionSchema(interaction, context, config, editor) {
   const defaultAction = getActionName(interaction.defaultAction);
+  const configuredAction = config?.[interaction.key];
+
+  if (interaction.customDefaultLabel && !configuredAction) {
+    const actions = getActionEditorActions(defaultAction);
+
+    return {
+      name: interaction.formKey || interaction.key,
+      selector: {
+        select: {
+          mode: "dropdown",
+          options: [
+            {
+              value: "__default__",
+              label: `${t(editor, "Default")} (${t(
+                editor,
+                interaction.customDefaultLabel
+              )})`,
+            },
+            ...actions.map((action) => ({
+              value: action,
+              label: actionLabel(editor, action),
+            })),
+          ],
+        },
+      },
+    };
+  }
 
   return {
     name: interaction.formKey || interaction.key,
@@ -271,6 +298,10 @@ function getInteractionSchema(interaction, context) {
 function getInteractionsFormData(config = {}, interactions) {
   return interactions.reduce((data, interaction) => {
     const formKey = interaction.formKey || interaction.key;
+    if (interaction.customDefaultLabel && !config?.[interaction.key]) {
+      data[formKey] = "__default__";
+      return data;
+    }
     const value =
       config?.[interaction.key] ||
       (
@@ -302,6 +333,15 @@ function getInteractionConfigChanges(
 ) {
   return interactions.reduce((changes, interaction) => {
     const formKey = interaction.formKey || interaction.key;
+    if (
+      interaction.customDefaultLabel &&
+      typeof formData[formKey] === "string"
+    ) {
+      changes[interaction.key] = formData[formKey] === "__default__"
+        ? undefined
+        : { action: formData[formKey] };
+      return changes;
+    }
     const nextValue = normalizeEditedActionValue(
       formData[formKey],
       interaction.defaultAction
@@ -352,6 +392,14 @@ function getActionEditorActions(defaultAction) {
     "perform-action",
     "assist",
   ];
+
+  if (
+    defaultAction &&
+    defaultAction !== "none" &&
+    !actions.includes(defaultAction)
+  ) {
+    actions.unshift(defaultAction);
+  }
 
   return defaultAction === "none"
     ? actions
@@ -734,4 +782,3 @@ function cleanActionConfig(value) {
 
   return config;
 }
-

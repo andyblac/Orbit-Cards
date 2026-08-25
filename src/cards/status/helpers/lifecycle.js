@@ -11,6 +11,13 @@ import {
   formatCardNameValue,
 } from "../../../common/helpers/card-name.js";
 import { localize } from "../../../common/localize.js";
+import {
+  getStatusBadgeAreaEntities,
+  getStatusBadgeDomainConfig,
+  getStatusBadgeStateSource,
+  pickStatusSourceConfig,
+} from "../../../common/helpers/status-badge.js";
+import { getTemplateResultActiveState } from "../../../common/helpers/templates.js";
 
 export function updateStatusCard(changedProps) {
   if (
@@ -66,6 +73,7 @@ export function getIconOnlyStatusItems(config = {}) {
   return [
     {
       entity: config.main_entity,
+      ...pickStatusSourceConfig(config),
       accent_on_color: config.accent_on_color,
       accent_off_color: config.accent_off_color,
       main_entity_icon_source: config.main_entity_icon_source,
@@ -92,17 +100,25 @@ export function getIconOnlyStatusItems(config = {}) {
 }
 
 function getStatusState(item, rootConfig = {}) {
-  const entityId = item.entity || rootConfig.main_entity;
-  const stateObj =
-    entityId && this.hass
-      ? this.hass.states[entityId]
-      : null;
-
   const config = {
     ...rootConfig,
     ...item,
-    main_entity: entityId,
   };
+  const stateSource = getStatusBadgeStateSource(config);
+  const configuredEntityId = item.entity || rootConfig.main_entity;
+  const areaEntities = stateSource === "area_count"
+    ? getStatusBadgeAreaEntities(this.hass, config)
+    : [];
+  const activeAreaEntities = areaEntities.filter((stateObj) =>
+    this._getEntityActiveState(stateObj)
+  );
+  const stateObj = stateSource === "area_count"
+    ? activeAreaEntities[0] || areaEntities[0] || null
+    : configuredEntityId && this.hass
+      ? this.hass.states[configuredEntityId]
+      : null;
+  const entityId = configuredEntityId || stateObj?.entity_id || "";
+  config.main_entity = entityId;
 
   const isIconOnly =
     config.mode === "icon_only";
@@ -118,16 +134,22 @@ function getStatusState(item, rootConfig = {}) {
       entityId ||
       localize(this.hass, "Status");
 
-  const templatedState =
-    config.state_template
+  const templatedState = stateSource !== "area_count" && config.state_template
       ? this._evaluateStateTemplate(
           config.state_template,
-          entityId
+          stateSource === "template" ? "" : entityId
         )
       : null;
+  const activeTemplate = stateSource === "template" && config.active_template
+    ? this._evaluateStateTemplate(config.active_template, "")
+    : null;
+  const inactiveTemplate = stateSource === "template" &&
+      config.inactive_template
+    ? this._evaluateStateTemplate(config.inactive_template, "")
+    : null;
 
   const templatedLabel =
-    config.label_template
+    stateSource !== "area_count" && config.label_template
       ? this._evaluateStateTemplate(
           config.label_template,
           entityId
@@ -136,12 +158,15 @@ function getStatusState(item, rootConfig = {}) {
 
   const statusText =
     templatedLabel ??
-    (
+    (stateSource === "template"
+      ? String(templatedState ?? "")
+      : stateSource === "area_count"
+        ? String(activeAreaEntities.length)
+        :
       getStatusAttribute(stateObj, "label") ||
       (stateObj
         ? this.formatState(stateObj)
-        : "")
-    );
+        : ""));
 
   const customIcon =
     config.main_entity_icon;
@@ -152,11 +177,19 @@ function getStatusState(item, rootConfig = {}) {
   const customIconOff =
     config.main_entity_icon_off;
 
-  const isOn = getStatusActiveState(
-    stateObj,
-    (entity) => this._getEntityActiveState(entity),
-    templatedState
-  );
+  const isOn = stateSource === "template"
+    ? getTemplateResultActiveState(activeTemplate)
+      ? true
+      : getTemplateResultActiveState(inactiveTemplate)
+        ? false
+        : getTemplateResultActiveState(templatedState)
+    : stateSource === "area_count"
+      ? activeAreaEntities.length > 0
+      : getStatusActiveState(
+          stateObj,
+          (entity) => this._getEntityActiveState(entity),
+          templatedState
+        );
   const iconSource = getStatusIconSource(config, entityId);
   const customStateIcon =
     iconSource === "custom"
@@ -165,7 +198,9 @@ function getStatusState(item, rootConfig = {}) {
         ""
       : "";
 
-  const icon = customStateIcon || "mdi:information-outline";
+  const icon = customStateIcon || (stateSource === "area_count"
+    ? getStatusBadgeDomainConfig(config.domain).icon
+    : "mdi:information-outline");
 
   const selectedIconKey =
     iconSource === "custom" && isOn && customIconOn
@@ -198,7 +233,8 @@ function getStatusState(item, rootConfig = {}) {
     ...item,
     entityId,
     stateObj,
-    useStateIcon: Boolean(stateObj) && !customStateIcon,
+    useStateIcon: stateSource === "entity" && Boolean(stateObj) &&
+      !customStateIcon,
     cardName,
     statusText,
     icon,

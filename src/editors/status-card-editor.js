@@ -41,6 +41,11 @@ import { CARD_VERSIONS } from "../version.js";
 import {
   updateEditorDocumentationContext,
 } from "../common/helpers/documentation.js";
+import {
+  CURRENT_STATE_ACTION,
+  pickStatusSourceConfig,
+  STATUS_SOURCE_CONFIG_KEYS,
+} from "../common/helpers/status-badge.js";
 
 class OrbitStatusCardEditor extends LitElement {
   static svgCache = sharedSvgCache;
@@ -59,6 +64,8 @@ class OrbitStatusCardEditor extends LitElement {
     _orbitIconFilesLoading: { state: true },
     _localIconFiles: { state: true },
     _localIconFilesLoading: { state: true },
+    _statusStateTypeExpanded: { state: true },
+    _statusContentExpanded: { state: true },
   };
 
   constructor() {
@@ -75,6 +82,8 @@ class OrbitStatusCardEditor extends LitElement {
     this._orbitIconFilesLoading = false;
     this._localIconFiles = [];
     this._localIconFilesLoading = false;
+    this._statusStateTypeExpanded = false;
+    this._statusContentExpanded = false;
   }
 
   connectedCallback() {
@@ -106,13 +115,16 @@ class OrbitStatusCardEditor extends LitElement {
       migrated,
     } = migrateStatusCardConfig(config || {});
 
-    this._config = migratedConfig || {};
+    this._config = orderStatusConfig(migratedConfig || {});
     this._selectedStatusIndex = Math.min(
       this._selectedStatusIndex || 0,
       this._getStatusItems(this._config).length - 1
     );
 
-    if (migrated) {
+    if (
+      migrated ||
+      JSON.stringify(this._config) !== JSON.stringify(migratedConfig || {})
+    ) {
       this._queueConfigMigration();
     }
   }
@@ -207,6 +219,7 @@ class OrbitStatusCardEditor extends LitElement {
     return [
       {
         entity: config?.main_entity || "",
+        ...pickStatusSourceConfig(config),
         accent_on_color: config?.accent_on_color || "",
         accent_off_color: config?.accent_off_color || "",
         main_entity_icon_source: config?.main_entity_icon_source || "",
@@ -349,6 +362,7 @@ class OrbitStatusCardEditor extends LitElement {
 
     this._updateConfig({
       main_entity: nextItem.entity || "",
+      ...pickStatusSourceConfig(nextItem),
       accent_on_color: nextItem.accent_on_color || "",
       accent_off_color: nextItem.accent_off_color || "",
       main_entity_icon_source: nextItem.main_entity_icon_source || "",
@@ -441,6 +455,10 @@ class OrbitStatusCardEditor extends LitElement {
           label: "Icon tap behavior",
           defaultAction: mainEntityActionDefault,
           defaultVisible: true,
+          customDefaultLabel:
+            mainEntityActionDefault === CURRENT_STATE_ACTION
+              ? CURRENT_STATE_ACTION
+              : undefined,
         },
         {
           key: "main_entity_hold_action",
@@ -593,6 +611,7 @@ function cleanClearedStatusItem(item) {
 }
 
 const STATUS_ENTITY_DEPENDENT_KEYS = [
+  ...STATUS_SOURCE_CONFIG_KEYS,
   "accent_on_color",
   "accent_off_color",
   "main_entity_icon_source",
@@ -635,6 +654,7 @@ const TRACKER_ENTITY_DEPENDENT_KEYS = [
 
 const STATUS_ITEM_KEYS = [
   "entity",
+  ...STATUS_SOURCE_CONFIG_KEYS,
   "accent_on_color",
   "accent_off_color",
   "main_entity_icon_source",
@@ -659,6 +679,7 @@ const STATUS_CONFIG_ORDER = [
   "mode",
   "status_name",
   "main_entity",
+  ...STATUS_SOURCE_CONFIG_KEYS,
   "tracker_entity",
   "eta_entity",
   "battery_entity_1",
@@ -689,22 +710,24 @@ const STATUS_CONFIG_ORDER = [
 ];
 
 function orderStatusConfig(config) {
+  const cleanedConfig = cleanEmptyStatusValues(config);
+  cleanDefaultStatusActions(cleanedConfig);
   const ordered = {};
   const usedKeys = new Set();
 
   STATUS_CONFIG_ORDER.forEach((key) => {
-    if (Object.prototype.hasOwnProperty.call(config, key)) {
+    if (Object.prototype.hasOwnProperty.call(cleanedConfig, key)) {
       ordered[key] =
-        key === "entities" && Array.isArray(config[key])
-          ? config[key].map(orderStatusItem)
-          : config[key];
+        key === "entities" && Array.isArray(cleanedConfig[key])
+          ? cleanedConfig[key].map(orderStatusItem)
+          : cleanedConfig[key];
       usedKeys.add(key);
     }
   });
 
-  Object.keys(config).forEach((key) => {
+  Object.keys(cleanedConfig).forEach((key) => {
     if (!usedKeys.has(key)) {
-      ordered[key] = config[key];
+      ordered[key] = cleanedConfig[key];
     }
   });
 
@@ -716,7 +739,28 @@ function orderStatusItem(item) {
     return item;
   }
 
-  return orderObjectKeys(item, STATUS_ITEM_KEYS);
+  const cleanedItem = cleanEmptyStatusValues(item);
+  cleanDefaultStatusActions(cleanedItem);
+  return orderObjectKeys(cleanedItem, STATUS_ITEM_KEYS);
+}
+
+function cleanDefaultStatusActions(config) {
+  if (config?.state_source !== "area_count") return;
+
+  if (config.tap_action?.action === "more-info") {
+    delete config.tap_action;
+  }
+  if (config.main_entity_tap_action?.action === CURRENT_STATE_ACTION) {
+    delete config.main_entity_tap_action;
+  }
+}
+
+function cleanEmptyStatusValues(config = {}) {
+  return Object.fromEntries(
+    Object.entries(config).filter(([, value]) =>
+      value !== undefined && value !== ""
+    )
+  );
 }
 
 function orderObjectKeys(config, keyOrder) {

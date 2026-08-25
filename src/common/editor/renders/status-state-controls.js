@@ -1,24 +1,25 @@
 import { html } from "lit";
 import {
   renderActionSelector,
-} from "../../common/editor/helpers/helpers.js";
+} from "../helpers/helpers.js";
 import {
+  CURRENT_STATE_ACTION,
   getStatusBadgeDeviceClasses,
   getStatusBadgeHideItems,
   serializeStatusBadgeHideItems,
   STATUS_BADGE_DOMAINS,
-} from "../../common/helpers/status-badge.js";
-import { getTemplateError } from "../../common/helpers/templates.js";
+} from "../../helpers/status-badge.js";
+import { getTemplateError } from "../../helpers/templates.js";
 
 export function renderBadgeInteractions(stateSource) {
   const defaultTapAction = stateSource === "entity"
     ? "more-info"
     : stateSource === "area_count"
-      ? "active-entities"
+      ? CURRENT_STATE_ACTION
       : "none";
-  const activeEntitiesAction = {
-    id: "active-entities",
-    primary: this._t("Active entities"),
+  const currentStateAction = {
+    id: CURRENT_STATE_ACTION,
+    primary: this._t("Current state"),
     icon: "mdi:format-list-bulleted",
   };
 
@@ -42,7 +43,7 @@ export function renderBadgeInteractions(stateSource) {
           "tap_action",
           defaultTapAction,
           stateSource === "area_count"
-            ? { extraActions: [activeEntitiesAction] }
+            ? { extraActions: [currentStateAction] }
             : undefined
         )}
         ${renderActionSelector.call(
@@ -124,6 +125,12 @@ export function renderBadgeStateControl({
   domainConfig,
   deviceClassOptions,
   badgeMode,
+  showInactiveTemplate = badgeMode,
+  showNameTemplate = !badgeMode,
+  preserveStateConfig = false,
+  renderEntityPicker,
+  areaMultiple = false,
+  renderAreaPicker,
 }) {
   const domainValue = this._config?.domain || "";
   const selectedDeviceClasses = getStatusBadgeDeviceClasses(this._config);
@@ -215,6 +222,12 @@ export function renderBadgeStateControl({
               );
               return;
             }
+            if (preserveStateConfig) {
+              this._updateConfig({
+                state_source: value === "entity" ? undefined : value,
+              });
+              return;
+            }
             this._updateConfig(
               value === "entity"
                 ? {
@@ -250,7 +263,9 @@ export function renderBadgeStateControl({
       </div>
 
       ${!badgeMode && stateSource === "entity"
-        ? html`
+        ? renderEntityPicker
+          ? renderEntityPicker()
+          : html`
             <ha-selector
               .hass=${this.hass}
               .label=${this._t("Entity")}
@@ -260,21 +275,33 @@ export function renderBadgeStateControl({
               @value-changed=${(e) =>
                 this._handleConfigUpdate("entity", e.detail.value || "")}
             ></ha-selector>
-          `
+            `
         : !badgeMode && stateSource === "area_count"
           ? html`
-            <div class="field">
-              <span class="native-picker-label">${this._t("Area")}</span>
-              <ha-selector
-                .hass=${this.hass}
-                .label=${""}
-                .selector=${{ area: {} }}
-                .required=${false}
-                .value=${this._config?.area || ""}
-                @value-changed=${(e) =>
-                  this._handleConfigUpdate("area", e.detail.value || "")}
-              ></ha-selector>
-            </div>
+            ${renderAreaPicker
+              ? renderAreaPicker()
+              : areaMultiple
+                ? renderStatusAreaPicker.call(this, {
+                    config: this._config,
+                    updateConfig: (changes) => this._updateConfig(changes),
+                  })
+              : html`
+                  <div class="field">
+                    <span class="native-picker-label">${this._t("Area")}</span>
+                    <ha-selector
+                      .hass=${this.hass}
+                      .label=${""}
+                      .selector=${{ area: {} }}
+                      .required=${false}
+                      .value=${this._config?.area || ""}
+                      @value-changed=${(e) =>
+                        this._handleConfigUpdate(
+                          "area",
+                          e.detail.value || ""
+                        )}
+                    ></ha-selector>
+                  </div>
+                `}
 
             <div class="field">
               <ha-generic-picker
@@ -372,7 +399,7 @@ export function renderBadgeStateControl({
                   this._config?.active_template
                 )}
               </div>
-              ${badgeMode
+              ${showInactiveTemplate
                 ? html`
                     <div class="field">
                       <ha-selector
@@ -393,7 +420,7 @@ export function renderBadgeStateControl({
                     </div>
                   `
                 : ""}
-              ${!badgeMode
+              ${showNameTemplate
                 ? html`
                     <div class="field">
                       <ha-selector
@@ -521,5 +548,66 @@ function renderDomainPickerRow(item, index) {
       <ha-icon slot="start" .icon=${item.icon}></ha-icon>
       <span slot="headline">${item.primary}</span>
     </ha-combo-box-item>
+  `;
+}
+
+export function renderStatusAreaPicker({
+  config = this._config || {},
+  updateConfig = (changes) => this._updateConfig(changes),
+} = {}) {
+  const multiple = Array.isArray(config.area);
+  const selectedAreas = multiple ? config.area : [];
+  const areas = Object.values(this.hass?.areas || {}).sort((left, right) =>
+    (left.name || left.area_id).localeCompare(right.name || right.area_id)
+  );
+  const options = [
+    { value: "__multiple__", label: this._t("Multiple") },
+    ...areas.map((area) => ({
+      value: area.area_id,
+      label: area.name || area.area_id,
+    })),
+  ];
+
+  return html`
+    <div class="field">
+      <ha-selector
+        .hass=${this.hass}
+        .label=${this._t("Area")}
+        .selector=${{ select: { mode: "dropdown", options } }}
+        .value=${multiple ? "__multiple__" : config.area || ""}
+        @value-changed=${(event) => {
+          const value = event.detail.value || "";
+          updateConfig({
+            area: value === "__multiple__"
+              ? config.area
+                ? [config.area].flat().filter(Boolean)
+                : []
+              : value,
+          });
+        }}
+      ></ha-selector>
+    </div>
+
+    ${multiple
+      ? html`
+          <div class="field">
+            <label>${this._t("Areas")}</label>
+            <div class="status-badge-device-class-options">
+              ${areas.map((area) => html`
+                <ha-checkbox
+                  .checked=${selectedAreas.includes(area.area_id)}
+                  @change=${(event) => updateConfig({
+                    area: event.target.checked
+                      ? [...new Set([...selectedAreas, area.area_id])]
+                      : selectedAreas.filter(
+                          (areaId) => areaId !== area.area_id
+                        ),
+                  })}
+                >${area.name || area.area_id}</ha-checkbox>
+              `)}
+            </div>
+          </div>
+        `
+      : ""}
   `;
 }

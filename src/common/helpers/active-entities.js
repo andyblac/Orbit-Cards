@@ -1,6 +1,6 @@
-import { getEntityColor } from "../../common/helpers/icons.js";
-import { getEntityAreaId } from "../../common/helpers/suggestions.js";
-import { getNativeEntityBadgeColor } from "../../common/helpers/status-badge.js";
+import { getEntityColor } from "./icons.js";
+import { getEntityAreaId } from "./suggestions.js";
+import { getNativeEntityBadgeColor } from "./status-badge.js";
 
 const ACTIVE_ENTITY_CONTROLS = {
   light: { service: "turn_off", icon: "mdi:power" },
@@ -37,7 +37,7 @@ export function getActiveEntityControl(hass, stateObj) {
 }
 
 export function getActiveEntityGroupControl(controllable) {
-  if (controllable.length < 2) return null;
+  if (!controllable.length) return null;
 
   const firstControl = controllable[0].control;
   return controllable.every(({ control }) =>

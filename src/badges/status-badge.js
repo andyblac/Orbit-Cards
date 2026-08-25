@@ -25,12 +25,11 @@ import {
   LONG_PRESS_DELAY,
   startLongPress,
 } from "../common/helpers/long-press.js";
-import { getEntityAreaId } from "../common/helpers/suggestions.js";
 import {
-  shouldHideStatusBadgeEntity,
-  getStatusBadgeDeviceClasses,
-  getStatusBadgeDomainConfig,
-  getStatusBadgeEntityDeviceClass,
+  CURRENT_STATE_ACTION,
+  getStatusBadgeAreaEntityIds,
+  getStatusBadgeDefaultTapAction,
+  getStatusBadgeEntities,
   getStatusBadgeStateSource,
   normalizeStatusBadgeConfig,
   validateStatusBadgeConfig,
@@ -42,20 +41,16 @@ import {
 } from "../common/helpers/templates.js";
 import { CARD_VERSIONS } from "../version.js";
 import { localize } from "../common/localize.js";
+import { renderActiveEntitiesDialog } from "../common/renders/active-entities-dialog.js";
 import {
-  compareActiveEntityNames,
-  formatActiveEntityDuration,
-  getActiveEntitiesDialogWidth,
-  getActiveEntityControl,
-  getActiveEntityFormattedState,
-  getActiveEntityGroupControl,
-  getActiveEntityIconStyle,
-  getActiveEntityName,
-  getActiveEntityNameCollator,
-  getActiveEntityServiceName,
-} from "./helpers/active-entities.js";
+  activeEntitiesDialogProperties,
+  initializeActiveEntitiesDialog,
+  openActiveEntitiesDialog,
+  stopActiveEntitiesDurationTimer,
+} from "../common/helpers/active-entities-dialog.js";
 import { getStatusBadgeModel } from "./helpers/model.js";
 import { statusBadgeStyles } from "./styles/status-badge-styles.js";
+import { activeEntitiesDialogStyles } from "../common/styles/active-entities-dialog-styles.js";
 
 import "../editors/status-badge-editor.js";
 
@@ -67,15 +62,12 @@ class OrbitStatusBadge extends LitElement {
     _config: { state: true },
     _isHeadingBadge: { state: true },
     _templateRevision: { state: true },
-    _activeEntitiesOpen: { state: true },
-    _activeEntitiesDurationNow: { state: true },
+    ...activeEntitiesDialogProperties,
   };
 
   constructor() {
     super();
-    this._activeEntitiesDurationNow = Date.now();
-    this._activeEntitiesDurationTimer = null;
-    this._areaEntityCache = null;
+    initializeActiveEntitiesDialog.call(this);
   }
 
   static getConfigElement() {
@@ -89,7 +81,6 @@ class OrbitStatusBadge extends LitElement {
   setConfig(config) {
     validateStatusBadgeConfig(config || {});
     this._config = normalizeStatusBadgeConfig(config || {});
-    this._areaEntityCache = null;
   }
 
   _t(key, replacements) {
@@ -105,7 +96,7 @@ class OrbitStatusBadge extends LitElement {
 
   disconnectedCallback() {
     disconnectTemplateSubscriptions.call(this);
-    this._stopActiveEntitiesDurationTimer();
+    stopActiveEntitiesDurationTimer.call(this);
     this._clearDoubleTapTimer();
     this._cancelLongPress();
     super.disconnectedCallback();
@@ -134,7 +125,6 @@ class OrbitStatusBadge extends LitElement {
       oldHass.devices !== newHass.devices ||
       oldHass.areas !== newHass.areas
     ) {
-      this._areaEntityCache = null;
       return true;
     }
 
@@ -143,7 +133,7 @@ class OrbitStatusBadge extends LitElement {
     if (stateSource === "template") return true;
 
     const entityIds = stateSource === "area_count"
-      ? this._getAreaEntityIds()
+      ? getStatusBadgeAreaEntityIds(this.hass, this._config)
       : [this._config?.entity].filter(Boolean);
 
     return entityIds.some((entityId) =>
@@ -177,75 +167,7 @@ class OrbitStatusBadge extends LitElement {
   }
 
   _getEntities() {
-    const stateSource = getStatusBadgeStateSource(this._config);
-    if (
-      stateSource === "entity" ||
-      (this._config?.display_style === "badge" && this._config?.entity)
-    ) {
-      const stateObj = this.hass?.states?.[this._config?.entity];
-      return stateObj ? [stateObj] : [];
-    }
-
-    const domain = this._config?.domain || "";
-    const areaId = this._config?.area;
-    const deviceClasses = getStatusBadgeDeviceClasses(this._config);
-    const domainConfig = getStatusBadgeDomainConfig(domain);
-
-    if (!this.hass || !areaId || !domain) return [];
-    if (domainConfig.requiresDeviceClass && deviceClasses.length === 0) {
-      return [];
-    }
-
-    return this._getAreaEntityIds().map((entityId) =>
-      this.hass.states?.[entityId]
-    ).filter((stateObj) =>
-      stateObj &&
-      (!domainConfig.requiresDeviceClass ||
-        deviceClasses.includes(
-          getStatusBadgeEntityDeviceClass(stateObj, domain)
-        )) &&
-      !shouldHideStatusBadgeEntity(
-        this.hass,
-        stateObj.entity_id,
-        this._config
-      )
-    );
-  }
-
-  _getAreaEntityIds() {
-    const hass = this.hass;
-    const areaId = this._config?.area || "";
-    const domain = this._config?.domain || "";
-    const entities = hass?.entities || {};
-    const devices = hass?.devices || {};
-    const cache = this._areaEntityCache;
-
-    if (!hass || !areaId || !domain) return [];
-
-    if (
-      cache?.areaId === areaId &&
-      cache?.domain === domain &&
-      cache?.entities === entities &&
-      cache?.devices === devices
-    ) {
-      return cache.entityIds;
-    }
-
-    const domainPrefix = `${domain}.`;
-    const entityIds = Object.keys(entities).filter((entityId) =>
-      entityId.startsWith(domainPrefix) &&
-      getEntityAreaId(hass, entityId) === areaId
-    );
-
-    this._areaEntityCache = {
-      areaId,
-      domain,
-      entities,
-      devices,
-      entityIds,
-    };
-
-    return entityIds;
+    return getStatusBadgeEntities(this.hass, this._config);
   }
 
   _getModel() {
@@ -253,39 +175,12 @@ class OrbitStatusBadge extends LitElement {
   }
 
   _handleAction(actionConfig, entityId = null) {
-    if (actionConfig?.action === "active-entities") {
-      this._activeEntitiesOpen = true;
-      this._activeEntitiesDurationNow = Date.now();
-      this._startActiveEntitiesDurationTimer();
+    if (actionConfig?.action === CURRENT_STATE_ACTION) {
+      openActiveEntitiesDialog.call(this);
       return;
     }
 
     return handleAction.call(this, actionConfig, entityId);
-  }
-
-  _startActiveEntitiesDurationTimer() {
-    if (this._activeEntitiesDurationTimer !== null) return;
-
-    this._activeEntitiesDurationTimer = window.setInterval(() => {
-      if (!this._activeEntitiesOpen) {
-        this._stopActiveEntitiesDurationTimer();
-        return;
-      }
-
-      this._activeEntitiesDurationNow = Date.now();
-    }, 60_000);
-  }
-
-  _stopActiveEntitiesDurationTimer() {
-    if (this._activeEntitiesDurationTimer === null) return;
-
-    window.clearInterval(this._activeEntitiesDurationTimer);
-    this._activeEntitiesDurationTimer = null;
-  }
-
-  _closeActiveEntitiesDialog() {
-    this._activeEntitiesOpen = false;
-    this._stopActiveEntitiesDurationTimer();
   }
 
   _navigate(path) {
@@ -417,160 +312,7 @@ class OrbitStatusBadge extends LitElement {
   }
 
   _renderActiveEntitiesDialog(model) {
-    if (!this._activeEntitiesOpen) return nothing;
-
-    const nameCollator = getActiveEntityNameCollator(this.hass);
-    const controls = model.activeEntities
-      .map((stateObj) => {
-        const control = getActiveEntityControl(this.hass, stateObj);
-
-        return {
-          stateObj,
-          control,
-          name: getActiveEntityName(this.hass, stateObj),
-          serviceName: control
-            ? getActiveEntityServiceName(this.hass, control)
-            : "",
-        };
-      })
-      .sort((a, b) => compareActiveEntityNames(nameCollator, a, b));
-    const controllable = controls.filter((entry) => entry.control);
-    const groupControl = getActiveEntityGroupControl(controllable);
-    const groupServiceName = groupControl
-      ? getActiveEntityServiceName(this.hass, groupControl)
-      : "";
-    const dialogWidth = getActiveEntitiesDialogWidth(controls, groupControl);
-    const dialogWidthStyle = [
-      `--ha-dialog-width-sm: ${dialogWidth}px`,
-      `--mdc-dialog-min-width: ${dialogWidth}px`,
-      `--mdc-dialog-max-width: ${dialogWidth}px`,
-    ].join(";");
-    const activeState = getActiveEntityFormattedState(
-      this.hass,
-      controls[0]?.stateObj
-    );
-    const dialogTitle = activeState
-      ? this._t("Currently {state}", { state: activeState })
-      : this._t("Active entities");
-
-    return html`
-      <ha-adaptive-dialog
-        .open=${true}
-        width="small"
-        style=${dialogWidthStyle}
-        @closed=${() => this._closeActiveEntitiesDialog()}
-      >
-        <ha-icon-button
-          slot="headerNavigationIcon"
-          .label=${this.hass?.localize?.("ui.common.close")}
-          @click=${() => this._closeActiveEntitiesDialog()}
-        >
-          <ha-icon icon="mdi:close"></ha-icon>
-        </ha-icon-button>
-        <span slot="headerTitle">${dialogTitle}</span>
-        ${groupControl
-          ? html`
-              <ha-button
-                slot="headerActionItems"
-                appearance="filled"
-                @click=${() => this._callActiveEntityService(
-                  groupControl,
-                  controllable.map((entry) => entry.stateObj.entity_id)
-                )}
-              >
-                <ha-icon slot="start" .icon=${groupControl.icon}></ha-icon>
-                ${groupServiceName}
-                (${controllable.length})
-              </ha-button>
-            `
-          : ""}
-
-        <div class="active-entities-dialog-content">
-          ${controls.length
-            ? controls.map(({ stateObj, name, control, serviceName }) => html`
-                <div
-                  class="active-entity-row"
-                >
-                  ${control
-                    ? html`
-                        <button
-                          type="button"
-                          class="active-entity-control-button"
-                          aria-label=${serviceName}
-                          title=${serviceName}
-                          @click=${(event) => {
-                            event.stopPropagation();
-                            this._callActiveEntityService(
-                              control,
-                              [stateObj.entity_id]
-                            );
-                          }}
-                        >
-                          <ha-state-icon
-                            .hass=${this.hass}
-                            .stateObj=${stateObj}
-                            style=${getActiveEntityIconStyle(stateObj)}
-                          ></ha-state-icon>
-                        </button>
-                      `
-                    : html`
-                        <ha-state-icon
-                          .hass=${this.hass}
-                          .stateObj=${stateObj}
-                          style=${getActiveEntityIconStyle(stateObj)}
-                        ></ha-state-icon>
-                      `}
-                  <button
-                    type="button"
-                    class="active-entity-info"
-                    @click=${() => this._showEntityMoreInfo(stateObj.entity_id)}
-                  >
-                    <span class="active-entity-name">
-                      ${name}
-                    </span>
-                    <span class="active-entity-state-line">
-                      <state-display
-                        .hass=${this.hass}
-                        .stateObj=${stateObj}
-                      ></state-display>
-                      <span aria-hidden="true">-</span>
-                      <span>${formatActiveEntityDuration(
-                        this.hass,
-                        stateObj,
-                        this._activeEntitiesDurationNow
-                      )}</span>
-                    </span>
-                  </button>
-                </div>
-              `)
-            : html`
-                <div class="active-entities-empty">
-                  ${this._t("No active entities")}
-                </div>
-              `}
-        </div>
-      </ha-adaptive-dialog>
-    `;
-  }
-
-  _callActiveEntityService(control, entityIds) {
-    if (!control || !entityIds.length) return;
-
-    this.hass?.callService(control.domain, control.service, {
-      entity_id: entityIds,
-    });
-  }
-
-  _showEntityMoreInfo(entityId) {
-    queueMicrotask(() => {
-      this.dispatchEvent(
-        new CustomEvent("hass-more-info", {
-          detail: { entityId },
-          bubbles: true,
-          composed: true,
-        })
-      );
-    });
+    return renderActiveEntitiesDialog.call(this, model.activeEntities);
   }
 
   render() {
@@ -699,17 +441,9 @@ class OrbitStatusBadge extends LitElement {
     return html`${badge}${activeEntitiesDialog}`;
   }
 
-  static styles = statusBadgeStyles;
+  static styles = [statusBadgeStyles, activeEntitiesDialogStyles];
 }
 
-function getStatusBadgeDefaultTapAction(config = {}) {
-  const stateSource = getStatusBadgeStateSource(config);
-
-  if (stateSource === "entity") return { action: "more-info" };
-  if (stateSource === "area_count") return { action: "active-entities" };
-
-  return { action: "none" };
-}
 
 
 registerOrbitBadge({

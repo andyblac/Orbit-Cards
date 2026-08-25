@@ -1,10 +1,11 @@
 import { computeFullColor } from "../../common/helpers/colors.js";
-import { getEntityActiveState } from "../../common/helpers/entities.js";
+import { getActiveEntities } from "../../common/helpers/active-entities-dialog.js";
 import {
   formatDeviceClass,
   getNativeEntityBadgeColor,
   getStatusBadgeDeviceClasses,
   getStatusBadgeDomainConfig,
+  getStatusBadgeAreaName,
   getStatusBadgeStateSource,
 } from "../../common/helpers/status-badge.js";
 import {
@@ -15,9 +16,7 @@ import {
 export function getStatusBadgeModel() {
   const stateSource = getStatusBadgeStateSource(this._config);
   const entities = this._getEntities();
-  const activeEntities = entities.filter((stateObj) =>
-    getEntityActiveState(stateObj)
-  );
+  const activeEntities = getActiveEntities(entities);
   const templateResult = stateSource === "template"
     ? evaluateStateTemplate.call(
         this,
@@ -109,7 +108,7 @@ export function getStatusBadgeModel() {
           ? { device_class: primaryDeviceClass }
           : {},
       };
-  const areaName = this.hass?.areas?.[this._config?.area]?.name || "";
+  const areaName = getStatusBadgeAreaName(this.hass, this._config);
   const configuredName = this._config?.name;
   const deviceClassLabel = deviceClasses
     .map((deviceClass) => formatDeviceClass(deviceClass))

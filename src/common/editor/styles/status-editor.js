@@ -1,6 +1,37 @@
 import { css } from "lit";
 
 export const statusEditorStyles = css`
+.state-type-panel,
+.content-panel {
+  display: block;
+  --expansion-panel-content-padding: 0;
+  border-radius: var(--ha-border-radius-md);
+  --ha-card-border-radius: var(--ha-border-radius-md);
+}
+
+.state-type-panel > [slot="header"],
+.content-panel > [slot="header"] {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.state-type-panel > ha-icon,
+.content-panel > ha-icon {
+  color: var(--secondary-text-color);
+}
+
+.section > .interactions-form {
+  margin-top: 0;
+}
+
+.content-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+}
+
 .status-wrap-toggle {
   display: flex;
   align-items: center;

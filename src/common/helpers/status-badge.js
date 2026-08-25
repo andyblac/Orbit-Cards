@@ -1,3 +1,5 @@
+import { getEntityAreaId } from "./suggestions.js";
+
 export const STATUS_BADGE_DOMAINS = [
   { value: "light", label: "Lights", icon: "mdi:lightbulb" },
   {
@@ -18,6 +20,34 @@ export const STATUS_BADGE_DOMAINS = [
     requiresDeviceClass: true,
   },
 ];
+
+export const CURRENT_STATE_ACTION = "Current state";
+export const STATUS_SOURCE_CONFIG_KEYS = [
+  "state_source",
+  "area",
+  "domain",
+  "device_class",
+  "hide",
+  "active_template",
+  "inactive_template",
+];
+
+export function pickStatusSourceConfig(config = {}) {
+  return Object.fromEntries(
+    STATUS_SOURCE_CONFIG_KEYS.map((key) => [key, config[key]])
+  );
+}
+
+export function getStatusBadgeDefaultTapAction(config = {}) {
+  const stateSource = getStatusBadgeStateSource(config);
+
+  if (stateSource === "entity") return { action: "more-info" };
+  if (stateSource === "area_count") {
+    return { action: CURRENT_STATE_ACTION };
+  }
+
+  return { action: "none" };
+}
 
 const STATUS_BADGE_DOMAIN_CONFIG = new Map(
   STATUS_BADGE_DOMAINS.map((item) => [item.value, item])
@@ -181,7 +211,7 @@ export function normalizeStatusBadgeConfig(config = {}) {
     if (normalized.state_content === "count") {
       delete normalized.state_content;
     }
-    if (normalized.tap_action?.action === "active-entities") {
+    if (normalized.tap_action?.action === CURRENT_STATE_ACTION) {
       delete normalized.tap_action;
     }
   } else {
@@ -258,6 +288,80 @@ export function getStatusBadgeDeviceClasses(config = {}) {
 export function getStatusBadgeEntityDeviceClass(stateObj, domain) {
   return stateObj?.attributes?.device_class ||
     (domain === "switch" ? "switch" : "");
+}
+
+export function getStatusBadgeDeviceClassOptions(hass, config = {}) {
+  const domain = config.domain || "";
+  const values = new Set(getStatusBadgeDeviceClasses(config));
+
+  if (!domain) return [];
+
+  Object.values(hass?.states || {}).forEach((stateObj) => {
+    if (!stateObj.entity_id.startsWith(`${domain}.`)) return;
+
+    const value = getStatusBadgeEntityDeviceClass(stateObj, domain);
+    if (value) values.add(value);
+  });
+
+  return [...values]
+    .sort((left, right) => left.localeCompare(right))
+    .map((value) => ({
+      value,
+      label: formatDeviceClass(value),
+    }));
+}
+
+export function getStatusBadgeAreaEntities(hass, config = {}) {
+  const areaIds = getStatusBadgeAreaIds(config);
+  const domain = config.domain || "";
+  const domainConfig = getStatusBadgeDomainConfig(domain);
+  const deviceClasses = getStatusBadgeDeviceClasses(config);
+
+  if (!hass || !areaIds.length || !domain) return [];
+  if (domainConfig.requiresDeviceClass && !deviceClasses.length) return [];
+
+  return Object.values(hass.states || {}).filter((stateObj) =>
+    stateObj.entity_id.startsWith(`${domain}.`) &&
+    areaIds.includes(getEntityAreaId(hass, stateObj.entity_id)) &&
+    (!domainConfig.requiresDeviceClass || deviceClasses.includes(
+      getStatusBadgeEntityDeviceClass(stateObj, domain)
+    )) &&
+    !shouldHideStatusBadgeEntity(hass, stateObj.entity_id, config)
+  );
+}
+
+export function getStatusBadgeEntities(hass, config = {}) {
+  const stateSource = getStatusBadgeStateSource(config);
+
+  if (
+    stateSource === "entity" ||
+    (config.display_style === "badge" && config.entity)
+  ) {
+    const entityId = config.entity || config.main_entity || "";
+    const stateObj = hass?.states?.[entityId];
+    return stateObj ? [stateObj] : [];
+  }
+
+  return getStatusBadgeAreaEntities(hass, config);
+}
+
+export function getStatusBadgeAreaIds(config = {}) {
+  return Array.isArray(config.area)
+    ? config.area.filter(Boolean)
+    : [config.area].filter(Boolean);
+}
+
+export function getStatusBadgeAreaName(hass, config = {}) {
+  return getStatusBadgeAreaIds(config)
+    .map((areaId) => hass?.areas?.[areaId]?.name || areaId)
+    .filter(Boolean)
+    .join(", ");
+}
+
+export function getStatusBadgeAreaEntityIds(hass, config = {}) {
+  return getStatusBadgeAreaEntities(hass, config).map(
+    (stateObj) => stateObj.entity_id
+  );
 }
 
 export function getNativeEntityBadgeColor(stateObj, isActive = false) {

@@ -18,9 +18,9 @@ import { updateEditorDocumentationContext } from "../common/helpers/documentatio
 import { sharedSvgCache } from "../common/helpers/svg-cache.js";
 import { localize } from "../common/localize.js";
 import {
-  formatDeviceClass,
-  getStatusBadgeDeviceClasses,
-  getStatusBadgeEntityDeviceClass,
+  getStatusBadgeDeviceClassOptions,
+  getStatusBadgeAreaIds,
+  getStatusBadgeAreaName,
   getStatusBadgeStateSource,
   normalizeStatusBadgeConfig,
   STATUS_BADGE_DOMAINS,
@@ -35,7 +35,7 @@ import {
   renderBadgeIconControl,
   renderBadgeInteractions,
   renderBadgeStateControl,
-} from "./status-badge/sections.js";
+} from "../common/editor/renders/status-state-controls.js";
 
 const STATE_CONTENT_ENTITY_ID = "sensor.orbit_status_badge_preview";
 
@@ -308,32 +308,12 @@ class OrbitStatusBadgeEditor extends LitElement {
   }
 
   _getDeviceClassOptions() {
-    const domain = this._config?.domain || "";
-    const configured = getStatusBadgeDeviceClasses(this._config);
-    const deviceClasses = new Set();
-
-    if (!domain) return [];
-
-    Object.values(this.hass?.states || {}).forEach((stateObj) => {
-      if (!stateObj.entity_id.startsWith(`${domain}.`)) return;
-
-      const deviceClass = getStatusBadgeEntityDeviceClass(stateObj, domain);
-      if (deviceClass) deviceClasses.add(deviceClass);
-    });
-
-    configured.forEach((deviceClass) => deviceClasses.add(deviceClass));
-
-    return [...deviceClasses]
-      .sort((left, right) => left.localeCompare(right))
-      .map((deviceClass) => ({
-        value: deviceClass,
-        label: formatDeviceClass(deviceClass),
-      }));
+    return getStatusBadgeDeviceClassOptions(this.hass, this._config);
   }
 
   _getStateContentHass() {
     const now = new Date().toISOString();
-    const areaName = this.hass?.areas?.[this._config?.area]?.name;
+    const areaName = getStatusBadgeAreaName(this.hass, this._config);
     const nameTemplate = this._config?.name_template?.trim() || "";
     const templateName = getStatusBadgeStateSource(this._config) === "template"
       ? String(
@@ -359,7 +339,7 @@ class OrbitStatusBadgeEditor extends LitElement {
         [STATE_CONTENT_ENTITY_ID]: {
           entity_id: STATE_CONTENT_ENTITY_ID,
           platform: "orbit",
-          area_id: this._config?.area || null,
+          area_id: getStatusBadgeAreaIds(this._config)[0] || null,
           device_id: null,
         },
       },
@@ -438,6 +418,7 @@ class OrbitStatusBadgeEditor extends LitElement {
                 domainConfig,
                 deviceClassOptions,
                 badgeMode,
+                areaMultiple: true,
               })}
             </div>
           </ha-expansion-panel>

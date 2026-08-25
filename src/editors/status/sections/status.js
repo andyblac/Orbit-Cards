@@ -9,20 +9,37 @@ import {
   getGroupedEditorState,
   renderGroupedEditorOptions,
 } from "../../../common/editor/helpers/group-options.js";
+import {
+  CURRENT_STATE_ACTION,
+  getStatusBadgeDeviceClassOptions,
+  getStatusBadgeDomainConfig,
+  getStatusBadgeStateSource,
+} from "../../../common/helpers/status-badge.js";
+import {
+  renderBadgeStateControl,
+  renderStatusAreaPicker,
+} from "../../../common/editor/renders/status-state-controls.js";
 
 export function renderStatusSection() {
   const mode = this._config?.mode || "standard";
   const isIconOnly = mode === "icon_only";
   const isPerson = mode === "person";
+  const stateSource = isPerson
+    ? "entity"
+    : getStatusBadgeStateSource(this._config);
   const cardActionDefault =
-    isIconOnly || isPerson
+    stateSource === "area_count"
+      ? "more-info"
+      : isIconOnly || isPerson
       ? "more-info"
       : "navigate";
   const effectiveCardAction =
     this._config?.tap_action?.action ||
     cardActionDefault;
   const mainEntityActionDefault =
-    isIconOnly || isPerson
+    stateSource === "area_count"
+      ? CURRENT_STATE_ACTION
+      : isIconOnly || isPerson
       ? effectiveCardAction
       : "more-info";
 
@@ -57,10 +74,9 @@ export function renderStatusSection() {
         })
       : html`
           <div class="section">
-            ${renderStatusNamePicker.call(this)}
-
             ${isPerson
-              ? html`
+              ? renderStatusContentPanel.call(this, html`
+                  ${renderStatusNamePicker.call(this)}
                   ${this._renderEntity("Person entity", "main_entity")}
                   ${this._renderEntity("Tracker entity", "tracker_entity")}
                   ${this._renderEntity("ETA entity", "eta_entity")}
@@ -70,30 +86,41 @@ export function renderStatusSection() {
                     ${this._renderColor(["Accent", "Active", "Color"], "accent_on_color")}
                     ${this._renderColor(["Accent", "Inactive", "Color"], "accent_off_color")}
                   </div>
-                `
+                `)
               : html`
-                  <div class="field">
-                    <label>${this._t("Main entity")}</label>
-
-                    ${renderEntitySelector.call(this, {
-                      value: this._config?.main_entity || "",
-                      filterOptions: STATUS_MAIN_ENTITY_DOMAIN_FILTERS,
-                      onValueChanged: (value) =>
-                        this._handleEntityUpdate
-                          ? this._handleEntityUpdate("main_entity", value)
-                          : this._handleConfigUpdate("main_entity", value),
-                    })}
-                  </div>
-                  <div class="color-pair">
-                    ${this._renderColor(["Accent", "Active", "Color"], "accent_on_color")}
-                    ${this._renderColor(["Accent", "Inactive", "Color"], "accent_off_color")}
-                  </div>
-                  ${renderStatusIconSource.call(this)}
-                  ${this._renderTemplateInput("State template", "state_template")}
-                  ${this._renderTemplateInput("Label template", "label_template")}
+                  ${renderStatusStateType.call(
+                    this,
+                    this._config,
+                    "main_entity",
+                    (changes) => this._updateConfig(changes),
+                    (value) => this._handleEntityUpdate(
+                      "main_entity",
+                      value
+                    )
+                  )}
+                  ${renderStatusContentPanel.call(this, html`
+                    ${renderStatusNamePicker.call(this)}
+                    <div class="color-pair">
+                      ${this._renderColor(["Accent", "Active", "Color"], "accent_on_color")}
+                      ${this._renderColor(["Accent", "Inactive", "Color"], "accent_off_color")}
+                    </div>
+                    ${renderStatusIconSource.call(this)}
+                    ${stateSource === "area_count"
+                      ? ""
+                      : html`
+                          ${this._renderTemplateInput(
+                            "State template",
+                            "state_template"
+                          )}
+                          ${this._renderTemplateInput(
+                            "Label template",
+                            "label_template"
+                          )}
+                        `}
+                  `)}
                 `}
 
-            ${this._config?.main_entity
+            ${this._config?.main_entity || stateSource === "area_count"
               ? renderInteractionsSection.call(this, {
                   interactions: [
                     {
@@ -121,6 +148,10 @@ export function renderStatusSection() {
                       label: "Icon tap behavior",
                       defaultAction: mainEntityActionDefault,
                       defaultVisible: true,
+                      customDefaultLabel:
+                        mainEntityActionDefault === CURRENT_STATE_ACTION
+                          ? CURRENT_STATE_ACTION
+                          : undefined,
                     },
                     {
                       key: "main_entity_hold_action",
@@ -165,6 +196,14 @@ function renderIconOnlyStatusConfig({
     items.length - 1
   );
   const selectedItem = items[selectedIndex] || {};
+  const selectedIsAreaCount =
+    getStatusBadgeStateSource(selectedItem) === "area_count";
+  const selectedCardActionDefault = selectedIsAreaCount
+    ? "more-info"
+    : cardActionDefault;
+  const selectedMainEntityActionDefault = selectedIsAreaCount
+    ? CURRENT_STATE_ACTION
+    : mainEntityActionDefault;
   const {
     itemsPerRow,
     shouldWrapTabs,
@@ -263,67 +302,170 @@ function renderIconOnlyStatusConfig({
         </div>
       </div>
 
-      <div class="field">
-        <label>${this._t("Main entity")}</label>
+      ${renderStatusStateType.call(
+        this,
+        selectedItem,
+        "entity",
+        (changes) => this._updateStatusItem(selectedIndex, changes),
+        (value) => this._updateStatusItem(selectedIndex, { entity: value })
+      )}
 
-        ${renderEntitySelector.call(this, {
-          value: selectedItem.entity || "",
-          filterOptions: STATUS_MAIN_ENTITY_DOMAIN_FILTERS,
-          onValueChanged: (value) =>
-            this._updateStatusItem(selectedIndex, {
-              entity: value,
-            }),
-        })}
-      </div>
+      ${renderStatusContentPanel.call(this, html`
 
-      <div class="color-pair">
-        ${renderStatusItemColor.call(
+        <div class="color-pair">
+          ${renderStatusItemColor.call(
+            this,
+            ["Accent", "Active", "Color"],
+            "accent_on_color",
+            selectedIndex,
+            selectedItem
+          )}
+          ${renderStatusItemColor.call(
+            this,
+            ["Accent", "Inactive", "Color"],
+            "accent_off_color",
+            selectedIndex,
+            selectedItem
+          )}
+        </div>
+
+        ${renderStatusItemIconSource.call(
           this,
-          ["Accent", "Active", "Color"],
-          "accent_on_color",
           selectedIndex,
           selectedItem
         )}
-        ${renderStatusItemColor.call(
-          this,
-          ["Accent", "Inactive", "Color"],
-          "accent_off_color",
-          selectedIndex,
-          selectedItem
-        )}
-      </div>
 
-      ${renderStatusItemIconSource.call(
-        this,
-        selectedIndex,
-        selectedItem
-      )}
+        ${selectedIsAreaCount
+          ? ""
+          : html`
+              ${renderStatusItemInput.call(
+                this,
+                "State template",
+                "state_template",
+                selectedIndex,
+                selectedItem
+              )}
+              ${renderStatusItemInput.call(
+                this,
+                "Label template",
+                "label_template",
+                selectedIndex,
+                selectedItem
+              )}
+            `}
+      `)}
 
-      ${renderStatusItemInput.call(
-        this,
-        "State template",
-        "state_template",
-        selectedIndex,
-        selectedItem
-      )}
-      ${renderStatusItemInput.call(
-        this,
-        "Label template",
-        "label_template",
-        selectedIndex,
-        selectedItem
-      )}
-
-      ${selectedItem.entity
+      ${selectedItem.entity || selectedIsAreaCount
         ? this._renderStatusItemInteractions(
             selectedIndex,
             selectedItem,
-            cardActionDefault,
-            mainEntityActionDefault
+            selectedCardActionDefault,
+            selectedMainEntityActionDefault
           )
         : ""}
     </div>
   `;
+}
+
+function renderStatusStateType(
+  config,
+  entityKey,
+  updateConfig,
+  updateEntity
+) {
+  const stateConfig = {
+    ...config,
+    entity: config?.[entityKey] || "",
+  };
+  const stateSource = getStatusBadgeStateSource(stateConfig);
+  const scopedEditor = {
+    hass: this.hass,
+    _config: stateConfig,
+    _t: this._t.bind(this),
+    _updateConfig: (changes) => updateConfig(
+      mapStatusStateChanges(changes, entityKey)
+    ),
+    _handleConfigUpdate: (key, value) => updateConfig(
+      mapStatusStateChanges({ [key]: value }, entityKey)
+    ),
+  };
+
+  return html`
+    <ha-expansion-panel
+      class="state-type-panel"
+      outlined
+      .expanded=${this._statusStateTypeExpanded === true}
+      @expanded-changed=${(event) => {
+        this._statusStateTypeExpanded = event.detail.expanded;
+      }}
+    >
+      <ha-icon
+        slot="leading-icon"
+        icon="mdi:format-list-bulleted-type"
+      ></ha-icon>
+      <div slot="header" role="heading" aria-level="3">
+        ${this._t("State type")}
+      </div>
+      <div class="content-panel-body">
+        ${renderBadgeStateControl.call(scopedEditor, {
+          stateSource,
+          domainConfig: getStatusBadgeDomainConfig(stateConfig.domain),
+          deviceClassOptions: getStatusBadgeDeviceClassOptions(
+            this.hass,
+            stateConfig
+          ),
+          badgeMode: false,
+          showInactiveTemplate: true,
+          showNameTemplate: false,
+          preserveStateConfig: true,
+          renderAreaPicker: () => renderStatusAreaPicker.call(this, {
+            config,
+            updateConfig,
+          }),
+          renderEntityPicker: () => html`
+            <div class="field">
+              <label>${this._t("Main entity")}</label>
+              ${renderEntitySelector.call(this, {
+                value: config?.[entityKey] || "",
+                filterOptions: STATUS_MAIN_ENTITY_DOMAIN_FILTERS,
+                onValueChanged: updateEntity,
+              })}
+            </div>
+          `,
+        })}
+      </div>
+    </ha-expansion-panel>
+  `;
+}
+
+function renderStatusContentPanel(content) {
+  return html`
+    <ha-expansion-panel
+      class="content-panel status-content-panel"
+      outlined
+      .expanded=${this._statusContentExpanded === true}
+      @expanded-changed=${(event) => {
+        this._statusContentExpanded = event.detail.expanded;
+      }}
+    >
+      <ha-icon slot="leading-icon" icon="mdi:text-short"></ha-icon>
+      <div slot="header" role="heading" aria-level="3">
+        ${this._t("Content")}
+      </div>
+      <div class="content-panel-body">${content}</div>
+    </ha-expansion-panel>
+  `;
+}
+
+function mapStatusStateChanges(changes, entityKey) {
+  const mapped = { ...changes };
+
+  if (Object.prototype.hasOwnProperty.call(mapped, "entity")) {
+    mapped[entityKey] = mapped.entity;
+    delete mapped.entity;
+  }
+
+  return mapped;
 }
 
 function renderStatusItemInput(label, key, index, item) {
