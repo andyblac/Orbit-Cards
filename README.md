@@ -59,8 +59,10 @@ Install Orbit Cards directly from the default HACS repository, then configure it
     <td width="50%" valign="top" align="center">
       <h3>Status Badge</h3>
       <p><code>custom:orbit-status-badge</code></p>
-      <p><strong>Heading badges</strong></p>
-      <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/status-badge-heading-light.png" alt="Orbit Status Badges in a Heading card" width="500">
+      <p><strong>Badge</strong></p>
+      <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/status-badge-badge-light.png" alt="Orbit Status Badge using the Home Assistant Badge type" width="500">
+      <p><strong>Heading badge</strong></p>
+      <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/status-badge-heading-badge-light.png" alt="Orbit Status Badge using the Home Assistant Heading badge type" width="500">
       <p><strong>Active entities</strong></p>
       <img src="https://raw.githubusercontent.com/andyblac/Orbit-Cards/master/images/status-badge-active-entities-light.png" alt="Orbit Status Badge active entities dialog" width="360">
       <p align="left">Flexible entity, area-count, and template-driven status indicators for Home Assistant badge rows and card layouts.</p>
