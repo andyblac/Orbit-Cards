@@ -47,6 +47,7 @@ import {
   formatActiveEntityDuration,
   getActiveEntitiesDialogWidth,
   getActiveEntityControl,
+  getActiveEntityFormattedState,
   getActiveEntityGroupControl,
   getActiveEntityIconStyle,
   getActiveEntityName,
@@ -91,8 +92,8 @@ class OrbitStatusBadge extends LitElement {
     this._areaEntityCache = null;
   }
 
-  _t(key) {
-    return localize(this.hass, key);
+  _t(key, replacements) {
+    return localize(this.hass, key, replacements);
   }
 
   connectedCallback() {
@@ -444,6 +445,13 @@ class OrbitStatusBadge extends LitElement {
       `--mdc-dialog-min-width: ${dialogWidth}px`,
       `--mdc-dialog-max-width: ${dialogWidth}px`,
     ].join(";");
+    const activeState = getActiveEntityFormattedState(
+      this.hass,
+      controls[0]?.stateObj
+    );
+    const dialogTitle = activeState
+      ? this._t("Currently {state}", { state: activeState })
+      : this._t("Active entities");
 
     return html`
       <ha-adaptive-dialog
@@ -459,7 +467,7 @@ class OrbitStatusBadge extends LitElement {
         >
           <ha-icon icon="mdi:close"></ha-icon>
         </ha-icon-button>
-        <span slot="headerTitle">${this._t("Active entities")}</span>
+        <span slot="headerTitle">${dialogTitle}</span>
         ${groupControl
           ? html`
               <ha-button

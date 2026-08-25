@@ -5892,6 +5892,7 @@ select {
 `
 ], ls = {
 	"Active entities": "Active entities",
+	"Currently {state}": "Currently {state}",
 	"No active entities": "No active entities",
 	Always: "Always",
 	"Area Count": "Area Count",
@@ -5979,6 +5980,7 @@ select {
 	"Tracker entity": "Tracker entity"
 }, us = {
 	"Active entities": "Active entities",
+	"Currently {state}": "Currently {state}",
 	"No active entities": "No active entities",
 	Always: "Always",
 	"Area Count": "Area Count",
@@ -6066,6 +6068,7 @@ select {
 	"Tracker entity": "Tracker entity"
 }, ds = {
 	"Active entities": "Aktive Entitäten",
+	"Currently {state}": "Derzeit {state}",
 	"No active entities": "Keine aktiven Entitäten",
 	Always: "Immer",
 	"Area Count": "Bereichszähler",
@@ -6153,6 +6156,7 @@ select {
 	"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 }, fs = {
 	"Active entities": "Entidades activas",
+	"Currently {state}": "Actualmente {state}",
 	"No active entities": "No hay entidades activas",
 	Always: "Siempre",
 	"Area Count": "Recuento de área",
@@ -6240,6 +6244,7 @@ select {
 	"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 }, ps = {
 	"Active entities": "Entités actives",
+	"Currently {state}": "Actuellement {state}",
 	"No active entities": "Aucune entité active",
 	Always: "Toujours",
 	"Area Count": "Comptage de zone",
@@ -6327,6 +6332,7 @@ select {
 	"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 }, ms = {
 	"Active entities": "Entità attive",
+	"Currently {state}": "Attualmente {state}",
 	"No active entities": "Nessuna entità attiva",
 	Always: "Sempre",
 	"Area Count": "Conteggio area",
@@ -6414,6 +6420,7 @@ select {
 	"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 }, hs = {
 	"Active entities": "Actieve entiteiten",
+	"Currently {state}": "Momenteel {state}",
 	"No active entities": "Geen actieve entiteiten",
 	Always: "Altijd",
 	"Area Count": "Gebiedstelling",
@@ -6501,6 +6508,7 @@ select {
 	"Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
 }, gs = {
 	"Active entities": "Entidades ativas",
+	"Currently {state}": "Atualmente {state}",
 	"No active entities": "Nenhuma entidade ativa",
 	Always: "Sempre",
 	"Area Count": "Contagem da área",
@@ -12775,7 +12783,7 @@ function ld(e) {
 function ud(e, t) {
 	let n = e?.formatEntityName?.(t) || t?.attributes?.friendly_name || t?.entity_id || "", r = jn(e, t?.entity_id), i = e?.areas?.[r]?.name?.trim();
 	if (!i || n.length <= i.length) return n;
-	let a = RegExp(`^${vd(i)}(?:\\s*[-–—:|]\\s*|\\s+)`, "i");
+	let a = RegExp(`^${yd(i)}(?:\\s*[-–—:|]\\s*|\\s+)`, "i");
 	return n.replace(a, "").trim() || n;
 }
 function dd(e) {
@@ -12785,42 +12793,48 @@ function dd(e) {
 		sensitivity: "base"
 	})), od.get(t);
 }
-function fd(e, t, n) {
+function fd(e, t) {
+	let n = e?.formatEntityState?.(t);
+	if (n) return n;
+	let r = String(t?.state || "").replaceAll("_", " ");
+	return r ? r[0].toUpperCase() + r.slice(1) : "";
+}
+function pd(e, t, n) {
 	return e.compare(t.name, n.name) || t.stateObj.entity_id.localeCompare(n.stateObj.entity_id);
 }
-function pd(e, t) {
+function md(e, t) {
 	let n = 132 + e.reduce((e, { name: t }) => Math.max(e, t.length), 0) * 8;
 	return Math.min(520, Math.max(t ? 360 : 280, n));
 }
-function md(e, t, n = Date.now()) {
+function hd(e, t, n = Date.now()) {
 	let r = Date.parse(t?.last_changed || "");
 	if (!Number.isFinite(r)) return "";
 	let i = Math.max(0, n - r), a, o;
 	i >= 864e5 ? (a = "days", o = Math.round(i / 864e5)) : i >= 36e5 ? (a = "hours", o = Math.round(i / 36e5)) : (a = "minutes", o = Math.max(1, Math.round(i / 6e4)));
 	let s = String(e?.locale?.language || e?.language || "en").replace("_", "-");
 	try {
-		let e = _d(s).format({ [a]: o });
+		let e = vd(s).format({ [a]: o });
 		return s.toLowerCase().startsWith("en") ? e.replace(/\b(days?|hours?|minutes?)\b/, (e) => e[0].toUpperCase() + e.slice(1)) : e;
 	} catch {
 		let e = a.slice(0, -1), t = o === 1 ? e : a;
 		return `${o} ${t[0].toUpperCase()}${t.slice(1)}`;
 	}
 }
-function hd(e, t) {
+function gd(e, t) {
 	return e?.services?.[t.domain]?.[t.service]?.name;
 }
-function gd(e) {
+function _d(e) {
 	return `color:${hn(e) || ed(e, !0)};--mdc-icon-size:36px`;
 }
-function _d(e) {
+function vd(e) {
 	return sd.has(e) || sd.set(e, new Intl.DurationFormat(e, { style: "long" })), sd.get(e);
 }
-function vd(e) {
+function yd(e) {
 	return e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 //#endregion
 //#region src/badges/helpers/model.js
-function yd() {
+function bd() {
 	let e = $(this._config), t = this._getEntities(), n = t.filter((e) => Zt(e)), r = e === "template" ? P.call(this, this._config?.state_template, "") ?? "unavailable" : "", i = this._config?.active_template?.trim() || "", a = e === "template" && i ? P.call(this, i, "") : null, o = this._config?.inactive_template?.trim() || "", s = e === "template" && o ? P.call(this, o, "") : null, c = !!o && zt(s), l = e === "template" ? zt(a ?? r) : n.length > 0, u = this._config?.display_style === "badge" && !this._config?.card_visibility ? !0 : l, d = t[0], f = Qu(this._config), p = f[0] || "", m = d?.entity_id.split(".")[0] || this._config?.domain || "", ee = Gu(m), h = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), te = this._config?.icon || "", ne = u ? this._config?.icon_on || te : this._config?.icon_off || te, re = h === "custom" && ne || ee.icon, g = u ? this._config?.accent_on_color ?? this._config?.color : this._config?.accent_off_color, ie = !!(g && ![
 		"theme",
 		"state",
@@ -12843,7 +12857,7 @@ function yd() {
 		entity_id: `${m}.orbit_status_badge`,
 		state: v.state,
 		attributes: p ? { device_class: p } : {}
-	}, y = this.hass?.areas?.[this._config?.area]?.name || "", le = this._config?.name, ue = f.map((e) => Zu(e)).join(", "), de = (d && this.hass?.formatEntityName ? this.hass.formatEntityName(d) : "") || (e === "template" ? "Template" : y || ue || ee.label), fe = le && this.hass?.formatEntityName && this.hass.formatEntityName(v, bd(le, se)) || de, pe = h === "custom" ? u && this._config?.icon_on ? "icon_on" : !u && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : "";
+	}, y = this.hass?.areas?.[this._config?.area]?.name || "", le = this._config?.name, ue = f.map((e) => Zu(e)).join(", "), de = (d && this.hass?.formatEntityName ? this.hass.formatEntityName(d) : "") || (e === "template" ? "Template" : y || ue || ee.label), fe = le && this.hass?.formatEntityName && this.hass.formatEntityName(v, xd(le, se)) || de, pe = h === "custom" ? u && this._config?.icon_on ? "icon_on" : !u && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : "";
 	return {
 		entities: t,
 		activeEntities: n,
@@ -12874,7 +12888,7 @@ function yd() {
 		iconColor: ae === "theme" ? ed(v, u) : at(ae)
 	};
 }
-function bd(e, t) {
+function xd(e, t) {
 	let n = (e) => e?.type === "template" ? {
 		type: "text",
 		text: t
@@ -12883,7 +12897,7 @@ function bd(e, t) {
 }
 //#endregion
 //#region src/badges/styles/status-badge-styles.js
-var xd = d`
+var Sd = d`
   .card-badge {
     display: flex;
     align-items: center;
@@ -13058,7 +13072,7 @@ var xd = d`
 `;
 //#endregion
 //#region src/editors/status-badge/sections.js
-function Sd(e) {
+function Cd(e) {
 	let t = e === "entity" ? "more-info" : e === "area_count" ? "active-entities" : "none", n = {
 		id: "active-entities",
 		primary: this._t("Active entities"),
@@ -13085,7 +13099,7 @@ function Sd(e) {
     </ha-expansion-panel>
   `;
 }
-function Cd(e = "entity") {
+function wd(e = "entity") {
 	let t = this._config?.icon_source || (this._config?.icon ? "custom" : "domain");
 	return C`
     <div class="field main-entity-icon-source-field">
@@ -13121,7 +13135,7 @@ function Cd(e = "entity") {
     </div>
   `;
 }
-function wd({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode: r }) {
+function Td({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode: r }) {
 	let i = this._config?.domain || "", a = Qu(this._config), o = r ? this._config?.card_visibility || "always" : e, s = r ? [
 		{
 			label: this._t("Always"),
@@ -13263,9 +13277,9 @@ function wd({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                 .label=${this._t("Domain")}
                 .placeholder=${this._t("Domain")}
                 use-top-label
-                .getItems=${() => Dd.call(this)}
-                .valueRenderer=${(e) => Od.call(this, e)}
-                .rowRenderer=${kd}
+                .getItems=${() => Od.call(this)}
+                .valueRenderer=${(e) => kd.call(this, e)}
+                .rowRenderer=${Ad}
                 @value-changed=${(e) => this._updateConfig({
 		domain: e.detail.value || void 0,
 		device_class: void 0
@@ -13291,7 +13305,7 @@ function wd({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                   </div>
                 ` : ""}
 
-            ${Ed.call(this)}
+            ${Dd.call(this)}
           ` : o === "template" ? C`
               ${r ? "" : C`
                     <div class="field">
@@ -13302,7 +13316,7 @@ function wd({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                         .value=${this._config?.state_template || ""}
                         @value-changed=${(e) => this._handleConfigUpdate("state_template", e.detail.value || "")}
                       ></ha-selector>
-                      ${Td.call(this, this._config?.state_template)}
+                      ${Ed.call(this, this._config?.state_template)}
                     </div>
                   `}
               <div class="field">
@@ -13313,7 +13327,7 @@ function wd({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                   .value=${this._config?.active_template || ""}
                   @value-changed=${(e) => this._handleConfigUpdate("active_template", e.detail.value || void 0)}
                 ></ha-selector>
-                ${Td.call(this, this._config?.active_template)}
+                ${Ed.call(this, this._config?.active_template)}
               </div>
               ${r ? C`
                     <div class="field">
@@ -13324,7 +13338,7 @@ function wd({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                         .value=${this._config?.inactive_template || ""}
                         @value-changed=${(e) => this._handleConfigUpdate("inactive_template", e.detail.value || void 0)}
                       ></ha-selector>
-                      ${Td.call(this, this._config?.inactive_template)}
+                      ${Ed.call(this, this._config?.inactive_template)}
                     </div>
                   ` : ""}
               ${r ? "" : C`
@@ -13336,18 +13350,18 @@ function wd({ stateSource: e, domainConfig: t, deviceClassOptions: n, badgeMode:
                         .value=${this._config?.name_template || ""}
                         @value-changed=${(e) => this._handleConfigUpdate("name_template", e.detail.value || void 0)}
                       ></ha-selector>
-                      ${Td.call(this, this._config?.name_template)}
+                      ${Ed.call(this, this._config?.name_template)}
                     </div>
                   `}
             ` : ""}
     </div>
   `;
 }
-function Td(e, t = "") {
+function Ed(e, t = "") {
 	let n = Rt.call(this, e, t);
 	return n ? C`<ha-alert alert-type="error">${n}</ha-alert>` : "";
 }
-function Ed() {
+function Dd() {
 	let e = qu(this._config), t = e.some((e) => e.type === "hidden"), n = e.filter((e) => e.type === "label").map((e) => e.label), r = ({ hidden: e = t, labels: r = n } = {}) => {
 		this._updateConfig({ hide: Ju([...e ? [{ type: "hidden" }] : [], ...r.map((e) => ({
 			type: "label",
@@ -13382,7 +13396,7 @@ function Ed() {
     </div>
   `;
 }
-function Dd() {
+function Od() {
 	return Uu.map((e) => ({
 		id: e.value,
 		primary: this._t(e.label),
@@ -13390,14 +13404,14 @@ function Dd() {
 		icon: e.icon
 	}));
 }
-function Od(e) {
+function kd(e) {
 	let t = Uu.find((t) => t.value === e);
 	return t ? C`
     <ha-icon slot="start" .icon=${t.icon}></ha-icon>
     <span slot="headline">${this._t(t.label)}</span>
   ` : "";
 }
-function kd(e, t) {
+function Ad(e, t) {
 	return C`
     <ha-combo-box-item type="button" compact .borderTop=${t !== 0}>
       <ha-icon slot="start" .icon=${e.icon}></ha-icon>
@@ -13407,7 +13421,7 @@ function kd(e, t) {
 }
 //#endregion
 //#region src/editors/status-badge-editor.js
-var Ad = "sensor.orbit_status_badge_preview", jd = class extends O {
+var jd = "sensor.orbit_status_badge_preview", Md = class extends O {
 	static svgCache = I;
 	static properties = {
 		hass: { attribute: !1 },
@@ -13455,7 +13469,7 @@ var Ad = "sensor.orbit_status_badge_preview", jd = class extends O {
 		It.call(this, r);
 	}
 	_enhanceNamePicker() {
-		let e = this.shadowRoot?.querySelector(".status-badge-name-selector"), t = Nd(e, "ha-entity-name-picker");
+		let e = this.shadowRoot?.querySelector(".status-badge-name-selector"), t = Pd(e, "ha-entity-name-picker");
 		if (!t) {
 			this._namePickerEnhanceAttempts < 10 && this._scheduleNamePickerEnhancement();
 			return;
@@ -13463,7 +13477,7 @@ var Ad = "sensor.orbit_status_badge_preview", jd = class extends O {
 		if (this._namePickerEnhanceAttempts = 0, t.__orbitTemplateNameEnhanced) return;
 		let n = t._getFilteredItems, r = t._validTypes, i = t._formatItem, a = t._pickerValueChanged;
 		typeof n != "function" || typeof r != "function" || typeof i != "function" || typeof a != "function" || (t.__orbitTemplateNameEnhanced = !0, t._validTypes = (e) => new Set([...r.call(t, e), "template"]), t._formatItem = (e) => e?.type === "template" ? this._t("Template") : i.call(t, e), t._getFilteredItems = () => {
-			let e = n.call(t), r = Md(t.value), i = t._editIndex != null && r[t._editIndex]?.type === "template";
+			let e = n.call(t), r = Nd(t.value), i = t._editIndex != null && r[t._editIndex]?.type === "template";
 			if (!r.some((e) => e?.type === "template") || i) {
 				let t = String(P.call(this, this._config?.name_template, "") ?? "").trim(), n = this._t("Template"), r = t || this._t("Not configured");
 				e.push({
@@ -13485,7 +13499,7 @@ var Ad = "sensor.orbit_status_badge_preview", jd = class extends O {
 				return;
 			}
 			if (e.stopPropagation(), t.disabled) return;
-			let n = Md(t.value), r = { type: "template" };
+			let n = Nd(t.value), r = { type: "template" };
 			t._editIndex == null ? n.push(r) : (n[t._editIndex] = r, t._editIndex = void 0), t._setValue(n), t._picker && (t._picker.value = void 0);
 		}, t.requestUpdate());
 	}
@@ -13546,7 +13560,7 @@ var Ad = "sensor.orbit_status_badge_preview", jd = class extends O {
 	}
 	_getStateContentHass() {
 		let e = (/* @__PURE__ */ new Date()).toISOString(), t = this.hass?.areas?.[this._config?.area]?.name, n = this._config?.name_template?.trim() || "", r = {
-			entity_id: Ad,
+			entity_id: jd,
 			state: "on",
 			attributes: {
 				count: 2,
@@ -13564,8 +13578,8 @@ var Ad = "sensor.orbit_status_badge_preview", jd = class extends O {
 			...this.hass,
 			entities: {
 				...this.hass?.entities || {},
-				[Ad]: {
-					entity_id: Ad,
+				[jd]: {
+					entity_id: jd,
 					platform: "orbit",
 					area_id: this._config?.area || null,
 					device_id: null
@@ -13573,7 +13587,7 @@ var Ad = "sensor.orbit_status_badge_preview", jd = class extends O {
 			},
 			states: {
 				...this.hass?.states || {},
-				[Ad]: r
+				[jd]: r
 			}
 		};
 	}
@@ -13582,7 +13596,7 @@ var Ad = "sensor.orbit_status_badge_preview", jd = class extends O {
 			...this._config?.show_name === !0 ? ["name"] : [],
 			...this._config?.show_state === !1 ? [] : ["state"],
 			...this._config?.show_icon === !1 ? [] : ["icon"]
-		], a = $(this._config), o = this._config?.entity || "", s = a === "entity" && o ? this.hass : this._getStateContentHass(), c = a === "entity" && o ? o : Ad;
+		], a = $(this._config), o = this._config?.entity || "", s = a === "entity" && o ? this.hass : this._getStateContentHass(), c = a === "entity" && o ? o : jd;
 		return C`
       <div class="wrapper">
         <div class="section">
@@ -13621,7 +13635,7 @@ var Ad = "sensor.orbit_status_badge_preview", jd = class extends O {
               ${this._t("State type")}
             </div>
             <div class="content-panel-body">
-              ${wd.call(this, {
+              ${Td.call(this, {
 			stateSource: a,
 			domainConfig: r,
 			deviceClassOptions: n,
@@ -13662,7 +13676,7 @@ var Ad = "sensor.orbit_status_badge_preview", jd = class extends O {
                 ${this._renderColor(["Inactive", "Color"], "accent_off_color", e ? "white" : "theme")}
               </div>
 
-              ${Cd.call(this, a)}
+              ${wd.call(this, a)}
 
               ${e ? "" : C`
                     <div class="field">
@@ -13719,7 +13733,7 @@ var Ad = "sensor.orbit_status_badge_preview", jd = class extends O {
             </div>
           </ha-expansion-panel>
 
-          ${Sd.call(this, a)}
+          ${Cd.call(this, a)}
         </div>
 
         <div class="editor-version">
@@ -13771,26 +13785,26 @@ var Ad = "sensor.orbit_status_badge_preview", jd = class extends O {
       }
     `];
 };
-customElements.define("orbit-status-badge-editor", jd);
-function Md(e) {
+customElements.define("orbit-status-badge-editor", Md);
+function Nd(e) {
 	return e ? typeof e == "string" ? [{
 		type: "text",
 		text: e
 	}] : Array.isArray(e) ? [...e] : [e] : [];
 }
-function Nd(e, t) {
+function Pd(e, t) {
 	if (!e) return;
 	if (e.matches?.(t)) return e;
 	let n = e.shadowRoot?.querySelector(t);
 	if (n) return n;
 	for (let n of e.shadowRoot?.querySelectorAll("*") || []) {
-		let e = Nd(n, t);
+		let e = Pd(n, t);
 		if (e) return e;
 	}
 }
 //#endregion
 //#region src/badges/status-badge.js
-var Pd = class extends O {
+var Fd = class extends O {
 	static svgCache = I;
 	static properties = {
 		hass: { attribute: !1 },
@@ -13812,8 +13826,8 @@ var Pd = class extends O {
 	setConfig(e) {
 		Ku(e || {}), this._config = Xu(e || {}), this._areaEntityCache = null;
 	}
-	_t(e) {
-		return X(this.hass, e);
+	_t(e, t) {
+		return X(this.hass, e, t);
 	}
 	connectedCallback() {
 		super.connectedCallback(), this._isHeadingBadge = !!this.closest("hui-heading-badge"), this.toggleAttribute("heading-badge", this._isHeadingBadge), queueMicrotask(() => this._syncTemplateSubscriptions());
@@ -13866,7 +13880,7 @@ var Pd = class extends O {
 		}, s;
 	}
 	_getModel() {
-		return yd.call(this);
+		return bd.call(this);
 	}
 	_handleAction(e, t = null) {
 		if (e?.action === "active-entities") {
@@ -13913,7 +13927,7 @@ var Pd = class extends O {
 			this._longPressTriggered = !1;
 			return;
 		}
-		let n = Fd(this._config);
+		let n = Id(this._config);
 		return j.call(this, e, t, this._config?.tap_action || n, this._config?.double_tap_action);
 	}
 	_handleDoubleTap(e, t) {
@@ -13965,18 +13979,18 @@ var Pd = class extends O {
 				stateObj: e,
 				control: t,
 				name: ud(this.hass, e),
-				serviceName: t ? hd(this.hass, t) : ""
+				serviceName: t ? gd(this.hass, t) : ""
 			};
-		}).sort((e, n) => fd(t, e, n)), r = n.filter((e) => e.control), i = ld(r), a = i ? hd(this.hass, i) : "", o = pd(n, i);
+		}).sort((e, n) => pd(t, e, n)), r = n.filter((e) => e.control), i = ld(r), a = i ? gd(this.hass, i) : "", o = md(n, i), s = [
+			`--ha-dialog-width-sm: ${o}px`,
+			`--mdc-dialog-min-width: ${o}px`,
+			`--mdc-dialog-max-width: ${o}px`
+		].join(";"), c = fd(this.hass, n[0]?.stateObj), l = c ? this._t("Currently {state}", { state: c }) : this._t("Active entities");
 		return C`
       <ha-adaptive-dialog
         .open=${!0}
         width="small"
-        style=${[
-			`--ha-dialog-width-sm: ${o}px`,
-			`--mdc-dialog-min-width: ${o}px`,
-			`--mdc-dialog-max-width: ${o}px`
-		].join(";")}
+        style=${s}
         @closed=${() => this._closeActiveEntitiesDialog()}
       >
         <ha-icon-button
@@ -13986,7 +14000,7 @@ var Pd = class extends O {
         >
           <ha-icon icon="mdi:close"></ha-icon>
         </ha-icon-button>
-        <span slot="headerTitle">${this._t("Active entities")}</span>
+        <span slot="headerTitle">${l}</span>
         ${i ? C`
               <ha-button
                 slot="headerActionItems"
@@ -14017,14 +14031,14 @@ var Pd = class extends O {
                           <ha-state-icon
                             .hass=${this.hass}
                             .stateObj=${e}
-                            style=${gd(e)}
+                            style=${_d(e)}
                           ></ha-state-icon>
                         </button>
                       ` : C`
                         <ha-state-icon
                           .hass=${this.hass}
                           .stateObj=${e}
-                          style=${gd(e)}
+                          style=${_d(e)}
                         ></ha-state-icon>
                       `}
                   <button
@@ -14041,7 +14055,7 @@ var Pd = class extends O {
                         .stateObj=${e}
                       ></state-display>
                       <span aria-hidden="true">-</span>
-                      <span>${md(this.hass, e, this._activeEntitiesDurationNow)}</span>
+                      <span>${hd(this.hass, e, this._activeEntitiesDurationNow)}</span>
                     </span>
                   </button>
                 </div>
@@ -14067,7 +14081,7 @@ var Pd = class extends O {
 		});
 	}
 	render() {
-		let e = this._getModel(), t = e.activeEntities[0]?.entity_id || e.entities[0]?.entity_id || null, n = k(this._config?.tap_action || Fd(this._config)) || k(this._config?.hold_action) || k(this._config?.double_tap_action), r = this._config?.display_style === "badge", i = this._config?.card_visibility || "always", a = i === "always" || i === "state" && e.isOn || i === "template" && (e.isOn || e.inactiveTemplateActive), o = !r && this._config?.show_state !== !1, s = !r && this._config?.show_name === !0, c = r || this._config?.show_icon !== !1, l = this._config?.card_color ? at(this._config.card_color) : "var(--primary-color)", u = `--badge-color:${e.iconColor};`, d = [
+		let e = this._getModel(), t = e.activeEntities[0]?.entity_id || e.entities[0]?.entity_id || null, n = k(this._config?.tap_action || Id(this._config)) || k(this._config?.hold_action) || k(this._config?.double_tap_action), r = this._config?.display_style === "badge", i = this._config?.card_visibility || "always", a = i === "always" || i === "state" && e.isOn || i === "template" && (e.isOn || e.inactiveTemplateActive), o = !r && this._config?.show_state !== !1, s = !r && this._config?.show_name === !0, c = r || this._config?.show_icon !== !1, l = this._config?.card_color ? at(this._config.card_color) : "var(--primary-color)", u = `--badge-color:${e.iconColor};`, d = [
 			`--tile-badge-background-color:${l}`,
 			`--tile-badge-icon-color:${e.hasIconColorOverride ? e.iconColor : "var(--white-color, #fff)"}`,
 			"--mdc-icon-size:12px"
@@ -14146,9 +14160,9 @@ var Pd = class extends O {
           </ha-badge>
         `}${m}`;
 	}
-	static styles = xd;
+	static styles = Sd;
 };
-function Fd(e = {}) {
+function Id(e = {}) {
 	let t = $(e);
 	return t === "entity" ? { action: "more-info" } : t === "area_count" ? { action: "active-entities" } : { action: "none" };
 }
@@ -14156,7 +14170,7 @@ function Fd(e = {}) {
 //#region src/index.js
 Hu({
 	tag: "orbit-status-badge",
-	badgeClass: Pd,
+	badgeClass: Fd,
 	name: "Orbit Status Badge",
 	description: "Displays an entity, area count, or template state",
 	version: t.statusBadge

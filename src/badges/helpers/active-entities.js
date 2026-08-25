@@ -79,6 +79,18 @@ export function getActiveEntityNameCollator(hass) {
   return nameCollators.get(locale);
 }
 
+export function getActiveEntityFormattedState(hass, stateObj) {
+  const formattedState = hass?.formatEntityState?.(stateObj);
+
+  if (formattedState) return formattedState;
+
+  const state = String(stateObj?.state || "").replaceAll("_", " ");
+
+  return state
+    ? state[0].toUpperCase() + state.slice(1)
+    : "";
+}
+
 export function compareActiveEntityNames(collator, a, b) {
   return collator.compare(a.name, b.name) ||
     a.stateObj.entity_id.localeCompare(b.stateObj.entity_id);
