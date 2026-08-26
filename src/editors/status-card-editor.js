@@ -551,10 +551,9 @@ class OrbitStatusCardEditor extends LitElement {
           defaultAction: cardActionDefault,
           customActions: [CURRENT_ACTIVITY_ACTION],
           defaultVisible: true,
-          customDefaultLabel:
-            cardActionDefault === CURRENT_STATE_ACTION
-              ? CURRENT_STATE_ACTION
-              : undefined,
+          customDefaultLabel: getCustomStatusActionLabel(
+            cardActionDefault
+          ),
         },
         {
           key: "hold_action",
@@ -576,10 +575,9 @@ class OrbitStatusCardEditor extends LitElement {
           label: "Icon tap behavior",
           defaultAction: mainEntityActionDefault,
           customActions: [CURRENT_ACTIVITY_ACTION],
-          customDefaultLabel:
-            mainEntityActionDefault === CURRENT_STATE_ACTION
-              ? CURRENT_STATE_ACTION
-              : undefined,
+          customDefaultLabel: getCustomStatusActionLabel(
+            mainEntityActionDefault
+          ),
         },
         {
           key: "entity_hold_action",
@@ -991,7 +989,7 @@ function orderStatusItem(item) {
   );
   cleanedItem.state_source = getStatusBadgeStateSource(cleanedItem);
   cleanAreaCountEntity(cleanedItem);
-  cleanDefaultStatusActions(cleanedItem);
+  cleanDefaultStatusItemActions(cleanedItem);
   return orderObjectKeys(cleanedItem, STATUS_ITEM_KEYS);
 }
 
@@ -1096,12 +1094,29 @@ function cleanAreaCountEntity(config) {
 function cleanDefaultStatusActions(config) {
   if (config?.state_source !== "area_count") return;
 
-  if (config.tap_action?.action === CURRENT_STATE_ACTION) {
+  if (config.tap_action?.action === CURRENT_ACTIVITY_ACTION) {
     delete config.tap_action;
   }
   if (config.entity_tap_action?.action === CURRENT_STATE_ACTION) {
     delete config.entity_tap_action;
   }
+}
+
+function cleanDefaultStatusItemActions(config) {
+  if (config?.state_source !== "area_count") return;
+
+  if (config.tap_action?.action === CURRENT_ACTIVITY_ACTION) {
+    delete config.tap_action;
+  }
+  if (config.entity_tap_action?.action === CURRENT_STATE_ACTION) {
+    delete config.entity_tap_action;
+  }
+}
+
+function getCustomStatusActionLabel(action) {
+  if (action === CURRENT_STATE_ACTION) return CURRENT_STATE_ACTION;
+  if (action === CURRENT_ACTIVITY_ACTION) return "Current activity";
+  return undefined;
 }
 
 function cleanEmptyStatusValues(config = {}) {

@@ -5,14 +5,18 @@ export const currentActivityDialogStyles = css`
     --ha-dialog-width-sm: 640px;
     --mdc-dialog-min-width: min(640px, calc(100vw - 32px));
     --mdc-dialog-max-width: min(640px, calc(100vw - 32px));
-    --ha-dialog-min-height: min(85vh, 960px);
-    --ha-bottom-sheet-height: min(90vh, 960px);
+    --mdc-dialog-min-height: 0px;
+    --ha-dialog-min-height: 0px;
+    --ha-bottom-sheet-height: auto;
   }
 
   .current-activity-dialog-content {
     min-width: 0;
-    height: min(75vh, 840px);
-    max-height: min(75vh, 840px);
+    height: min(
+      var(--current-activity-height, 140px),
+      calc(100dvh - 128px)
+    );
+    max-height: calc(100dvh - 128px);
     padding: 0 var(--ha-space-4, 16px) var(--ha-space-4, 16px);
     overflow-x: hidden;
     overflow-y: auto;
@@ -22,6 +26,7 @@ export const currentActivityDialogStyles = css`
   .current-activity-dialog-content > ha-card {
     display: block;
     height: calc(100% + 32px);
+    max-height: calc(100dvh - 96px);
     margin-top: -32px;
     --ha-card-border-width: 0;
     --ha-card-box-shadow: none;

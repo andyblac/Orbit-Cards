@@ -1,5 +1,6 @@
 import { isActionEnabled } from "../../../common/helpers/actions.js";
 import {
+  CURRENT_ACTIVITY_ACTION,
   CURRENT_STATE_ACTION,
   getStatusBadgeStateSource,
 } from "../../../common/helpers/status-badge.js";
@@ -27,6 +28,9 @@ export function getMainEntityTapAction() {
   const actionConfig = sourceConfig.entity_tap_action;
 
   if (actionConfig?.action) return actionConfig;
+  if (getStatusBadgeStateSource(sourceConfig) === "area_count") {
+    return { action: CURRENT_STATE_ACTION };
+  }
   return getCardTapAction.call(this);
 }
 
@@ -44,7 +48,7 @@ export function getCardTapAction() {
   if (stateSource === "area_count") {
     return sourceConfig.tap_action?.action
       ? sourceConfig.tap_action
-      : { action: CURRENT_STATE_ACTION };
+      : { action: CURRENT_ACTIVITY_ACTION };
   }
 
   if (stateSource === "template") {
@@ -93,7 +97,7 @@ export function getStatusItemCardTapAction(index = 0) {
   }
 
   if (getStatusBadgeStateSource(item) === "area_count") {
-    return { action: CURRENT_STATE_ACTION, status_index: index };
+    return { action: CURRENT_ACTIVITY_ACTION, status_index: index };
   }
 
   return {
@@ -138,6 +142,10 @@ export function getStatusItemMainEntityTapAction(index = 0) {
 
   if (this._config.entity_tap_action?.action) {
     return this._config.entity_tap_action;
+  }
+
+  if (getStatusBadgeStateSource(item) === "area_count") {
+    return { action: CURRENT_STATE_ACTION, status_index: index };
   }
 
   return this._getStatusItemCardTapAction(index);

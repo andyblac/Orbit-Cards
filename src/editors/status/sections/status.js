@@ -30,7 +30,7 @@ export function renderStatusSection() {
     : getStatusBadgeStateSource(this._config);
   const cardActionDefault =
     stateSource === "area_count"
-      ? CURRENT_STATE_ACTION
+      ? CURRENT_ACTIVITY_ACTION
       : stateSource === "template"
       ? "more-info"
       : isIconOnly || isPerson
@@ -149,10 +149,9 @@ export function renderStatusSection() {
                       defaultAction: cardActionDefault,
                       customActions: [CURRENT_ACTIVITY_ACTION],
                       defaultVisible: true,
-                      customDefaultLabel:
-                        cardActionDefault === CURRENT_STATE_ACTION
-                          ? CURRENT_STATE_ACTION
-                          : undefined,
+                      customDefaultLabel: getCustomStatusActionLabel(
+                        cardActionDefault
+                      ),
                     },
                     {
                       key: "hold_action",
@@ -174,10 +173,9 @@ export function renderStatusSection() {
                       label: "Icon tap behavior",
                       defaultAction: mainEntityActionDefault,
                       customActions: [CURRENT_ACTIVITY_ACTION],
-                      customDefaultLabel:
-                        mainEntityActionDefault === CURRENT_STATE_ACTION
-                          ? CURRENT_STATE_ACTION
-                          : undefined,
+                      customDefaultLabel: getCustomStatusActionLabel(
+                        mainEntityActionDefault
+                      ),
                     },
                     {
                       key: "entity_hold_action",
@@ -234,7 +232,7 @@ function renderIconOnlyStatusConfig({
   const selectedStateSource = getStatusBadgeStateSource(selectedItem);
   const selectedIsAreaCount = selectedStateSource === "area_count";
   const selectedCardActionDefault = selectedIsAreaCount
-    ? CURRENT_STATE_ACTION
+    ? CURRENT_ACTIVITY_ACTION
     : cardActionDefault;
   const selectedMainEntityActionDefault = selectedIsAreaCount
     ? CURRENT_STATE_ACTION
@@ -400,6 +398,12 @@ function renderIconOnlyStatusConfig({
         : ""}
     </div>
   `;
+}
+
+function getCustomStatusActionLabel(action) {
+  if (action === CURRENT_STATE_ACTION) return CURRENT_STATE_ACTION;
+  if (action === CURRENT_ACTIVITY_ACTION) return "Current activity";
+  return undefined;
 }
 
 function renderStatusStateType(

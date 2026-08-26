@@ -28,7 +28,10 @@ export function renderCurrentActivityDialog() {
         <ha-icon icon="mdi:close"></ha-icon>
       </ha-icon-button>
       <span slot="headerTitle">${this._t("Current activity")}</span>
-      <div class="current-activity-dialog-content">
+      <div
+        class="current-activity-dialog-content"
+        style=${`--current-activity-height:${this._currentActivityHeight || "140px"}`}
+      >
         ${this._currentActivityLoading
           ? html`
               <div class="current-activity-dialog-message">
