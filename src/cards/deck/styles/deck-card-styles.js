@@ -61,6 +61,21 @@ export const deckCardStyles = [
     min-width: 0;
   }
 
+  .deck-item.orbit-editor-preview-resized {
+    flex: 0 0 var(--orbit-editor-preview-width, 50%);
+  }
+
+  .deck-row:has(.orbit-editor-preview-resized) {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .deck-item.orbit-editor-preview-resized >
+    .deck-item-interaction.orbit-editor-preview-selected {
+    height: auto;
+    width: 100%;
+  }
+
   .deck-item-interaction {
     display: block;
     height: 100%;

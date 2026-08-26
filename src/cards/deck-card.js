@@ -770,11 +770,26 @@ class OrbitDeckCard extends LitElement {
         <div class="deck-wrap">
           ${rows.map((row) => html`
             <div class="deck-row">
-              ${row.map((entry) => html`
-                <div class="deck-item">
-                  ${this._renderInteractiveDeckEntry(entry)}
-                </div>
-              `)}
+              ${row.map((entry) => {
+                const isPreviewSelected =
+                  this._config?.[DECK_PREVIEW_SELECTED_INDEX] === entry.index;
+                const previewWidth = isPreviewSelected
+                  ? getDeckEditorPreviewWidth(entry, columns)
+                  : "";
+
+                return html`
+                  <div
+                    class="deck-item ${previewWidth
+                      ? "orbit-editor-preview-resized"
+                      : ""}"
+                    style=${previewWidth
+                      ? `--orbit-editor-preview-width:${previewWidth};`
+                      : ""}
+                  >
+                    ${this._renderInteractiveDeckEntry(entry)}
+                  </div>
+                `;
+              })}
               ${renderRowSpacers(row.length, columns)}
             </div>
           `)}
@@ -906,6 +921,34 @@ class OrbitDeckCard extends LitElement {
   }
 
   static styles = deckCardStyles;
+}
+
+function getDeckEditorPreviewWidth(entry, deckColumns) {
+  const childConfig = getDeckItemRenderConfig(entry?.item);
+  const configuredColumns = childConfig?.grid_options?.columns;
+  let columns = configuredColumns === "full"
+    ? 12
+    : Number(configuredColumns);
+
+  if (!Number.isFinite(columns) || columns <= 0) {
+    try {
+      columns = Number(entry?.element?.getLayoutOptions?.()?.grid_columns);
+    } catch (_error) {
+      columns = 0;
+    }
+  }
+
+  if (!Number.isFinite(columns) || columns <= 0) {
+    columns = 6;
+  }
+
+  const normalWidth =
+    Math.min(12, Math.max(1, columns)) / 12 * 100;
+  const slotWidth = 100 / Math.max(1, Number(deckColumns) || 1);
+
+  return normalWidth > slotWidth + 0.01
+    ? `${normalWidth}%`
+    : "";
 }
 
 
