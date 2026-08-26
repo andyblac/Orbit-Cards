@@ -89,6 +89,8 @@ export function getIconOnlyStatusItems(config = {}) {
       accent_off_color: config.accent_off_color,
       icon_source: config.icon_source,
       icon: config.icon,
+      icon_on: config.icon_on,
+      icon_off: config.icon_off,
       entity_icon_source: config.entity_icon_source,
       entity_icon_template: config.entity_icon_template,
       entity_icon: config.entity_icon,
@@ -196,11 +198,9 @@ function getStatusState(item, rootConfig = {}) {
           ? this.formatState(stateObj)
           : "");
 
-  const customIconOn =
-    config.entity_icon_on;
+  const customIconOn = config.icon_on ?? config.entity_icon_on;
 
-  const customIconOff =
-    config.entity_icon_off;
+  const customIconOff = config.icon_off ?? config.entity_icon_off;
 
   const hasConfiguredStateTemplate = Boolean(
     config.state_template ||
@@ -229,7 +229,7 @@ function getStatusState(item, rootConfig = {}) {
     this,
     iconSource === "template"
       ? config.icon || config.entity_icon_template || config.entity_icon
-      : config.entity_icon,
+      : config.icon || config.entity_icon,
     entityId
   );
   const customStateIcon =
@@ -257,13 +257,19 @@ function getStatusState(item, rootConfig = {}) {
 
   const selectedIconKey =
     iconSource === "template" && customIcon
-      ? "entity_icon"
-      : iconSource === "custom" && isOn && customIconOn
-      ? "entity_icon_on"
-      : iconSource === "custom" && !isOn && customIconOff
-        ? "entity_icon_off"
-        : iconSource === "custom" && customIcon
-          ? "entity_icon"
+      ? "icon"
+    : iconSource === "custom" && isOn && customIconOn
+      ? config.icon_on
+        ? "icon_on"
+        : "entity_icon_on"
+    : iconSource === "custom" && !isOn && customIconOff
+        ? config.icon_off
+          ? "icon_off"
+          : "entity_icon_off"
+      : iconSource === "custom" && customIcon
+          ? config.icon
+            ? "icon"
+            : "entity_icon"
           : "";
 
   const statusColor = getStatusColor(
@@ -310,6 +316,9 @@ function getStatusIconSource(config, entityId) {
   const savedSource = config.icon_source ?? config.entity_icon_source;
   const hasEntity = Boolean(entityId);
   const hasCustomIcon = Boolean(
+    config.icon ||
+    config.icon_on ||
+    config.icon_off ||
     config.entity_icon ||
     config.entity_icon_on ||
     config.entity_icon_off

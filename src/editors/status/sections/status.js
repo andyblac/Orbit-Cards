@@ -518,21 +518,21 @@ function renderStatusIconSource(stateSource = "entity") {
     defaultSource: isAreaCount ? "domain" : "entity",
     defaultSourceLabel: isAreaCount ? "Domain" : "Entity",
     customIconKeys: [
-      "entity_icon",
-      "entity_icon_on",
-      "entity_icon_off",
+      "icon",
+      "icon_on",
+      "icon_off",
     ],
     renderCustom() {
       return html`
-        ${this._renderIconInput("", "entity_icon")}
+        ${this._renderIconInput("", "icon")}
         <div class="icon-pair">
           ${this._renderIconInput(
             ["Active", "Icon"],
-            "entity_icon_on"
+            "icon_on"
           )}
           ${this._renderIconInput(
             ["Inactive", "Icon"],
-            "entity_icon_off"
+            "icon_off"
           )}
         </div>
       `;
@@ -565,21 +565,21 @@ function renderStatusItemIconSource(index, item, isAreaCount = false) {
     defaultSource: isAreaCount ? "domain" : "entity",
     defaultSourceLabel: isAreaCount ? "Domain" : "Entity",
     customIconKeys: [
-      "entity_icon",
-      "entity_icon_on",
-      "entity_icon_off",
+      "icon",
+      "icon_on",
+      "icon_off",
     ],
     renderCustom() {
       return html`
-        ${this._renderIconInput("", "entity_icon")}
+        ${this._renderIconInput("", "icon")}
         <div class="icon-pair">
           ${this._renderIconInput(
             ["Active", "Icon"],
-            "entity_icon_on"
+            "icon_on"
           )}
           ${this._renderIconInput(
             ["Inactive", "Icon"],
-            "entity_icon_off"
+            "icon_off"
           )}
         </div>
       `;

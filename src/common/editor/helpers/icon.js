@@ -241,6 +241,15 @@ export function renderIconSourceControl({
               e.detail.value || (allowNone ? "none" : "custom");
 
             if (
+              templateStorageKey === templateIconKey &&
+              iconSource !== nextSource &&
+              [iconSource, nextSource].includes("template")
+            ) {
+              this._handleConfigUpdate(templateIconKey, "");
+            }
+
+            if (
+              templateStorageKey !== templateIconKey &&
               iconSource === "template" &&
               nextSource !== "template" &&
               legacyTemplate

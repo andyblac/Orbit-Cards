@@ -2555,7 +2555,7 @@ function $r({ label: e = "Icon", sourceKey: t = "main_entity_icon_source", entit
           .value=${p}
           @value-changed=${(e) => {
 		let n = e.detail.value || (s ? "none" : "custom");
-		p === "template" && n !== "template" && v && (this._handleConfigUpdate(_, v), this._handleConfigUpdate(g, "")), this._handleConfigUpdate(t, n);
+		_ === g && p !== n && [p, n].includes("template") && this._handleConfigUpdate(g, ""), _ !== g && p === "template" && n !== "template" && v && (this._handleConfigUpdate(_, v), this._handleConfigUpdate(g, "")), this._handleConfigUpdate(t, n);
 	}}
         ></ha-selector>
       </div>
@@ -8144,6 +8144,8 @@ function ol(e = {}) {
 		accent_off_color: e.accent_off_color,
 		icon_source: e.icon_source,
 		icon: e.icon,
+		icon_on: e.icon_on,
+		icon_off: e.icon_off,
 		entity_icon_source: e.entity_icon_source,
 		entity_icon_template: e.entity_icon_template,
 		entity_icon: e.entity_icon,
@@ -8168,11 +8170,11 @@ function sl(e, t = {}) {
 		...e
 	}, r = X(n), i = e.entity || t.entity, a = r === "area_count" ? hc(this.hass, n) : [], o = lc(a, n, (e) => this._getEntityActiveState(e)), s = r === "area_count" ? o[0] || a[0] || null : i && this.hass ? this.hass.states[i] : null, c = i || s?.entity_id || "", l = c.split(".")[0] || n.domain || "";
 	n.entity = c;
-	let u = n.mode !== "icon_only" && Object.prototype.hasOwnProperty.call(n, "name") && n.name !== void 0 && n.name !== "", d = r !== "area_count" && n.state_template ? this._evaluateStateTemplate(n.state_template, c) : null, f = r === "template" && n.active_template ? this._evaluateStateTemplate(n.active_template, c) : null, p = r === "template" && n.inactive_template ? this._evaluateStateTemplate(n.inactive_template, c) : null, m = r !== "area_count" && n.name_template ? this._evaluateStateTemplate(n.name_template, c) : null, h = m === null ? u ? Ut(n.name, n, this.hass) : r === "area_count" ? Z(n).length ? Z(n).map(ac).join(", ") : $s(n.domain).label : Q(s, "friendly_name") || c || J(this.hass, "Status") : String(m), g = r === "template" ? n.state_template ? gt(d) : s ? Q(s, "label") || this.formatState(s) : "" : r === "area_count" ? String(o.length) : Q(s, "label") || (s ? this.formatState(s) : ""), _ = n.entity_icon_on, v = n.entity_icon_off, ee = !!(n.state_template || n.active_template || n.inactive_template), y = r === "template" ? ee ? ht(f, l) ? !0 : ht(p, l) ? !1 : ht(d, l) : s ? this._getEntityActiveState(s) : !1 : r === "area_count" ? o.length > 0 : $c(s, (e) => this._getEntityActiveState(e), d), b = cl(n, c), x = Tn.call(this, b === "template" && (n.icon || n.entity_icon_template) || n.entity_icon, c), te = b === "template" ? x : b === "custom" && ((y ? _ : v) || x) || "", S = te || (r === "area_count" ? $s(n.domain).icon : "mdi:information-outline"), ne = Z(n)[0] || "", re = r === "area_count" ? {
+	let u = n.mode !== "icon_only" && Object.prototype.hasOwnProperty.call(n, "name") && n.name !== void 0 && n.name !== "", d = r !== "area_count" && n.state_template ? this._evaluateStateTemplate(n.state_template, c) : null, f = r === "template" && n.active_template ? this._evaluateStateTemplate(n.active_template, c) : null, p = r === "template" && n.inactive_template ? this._evaluateStateTemplate(n.inactive_template, c) : null, m = r !== "area_count" && n.name_template ? this._evaluateStateTemplate(n.name_template, c) : null, h = m === null ? u ? Ut(n.name, n, this.hass) : r === "area_count" ? Z(n).length ? Z(n).map(ac).join(", ") : $s(n.domain).label : Q(s, "friendly_name") || c || J(this.hass, "Status") : String(m), g = r === "template" ? n.state_template ? gt(d) : s ? Q(s, "label") || this.formatState(s) : "" : r === "area_count" ? String(o.length) : Q(s, "label") || (s ? this.formatState(s) : ""), _ = n.icon_on ?? n.entity_icon_on, v = n.icon_off ?? n.entity_icon_off, ee = !!(n.state_template || n.active_template || n.inactive_template), y = r === "template" ? ee ? ht(f, l) ? !0 : ht(p, l) ? !1 : ht(d, l) : s ? this._getEntityActiveState(s) : !1 : r === "area_count" ? o.length > 0 : $c(s, (e) => this._getEntityActiveState(e), d), b = cl(n, c), x = Tn.call(this, b === "template" ? n.icon || n.entity_icon_template || n.entity_icon : n.icon || n.entity_icon, c), te = b === "template" ? x : b === "custom" && ((y ? _ : v) || x) || "", S = te || (r === "area_count" ? $s(n.domain).icon : "mdi:information-outline"), ne = Z(n)[0] || "", re = r === "area_count" ? {
 		entity_id: `${n.domain || "sensor"}.orbit_status_card`,
 		state: s?.state ?? (y ? "on" : "off"),
 		attributes: ne ? { device_class: ne } : {}
-	} : s, ie = b === "template" && x ? "entity_icon" : b === "custom" && y && _ ? "entity_icon_on" : b === "custom" && !y && v ? "entity_icon_off" : b === "custom" && x ? "entity_icon" : "", C = Qc(n, s, y), ae = tl(n, s), oe = this._computeFullColor(C), w = this._computeFullColor(C), se = this._computeCircleColor(C), ce = y ? this._computeFullColor(C) : this._computeIconColor(C);
+	} : s, ie = b === "template" && x ? "icon" : b === "custom" && y && _ ? n.icon_on ? "icon_on" : "entity_icon_on" : b === "custom" && !y && v ? n.icon_off ? "icon_off" : "entity_icon_off" : b === "custom" && x ? n.icon ? "icon" : "entity_icon" : "", C = Qc(n, s, y), ae = tl(n, s), oe = this._computeFullColor(C), w = this._computeFullColor(C), se = this._computeCircleColor(C), ce = y ? this._computeFullColor(C) : this._computeIconColor(C);
 	return {
 		...e,
 		entityId: c,
@@ -8191,7 +8193,7 @@ function sl(e, t = {}) {
 	};
 }
 function cl(e, t) {
-	let n = e.icon_source ?? e.entity_icon_source, r = !!t, i = !!(e.entity_icon || e.entity_icon_on || e.entity_icon_off);
+	let n = e.icon_source ?? e.entity_icon_source, r = !!t, i = !!(e.icon || e.icon_on || e.icon_off || e.entity_icon || e.entity_icon_on || e.entity_icon_off);
 	return n === "custom" ? "custom" : n === "template" ? "template" : n === "domain" && e.domain ? "domain" : n === "entity" && r ? "entity" : i ? "custom" : e.state_source === "area_count" ? "domain" : "entity";
 }
 function ll(e) {
@@ -9225,16 +9227,16 @@ function Yl(e = "entity") {
 		defaultSource: t ? "domain" : "entity",
 		defaultSourceLabel: t ? "Domain" : "Entity",
 		customIconKeys: [
-			"entity_icon",
-			"entity_icon_on",
-			"entity_icon_off"
+			"icon",
+			"icon_on",
+			"icon_off"
 		],
 		renderCustom() {
 			return E`
-        ${this._renderIconInput("", "entity_icon")}
+        ${this._renderIconInput("", "icon")}
         <div class="icon-pair">
-          ${this._renderIconInput(["Active", "Icon"], "entity_icon_on")}
-          ${this._renderIconInput(["Inactive", "Icon"], "entity_icon_off")}
+          ${this._renderIconInput(["Active", "Icon"], "icon_on")}
+          ${this._renderIconInput(["Inactive", "Icon"], "icon_off")}
         </div>
       `;
 		}
@@ -9258,16 +9260,16 @@ function Xl(e, t, n = !1) {
 		defaultSource: n ? "domain" : "entity",
 		defaultSourceLabel: n ? "Domain" : "Entity",
 		customIconKeys: [
-			"entity_icon",
-			"entity_icon_on",
-			"entity_icon_off"
+			"icon",
+			"icon_on",
+			"icon_off"
 		],
 		renderCustom() {
 			return E`
-        ${this._renderIconInput("", "entity_icon")}
+        ${this._renderIconInput("", "icon")}
         <div class="icon-pair">
-          ${this._renderIconInput(["Active", "Icon"], "entity_icon_on")}
-          ${this._renderIconInput(["Inactive", "Icon"], "entity_icon_off")}
+          ${this._renderIconInput(["Active", "Icon"], "icon_on")}
+          ${this._renderIconInput(["Inactive", "Icon"], "icon_off")}
         </div>
       `;
 		}
@@ -9605,7 +9607,9 @@ var Ql = [
 			accent_on_color: e?.accent_on_color || "",
 			accent_off_color: e?.accent_off_color || "",
 			icon_source: e?.icon_source || e?.entity_icon_source || "",
-			icon: e?.icon || e?.entity_icon_template || "",
+			icon: e?.icon || e?.entity_icon || "",
+			icon_on: e?.icon_on || e?.entity_icon_on || "",
+			icon_off: e?.icon_off || e?.entity_icon_off || "",
 			entity_icon_source: e?.entity_icon_source || "",
 			entity_icon_template: e?.entity_icon_template || "",
 			entity_icon: e?.entity_icon || "",
@@ -9638,6 +9642,8 @@ var Ql = [
 				accent_off_color: n.accent_off_color,
 				icon_source: n.icon_source,
 				icon: n.icon,
+				icon_on: n.icon_on,
+				icon_off: n.icon_off,
 				entity_icon_source: n.entity_icon_source,
 				entity_icon_template: n.entity_icon_template,
 				entity_icon: n.entity_icon,
@@ -9718,6 +9724,8 @@ var Ql = [
 			accent_off_color: r.accent_off_color || "",
 			icon_source: r.icon_source || "",
 			icon: r.icon || "",
+			icon_on: r.icon_on || "",
+			icon_off: r.icon_off || "",
 			entity_icon_source: r.entity_icon_source || "",
 			entity_icon_template: r.entity_icon_template || "",
 			entity_icon: r.entity_icon || "",
@@ -9911,6 +9919,11 @@ var ru = [
 	"accent_off_color",
 	"icon_source",
 	"icon",
+	"icon_on",
+	"icon_off",
+	"icon_svg_color_override",
+	"icon_on_svg_color_override",
+	"icon_off_svg_color_override",
 	"entity_icon_source",
 	"entity_icon_template",
 	"entity_icon",
@@ -9941,7 +9954,7 @@ var ru = [
 	"entity_tap_action",
 	"entity_hold_action",
 	"entity_double_tap_action"
-], ou = ["eta_entity"], su = /* @__PURE__ */ "state_source.entity.area.domain.device_class.threshold.thresholds.hide.active_template.inactive_template.color_source.color.accent_color_source.accent_color.accent_on_color.accent_off_color.icon_source.icon.entity_icon_source.entity_icon_template.entity_icon.entity_icon_on.entity_icon_off.entity_icon_svg_color_override.entity_icon_on_svg_color_override.entity_icon_off_svg_color_override.state_template.name_template.tap_action.hold_action.double_tap_action.entity_tap_action.entity_hold_action.entity_double_tap_action".split("."), cu = [
+], ou = ["eta_entity"], su = /* @__PURE__ */ "state_source.entity.area.domain.device_class.threshold.thresholds.hide.active_template.inactive_template.color_source.color.accent_color_source.accent_color.accent_on_color.accent_off_color.icon_source.icon.icon_on.icon_off.icon_svg_color_override.icon_on_svg_color_override.icon_off_svg_color_override.entity_icon_source.entity_icon_template.entity_icon.entity_icon_on.entity_icon_off.entity_icon_svg_color_override.entity_icon_on_svg_color_override.entity_icon_off_svg_color_override.state_template.name_template.tap_action.hold_action.double_tap_action.entity_tap_action.entity_hold_action.entity_double_tap_action".split("."), cu = [
 	"state_source",
 	"entity",
 	"area",
@@ -9961,6 +9974,11 @@ var ru = [
 	"accent_off_color",
 	"icon_source",
 	"icon",
+	"icon_on",
+	"icon_off",
+	"icon_svg_color_override",
+	"icon_on_svg_color_override",
+	"icon_off_svg_color_override",
 	"entity_icon_source",
 	"entity_icon_template",
 	"entity_icon",
@@ -10042,10 +10060,19 @@ function _u(e) {
 }
 function vu(e = {}) {
 	let t = { ...e };
-	return t.color_source === void 0 && t.accent_color_source !== void 0 && (t.color_source = t.accent_color_source), t.color === void 0 && (t.color_source === "template" || P(t.accent_color)) && t.accent_color !== void 0 && (t.color = t.accent_color), t.color_source !== void 0 && delete t.accent_color_source, t.color !== void 0 && delete t.accent_color, t.icon_source === void 0 && t.entity_icon_source !== void 0 && (t.icon_source = t.entity_icon_source), t.icon === void 0 && t.entity_icon_template && (t.icon = t.entity_icon_template), t.icon_source === "template" && t.icon === void 0 && t.entity_icon !== void 0 && (t.icon = t.entity_icon, delete t.entity_icon), t.icon_source !== void 0 && delete t.entity_icon_source, t.icon !== void 0 && delete t.entity_icon_template, t;
+	return t.color_source === void 0 && t.accent_color_source !== void 0 && (t.color_source = t.accent_color_source), t.color === void 0 && (t.color_source === "template" || P(t.accent_color)) && t.accent_color !== void 0 && (t.color = t.accent_color), t.color_source !== void 0 && delete t.accent_color_source, t.color !== void 0 && delete t.accent_color, t.icon_source === void 0 && t.entity_icon_source !== void 0 && (t.icon_source = t.entity_icon_source), t.icon_source === "template" && t.icon === void 0 && (t.icon = t.icon_template || t.entity_icon_template || t.entity_icon), [
+		["icon", "entity_icon"],
+		["icon_on", "entity_icon_on"],
+		["icon_off", "entity_icon_off"],
+		["icon_svg_color_override", "entity_icon_svg_color_override"],
+		["icon_on_svg_color_override", "entity_icon_on_svg_color_override"],
+		["icon_off_svg_color_override", "entity_icon_off_svg_color_override"]
+	].forEach(([e, n]) => {
+		t[e] === void 0 && t[n] !== void 0 && !(e === "icon" && t.icon_source === "template") && (t[e] = t[n]), delete t[n];
+	}), delete t.entity_icon_source, delete t.entity_icon_template, delete t.icon_template, t;
 }
 function yu(e = {}) {
-	let t = (e) => !!(e && typeof e == "object" && !Array.isArray(e) && (e.accent_color_source !== void 0 || P(e.accent_color) || e.entity_icon_source !== void 0 || e.entity_icon_template !== void 0 || e.entity_icon_source === "template" && e.entity_icon !== void 0));
+	let t = (e) => !!(e && typeof e == "object" && !Array.isArray(e) && (e.accent_color_source !== void 0 || P(e.accent_color) || e.entity_icon_source !== void 0 || e.entity_icon_template !== void 0 || e.entity_icon !== void 0 || e.entity_icon_on !== void 0 || e.entity_icon_off !== void 0 || e.icon_template !== void 0));
 	return t(e) || Array.isArray(e.entities) && e.entities.some(t);
 }
 function bu(e) {

@@ -253,7 +253,9 @@ class OrbitStatusCardEditor extends LitElement {
         accent_off_color: config?.accent_off_color || "",
         icon_source: config?.icon_source ||
           config?.entity_icon_source || "",
-        icon: config?.icon || config?.entity_icon_template || "",
+        icon: config?.icon || config?.entity_icon || "",
+        icon_on: config?.icon_on || config?.entity_icon_on || "",
+        icon_off: config?.icon_off || config?.entity_icon_off || "",
         entity_icon_source: config?.entity_icon_source || "",
         entity_icon_template: config?.entity_icon_template || "",
         entity_icon: config?.entity_icon || "",
@@ -295,6 +297,8 @@ class OrbitStatusCardEditor extends LitElement {
         accent_off_color: item.accent_off_color,
         icon_source: item.icon_source,
         icon: item.icon,
+        icon_on: item.icon_on,
+        icon_off: item.icon_off,
         entity_icon_source: item.entity_icon_source,
         entity_icon_template: item.entity_icon_template,
         entity_icon: item.entity_icon,
@@ -464,6 +468,8 @@ class OrbitStatusCardEditor extends LitElement {
       accent_off_color: nextItem.accent_off_color || "",
       icon_source: nextItem.icon_source || "",
       icon: nextItem.icon || "",
+      icon_on: nextItem.icon_on || "",
+      icon_off: nextItem.icon_off || "",
       entity_icon_source: nextItem.entity_icon_source || "",
       entity_icon_template: nextItem.entity_icon_template || "",
       entity_icon: nextItem.entity_icon || "",
@@ -728,6 +734,11 @@ const STATUS_ENTITY_DEPENDENT_KEYS = [
   "accent_off_color",
   "icon_source",
   "icon",
+  "icon_on",
+  "icon_off",
+  "icon_svg_color_override",
+  "icon_on_svg_color_override",
+  "icon_off_svg_color_override",
   "entity_icon_source",
   "entity_icon_template",
   "entity_icon",
@@ -790,6 +801,11 @@ const STATUS_ITEM_KEYS = [
   "accent_off_color",
   "icon_source",
   "icon",
+  "icon_on",
+  "icon_off",
+  "icon_svg_color_override",
+  "icon_on_svg_color_override",
+  "icon_off_svg_color_override",
   "entity_icon_source",
   "entity_icon_template",
   "entity_icon",
@@ -830,6 +846,11 @@ const STATUS_COLOR_ICON_CONFIG_ORDER = [
   "accent_off_color",
   "icon_source",
   "icon",
+  "icon_on",
+  "icon_off",
+  "icon_svg_color_override",
+  "icon_on_svg_color_override",
+  "icon_off_svg_color_override",
   "entity_icon_source",
   "entity_icon_template",
   "entity_icon",
@@ -1003,27 +1024,37 @@ function migrateStatusPresentationConfig(config = {}) {
   }
 
   if (
-    migrated.icon === undefined &&
-    migrated.entity_icon_template
-  ) {
-    migrated.icon = migrated.entity_icon_template;
-  }
-
-  if (
     migrated.icon_source === "template" &&
-    migrated.icon === undefined &&
-    migrated.entity_icon !== undefined
+    migrated.icon === undefined
   ) {
-    migrated.icon = migrated.entity_icon;
-    delete migrated.entity_icon;
+    migrated.icon = migrated.icon_template ||
+      migrated.entity_icon_template ||
+      migrated.entity_icon;
   }
 
-  if (migrated.icon_source !== undefined) {
-    delete migrated.entity_icon_source;
-  }
-  if (migrated.icon !== undefined) {
-    delete migrated.entity_icon_template;
-  }
+  const iconKeyPairs = [
+    ["icon", "entity_icon"],
+    ["icon_on", "entity_icon_on"],
+    ["icon_off", "entity_icon_off"],
+    ["icon_svg_color_override", "entity_icon_svg_color_override"],
+    ["icon_on_svg_color_override", "entity_icon_on_svg_color_override"],
+    ["icon_off_svg_color_override", "entity_icon_off_svg_color_override"],
+  ];
+
+  iconKeyPairs.forEach(([nextKey, legacyKey]) => {
+    if (
+      migrated[nextKey] === undefined &&
+      migrated[legacyKey] !== undefined &&
+      !(nextKey === "icon" && migrated.icon_source === "template")
+    ) {
+      migrated[nextKey] = migrated[legacyKey];
+    }
+    delete migrated[legacyKey];
+  });
+
+  delete migrated.entity_icon_source;
+  delete migrated.entity_icon_template;
+  delete migrated.icon_template;
 
   return migrated;
 }
@@ -1038,10 +1069,10 @@ function hasLegacyStatusPresentationConfig(config = {}) {
       hasNativeTemplateSyntax(value.accent_color) ||
       value.entity_icon_source !== undefined ||
       value.entity_icon_template !== undefined ||
-      (
-        value.entity_icon_source === "template" &&
-        value.entity_icon !== undefined
-      )
+      value.entity_icon !== undefined ||
+      value.entity_icon_on !== undefined ||
+      value.entity_icon_off !== undefined ||
+      value.icon_template !== undefined
     )
   );
 
