@@ -2853,15 +2853,16 @@ function ki(e, t, n, r = {}) {
     `;
 }
 function Ai(e, t, n = {}) {
-	let r = n.value ?? this._config?.[t] ?? "", i = n.hideLabel === !0, a = n.onValueChanged || ((e) => this._handleConfigUpdate(t, e));
+	let r = n.value ?? this._config?.[t] ?? "", i = n.hideLabel === !0, a = n.required !== !1, o = n.onValueChanged || ((e) => this._handleConfigUpdate(t, e));
 	return E`
       <div class="field">
         <ha-selector
           .hass=${this.hass}
           .label=${i ? "" : Ei(this, e)}
           .selector=${{ template: {} }}
+          .required=${a}
           .value=${r}
-          @value-changed=${(e) => a(e.detail.value || "")}
+          @value-changed=${(e) => o(e.detail.value || "")}
         ></ha-selector>
       </div>
     `;
@@ -8964,7 +8965,7 @@ function Hl() {
 	})}
                     ${Yl.call(this, r)}
                     ${r === "area_count" ? "" : E`
-                          ${this._renderTemplateInput(r === "template" ? "State" : "State template", "state_template")}
+                          ${this._renderTemplateInput(r === "template" ? "State" : "State template", "state_template", { required: r !== "template" })}
                         `}
                   `)}
                 `}
@@ -9147,7 +9148,7 @@ function Wl({ cardActionDefault: e, mainEntityActionDefault: t }) {
         ${Xl.call(this, r, i, o)}
 
         ${o ? "" : E`
-              ${Jl.call(this, a === "template" ? "State" : "State template", "state_template", r, i)}
+              ${Jl.call(this, a === "template" ? "State" : "State template", "state_template", r, i, { required: a !== "template" })}
             `}
       `)}
 
@@ -9232,8 +9233,9 @@ function ql(e, t) {
 	let n = { ...e };
 	return Object.prototype.hasOwnProperty.call(n, "entity") && (n[t] = n.entity, delete n.entity), n;
 }
-function Jl(e, t, n, r) {
+function Jl(e, t, n, r, i = {}) {
 	return this._renderTemplateInput(e, t, {
+		...i,
 		value: r[t] || "",
 		onValueChanged: (e) => this._updateStatusItem(n, { [t]: e })
 	});

@@ -71,6 +71,7 @@ export function renderInput(label, key, placeholder, options = {}) {
 export function renderTemplateInput(label, key, options = {}) {
     const value = options.value ?? this._config?.[key] ?? "";
     const hideLabel = options.hideLabel === true;
+    const required = options.required !== false;
     const handleValueChanged = options.onValueChanged ||
       ((nextValue) =>
         this._handleConfigUpdate(
@@ -86,6 +87,7 @@ export function renderTemplateInput(label, key, options = {}) {
           .selector=${{
             template: {},
           }}
+          .required=${required}
           .value=${value}
           @value-changed=${(e) =>
             handleValueChanged(e.detail.value || "")}

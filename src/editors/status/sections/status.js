@@ -120,7 +120,10 @@ export function renderStatusSection() {
                             stateSource === "template"
                               ? "State"
                               : "State template",
-                            "state_template"
+                            "state_template",
+                            {
+                              required: stateSource !== "template",
+                            }
                           )}
                         `}
                   `)}
@@ -358,7 +361,10 @@ function renderIconOnlyStatusConfig({
                   : "State template",
                 "state_template",
                 selectedIndex,
-                selectedItem
+                selectedItem,
+                {
+                  required: selectedStateSource !== "template",
+                }
               )}
             `}
       `)}
@@ -476,8 +482,9 @@ function mapStatusStateChanges(changes, entityKey) {
   return mapped;
 }
 
-function renderStatusItemInput(label, key, index, item) {
+function renderStatusItemInput(label, key, index, item, options = {}) {
   return this._renderTemplateInput(label, key, {
+    ...options,
     value: item[key] || "",
     onValueChanged: (value) =>
       this._updateStatusItem(index, {
