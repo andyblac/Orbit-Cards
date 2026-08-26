@@ -169,7 +169,6 @@ export function renderStatusSection() {
                       formKey: "icon_tap_action",
                       label: "Icon tap behavior",
                       defaultAction: mainEntityActionDefault,
-                      defaultVisible: true,
                       customDefaultLabel:
                         mainEntityActionDefault === CURRENT_STATE_ACTION
                           ? CURRENT_STATE_ACTION

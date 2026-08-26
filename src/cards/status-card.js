@@ -315,20 +315,16 @@ class OrbitStatusCard extends LitElement {
     }
 
     const mainEntity = this._getStatusItemEntityId(0);
-    const sourceConfig = this._config?.mode === "icon_only"
-      ? getIconOnlyStatusItems(this._config)[0] || {}
-      : this._config;
+    const tapAction =
+      this._getMainEntityTapAction() || this._getCardTapAction();
 
-    if (
-      !mainEntity &&
-      getStatusBadgeStateSource(sourceConfig) !== "area_count"
-    ) return;
+    if (!mainEntity && !canExecuteStatusActionWithoutEntity(tapAction)) return;
 
     handleTapAction.call(
       this,
       ev,
       mainEntity,
-      this._getMainEntityTapAction() || this._getCardTapAction(),
+      tapAction,
       this._getMainEntityDoubleTapAction()
     );
   }
@@ -419,12 +415,7 @@ class OrbitStatusCard extends LitElement {
       return;
     }
 
-    const isAreaCount = getStatusBadgeStateSource(
-      this._statusItems?.[index]
-    ) === "area_count";
     const entityId = this._getStatusItemEntityId(index);
-
-    if (!entityId && !isAreaCount) return;
 
     const actionConfig = this._isStatusItemMainIconEvent(ev)
       ? this._getStatusItemMainEntityTapAction(index)
@@ -432,6 +423,11 @@ class OrbitStatusCard extends LitElement {
     const doubleTapAction = this._isStatusItemMainIconEvent(ev)
       ? this._getStatusItemMainEntityDoubleTapAction(index)
       : this._getStatusItemCardDoubleTapAction(index);
+
+    if (
+      !entityId &&
+      !canExecuteStatusActionWithoutEntity(actionConfig)
+    ) return;
 
     handleTapAction.call(
       this,
@@ -923,6 +919,25 @@ class OrbitStatusCard extends LitElement {
   }
 
   static styles = [...statusCardStyles, activeEntitiesDialogStyles];
+}
+
+function canExecuteStatusActionWithoutEntity(actionConfig) {
+  const action = actionConfig?.action;
+
+  if (action === CURRENT_STATE_ACTION) return true;
+  if (action === "more-info") {
+    return Boolean(actionConfig.entity || actionConfig.entity_id);
+  }
+
+  return [
+    "navigate",
+    "url",
+    "perform-action",
+    "call-service",
+    "fire-dom-event",
+    "popup",
+    "none",
+  ].includes(action);
 }
 
 function getStatusColumnCount(config = {}, count = 1) {

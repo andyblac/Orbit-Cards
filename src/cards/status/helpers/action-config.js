@@ -26,17 +26,8 @@ export function getMainEntityTapAction() {
   const sourceConfig = getPrimaryStatusConfig(this);
   const actionConfig = sourceConfig.entity_tap_action;
 
-  if (actionConfig?.action === "none") return null;
   if (actionConfig?.action) return actionConfig;
-  if (getStatusBadgeStateSource(sourceConfig) === "area_count") {
-    return { action: CURRENT_STATE_ACTION };
-  }
-
-  return this._isIconOnlyMode() || this._isPersonMode()
-    ? null
-    : {
-        action: "more-info",
-      };
+  return getCardTapAction.call(this);
 }
 
 export function getMainEntityDoubleTapAction() {
@@ -141,22 +132,12 @@ export function getStatusItemCardDoubleTapAction(index = 0) {
 export function getStatusItemMainEntityTapAction(index = 0) {
   const item = this._statusItems?.[index];
 
-  if (
-    item?.entity_tap_action?.action &&
-    item.entity_tap_action.action !== "none"
-  ) {
+  if (item?.entity_tap_action?.action) {
     return item.entity_tap_action;
   }
 
-  if (
-    this._config.entity_tap_action?.action &&
-    this._config.entity_tap_action.action !== "none"
-  ) {
+  if (this._config.entity_tap_action?.action) {
     return this._config.entity_tap_action;
-  }
-
-  if (getStatusBadgeStateSource(item) === "area_count") {
-    return { action: CURRENT_STATE_ACTION, status_index: index };
   }
 
   return this._getStatusItemCardTapAction(index);
