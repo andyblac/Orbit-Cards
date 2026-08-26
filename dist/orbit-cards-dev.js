@@ -5789,8 +5789,6 @@ select {
 }
 `
 ], is = {
-	Above: "Above",
-	Below: "Below",
 	Stronger: "Stronger",
 	Weaker: "Weaker",
 	"Current state": "Current state",
@@ -5863,8 +5861,6 @@ select {
 	"Low sensors": "Low sensors",
 	"Low sensors are only used when a device has no percentage sensor.": "Low sensors are only used when a device has no percentage sensor."
 }, as = {
-	Above: "Above",
-	Below: "Below",
 	Stronger: "Stronger",
 	Weaker: "Weaker",
 	"Current state": "Current state",
@@ -5937,8 +5933,6 @@ select {
 	"Low sensors": "Low sensors",
 	"Low sensors are only used when a device has no percentage sensor.": "Low sensors are only used when a device has no percentage sensor."
 }, os = {
-	Above: "Über",
-	Below: "Unter",
 	Stronger: "Stärker",
 	Weaker: "Schwächer",
 	"Current state": "Aktueller Zustand",
@@ -6011,8 +6005,6 @@ select {
 	"Low sensors": "Sensoren für niedrigen Batteriestand",
 	"Low sensors are only used when a device has no percentage sensor.": "Sensoren für niedrigen Batteriestand werden nur verwendet, wenn ein Gerät keinen Prozentsensor hat."
 }, ss = {
-	Above: "Por encima",
-	Below: "Por debajo",
 	Stronger: "Más fuerte",
 	Weaker: "Más débil",
 	"Current state": "Estado actual",
@@ -6085,8 +6077,6 @@ select {
 	"Low sensors": "Sensores de batería baja",
 	"Low sensors are only used when a device has no percentage sensor.": "Los sensores de batería baja solo se usan cuando un dispositivo no tiene un sensor de porcentaje."
 }, cs = {
-	Above: "Au-dessus",
-	Below: "En dessous",
 	Stronger: "Plus fort",
 	Weaker: "Plus faible",
 	"Current state": "État actuel",
@@ -6159,8 +6149,6 @@ select {
 	"Low sensors": "Capteurs de batterie faible",
 	"Low sensors are only used when a device has no percentage sensor.": "Les capteurs de batterie faible ne sont utilisés que lorsqu’un appareil ne possède pas de capteur de pourcentage."
 }, ls = {
-	Above: "Sopra",
-	Below: "Sotto",
 	Stronger: "Più forte",
 	Weaker: "Più debole",
 	"Current state": "Stato attuale",
@@ -6233,8 +6221,6 @@ select {
 	"Low sensors": "Sensori di batteria scarica",
 	"Low sensors are only used when a device has no percentage sensor.": "I sensori di batteria scarica vengono usati solo quando un dispositivo non dispone di un sensore percentuale."
 }, us = {
-	Above: "Boven",
-	Below: "Onder",
 	Stronger: "Sterker",
 	Weaker: "Zwakker",
 	"Current state": "Huidige status",
@@ -6307,8 +6293,6 @@ select {
 	"Low sensors": "Sensoren voor lage batterij",
 	"Low sensors are only used when a device has no percentage sensor.": "Sensoren voor lage batterij worden alleen gebruikt als een apparaat geen percentagesensor heeft."
 }, ds = {
-	Above: "Acima",
-	Below: "Abaixo",
 	Stronger: "Mais forte",
 	Weaker: "Mais fraco",
 	"Current state": "Estado atual",
