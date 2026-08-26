@@ -1,6 +1,7 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { isEntityUnavailable } from "../../../common/helpers/entities.js";
+import { STATUS_PREVIEW_SELECTED_INDEX } from "../../../editors/status-card-editor.js";
 
 export function renderStatusCard() {
   const mode = this._config?.mode || "standard";
@@ -139,6 +140,14 @@ function renderIconOnlyStatusStack(items, columnCount) {
 }
 
 function renderIconOnlyStatusItem(item, index) {
+  const previewSelectedIndex =
+    this._config?.[STATUS_PREVIEW_SELECTED_INDEX];
+  const isPreviewSelected =
+    Number.isInteger(previewSelectedIndex) &&
+    previewSelectedIndex === index;
+  const previewClass = isPreviewSelected
+    ? "orbit-editor-preview-selected"
+    : "";
   const badgeText = getIconOnlyStatusText(item.statusText);
   const iconPath = this._isImageIcon(item.icon)
     ? this._resolveIconPath(item.icon)
@@ -185,7 +194,7 @@ function renderIconOnlyStatusItem(item, index) {
   if (isFlattenedGroup) {
     return html`
       <div
-        class="status-icon-item"
+        class="status-icon-item ${previewClass}"
         style="
           --status-circle-color:${item.circleColor};
           --status-icon-color:${item.iconColor};
@@ -205,7 +214,7 @@ function renderIconOnlyStatusItem(item, index) {
 
   return html`
     <ha-card
-      class="status-icon-item"
+      class="status-icon-item ${previewClass}"
       style="
         --status-circle-color:${item.circleColor};
         --status-icon-color:${item.iconColor};

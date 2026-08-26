@@ -639,12 +639,17 @@ class OrbitDeckCard extends LitElement {
       entry?.item,
       entry?.index
     );
+    const previewSelectedIndex =
+      this._config?.[DECK_PREVIEW_SELECTED_INDEX];
+    const isPreviewSelected =
+      Number.isInteger(previewSelectedIndex) &&
+      previewSelectedIndex === entry?.index;
 
     return html`
       <div
         class="deck-item-interaction ${hasActions ? "has-actions" : ""} ${
           transparentBackground ? "transparent-background" : ""
-        }"
+        } ${isPreviewSelected ? "orbit-editor-preview-selected" : ""}"
         data-deck-index=${entry?.index ?? ""}
       >
         ${this._renderDeckEntry(entry)}

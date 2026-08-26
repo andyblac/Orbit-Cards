@@ -1,6 +1,9 @@
 import { css } from "lit";
+import { EditorPreviewSelectionStyles } from "../../../common/styles/editor-preview-selection.js";
 
-export const deckCardStyles = css`
+export const deckCardStyles = [
+  EditorPreviewSelectionStyles,
+  css`
   ha-card.deck-card {
     border-radius: var(--ha-card-border-radius, 15px);
     overflow: visible;
@@ -205,4 +208,5 @@ export const deckCardStyles = css`
     font-weight: var(--ha-font-weight-bold, 700);
     margin-bottom: 8px;
   }
-`;
+`,
+];

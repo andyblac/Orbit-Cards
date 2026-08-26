@@ -48,6 +48,10 @@ import {
   STATUS_SOURCE_CONFIG_KEYS,
 } from "../common/helpers/status-badge.js";
 
+export const STATUS_PREVIEW_SELECTED_INDEX = Symbol.for(
+  "orbit-status-card-preview-selected-index"
+);
+
 class OrbitStatusCardEditor extends LitElement {
   static svgCache = sharedSvgCache;
 
@@ -136,7 +140,9 @@ class OrbitStatusCardEditor extends LitElement {
 
       this.dispatchEvent(new CustomEvent("config-changed", {
         detail: {
-          config: orderStatusConfig(this._config),
+          config: this._getPreviewConfig(
+            orderStatusConfig(this._config)
+          ),
         },
         bubbles: true,
         composed: true,
@@ -151,11 +157,18 @@ class OrbitStatusCardEditor extends LitElement {
 
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
-        config: this._config,
+        config: this._getPreviewConfig(),
       },
       bubbles: true,
       composed: true,
     }));
+  }
+
+  _getPreviewConfig(config = this._config) {
+    return {
+      ...config,
+      [STATUS_PREVIEW_SELECTED_INDEX]: this._selectedStatusIndex || 0,
+    };
   }
 
   _handleInput(key, e) {
@@ -287,6 +300,13 @@ class OrbitStatusCardEditor extends LitElement {
 
   _selectStatusItem(index) {
     this._selectedStatusIndex = index;
+    this.dispatchEvent(new CustomEvent("config-changed", {
+      detail: {
+        config: this._getPreviewConfig(),
+      },
+      bubbles: true,
+      composed: true,
+    }));
   }
 
   _addStatusItem() {

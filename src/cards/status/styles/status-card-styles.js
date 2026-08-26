@@ -3,11 +3,13 @@ import { css } from "lit";
 import { CardHeaderStyles } from "../../../common/styles/header.js";
 import { CardShellStyles } from "../../../common/styles/card-shell.js";
 import { MainIconStyles } from "../../../common/styles/main-icon.js";
+import { EditorPreviewSelectionStyles } from "../../../common/styles/editor-preview-selection.js";
 
 export const statusCardStyles = [
   CardHeaderStyles,
   CardShellStyles,
   MainIconStyles,
+  EditorPreviewSelectionStyles,
   css`
   ha-card {
     aspect-ratio: 3 / 1;
