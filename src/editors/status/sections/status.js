@@ -86,10 +86,10 @@ export function renderStatusSection() {
                   ${this._renderEntity("Battery entity {index}", "battery_entity_2", { index: 2 })}
                   ${this._renderColorPair({
                     label: "Color",
-                    onLabel: ["Accent", "Active", "Color"],
-                    offLabel: ["Accent", "Inactive", "Color"],
-                    onKey: "accent_on_color",
-                    offKey: "accent_off_color",
+                    onLabel: ["Active", "Color"],
+                    offLabel: ["Inactive", "Color"],
+                    onKey: "color_on",
+                    offKey: "color_off",
                     sourceKey: "color_source",
                     templateKey: "color",
                     legacySourceKey: "accent_color_source",
@@ -111,10 +111,10 @@ export function renderStatusSection() {
                     ${renderStatusNamePicker.call(this)}
                     ${this._renderColorPair({
                       label: "Color",
-                      onLabel: ["Accent", "Active", "Color"],
-                      offLabel: ["Accent", "Inactive", "Color"],
-                      onKey: "accent_on_color",
-                      offKey: "accent_off_color",
+                      onLabel: ["Active", "Color"],
+                      offLabel: ["Inactive", "Color"],
+                      onKey: "color_on",
+                      offKey: "color_off",
                       sourceKey: "color_source",
                       templateKey: "color",
                       legacySourceKey: "accent_color_source",
@@ -342,10 +342,10 @@ function renderIconOnlyStatusConfig({
 
         ${this._renderColorPair({
           label: "Color",
-          onLabel: ["Accent", "Active", "Color"],
-          offLabel: ["Accent", "Inactive", "Color"],
-          onKey: "accent_on_color",
-          offKey: "accent_off_color",
+          onLabel: ["Active", "Color"],
+          offLabel: ["Inactive", "Color"],
+          onKey: "color_on",
+          offKey: "color_off",
           sourceKey: "color_source",
           templateKey: "color",
           legacySourceKey: "accent_color_source",

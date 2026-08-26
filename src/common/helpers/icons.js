@@ -14,7 +14,7 @@ export function resolveIconTemplate(iconInput, entityId = "") {
 export function getMainIconColor(stateObj, isOn) {
   const accentColor = resolveColorTemplate.call(
     this,
-    this._config.accent_color || "theme"
+    this._config.color || "theme"
   );
 
   if (!isOn) {

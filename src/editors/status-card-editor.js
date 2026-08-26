@@ -125,13 +125,18 @@ class OrbitStatusCardEditor extends LitElement {
       migrated,
     } = migrateStatusCardConfig(config || {});
 
-    this._config = orderStatusConfig(migratedConfig || {});
+    const orderedConfig = orderStatusConfig(migratedConfig || {});
+    const orderChanged = !hasSameConfigSerialization(
+      migratedConfig || {},
+      orderedConfig
+    );
+    this._config = orderedConfig;
     this._selectedStatusIndex = Math.min(
       this._selectedStatusIndex || 0,
       this._getStatusItems(this._config).length - 1
     );
 
-    if (migrated || presentationMigrated) {
+    if (migrated || presentationMigrated || orderChanged) {
       this._queueConfigMigration();
     }
   }
@@ -249,8 +254,8 @@ class OrbitStatusCardEditor extends LitElement {
         color: config?.color || config?.accent_color || "",
         accent_color_source: config?.accent_color_source || "",
         accent_color: config?.accent_color || "",
-        accent_on_color: config?.accent_on_color || "",
-        accent_off_color: config?.accent_off_color || "",
+        color_on: config?.color_on || "",
+        color_off: config?.color_off || "",
         icon_source: config?.icon_source ||
           config?.entity_icon_source || "",
         icon: config?.icon || config?.entity_icon || "",
@@ -293,8 +298,8 @@ class OrbitStatusCardEditor extends LitElement {
         color: item.color,
         accent_color_source: item.accent_color_source,
         accent_color: item.accent_color,
-        accent_on_color: item.accent_on_color,
-        accent_off_color: item.accent_off_color,
+        color_on: item.color_on,
+        color_off: item.color_off,
         icon_source: item.icon_source,
         icon: item.icon,
         icon_on: item.icon_on,
@@ -464,8 +469,8 @@ class OrbitStatusCardEditor extends LitElement {
       color: nextItem.color || "",
       accent_color_source: nextItem.accent_color_source || "",
       accent_color: nextItem.accent_color || "",
-      accent_on_color: nextItem.accent_on_color || "",
-      accent_off_color: nextItem.accent_off_color || "",
+      color_on: nextItem.color_on || "",
+      color_off: nextItem.color_off || "",
       icon_source: nextItem.icon_source || "",
       icon: nextItem.icon || "",
       icon_on: nextItem.icon_on || "",
@@ -728,10 +733,8 @@ const STATUS_ENTITY_DEPENDENT_KEYS = [
   ...STATUS_SOURCE_CONFIG_KEYS,
   "color_source",
   "color",
-  "accent_color_source",
-  "accent_color",
-  "accent_on_color",
-  "accent_off_color",
+  "color_on",
+  "color_off",
   "icon_source",
   "icon",
   "icon_on",
@@ -739,11 +742,6 @@ const STATUS_ENTITY_DEPENDENT_KEYS = [
   "icon_svg_color_override",
   "icon_on_svg_color_override",
   "icon_off_svg_color_override",
-  "entity_icon_source",
-  "entity_icon_template",
-  "entity_icon",
-  "entity_icon_on",
-  "entity_icon_off",
   "state_template",
   "name_template",
   "tap_action",
@@ -766,10 +764,8 @@ const PERSON_ENTITY_DEPENDENT_KEYS = [
   "battery_entity_2",
   "color_source",
   "color",
-  "accent_color_source",
-  "accent_color",
-  "accent_on_color",
-  "accent_off_color",
+  "color_on",
+  "color_off",
   "tap_action",
   "hold_action",
   "double_tap_action",
@@ -793,12 +789,13 @@ const STATUS_ITEM_KEYS = [
   "hide",
   "active_template",
   "inactive_template",
+  "entity_tap_action",
+  "entity_hold_action",
+  "entity_double_tap_action",
   "color_source",
   "color",
-  "accent_color_source",
-  "accent_color",
-  "accent_on_color",
-  "accent_off_color",
+  "color_on",
+  "color_off",
   "icon_source",
   "icon",
   "icon_on",
@@ -806,22 +803,11 @@ const STATUS_ITEM_KEYS = [
   "icon_svg_color_override",
   "icon_on_svg_color_override",
   "icon_off_svg_color_override",
-  "entity_icon_source",
-  "entity_icon_template",
-  "entity_icon",
-  "entity_icon_on",
-  "entity_icon_off",
-  "entity_icon_svg_color_override",
-  "entity_icon_on_svg_color_override",
-  "entity_icon_off_svg_color_override",
   "state_template",
   "name_template",
   "tap_action",
   "hold_action",
   "double_tap_action",
-  "entity_tap_action",
-  "entity_hold_action",
-  "entity_double_tap_action",
 ];
 
 const STATUS_STATE_CONFIG_ORDER = [
@@ -840,10 +826,8 @@ const STATUS_STATE_CONFIG_ORDER = [
 const STATUS_COLOR_ICON_CONFIG_ORDER = [
   "color_source",
   "color",
-  "accent_color_source",
-  "accent_color",
-  "accent_on_color",
-  "accent_off_color",
+  "color_on",
+  "color_off",
   "icon_source",
   "icon",
   "icon_on",
@@ -851,20 +835,15 @@ const STATUS_COLOR_ICON_CONFIG_ORDER = [
   "icon_svg_color_override",
   "icon_on_svg_color_override",
   "icon_off_svg_color_override",
-  "entity_icon_source",
-  "entity_icon_template",
-  "entity_icon",
-  "entity_icon_on",
-  "entity_icon_off",
-  "entity_icon_svg_color_override",
-  "entity_icon_on_svg_color_override",
-  "entity_icon_off_svg_color_override",
 ];
 
-const STATUS_INTERACTION_CONFIG_ORDER = [
+const STATUS_CARD_INTERACTION_CONFIG_ORDER = [
   "tap_action",
   "hold_action",
   "double_tap_action",
+];
+
+const STATUS_ENTITY_INTERACTION_CONFIG_ORDER = [
   "entity_tap_action",
   "entity_hold_action",
   "entity_double_tap_action",
@@ -874,11 +853,12 @@ const STATUS_STANDARD_CONFIG_ORDER = [
   "type",
   "mode",
   ...STATUS_STATE_CONFIG_ORDER,
+  ...STATUS_ENTITY_INTERACTION_CONFIG_ORDER,
   "name",
   "name_template",
   ...STATUS_COLOR_ICON_CONFIG_ORDER,
   "state_template",
-  ...STATUS_INTERACTION_CONFIG_ORDER,
+  ...STATUS_CARD_INTERACTION_CONFIG_ORDER,
   "grid_options",
   "view_layout",
 ];
@@ -893,8 +873,9 @@ const STATUS_PERSON_CONFIG_ORDER = [
   "eta_entity",
   "battery_entity_1",
   "battery_entity_2",
+  ...STATUS_ENTITY_INTERACTION_CONFIG_ORDER,
   ...STATUS_COLOR_ICON_CONFIG_ORDER,
-  ...STATUS_INTERACTION_CONFIG_ORDER,
+  ...STATUS_CARD_INTERACTION_CONFIG_ORDER,
   "grid_options",
   "view_layout",
 ];
@@ -906,7 +887,7 @@ const STATUS_ICON_ONLY_CONFIG_ORDER = [
   "separate_cards",
   "items_per_row",
   "entities",
-  ...STATUS_INTERACTION_CONFIG_ORDER,
+  ...STATUS_CARD_INTERACTION_CONFIG_ORDER,
   "grid_options",
   "view_layout",
 ];
@@ -945,6 +926,10 @@ function orderStatusConfig(config) {
   });
 
   return ordered;
+}
+
+function hasSameConfigSerialization(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 function moveRootAreaCountToStatusItems(config) {

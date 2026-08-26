@@ -1,5 +1,6 @@
 import { getEntityAreaId } from "./suggestions.js";
 import { getEntityActiveState } from "./entities.js";
+import { migrateStatusBadgeConfig } from "./config-migration.js";
 
 export const STATUS_BADGE_DOMAINS = [
   { value: "light", label: "Lights", icon: "mdi:lightbulb" },
@@ -173,8 +174,9 @@ export function shouldHideStatusBadgeEntity(hass, entityId, config = {}) {
 }
 
 export function normalizeStatusBadgeConfig(config = {}) {
-  const stateSource = getStatusBadgeStateSource(config);
-  const normalized = { ...config };
+  const migratedConfig = migrateStatusBadgeConfig(config).config;
+  const stateSource = getStatusBadgeStateSource(migratedConfig);
+  const normalized = { ...migratedConfig };
 
   Object.keys(normalized).forEach((key) => {
     if (normalized[key] === "" || normalized[key] === undefined) {
@@ -327,18 +329,18 @@ export function normalizeStatusBadgeConfig(config = {}) {
   // real colour override has been selected.
   if (
     ["", "theme", "state", "state-active"].includes(
-      normalized.accent_on_color
+      normalized.color_on
     )
   ) {
-    delete normalized.accent_on_color;
+    delete normalized.color_on;
   }
 
   if (
     ["", "theme", "state", "state-inactive"].includes(
-      normalized.accent_off_color
+      normalized.color_off
     )
   ) {
-    delete normalized.accent_off_color;
+    delete normalized.color_off;
   }
 
   return normalized;

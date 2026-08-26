@@ -158,7 +158,7 @@ export function renderColorPair({
   offPreviewValue,
   pickerPrefix = "",
 } = {}) {
-  const baseKey = onKey?.replace(/_on_color$/, "") || "accent";
+  const baseKey = onKey?.replace(/(?:_on_color|_color_on)$/, "") || "color";
   const effectiveSourceKey = sourceKey || `${baseKey}_color_source`;
   const effectiveTemplateKey = templateKey || `${baseKey}_color`;
   const configuredSource = config[effectiveSourceKey] ??

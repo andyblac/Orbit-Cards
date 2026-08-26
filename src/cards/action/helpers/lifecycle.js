@@ -24,12 +24,11 @@ export function getActionItems(config = {}) {
   return [
     {
       entity: config.main_entity,
-      accent_color: config.accent_color,
-      main_entity_icon_source: config.main_entity_icon_source,
-      main_entity_icon_template: config.main_entity_icon_template,
-      main_entity_icon: config.main_entity_icon,
-      main_entity_icon_svg_color_override:
-        config.main_entity_icon_svg_color_override,
+      color: config.color,
+      icon_source: config.icon_source,
+      icon: config.icon,
+      icon_svg_color_override:
+        config.icon_svg_color_override,
       tap_action: config.tap_action,
       hold_action: config.hold_action,
       double_tap_action: config.double_tap_action,
@@ -45,7 +44,7 @@ function getActionState(item) {
       : null;
 
   const accentColor =
-    item.accent_color || this._config.accent_color || "theme";
+    item.color || this._config.color || "theme";
   this._orbitColorTemplateEntityId = entityId || "";
 
   const isRunning = isActionEntityRunning(stateObj);
@@ -59,26 +58,15 @@ function getActionState(item) {
     ["custom", "template"].includes(iconSource)
       ? resolveIconTemplate.call(
           this,
-          iconSource === "template"
-            ? item.main_entity_icon_template ||
-              item.icon_template ||
-              item.main_entity_icon ||
-              item.icon
-            : item.main_entity_icon || item.icon,
+          item.icon,
           entityId
         )
       : "";
 
   const selectedIconKey =
-    iconSource === "template" && customIcon
-      ? item.main_entity_icon_template || item.main_entity_icon
-        ? "main_entity_icon"
-        : "icon"
-      : iconSource === "custom" && item.main_entity_icon
-      ? "main_entity_icon"
-      : iconSource === "custom" && item.icon
-        ? "icon"
-        : "";
+    ["custom", "template"].includes(iconSource) && customIcon
+      ? "icon"
+      : "";
 
   const icon = customIcon || "mdi:play-circle";
 
@@ -100,9 +88,9 @@ function getActionState(item) {
 }
 
 function getItemIconSource(item, entityId) {
-  const savedSource = item.main_entity_icon_source;
+  const savedSource = item.icon_source;
   const hasEntity = Boolean(entityId);
-  const hasCustomIcon = Boolean(item.main_entity_icon || item.icon);
+  const hasCustomIcon = Boolean(item.icon);
 
   if (savedSource === "custom") return "custom";
   if (savedSource === "template") return "template";

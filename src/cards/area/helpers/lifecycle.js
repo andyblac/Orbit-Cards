@@ -25,8 +25,17 @@ export function updateAreaCard(changedProps) {
       ? this.hass.states[mainEntity]
       : null;
 
-  const isOn =
-    mainStateObj
+  const mainStateTemplate = this._config?.state_template;
+  const evaluatedMainState = this._evaluateStateTemplate(
+    mainStateTemplate,
+    mainEntity
+  );
+  const isOn = mainStateTemplate
+    ? getTemplateResultActiveState(
+        evaluatedMainState,
+        mainEntity?.split(".")[0] || ""
+      )
+    : mainStateObj
       ? this._getEntityActiveState(mainStateObj)
       : false;
 
@@ -36,18 +45,15 @@ export function updateAreaCard(changedProps) {
   );
 
   const customIconOn =
-    this._config.main_entity_icon_on;
+    this._config.icon_on;
 
   const customIconOff =
-    this._config.main_entity_icon_off;
+    this._config.icon_off;
   const iconSource =
     getMainEntityIconSource(this._config, areaId, mainEntity);
   const customIcon = resolveIconTemplate.call(
     this,
-    iconSource === "template"
-      ? this._config.main_entity_icon_template ||
-        this._config.main_entity_icon
-      : this._config.main_entity_icon,
+    this._config.icon,
     mainEntity
   );
   const useCustomIcon =
@@ -76,13 +82,13 @@ export function updateAreaCard(changedProps) {
 
   const selectedIconKey =
     iconSource === "template" && customIcon
-      ? "main_entity_icon"
+      ? "icon"
       : useCustomIcon && isOn && customIconOn
-        ? "main_entity_icon_on"
+        ? "icon_on"
         : useCustomIcon && !isOn && customIconOff
-          ? "main_entity_icon_off"
+          ? "icon_off"
           : useCustomIcon && customIcon
-            ? "main_entity_icon"
+            ? "icon"
             : "";
 
   this._icon = customStateIcon || areaIcon;
@@ -115,10 +121,7 @@ function getStatusItems() {
       );
       const customIcon = resolveIconTemplate.call(
         this,
-        iconSource === "template"
-          ? this._config[`${iconKey}_icon_template`] ||
-            this._config[`${iconKey}_icon`]
-          : this._config[`${iconKey}_icon`],
+        this._config[`${iconKey}_icon`],
         entityId
       );
       const icon = ["custom", "template"].includes(iconSource)
@@ -289,13 +292,16 @@ function getAreaButtonModel(prefix, entityId, index, options) {
     stateTemplate,
     entityId
   );
+  const entityDomain = entityId.split(".")[0];
 
   const isOn = stateTemplate
     ? getTemplateResultActiveState(
         evaluatedState,
-        entityId.split(".")[0]
+        entityDomain
       )
-    : this._getEntityActiveState(stateObj);
+    : PASSIVE_AREA_BUTTON_DOMAINS.has(entityDomain)
+      ? false
+      : this._getEntityActiveState(stateObj);
 
   const iconSource = getButtonIconSource.call(
     this,
@@ -352,6 +358,35 @@ function getAreaButtonModel(prefix, entityId, index, options) {
   };
 }
 
+const PASSIVE_AREA_BUTTON_DOMAINS = new Set([
+  "ai_task",
+  "button",
+  "conversation",
+  "date",
+  "datetime",
+  "event",
+  "image",
+  "infrared",
+  "input_button",
+  "input_datetime",
+  "input_number",
+  "input_select",
+  "input_text",
+  "notify",
+  "number",
+  "radio_frequency",
+  "scene",
+  "select",
+  "sensor",
+  "stt",
+  "tag",
+  "text",
+  "time",
+  "tts",
+  "wake_word",
+  "weather",
+]);
+
 function getButtonSvgColorOverride(key, isOn) {
   const iconSource = getButtonIconSource.call(this, key);
 
@@ -365,7 +400,7 @@ function getButtonSvgColorOverride(key, isOn) {
 
   const iconKey =
     iconSource === "template"
-      ? this._config?.[`${key}_icon_template`] || customIcon
+      ? customIcon
         ? `${key}_icon`
         : ""
       : isOn && customIconOn
@@ -387,10 +422,7 @@ function getButtonIcon(key, isOn) {
   const iconSource = getButtonIconSource.call(this, key);
   const customIcon = resolveIconTemplate.call(
     this,
-    iconSource === "template"
-      ? this._config?.[`${key}_icon_template`] ||
-        this._config?.[`${key}_icon`]
-      : this._config?.[`${key}_icon`],
+    this._config?.[`${key}_icon`],
     this._config?.[key] || ""
   );
 
@@ -471,7 +503,7 @@ function getResolvedButtonOnColor(key, stateObj) {
 
   return (
     this._getEntityColor(stateObj) ||
-    this._config.accent_color ||
+    this._config.color ||
     "theme"
   );
 }
@@ -479,7 +511,7 @@ function getResolvedButtonOnColor(key, stateObj) {
 function getCurveButtonIconColor(_key, _stateObj, isOn) {
   const areaColor = resolveColorTemplate.call(
     this,
-    this._config.accent_color || "theme"
+    this._config.color || "theme"
   );
 
   if (areaColor === "theme") {
@@ -525,7 +557,7 @@ function getConfiguredButtonColor(key, isOn, fallback = "theme") {
   }
 
   return this._config?.[
-    `${key}_${isOn ? "on" : "off"}_color`
+    `${key}_color_${isOn ? "on" : "off"}`
   ] || fallback;
 }
 
@@ -540,7 +572,7 @@ function getCurveButtonCustomIconColor(key, stateObj, isOn, customColor) {
 }
 
 function getMainEntityIconSource(config = {}, areaId, mainEntity) {
-  const savedSource = config.main_entity_icon_source;
+  const savedSource = config.icon_source;
   const hasArea = Boolean(areaId);
   const hasEntity = Boolean(mainEntity);
 

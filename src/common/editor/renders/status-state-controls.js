@@ -53,14 +53,9 @@ export function renderBadgeIconControl(stateSource = "entity") {
             const value = e.detail.value;
 
             if (
-              iconSource === "template" &&
-              value !== "template" &&
-              hasNativeTemplateSyntax(this._config?.icon)
+              iconSource !== value &&
+              [iconSource, value].includes("template")
             ) {
-              this._handleConfigUpdate(
-                "icon_template",
-                this._config.icon
-              );
               this._handleConfigUpdate("icon", "");
             }
 
@@ -94,19 +89,12 @@ export function renderBadgeIconControl(stateSource = "entity") {
               <ha-selector
                 .hass=${this.hass}
                 .selector=${{ template: {} }}
-                .value=${this._config?.icon_template ||
-                  (hasNativeTemplateSyntax(this._config?.icon)
-                    ? this._config.icon
-                    : "")}
-                @value-changed=${(event) => {
-                  if (hasNativeTemplateSyntax(this._config?.icon)) {
-                    this._handleConfigUpdate("icon", "");
-                  }
+                .value=${this._config?.icon || ""}
+                @value-changed=${(event) =>
                   this._handleConfigUpdate(
-                    "icon_template",
+                    "icon",
                     event.detail.value || ""
-                  );
-                }}
+                  )}
               ></ha-selector>
             </div>
           `

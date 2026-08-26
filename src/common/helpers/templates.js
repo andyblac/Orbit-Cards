@@ -108,6 +108,9 @@ export function getTemplateResultActiveState(result, domain = "") {
     return numericResult !== 0;
   }
 
+  if (["true", "yes"].includes(normalized)) return true;
+  if (["false", "no"].includes(normalized)) return false;
+
   return getNativeStateActiveState(normalized, domain);
 }
 

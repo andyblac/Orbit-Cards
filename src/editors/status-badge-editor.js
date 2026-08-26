@@ -36,6 +36,7 @@ import {
   syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
 import { CARD_VERSIONS } from "../version.js";
+import { migrateStatusBadgeConfig } from "../common/helpers/config-migration.js";
 import {
   renderBadgeIconControl,
   renderBadgeStateControl,
@@ -251,7 +252,18 @@ class OrbitStatusBadgeEditor extends LitElement {
   }
 
   setConfig(config) {
-    this._config = normalizeStatusBadgeConfig(config || {});
+    const { config: migratedConfig, migrated } =
+      migrateStatusBadgeConfig(config || {});
+    const normalizedConfig = normalizeStatusBadgeConfig(migratedConfig);
+    const orderedConfig = orderStatusBadgeConfig(normalizedConfig);
+    const orderChanged = !hasSameConfigSerialization(
+      migratedConfig,
+      orderedConfig
+    );
+    this._config = orderedConfig;
+    if (migrated || orderChanged) {
+      queueMicrotask(() => this._dispatchConfigChanged(this._config));
+    }
   }
 
   _t(key, replacements) {
@@ -259,8 +271,10 @@ class OrbitStatusBadgeEditor extends LitElement {
   }
 
   _updateConfig(changes) {
-    this._config = normalizeStatusBadgeConfig(
-      mergeConfig(this._config, changes)
+    this._config = orderStatusBadgeConfig(
+      normalizeStatusBadgeConfig(
+        mergeConfig(this._config, changes)
+      )
     );
     this._dispatchConfigChanged(this._config);
   }
@@ -275,7 +289,7 @@ class OrbitStatusBadgeEditor extends LitElement {
 
   _handleConfigUpdate(key, value) {
     const nativeColorDefault =
-      ["accent_on_color", "accent_off_color"].includes(key) &&
+      ["color_on", "color_off"].includes(key) &&
       (!value || value === "theme");
     this._updateConfig({
       [key]: nativeColorDefault || value === "" ? undefined : value,
@@ -480,8 +494,8 @@ class OrbitStatusBadgeEditor extends LitElement {
 
               ${this._renderColorPair({
                 label: "Color",
-                onKey: "accent_on_color",
-                offKey: "accent_off_color",
+                onKey: "color_on",
+                offKey: "color_off",
                 onPreviewValue: badgeMode ? "white" : "theme",
                 offPreviewValue: badgeMode ? "white" : "theme",
               })}
@@ -660,6 +674,91 @@ class OrbitStatusBadgeEditor extends LitElement {
     `,
   ];
 
+}
+
+const STATUS_BADGE_STATE_KEYS = [
+  "state_source",
+  "entity",
+  "area",
+  "domain",
+  "device_class",
+  "threshold",
+  "thresholds",
+  "hide",
+  "active_template",
+  "inactive_template",
+  "name_template",
+  "state_template",
+];
+
+const STATUS_BADGE_CONTENT_KEYS = [
+  "card_color",
+  "name",
+  "color_source",
+  "color",
+  "color_on",
+  "color_off",
+  "icon_source",
+  "icon",
+  "icon_on",
+  "icon_off",
+  "icon_svg_color_override",
+  "icon_on_svg_color_override",
+  "icon_off_svg_color_override",
+  "show_name",
+  "show_state",
+  "show_icon",
+  "show_entity_picture",
+  "state_content",
+];
+
+const STATUS_BADGE_INTERACTION_KEYS = [
+  "tap_action",
+  "hold_action",
+  "double_tap_action",
+];
+
+function orderStatusBadgeConfig(config = {}) {
+  const badgeMode = config.display_style === "badge";
+  const keyOrder = badgeMode
+    ? [
+        "type",
+        "display_style",
+        "entity",
+        "card_visibility",
+        ...STATUS_BADGE_STATE_KEYS.filter((key) => key !== "entity"),
+        ...STATUS_BADGE_CONTENT_KEYS,
+        ...STATUS_BADGE_INTERACTION_KEYS,
+        "grid_options",
+        "view_layout",
+      ]
+    : [
+        "type",
+        "display_style",
+        ...STATUS_BADGE_STATE_KEYS,
+        ...STATUS_BADGE_CONTENT_KEYS,
+        ...STATUS_BADGE_INTERACTION_KEYS,
+        "grid_options",
+        "view_layout",
+      ];
+  const ordered = {};
+  const usedKeys = new Set();
+
+  keyOrder.forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(config, key)) {
+      ordered[key] = config[key];
+      usedKeys.add(key);
+    }
+  });
+  Object.keys(config).forEach((key) => {
+    if (!usedKeys.has(key)) ordered[key] = config[key];
+  });
+
+  return ordered;
+}
+
+function hasSameConfigSerialization(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 customElements.define(

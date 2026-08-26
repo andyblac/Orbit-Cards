@@ -83,10 +83,8 @@ export function getIconOnlyStatusItems(config = {}) {
       ...pickStatusSourceConfig(config),
       color_source: config.color_source,
       color: config.color,
-      accent_color_source: config.accent_color_source,
-      accent_color: config.accent_color,
-      accent_on_color: config.accent_on_color,
-      accent_off_color: config.accent_off_color,
+      color_on: config.color_on,
+      color_off: config.color_off,
       icon_source: config.icon_source,
       icon: config.icon,
       icon_on: config.icon_on,
@@ -227,9 +225,7 @@ function getStatusState(item, rootConfig = {}) {
   const iconSource = getStatusIconSource(config, entityId);
   const customIcon = resolveIconTemplate.call(
     this,
-    iconSource === "template"
-      ? config.icon || config.entity_icon_template || config.entity_icon
-      : config.icon || config.entity_icon,
+    config.icon,
     entityId
   );
   const customStateIcon =

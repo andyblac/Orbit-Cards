@@ -65,9 +65,7 @@ export function getStatusBadgeModel() {
     (this._config?.icon ? "custom" : "domain");
   const basicIcon = resolveIconTemplate.call(
     this,
-    iconSource === "template"
-      ? this._config?.icon_template || this._config?.icon
-      : this._config?.icon,
+    this._config?.icon,
     selectedEntity?.entity_id || ""
   );
   const stateIcon = iconSource === "template"
@@ -79,11 +77,12 @@ export function getStatusBadgeModel() {
     ? stateIcon || domainConfig.icon
     : domainConfig.icon;
   const configuredColorValue =
-    this._config?.accent_color_source === "template"
-      ? this._config?.accent_color
+    this._config?.color_source === "template"
+      ? this._config?.color
       : isOn
-        ? this._config?.accent_on_color ?? this._config?.color
-        : this._config?.accent_off_color;
+        ? this._config?.color_on ??
+          (this._config?.color_source ? undefined : this._config?.color)
+        : this._config?.color_off;
   const configuredColor = resolveColorTemplate.call(
     this,
     configuredColorValue

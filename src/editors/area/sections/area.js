@@ -12,10 +12,13 @@ export function renderAreaSection() {
 
       ${this._renderArea("Area", "area")}
 
-      ${this._renderColor(["Accent", "Color"], "accent_color")}
+      ${this._renderColor("Color", "color")}
 
       ${this._renderEntity("Main entity", "main_entity")}
       ${renderMainEntityIconControls.call(this)}
+      ${this._config?.main_entity
+        ? this._renderTemplateInput("State template", "state_template")
+        : ""}
 
       ${renderInteractionsSection.call(this, {
         interactions: [
@@ -99,27 +102,28 @@ function renderAreaNamePicker() {
 function renderMainEntityIconControls() {
   return renderIconSourceControl.call(this, {
     label: "Icon",
-    sourceKey: "main_entity_icon_source",
+    sourceKey: "icon_source",
+    templateKey: "icon",
     entityKey: "main_entity",
     areaKey: "area",
     allowArea: true,
     customIconKeys: [
-      "main_entity_icon",
-      "main_entity_icon_on",
-      "main_entity_icon_off",
+      "icon",
+      "icon_on",
+      "icon_off",
     ],
     renderCustom() {
       return html`
-        ${this._renderIconInput("", "main_entity_icon")}
+        ${this._renderIconInput("", "icon")}
 
         <div class="icon-pair">
           ${this._renderIconInput(
             ["Active", "Icon"],
-            "main_entity_icon_on"
+            "icon_on"
           )}
           ${this._renderIconInput(
             ["Inactive", "Icon"],
-            "main_entity_icon_off"
+            "icon_off"
           )}
         </div>
       `;

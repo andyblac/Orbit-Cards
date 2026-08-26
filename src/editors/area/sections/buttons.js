@@ -65,8 +65,8 @@ function renderButtonFields(index) {
 
       ${this._renderColorPair({
         label: "Color",
-        onKey: `${key}_on_color`,
-        offKey: `${key}_off_color`,
+        onKey: `${key}_color_on`,
+        offKey: `${key}_color_off`,
         onPreviewValue: "theme",
         offPreviewValue: "theme",
       })}
@@ -74,6 +74,7 @@ function renderButtonFields(index) {
       ${renderIconSourceControl.call(this, {
         label: "Icon",
         sourceKey: `${key}_icon_source`,
+        templateKey: `${key}_icon`,
         entityKey: key,
         customIconKeys: [
           `${key}_icon`,

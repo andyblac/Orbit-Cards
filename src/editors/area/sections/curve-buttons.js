@@ -112,16 +112,17 @@ function renderButtonFields(
       ${options.showColors
         ? this._renderColorPair({
             label: "Color",
-            onKey: `${key}_on_color`,
-            offKey: `${key}_off_color`,
-            onPreviewValue: this._config?.accent_color || "theme",
-            offPreviewValue: this._config?.accent_color || "theme",
+            onKey: `${key}_color_on`,
+            offKey: `${key}_color_off`,
+            onPreviewValue: this._config?.color || "theme",
+            offPreviewValue: this._config?.color || "theme",
           })
         : ""}
 
       ${renderIconSourceControl.call(this, {
         label: "Icon",
         sourceKey: `${key}_icon_source`,
+        templateKey: `${key}_icon`,
         entityKey: key,
         customIconKeys: [
           `${key}_icon`,

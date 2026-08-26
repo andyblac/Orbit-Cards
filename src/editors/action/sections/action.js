@@ -121,14 +121,14 @@ export function renderActionSection() {
       </div>
 
       ${this._renderColorControl(
-        ["Accent", "Color"],
-        `action-${selectedIndex}-accent_color`,
-        selectedItem.accent_color || "",
+        "Color",
+        `action-${selectedIndex}-color`,
+        selectedItem.color || "",
         (value) =>
           this._updateActionItem(selectedIndex, {
-            accent_color: value,
+            color: value,
           }),
-        this._config?.accent_color || "theme"
+        this._config?.color || "theme"
       )}
 
       ${renderActionItemIconSource.call(
@@ -202,13 +202,14 @@ function renderActionItemIconSource(index, item) {
 
   return renderIconSourceControl.call(scopedEditor, {
     label: "Icon",
-    sourceKey: "main_entity_icon_source",
+    sourceKey: "icon_source",
+    templateKey: "icon",
     entityKey: "entity",
     customIconKeys: [
-      "main_entity_icon",
+      "icon",
     ],
     renderCustom() {
-      return this._renderIconInput("", "main_entity_icon");
+      return this._renderIconInput("", "icon");
     },
   });
 }

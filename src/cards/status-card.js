@@ -166,7 +166,7 @@ class OrbitStatusCard extends LitElement {
   setConfig(config) {
     this._config = migrateStatusCardConfig(config).config;
 
-    const color = config.accent_off_color || "theme";
+    const color = this._config.color_off || "theme";
 
     this._nameColor = this._computeFullColor(color);
     this._statusColor = this._computeFullColor(color);

@@ -124,11 +124,16 @@ class OrbitAreaCardEditor extends LitElement {
       config: migratedConfig,
       migrated,
     } = migrateAreaCardConfig(config || {});
+    const orderedConfig = orderAreaConfig(migratedConfig || {});
+    const orderChanged = !hasSameConfigSerialization(
+      migratedConfig || {},
+      orderedConfig
+    );
 
-    this._config = migratedConfig || {};
+    this._config = orderedConfig;
     this._updateDocumentationContext();
 
-    if (migrated) {
+    if (migrated || orderChanged) {
       this._queueConfigMigration();
     }
   }
@@ -164,33 +169,34 @@ class OrbitAreaCardEditor extends LitElement {
 
     const nextConfig = mergeConfig(this._config, nextChanges);
     const mainIconSource = getIconSource(nextConfig, {
-      sourceKey: "main_entity_icon_source",
+      sourceKey: "icon_source",
+      templateKey: "icon",
       entityKey: "main_entity",
       areaKey: "area",
       allowArea: true,
       customIconKeys: [
-        "main_entity_icon",
-        "main_entity_icon_on",
-        "main_entity_icon_off",
+        "icon",
+        "icon_on",
+        "icon_off",
       ],
     });
 
     const mainIconSourceChanged =
       Object.prototype.hasOwnProperty.call(
         nextChanges,
-        "main_entity_icon_source"
+        "icon_source"
       );
     const clearsCustomMainIcon =
       mainIconSourceChanged &&
       !["custom", "template"].includes(
-        nextChanges.main_entity_icon_source
+        nextChanges.icon_source
       );
     const clearsEmptyDefaultMainIcon =
       mainIconSource !== "custom" &&
-      nextConfig.main_entity_icon === "";
+      nextConfig.icon === "";
 
     if (clearsCustomMainIcon || clearsEmptyDefaultMainIcon) {
-      nextConfig.main_entity_icon = undefined;
+      nextConfig.icon = undefined;
     }
 
     this._config = orderAreaConfig(
@@ -359,9 +365,9 @@ class OrbitAreaCardEditor extends LitElement {
           ${this._renderColorControl(
             "Color",
             "status_color",
-            this._config?.status_color || this._config?.accent_color || "",
+            this._config?.status_color || this._config?.color || "",
             (value) => this._handleConfigUpdate("status_color", value),
-            this._config?.status_color || this._config?.accent_color || ""
+            this._config?.status_color || this._config?.color || ""
           )}
         </div>
 
@@ -391,6 +397,7 @@ class OrbitAreaCardEditor extends LitElement {
           ${renderIconSourceControl.call(this, {
             label: ["Prefix", "Icon"],
             sourceKey: `status${selected}_icon_source`,
+            templateKey: `status${selected}_icon`,
             entityKey: `status${selected}`,
             allowNone: true,
             customIconKeys: [
@@ -522,11 +529,11 @@ customElements.define(
 );
 
 const MAIN_ENTITY_DEPENDENT_KEYS = [
-  "main_entity_icon_source",
-  "main_entity_icon_template",
-  "main_entity_icon",
-  "main_entity_icon_on",
-  "main_entity_icon_off",
+  "state_template",
+  "icon_source",
+  "icon",
+  "icon_on",
+  "icon_off",
   "tap_action",
   "hold_action",
   "double_tap_action",
@@ -537,7 +544,6 @@ const MAIN_ENTITY_DEPENDENT_KEYS = [
 
 const STATUS_ENTITY_DEPENDENT_SUFFIXES = [
   "_icon_source",
-  "_icon_template",
   "_icon",
   "_decimal_places",
 ];
@@ -545,10 +551,9 @@ const STATUS_ENTITY_DEPENDENT_SUFFIXES = [
 const BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
   "_color_source",
   "_color",
-  "_on_color",
-  "_off_color",
+  "_color_on",
+  "_color_off",
   "_icon_source",
-  "_icon_template",
   "_icon",
   "_icon_on",
   "_icon_off",
@@ -561,10 +566,9 @@ const BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
 const CURVE_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
   "_color_source",
   "_color",
-  "_on_color",
-  "_off_color",
+  "_color_on",
+  "_color_off",
   "_icon_source",
-  "_icon_template",
   "_icon",
   "_icon_on",
   "_icon_off",
@@ -577,10 +581,9 @@ const CURVE_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
 const ACTION_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
   "_color_source",
   "_color",
-  "_on_color",
-  "_off_color",
+  "_color_on",
+  "_color_off",
   "_icon_source",
-  "_icon_template",
   "_icon",
   "_icon_on",
   "_icon_off",
@@ -594,30 +597,29 @@ const AREA_CONFIG_ORDER = [
   "type",
   "area_name",
   "room_name",
-  "accent_color",
-  "status_color",
   "area",
+  "color",
+  "main_entity",
+  "main_entity_tap_action",
+  "main_entity_hold_action",
+  "main_entity_double_tap_action",
+  "icon_source",
+  "icon",
+  "icon_on",
+  "icon_off",
+  "icon_svg_color_override",
+  "icon_on_svg_color_override",
+  "icon_off_svg_color_override",
+  "state_template",
   "navigate",
   "tap_action",
   "hold_action",
   "double_tap_action",
-  "main_entity",
-  "main_entity_icon_source",
-  "main_entity_icon_template",
-  "main_entity_icon",
-  "main_entity_icon_on",
-  "main_entity_icon_off",
-  "main_entity_icon_svg_color_override",
-  "main_entity_icon_on_svg_color_override",
-  "main_entity_icon_off_svg_color_override",
-  "main_entity_tap_action",
-  "main_entity_hold_action",
-  "main_entity_double_tap_action",
+  "status_color",
   "status_separator",
   ...[1, 2, 3].flatMap((index) => [
     `status${index}`,
     `status${index}_icon_source`,
-    `status${index}_icon_template`,
     `status${index}_icon`,
     `status${index}_decimal_places`,
   ]),
@@ -625,10 +627,9 @@ const AREA_CONFIG_ORDER = [
     `button${index}`,
     `button${index}_color_source`,
     `button${index}_color`,
-    `button${index}_on_color`,
-    `button${index}_off_color`,
+    `button${index}_color_on`,
+    `button${index}_color_off`,
     `button${index}_icon_source`,
-    `button${index}_icon_template`,
     `button${index}_icon`,
     `button${index}_icon_on`,
     `button${index}_icon_off`,
@@ -645,10 +646,9 @@ const AREA_CONFIG_ORDER = [
     `curve_button${index}`,
     `curve_button${index}_color_source`,
     `curve_button${index}_color`,
-    `curve_button${index}_on_color`,
-    `curve_button${index}_off_color`,
+    `curve_button${index}_color_on`,
+    `curve_button${index}_color_off`,
     `curve_button${index}_icon_source`,
-    `curve_button${index}_icon_template`,
     `curve_button${index}_icon`,
     `curve_button${index}_icon_on`,
     `curve_button${index}_icon_off`,
@@ -663,10 +663,9 @@ const AREA_CONFIG_ORDER = [
   "action_button",
   "action_button_color_source",
   "action_button_color",
-  "action_button_on_color",
-  "action_button_off_color",
+  "action_button_color_on",
+  "action_button_color_off",
   "action_button_icon_source",
-  "action_button_icon_template",
   "action_button_icon",
   "action_button_icon_on",
   "action_button_icon_off",
@@ -699,4 +698,8 @@ function orderAreaConfig(config) {
   });
 
   return ordered;
+}
+
+function hasSameConfigSerialization(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
