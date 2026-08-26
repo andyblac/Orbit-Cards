@@ -20,7 +20,10 @@ import {
   formatDeviceClass,
   pickStatusSourceConfig,
 } from "../../../common/helpers/status-badge.js";
-import { getTemplateResultActiveState } from "../../../common/helpers/templates.js";
+import {
+  formatTemplateState,
+  getTemplateResultActiveState,
+} from "../../../common/helpers/templates.js";
 
 export function updateStatusCard(changedProps) {
   if (
@@ -123,6 +126,7 @@ function getStatusState(item, rootConfig = {}) {
       ? this.hass.states[configuredEntityId]
       : null;
   const entityId = configuredEntityId || stateObj?.entity_id || "";
+  const templateDomain = entityId.split(".")[0] || config.domain || "";
   config.entity = entityId;
 
   const isIconOnly =
@@ -172,7 +176,7 @@ function getStatusState(item, rootConfig = {}) {
 
   const statusText = stateSource === "template"
     ? config.state_template
-      ? String(templatedState ?? "")
+      ? formatTemplateState(templatedState)
       : stateObj
         ? getStatusAttribute(stateObj, "label") ||
           this.formatState(stateObj)
@@ -200,11 +204,11 @@ function getStatusState(item, rootConfig = {}) {
   );
   const isOn = stateSource === "template"
     ? hasConfiguredStateTemplate
-      ? getTemplateResultActiveState(activeTemplate)
+      ? getTemplateResultActiveState(activeTemplate, templateDomain)
         ? true
-        : getTemplateResultActiveState(inactiveTemplate)
+        : getTemplateResultActiveState(inactiveTemplate, templateDomain)
           ? false
-          : getTemplateResultActiveState(templatedState)
+          : getTemplateResultActiveState(templatedState, templateDomain)
       : stateObj
         ? this._getEntityActiveState(stateObj)
         : false

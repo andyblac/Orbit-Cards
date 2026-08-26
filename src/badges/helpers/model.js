@@ -13,6 +13,7 @@ import {
 } from "../../common/helpers/status-badge.js";
 import {
   evaluateStateTemplate,
+  formatTemplateState,
   getTemplateResultActiveState,
 } from "../../common/helpers/templates.js";
 
@@ -39,11 +40,14 @@ export function getStatusBadgeModel() {
       inactiveTemplate
     ? evaluateStateTemplate.call(this, inactiveTemplate, "")
     : null;
+  const templateDomain = entities[0]?.entity_id?.split(".")[0] ||
+    this._config?.domain || "";
   const inactiveTemplateActive = Boolean(inactiveTemplate) &&
-    getTemplateResultActiveState(inactiveTemplateResult);
+    getTemplateResultActiveState(inactiveTemplateResult, templateDomain);
   const computedIsOn = stateSource === "template"
     ? getTemplateResultActiveState(
-        activeTemplateResult ?? templateResult
+        activeTemplateResult ?? templateResult,
+        templateDomain
       )
     : activeEntities.length > 0;
   const isOn = this._config?.display_style === "badge" &&
@@ -153,7 +157,7 @@ export function getStatusBadgeModel() {
     inactiveTemplateActive,
     count: activeEntities.length,
     displayValue: stateSource === "template"
-      ? templateResult
+      ? formatTemplateState(templateResult)
       : stateSource === "entity"
         ? representativeStateObj.state
         : activeEntities.length,

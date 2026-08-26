@@ -13,7 +13,14 @@ export function getEntityActiveState(stateObj) {
   if (!stateObj) return false;
 
   const domain = stateObj.entity_id.split(".")[0];
-  const state = stateObj.state;
+  return getNativeStateActiveState(stateObj.state, domain);
+}
+
+export function getNativeStateActiveState(stateValue, domain = "") {
+  const state = String(stateValue ?? "").trim().toLowerCase();
+
+  if (ALWAYS_INACTIVE_STATES.has(state)) return false;
+  if (!domain) return !NATIVE_INACTIVE_STATES.has(state);
 
   switch (domain) {
     case "cover":
@@ -56,6 +63,40 @@ export function getEntityActiveState(stateObj) {
       return state === "on";
   }
 }
+
+const NATIVE_INACTIVE_STATES = new Set([
+  "",
+  "false",
+  "off",
+  "no",
+  "none",
+  "null",
+  "unknown",
+  "unavailable",
+  "closed",
+  "closing",
+  "locked",
+  "locking",
+  "unlocking",
+  "jammed",
+  "not_home",
+  "idle",
+  "standby",
+  "docked",
+  "disarmed",
+  "below_horizon",
+]);
+
+const ALWAYS_INACTIVE_STATES = new Set([
+  "",
+  "false",
+  "off",
+  "no",
+  "none",
+  "null",
+  "unknown",
+  "unavailable",
+]);
 
 export function isEntityUnavailable(stateObj) {
   return stateObj?.state?.toString().toLowerCase() === "unavailable";

@@ -1,3 +1,5 @@
+import { getNativeStateActiveState } from "./entities.js";
+
 const TEMPLATE_RESULT_PREFIX = "__ORBIT_TEMPLATE_RESULT_START_8C4F2A__";
 const TEMPLATE_RESULT_SUFFIX = "__ORBIT_TEMPLATE_RESULT_END_8C4F2A__";
 
@@ -98,29 +100,25 @@ export function getTemplateError(template, entityId = "") {
   return record?.error || "";
 }
 
-export function getTemplateResultActiveState(result) {
+export function getTemplateResultActiveState(result, domain = "") {
   const normalized = String(result ?? "").trim().toLowerCase();
-
-  if (
-    !normalized ||
-    [
-      "false",
-      "off",
-      "no",
-      "none",
-      "null",
-      "unknown",
-      "unavailable",
-    ].includes(normalized)
-  ) {
-    return false;
-  }
-
   const numericResult = Number(normalized);
 
-  return Number.isFinite(numericResult)
-    ? numericResult !== 0
-    : true;
+  if (normalized && Number.isFinite(numericResult)) {
+    return numericResult !== 0;
+  }
+
+  return getNativeStateActiveState(normalized, domain);
+}
+
+export function formatTemplateState(result) {
+  const value = String(result ?? "").trim();
+
+  if (!value.includes("_")) return value;
+
+  return value
+    .replace(/_+/g, " ")
+    .replace(/\b\p{L}/gu, (letter) => letter.toLocaleUpperCase());
 }
 
 export function getColorTemplateEntries(config) {
