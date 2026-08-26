@@ -1,6 +1,7 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { isEntityUnavailable } from "../../../common/helpers/entities.js";
+import { isCardEditorPreview } from "../../../common/helpers/editor-preview.js";
 import { STATUS_PREVIEW_SELECTED_INDEX } from "../../../editors/status-card-editor.js";
 
 export function renderStatusCard() {
@@ -143,6 +144,7 @@ function renderIconOnlyStatusItem(item, index) {
   const previewSelectedIndex =
     this._config?.[STATUS_PREVIEW_SELECTED_INDEX];
   const isPreviewSelected =
+    isCardEditorPreview(this) &&
     Number.isInteger(previewSelectedIndex) &&
     previewSelectedIndex === index;
   const previewClass = isPreviewSelected
