@@ -10452,7 +10452,7 @@ var qu = d`
   }
 
   .orbit-editor-preview-selected::before {
-    border: 3px solid var(--primary-color);
+    border: 2px solid var(--primary-color);
     border-radius: inherit;
     box-sizing: border-box;
     content: "";
