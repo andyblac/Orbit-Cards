@@ -53,8 +53,7 @@ export function getActiveEntityName(hass, stateObj) {
     stateObj?.attributes?.friendly_name ||
     stateObj?.entity_id ||
     "";
-  const areaId = getEntityAreaId(hass, stateObj?.entity_id);
-  const areaName = hass?.areas?.[areaId]?.name?.trim();
+  const areaName = getActiveEntityAreaName(hass, stateObj);
 
   if (!areaName || name.length <= areaName.length) return name;
 
@@ -64,6 +63,15 @@ export function getActiveEntityName(hass, stateObj) {
   );
 
   return name.replace(areaPrefix, "").trim() || name;
+}
+
+export function getActiveEntityAreaName(hass, stateObj) {
+  const areaId =
+    getEntityAreaId(hass, stateObj?.entity_id) ||
+    stateObj?.attributes?.area_id ||
+    "";
+
+  return hass?.areas?.[areaId]?.name?.trim() || "";
 }
 
 export function getActiveEntityNameCollator(hass) {
@@ -98,7 +106,11 @@ export function compareActiveEntityNames(collator, a, b) {
 
 export function getActiveEntitiesDialogWidth(controls, groupControl) {
   const longestNameLength = controls.reduce(
-    (length, { name }) => Math.max(length, name.length),
+    (length, { name, areaName }) => Math.max(
+      length,
+      name.length,
+      areaName?.length || 0
+    ),
     0
   );
   const contentWidth = 132 + (longestNameLength * 8);

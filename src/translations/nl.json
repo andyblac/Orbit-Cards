@@ -2,6 +2,7 @@
   "Current state": "Huidige status",
   "Currently {state}": "Momenteel {state}",
   "No active entities": "Geen actieve entiteiten",
+  "This will turn off {count} active entities.": "Hiermee worden {count} actieve entiteiten uitgeschakeld.",
   "Always": "Altijd",
   "Area Count": "Gebiedstelling",
   "Badge": "Badge",

@@ -2,6 +2,7 @@
   "Current state": "Current state",
   "Currently {state}": "Currently {state}",
   "No active entities": "No active entities",
+  "This will turn off {count} active entities.": "This will turn off {count} active entities.",
   "Always": "Always",
   "Area Count": "Area Count",
   "Badge": "Badge",

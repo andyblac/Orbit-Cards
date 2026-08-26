@@ -2,11 +2,13 @@ import { getEntityActiveState } from "./entities.js";
 
 export const activeEntitiesDialogProperties = {
   _activeEntitiesOpen: { state: true },
+  _activeEntitiesConfirmOpen: { state: true },
   _activeEntitiesDurationNow: { state: true },
 };
 
 export function initializeActiveEntitiesDialog() {
   this._activeEntitiesOpen = false;
+  this._activeEntitiesConfirmOpen = false;
   this._activeEntitiesDurationNow = Date.now();
   this._activeEntitiesDurationTimer = null;
 }
@@ -43,6 +45,7 @@ export function stopActiveEntitiesDurationTimer() {
 
 export function closeActiveEntitiesDialog() {
   this._activeEntitiesOpen = false;
+  this._activeEntitiesConfirmOpen = false;
   stopActiveEntitiesDurationTimer.call(this);
 }
 

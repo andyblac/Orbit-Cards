@@ -15,8 +15,8 @@ export const activeEntitiesDialogStyles = css`
     display: flex;
     align-items: center;
     gap: var(--ha-space-3, 12px);
-    min-height: 56px;
-    padding: var(--ha-space-2, 8px) 0;
+    min-height: 52px;
+    padding: 6px 0;
     border-top: 1px solid var(--divider-color);
   }
 
@@ -64,8 +64,8 @@ export const activeEntitiesDialogStyles = css`
     flex: 1 1 auto;
     min-width: 0;
     flex-direction: column;
-    gap: 2px;
-    padding: var(--ha-space-2, 8px) 0;
+    gap: 1px;
+    padding: 4px 0;
     border: 0;
     outline: 0;
     background: transparent;
@@ -87,12 +87,22 @@ export const activeEntitiesDialogStyles = css`
     white-space: nowrap;
   }
 
+  .active-entity-area,
+  .active-entity-state-line {
+    color: var(--secondary-text-color);
+    font-size: var(--ha-font-size-s, 12px);
+  }
+
+  .active-entity-area {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .active-entity-state-line {
     display: flex;
     align-items: baseline;
     gap: 5px;
-    color: var(--secondary-text-color);
-    font-size: var(--ha-font-size-s, 12px);
   }
 
   .active-entity-state-line state-display {
@@ -104,5 +114,18 @@ export const activeEntitiesDialogStyles = css`
     padding: var(--ha-space-5, 20px) 0;
     color: var(--secondary-text-color);
     text-align: center;
+  }
+
+  .active-entities-confirmation-text {
+    margin: 0;
+    color: var(--primary-text-color);
+  }
+
+  .active-entities-confirmation-title {
+    margin: inherit;
+    padding: 0 var(--ha-space-2, 8px);
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
   }
 `;

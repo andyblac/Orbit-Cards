@@ -2,6 +2,7 @@
   "Current state": "Estado actual",
   "Currently {state}": "Actualmente {state}",
   "No active entities": "No hay entidades activas",
+  "This will turn off {count} active entities.": "Esto apagará {count} entidades activas.",
   "Always": "Siempre",
   "Area Count": "Recuento de área",
   "Badge": "Insignia",

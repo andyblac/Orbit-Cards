@@ -8,6 +8,7 @@ import {
   compareActiveEntityNames,
   formatActiveEntityDuration,
   getActiveEntitiesDialogWidth,
+  getActiveEntityAreaName,
   getActiveEntityControl,
   getActiveEntityFormattedState,
   getActiveEntityGroupControl,
@@ -27,6 +28,7 @@ export function renderActiveEntitiesDialog(activeEntities = []) {
       stateObj,
       control,
       name: getActiveEntityName(this.hass, stateObj),
+      areaName: getActiveEntityAreaName(this.hass, stateObj),
       serviceName: control
         ? getActiveEntityServiceName(this.hass, control)
         : "",
@@ -74,6 +76,11 @@ export function renderActiveEntitiesDialog(activeEntities = []) {
               slot="headerActionItems"
               appearance="filled"
               @click=${async () => {
+                if (groupControl.service === "turn_off") {
+                  this._activeEntitiesConfirmOpen = true;
+                  return;
+                }
+
                 await callActiveEntityService.call(
                   this,
                   groupControl,
@@ -89,7 +96,13 @@ export function renderActiveEntitiesDialog(activeEntities = []) {
         : ""}
       <div class="active-entities-dialog-content">
         ${controls.length
-          ? controls.map(({ stateObj, name, control, serviceName }) => html`
+          ? controls.map(({
+              stateObj,
+              name,
+              areaName,
+              control,
+              serviceName,
+            }) => html`
               <div class="active-entity-row">
                 ${control
                   ? html`
@@ -130,6 +143,11 @@ export function renderActiveEntitiesDialog(activeEntities = []) {
                   )}
                 >
                   <span class="active-entity-name">${name}</span>
+                  ${areaName
+                    ? html`
+                        <span class="active-entity-area">${areaName}</span>
+                      `
+                    : nothing}
                   <span class="active-entity-state-line">
                     <state-display
                       .hass=${this.hass}
@@ -152,5 +170,67 @@ export function renderActiveEntitiesDialog(activeEntities = []) {
             `}
       </div>
     </ha-adaptive-dialog>
+    ${this._activeEntitiesConfirmOpen && groupControl?.service === "turn_off"
+      ? html`
+          <ha-dialog
+            .open=${true}
+            type="alert"
+            .preventScrimClose=${true}
+            @closed=${() => {
+              this._activeEntitiesConfirmOpen = false;
+            }}
+            aria-labelledby="active-entities-confirmation-title"
+            aria-describedby="active-entities-confirmation-description"
+          >
+            <ha-dialog-header slot="header">
+              <h1
+                slot="title"
+                id="active-entities-confirmation-title"
+                class="active-entities-confirmation-title"
+              >
+                ${this.hass?.localize?.(
+                  "ui.dialogs.generic.default_confirmation_title"
+                )}
+              </h1>
+            </ha-dialog-header>
+            <p
+              id="active-entities-confirmation-description"
+              class="active-entities-confirmation-text"
+            >
+              ${this._t("This will turn off {count} active entities.", {
+                count: controllable.length,
+              })}
+            </p>
+            <ha-dialog-footer slot="footer">
+              <ha-button
+                slot="secondaryAction"
+                appearance="plain"
+                @click=${() => {
+                  this._activeEntitiesConfirmOpen = false;
+                }}
+              >
+                ${this.hass?.localize?.("ui.common.cancel")}
+              </ha-button>
+              <ha-button
+                slot="primaryAction"
+                variant="danger"
+                @click=${async () => {
+                  await callActiveEntityService.call(
+                    this,
+                    groupControl,
+                    controllable.map((entry) => entry.stateObj.entity_id)
+                  );
+                  this._activeEntitiesConfirmOpen = false;
+                  closeActiveEntitiesDialog.call(this);
+                }}
+              >
+                ${groupServiceName || this.hass?.localize?.(
+                  "ui.card.common.turn_off"
+                )}
+              </ha-button>
+            </ha-dialog-footer>
+          </ha-dialog>
+        `
+      : nothing}
   `;
 }
