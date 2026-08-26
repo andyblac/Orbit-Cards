@@ -224,7 +224,10 @@ function getStatusState(item, rootConfig = {}) {
           ? false
           : getTemplateResultActiveState(templatedState, templateDomain)
       : stateObj
-        ? this._getEntityActiveState(stateObj)
+        ? getStatusActiveState(
+            stateObj,
+            (entity) => this._getEntityActiveState(entity)
+          )
         : false
     : stateSource === "area_count"
       ? activeAreaEntities.length > 0
