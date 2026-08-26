@@ -4898,7 +4898,8 @@ var hs = [
 
 .editor-header-button-toggle,
 .main-entity-icon-source-selector,
-.name-picker-mode-selector {
+.name-picker-mode-selector,
+.color-pair-source-selector {
   flex: 0 1 auto;
   width: auto;
   max-width: 100%;
@@ -4908,6 +4909,23 @@ var hs = [
 .main-entity-icon-source-field .field-header,
 .name-picker-fallback .field-header {
   min-height: 40px;
+}
+
+.color-pair-control {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.color-pair-source-header {
+  min-height: 40px;
+}
+
+.color-pair-source-header > label {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .name-picker-field ha-entity-name-picker,
