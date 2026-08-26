@@ -105,12 +105,7 @@ class OrbitDeckCardEditor extends LitElement {
         ? migrated.config.layout
         : "wrap",
     };
-    const orderedConfig = orderDeckConfig(normalizedConfig);
-    const orderChanged = !hasSameConfigSerialization(
-      normalizedConfig,
-      orderedConfig
-    );
-    this._config = orderedConfig;
+    this._config = orderDeckConfig(normalizedConfig);
     this._selectedDeckIndex = Math.min(
       this._selectedDeckIndex || 0,
       Math.max(0, this._getDeckItems().length - 1)
@@ -119,7 +114,7 @@ class OrbitDeckCardEditor extends LitElement {
     this._childPickerType = selectedItem?.badge ? "badge" : "card";
     this._updateDocumentationContext();
 
-    if (migrated.migrated || normalized.changed || orderChanged) {
+    if (migrated.migrated || normalized.changed) {
       queueMicrotask(() => this._dispatchConfigChanged());
     }
   }
@@ -800,10 +795,6 @@ class OrbitDeckCardEditor extends LitElement {
   }
 
   static styles = deckCardEditorStyles;
-}
-
-function hasSameConfigSerialization(left, right) {
-  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 customElements.define(

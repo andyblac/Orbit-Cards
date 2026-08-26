@@ -124,16 +124,10 @@ class OrbitAreaCardEditor extends LitElement {
       config: migratedConfig,
       migrated,
     } = migrateAreaCardConfig(config || {});
-    const orderedConfig = orderAreaConfig(migratedConfig || {});
-    const orderChanged = !hasSameConfigSerialization(
-      migratedConfig || {},
-      orderedConfig
-    );
-
-    this._config = orderedConfig;
+    this._config = orderAreaConfig(migratedConfig || {});
     this._updateDocumentationContext();
 
-    if (migrated || orderChanged) {
+    if (migrated) {
       this._queueConfigMigration();
     }
   }
@@ -698,8 +692,4 @@ function orderAreaConfig(config) {
   });
 
   return ordered;
-}
-
-function hasSameConfigSerialization(left, right) {
-  return JSON.stringify(left) === JSON.stringify(right);
 }

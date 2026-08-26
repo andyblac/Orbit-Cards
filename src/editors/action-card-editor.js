@@ -91,17 +91,12 @@ class OrbitActionCardEditor extends LitElement {
   setConfig(config) {
     const { config: migratedConfig, migrated } =
       migrateActionCardConfig(config || {});
-    const orderedConfig = orderActionConfig(migratedConfig || {});
-    const orderChanged = !hasSameConfigSerialization(
-      migratedConfig || {},
-      orderedConfig
-    );
-    this._config = orderedConfig;
+    this._config = orderActionConfig(migratedConfig || {});
     this._selectedActionIndex = Math.min(
       this._selectedActionIndex || 0,
       this._getActionItems(this._config).length - 1
     );
-    if (migrated || orderChanged) {
+    if (migrated) {
       queueMicrotask(() => this._dispatchConfigChanged(this._config));
     }
   }
@@ -528,10 +523,6 @@ function orderActionConfig(config) {
   });
 
   return ordered;
-}
-
-function hasSameConfigSerialization(left, right) {
-  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 function orderActionItem(item) {

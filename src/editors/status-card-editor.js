@@ -125,18 +125,13 @@ class OrbitStatusCardEditor extends LitElement {
       migrated,
     } = migrateStatusCardConfig(config || {});
 
-    const orderedConfig = orderStatusConfig(migratedConfig || {});
-    const orderChanged = !hasSameConfigSerialization(
-      migratedConfig || {},
-      orderedConfig
-    );
-    this._config = orderedConfig;
+    this._config = orderStatusConfig(migratedConfig || {});
     this._selectedStatusIndex = Math.min(
       this._selectedStatusIndex || 0,
       this._getStatusItems(this._config).length - 1
     );
 
-    if (migrated || presentationMigrated || orderChanged) {
+    if (migrated || presentationMigrated) {
       this._queueConfigMigration();
     }
   }
@@ -937,10 +932,6 @@ function orderStatusConfig(config) {
   });
 
   return ordered;
-}
-
-function hasSameConfigSerialization(left, right) {
-  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 function moveRootAreaCountToStatusItems(config) {

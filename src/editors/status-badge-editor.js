@@ -255,13 +255,8 @@ class OrbitStatusBadgeEditor extends LitElement {
     const { config: migratedConfig, migrated } =
       migrateStatusBadgeConfig(config || {});
     const normalizedConfig = normalizeStatusBadgeConfig(migratedConfig);
-    const orderedConfig = orderStatusBadgeConfig(normalizedConfig);
-    const orderChanged = !hasSameConfigSerialization(
-      migratedConfig,
-      orderedConfig
-    );
-    this._config = orderedConfig;
-    if (migrated || orderChanged) {
+    this._config = orderStatusBadgeConfig(normalizedConfig);
+    if (migrated) {
       queueMicrotask(() => this._dispatchConfigChanged(this._config));
     }
   }
@@ -755,10 +750,6 @@ function orderStatusBadgeConfig(config = {}) {
   });
 
   return ordered;
-}
-
-function hasSameConfigSerialization(left, right) {
-  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 customElements.define(
