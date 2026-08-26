@@ -1,5 +1,6 @@
 import {
   getColorMix,
+  resolveColorTemplate,
 } from "../../../common/helpers/colors.js";
 import { getDefaultEntityAction } from "../../../common/helpers/default-actions.js";
 import {
@@ -392,14 +393,16 @@ function getButtonBackgroundColor(key, stateObj, isOn) {
     );
   }
 
-  const offColor =
-    this._config[`${key}_off_color`] || "theme";
+  const offColor = resolveColorTemplate.call(
+    this,
+    this._config[`${key}_off_color`] || "theme"
+  );
 
   if (!offColor || offColor === "theme") {
     return "rgba(var(--color-theme),0.05)";
   }
 
-  return getColorMix(offColor, 10);
+  return getColorMix.call(this, offColor, 10);
 }
 
 function getButtonIconColor(key, stateObj, isOn) {
@@ -409,8 +412,10 @@ function getButtonIconColor(key, stateObj, isOn) {
     );
   }
 
-  const offColor =
-    this._config[`${key}_off_color`] || "theme";
+  const offColor = resolveColorTemplate.call(
+    this,
+    this._config[`${key}_off_color`] || "theme"
+  );
 
   if (offColor.startsWith("rgba(")) return offColor;
 
@@ -418,8 +423,10 @@ function getButtonIconColor(key, stateObj, isOn) {
 }
 
 function getResolvedButtonOnColor(key, stateObj) {
-  const onColor =
-    this._config[`${key}_on_color`] || "theme";
+  const onColor = resolveColorTemplate.call(
+    this,
+    this._config[`${key}_on_color`] || "theme"
+  );
 
   if (onColor !== "light") return onColor;
 
@@ -431,7 +438,10 @@ function getResolvedButtonOnColor(key, stateObj) {
 }
 
 function getCurveButtonIconColor(_key, _stateObj, isOn) {
-  const areaColor = this._config.accent_color || "theme";
+  const areaColor = resolveColorTemplate.call(
+    this,
+    this._config.accent_color || "theme"
+  );
 
   if (areaColor === "theme") {
     return isOn
@@ -441,13 +451,14 @@ function getCurveButtonIconColor(_key, _stateObj, isOn) {
 
   return isOn
     ? this._computeFullColor(areaColor)
-    : getColorMix(areaColor, 40);
+    : getColorMix.call(this, areaColor, 40);
 }
 
 function getCurveButtonOverrideIconColor(key, stateObj, isOn) {
-  const customColor = isOn
+  const configuredColor = isOn
     ? this._config[`${key}_on_color`]
     : this._config[`${key}_off_color`];
+  const customColor = resolveColorTemplate.call(this, configuredColor);
 
   const hasCustomColor =
     Boolean(customColor) &&
@@ -459,9 +470,10 @@ function getCurveButtonOverrideIconColor(key, stateObj, isOn) {
 }
 
 function getActionButtonIconColor(key, stateObj, isOn) {
-  const customColor = isOn
+  const configuredColor = isOn
     ? this._config[`${key}_on_color`]
     : this._config[`${key}_off_color`];
+  const customColor = resolveColorTemplate.call(this, configuredColor);
 
   const hasCustomColor =
     Boolean(customColor) &&
@@ -479,7 +491,7 @@ function getCurveButtonCustomIconColor(key, stateObj, isOn, customColor) {
 
   if (customColor.startsWith("rgba(")) return customColor;
 
-  return getColorMix(customColor, 40);
+  return getColorMix.call(this, customColor, 40);
 }
 
 function getMainEntityIconSource(config = {}, areaId, mainEntity) {

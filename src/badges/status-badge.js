@@ -37,6 +37,7 @@ import {
 import { sharedSvgCache } from "../common/helpers/svg-cache.js";
 import {
   disconnectTemplateSubscriptions,
+  getColorTemplateEntries,
   syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
 import { CARD_VERSIONS } from "../version.js";
@@ -160,10 +161,10 @@ class OrbitStatusBadge extends LitElement {
         entityId: "",
       }));
 
-    syncTemplateSubscriptions.call(
-      this,
-      entries
-    );
+    syncTemplateSubscriptions.call(this, [
+      ...entries,
+      ...getColorTemplateEntries(this._config),
+    ]);
   }
 
   _getEntities() {
@@ -335,7 +336,7 @@ class OrbitStatusBadge extends LitElement {
     const showName = !badgeMode && this._config?.show_name === true;
     const showIcon = badgeMode || this._config?.show_icon !== false;
     const cardBackgroundColor = this._config?.card_color
-      ? computeFullColor(this._config.card_color)
+      ? computeFullColor.call(this, this._config.card_color)
       : "var(--primary-color)";
     const badgeStyle = `--badge-color:${model.iconColor};`;
     const cardBadgeStyle = [

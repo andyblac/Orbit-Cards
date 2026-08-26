@@ -1,5 +1,9 @@
 export function updateActionCard(changedProps) {
-  if (!changedProps.has("_config") && !changedProps.has("hass")) return;
+  if (
+    !changedProps.has("_config") &&
+    !changedProps.has("hass") &&
+    !changedProps.has("_templateRevision")
+  ) return;
 
   this._actions = getActionItems(this._config).map((item) =>
     getActionState.call(this, item)
@@ -39,12 +43,14 @@ function getActionState(item) {
 
   const accentColor =
     item.accent_color || this._config.accent_color || "theme";
+  this._orbitColorTemplateEntityId = entityId || "";
 
   const isRunning = isActionEntityRunning(stateObj);
   const cardBackground = this._computeCircleColor(accentColor);
   const iconColor = isRunning
     ? this._computeFullColor(accentColor)
     : this._computeIconColor(accentColor);
+  this._orbitColorTemplateEntityId = "";
   const iconSource = getItemIconSource(item, entityId);
   const customIcon =
     iconSource === "custom"

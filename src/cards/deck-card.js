@@ -27,6 +27,11 @@ import {
   startLongPress,
 } from "../common/helpers/long-press.js";
 import {
+  disconnectTemplateSubscriptions,
+  getColorTemplateEntries,
+  syncTemplateSubscriptions,
+} from "../common/helpers/templates.js";
+import {
   getDeckItems,
   getDeckItemAction,
   getDeckItemEntity,
@@ -78,6 +83,7 @@ class OrbitDeckCard extends LitElement {
       _config: { type: Object },
       _deckCards: { state: true },
       _selectedIndex: { state: true },
+      _templateRevision: { state: true },
     };
   }
 
@@ -108,12 +114,22 @@ class OrbitDeckCard extends LitElement {
   }
 
   disconnectedCallback() {
+    disconnectTemplateSubscriptions.call(this);
     this._cancelLongPress();
     this._clearDoubleTapTimer();
     this._clearOverlayGeometryObserver();
     this._disconnectDeckEntryObservers();
     this._unbindDeckItemActionListeners();
     super.disconnectedCallback();
+  }
+
+  willUpdate(changedProps) {
+    if (changedProps.has("_config") || changedProps.has("hass")) {
+      syncTemplateSubscriptions.call(
+        this,
+        getColorTemplateEntries(this._config)
+      );
+    }
   }
 
   static getConfigElement() {
@@ -813,7 +829,7 @@ class OrbitDeckCard extends LitElement {
       (entry) => entry !== selectedEntry
     );
     const tabWidthMode = getTabWidthMode(this._config);
-    const tabStyles = getTabStyleVariables(this._config);
+    const tabStyles = getTabStyleVariables.call(this, this._config);
 
     return html`
       <ha-card

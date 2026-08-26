@@ -35,6 +35,11 @@ import {
   shouldUpdateForEntities,
 } from "../common/helpers/updates.js";
 import {
+  disconnectTemplateSubscriptions,
+  getColorTemplateEntries,
+  syncTemplateSubscriptions,
+} from "../common/helpers/templates.js";
+import {
   getEntityDomain,
 } from "../common/helpers/suggestions.js";
 import {
@@ -64,6 +69,7 @@ class OrbitActionCard extends LitElement {
       _cardBackground: { type: String },
       _isRunning: { type: Boolean },
       _actions: { type: Array },
+      _templateRevision: { type: Number },
     };
   }
 
@@ -104,10 +110,18 @@ class OrbitActionCard extends LitElement {
   }
 
   willUpdate(changedProps) {
+    if (changedProps.has("_config") || changedProps.has("hass")) {
+      syncTemplateSubscriptions.call(
+        this,
+        getColorTemplateEntries(this._config)
+      );
+    }
+
     return updateActionCard.call(this, changedProps);
   }
 
   disconnectedCallback() {
+    disconnectTemplateSubscriptions.call(this);
     this._clearHoldTimer();
     this._clearDoubleTapTimer();
     super.disconnectedCallback();

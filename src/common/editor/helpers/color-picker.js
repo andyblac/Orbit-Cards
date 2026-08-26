@@ -3,6 +3,7 @@ import {
   hasThemeColorName,
   isHaStandardColorName,
 } from "../../helpers/colors.js";
+import { hasNativeTemplateSyntax } from "../../helpers/templates.js";
 import { translateEditorLabel as t } from "./labels.js";
 
 export function renderColor(label, key, previewValue) {
@@ -49,6 +50,8 @@ export function renderColorControl(
             <button
               type="button"
               class=${activeTab === "picker" ? "active" : ""}
+              aria-label=${t(this, "Color")}
+              title=${t(this, "Color")}
               @click=${() => {
                 this._colorPickerKey = pickerKey;
                 this._colorPickerTab = "picker";
@@ -65,11 +68,13 @@ export function renderColorControl(
                 }
               }}
             >
-              ${t(this, "Color")}
+              <ha-icon icon="mdi:eyedropper"></ha-icon>
             </button>
             <button
               type="button"
               class=${activeTab === "theme" ? "active" : ""}
+              aria-label=${t(this, "Theme")}
+              title=${t(this, "Theme")}
               @click=${() => {
                 this._colorPickerKey = pickerKey;
                 this._colorPickerTab = "theme";
@@ -77,11 +82,26 @@ export function renderColorControl(
                 this._themeColorSearch = "";
               }}
             >
-              ${t(this, "Theme")}
+              <ha-icon icon="mdi:palette-swatch"></ha-icon>
+            </button>
+            <button
+              type="button"
+              class=${activeTab === "template" ? "active" : ""}
+              aria-label=${t(this, "Template")}
+              title=${t(this, "Template")}
+              @click=${() => {
+                this._colorPickerKey = pickerKey;
+                this._colorPickerTab = "template";
+                this._themeColorPickerOpen = false;
+              }}
+            >
+              <ha-icon icon="mdi:code-braces"></ha-icon>
             </button>
           </div>
 
-          ${activeTab === "theme"
+          ${activeTab === "template"
+            ? renderColorTemplateInput.call(this, label, value, onUpdate)
+            : activeTab === "theme"
             ? html`
                 ${renderThemeColorPicker.call(
                   this,
@@ -103,6 +123,20 @@ export function renderColorControl(
               `}
         </div>
       </div>
+    </div>
+  `;
+}
+
+function renderColorTemplateInput(label, value, onUpdate) {
+  return html`
+    <div class="color-template-input">
+      <ha-selector
+        .hass=${this.hass}
+        .label=${label ? t(this, label) : t(this, "Template")}
+        .selector=${{ template: {} }}
+        .value=${hasNativeTemplateSyntax(value) ? value : ""}
+        @value-changed=${(event) => onUpdate(event.detail.value || "")}
+      ></ha-selector>
     </div>
   `;
 }
@@ -740,6 +774,7 @@ function getDefaultColorTab(value) {
   const color = value?.toString().trim();
 
   if (!color) return "theme";
+  if (hasNativeTemplateSyntax(color)) return "template";
 
   return isNativeColorValue(color)
     ? "picker"

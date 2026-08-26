@@ -1,3 +1,5 @@
+import { hasNativeTemplateSyntax } from "./templates.js";
+
 export function shouldUpdateForEntities(changedProps, entityIds, options = {}) {
   if (!changedProps.has("hass")) return true;
 
@@ -40,9 +42,12 @@ export function shouldUpdateForEntities(changedProps, entityIds, options = {}) {
 }
 
 export function hasTemplateConfig(config) {
-  return Object.keys(config || {}).some((key) =>
-    key.endsWith("_template")
-  );
+  return Object.entries(config || {}).some(([key, value]) => {
+    if (key.endsWith("_template")) return true;
+    if (typeof value === "string") return hasNativeTemplateSyntax(value);
+    if (value && typeof value === "object") return hasTemplateConfig(value);
+    return false;
+  });
 }
 
 function didZoneStateChange(oldHass, newHass) {

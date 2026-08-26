@@ -43,6 +43,7 @@ import {
 import {
   disconnectTemplateSubscriptions,
   evaluateStateTemplate,
+  getColorTemplateEntries,
   syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
 import {
@@ -604,7 +605,7 @@ class OrbitStatusCard extends LitElement {
 
   _getTemplateEntries() {
     if (this._config?.mode === "icon_only") {
-      return getIconOnlyStatusItems(this._config).flatMap((item) =>
+      const stateEntries = getIconOnlyStatusItems(this._config).flatMap((item) =>
         (getStatusBadgeStateSource(item) === "area_count"
           ? []
           : [
@@ -619,13 +620,18 @@ class OrbitStatusCard extends LitElement {
             entityId: item.entity || "",
           }))
       );
+
+      return [
+        ...stateEntries,
+        ...getColorTemplateEntries(this._config),
+      ];
     }
 
     const entityId = this._config?.mode === "person"
       ? this._config?.tracker_entity || ""
       : this._config?.entity || "";
 
-    return (getStatusBadgeStateSource(this._config) === "area_count"
+    const stateEntries = (getStatusBadgeStateSource(this._config) === "area_count"
       ? []
       : [
           this._config?.state_template,
@@ -635,6 +641,11 @@ class OrbitStatusCard extends LitElement {
         ])
       .filter(Boolean)
       .map((template) => ({ template, entityId }));
+
+    return [
+      ...stateEntries,
+      ...getColorTemplateEntries(this._config),
+    ];
   }
 
   _getRelevantEntities() {

@@ -97,15 +97,15 @@ export function getTabStyleVariables(config = {}) {
     config.tab_font_size
       ? `--orbit-deck-tab-font-size:${config.tab_font_size};`
       : "",
-    colorVariable("--orbit-deck-tab-color", config.tab_color),
-    colorVariable("--orbit-deck-tab-active-color", config.tab_active_color),
-    colorVariable("--orbit-deck-tab-background-color", config.tab_background_color),
+    colorVariable.call(this, "--orbit-deck-tab-color", config.tab_color),
+    colorVariable.call(this, "--orbit-deck-tab-active-color", config.tab_active_color),
+    colorVariable.call(this, "--orbit-deck-tab-background-color", config.tab_background_color),
   ].filter(Boolean).join("");
 }
 
 function colorVariable(name, color) {
   return color
-    ? `${name}:${computeFullColor(color)};`
+    ? `${name}:${computeFullColor.call(this, color)};`
     : "";
 }
 
@@ -125,4 +125,3 @@ export function renderRowSpacers(itemCount, columnCount) {
     <div class="deck-spacer"></div>
   `);
 }
-

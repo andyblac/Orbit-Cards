@@ -1,4 +1,7 @@
-import { computeFullColor } from "../../common/helpers/colors.js";
+import {
+  computeFullColor,
+  resolveColorTemplate,
+} from "../../common/helpers/colors.js";
 import {
   formatDeviceClass,
   getNativeEntityBadgeColor,
@@ -62,9 +65,13 @@ export function getStatusBadgeModel() {
   const icon = iconSource === "custom"
     ? stateIcon || domainConfig.icon
     : domainConfig.icon;
-  const configuredColor = isOn
+  const configuredColorValue = isOn
     ? this._config?.accent_on_color ?? this._config?.color
     : this._config?.accent_off_color;
+  const configuredColor = resolveColorTemplate.call(
+    this,
+    configuredColorValue
+  );
   const hasIconColorOverride = Boolean(configuredColor && ![
     "theme",
     "state",
@@ -174,7 +181,7 @@ export function getStatusBadgeModel() {
     hasIconColorOverride,
     iconColor: colorInput === "theme"
       ? getNativeEntityBadgeColor(representativeStateObj, isOn)
-      : computeFullColor(colorInput),
+      : computeFullColor.call(this, colorInput),
   };
 }
 

@@ -1,7 +1,11 @@
 import { getBundledOrbitSvg } from "../../icons/bundled.js";
+import { resolveColorTemplate } from "./colors.js";
 
 export function getMainIconColor(stateObj, isOn) {
-  const accentColor = this._config.accent_color || "theme";
+  const accentColor = resolveColorTemplate.call(
+    this,
+    this._config.accent_color || "theme"
+  );
 
   if (!isOn) {
     return this._computeIconColor(accentColor);

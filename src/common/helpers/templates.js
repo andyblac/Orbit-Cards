@@ -77,8 +77,11 @@ export function evaluateStateTemplate(template, entityId = "") {
   if (!template) return null;
 
   const normalizedTemplate = migrateLegacyTemplate(template)?.trim();
-  const record = this.__orbitTemplateSubscriptions?.get(
+  const subscriptions = this.__orbitTemplateSubscriptions;
+  const record = subscriptions?.get(
     getTemplateId(normalizedTemplate, entityId)
+  ) || [...(subscriptions?.values() || [])].find(
+    (entry) => entry.template === normalizedTemplate
   );
 
   return record?.result ?? null;
@@ -120,11 +123,48 @@ export function getTemplateResultActiveState(result) {
     : true;
 }
 
+export function getColorTemplateEntries(config) {
+  const templates = new Map();
+
+  collectColorTemplates(config, templates);
+
+  return [...templates.values()];
+}
+
+function collectColorTemplates(value, templates, key = "", entityId = "") {
+  if (Array.isArray(value)) {
+    value.forEach((item) =>
+      collectColorTemplates(item, templates, "", entityId)
+    );
+    return;
+  }
+
+  if (!value || typeof value !== "object") {
+    if (
+      typeof value === "string" &&
+      (key === "color" || key.endsWith("_color")) &&
+      hasNativeTemplateSyntax(value)
+    ) {
+      const id = getTemplateId(value, entityId);
+      templates.set(id, { template: value, entityId });
+    }
+    return;
+  }
+
+  const localEntityId = value.entity || value.main_entity || entityId;
+
+  Object.entries(value).forEach(([childKey, childValue]) =>
+    collectColorTemplates(childValue, templates, childKey, localEntityId)
+  );
+}
+
 function subscribeTemplate(descriptor) {
   const subscriptions = getSubscriptionMap(this);
   const { id, template, entityId, configSignature } = descriptor;
   const record = {
     configSignature,
+    template,
+    entityId,
     result: null,
     error: "",
     subscription: undefined,
