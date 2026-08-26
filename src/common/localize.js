@@ -128,10 +128,6 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.components.entity.entity-picker.entity",
     "ui.panel.lovelace.editor.card.generic.entity",
   ],
-  Disabled: [
-    "ui.dialogs.entity_registry.editor.disabled_label",
-    "ui.panel.config.entities.picker.status.disabled",
-  ],
   Divider: [
     "ui.panel.lovelace.editor.card.entities.entity_row.divider",
   ],
@@ -140,10 +136,6 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   ],
   Duplicate: [
     "ui.common.duplicate",
-  ],
-  Enabled: [
-    "ui.dialogs.entity_registry.editor.enabled_label",
-    "ui.panel.config.entities.picker.status.enabled",
   ],
   Equal: [
     "ui.components.selectors.select.options.equal",
@@ -171,9 +163,6 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   ],
   Accent: [
     "ui.components.color-picker.colors.accent",
-  ],
-  "Accent color": [
-    "ui.panel.profile.themes.accent_color",
   ],
   Automations: [
     "ui.panel.config.automation.caption",
@@ -240,15 +229,8 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Multiple: [
     "ui.components.selectors.selector.multiple",
   ],
-  "Navigation path": [
-    "ui.panel.lovelace.editor.action-editor.navigation_path",
-  ],
   Person: [
     "component.person.entity_component._.name",
-  ],
-  Position: [
-    "ui.panel.lovelace.editor.card.entities.secondary_info_values.position",
-    "ui.card.cover.position",
   ],
   Prefix: [
     "ui.panel.lovelace.editor.elements.prefix",
@@ -258,9 +240,6 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   ],
   Name: [
     "ui.common.name",
-  ],
-  Labels: [
-    "ui.components.label-picker.labels",
   ],
   Lights: [
     "component.light.entity_component._.name_plural",
@@ -302,14 +281,8 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Switches: [
     "component.switch.entity_component._.name_plural",
   ],
-  "State color": [
-    "ui.components.color-picker.state",
-  ],
   "State content": [
     "ui.panel.lovelace.editor.badge.entity.state_content",
-  ],
-  "Entity state": [
-    "ui.panel.lovelace.editor.condition-editor.condition.state.label",
   ],
   Status: [
     "ui.panel.config.entities.picker.headers.status",
@@ -327,9 +300,6 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   ],
   Template: [
     "ui.components.selectors.selector.types.template",
-  ],
-  Type: [
-    "ui.components.selectors.selector.type",
   ],
   Unavailable: [
     "state.default.unavailable",

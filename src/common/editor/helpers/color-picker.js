@@ -53,8 +53,8 @@ export function renderColorControl(
             <button
               type="button"
               class=${activeTab === "picker" ? "active" : ""}
-              aria-label=${t(this, "Color")}
-              title=${t(this, "Color")}
+              aria-label=${t(this, "Picker")}
+              title=${t(this, "Picker")}
               @click=${() => {
                 this._colorPickerKey = pickerKey;
                 this._colorPickerTab = "picker";
@@ -783,7 +783,7 @@ function isStandardFallbackColor(color) {
 
 function getThemeColorLabel(color) {
   if (color === "theme") return t(this, "State color (default)");
-  if (color === "light") return t(this, "State Light color");
+  if (color === "light") return t(this, "State light color");
   if (color === "primary-color") return t(this, "Primary");
   if (color === "primary-text-color") return t(this, "Primary text color");
   if (color === "card-background-color") return t(this, "Card background");
@@ -807,7 +807,7 @@ const THEME_COLOR_ALIASES = {
 
 const THEME_COLOR_OPTIONS = [
   { id: "theme", label: "State color (default)" },
-  { id: "light", label: "State Light color" },
+  { id: "light", label: "State light color" },
   "primary-color",
   "card-background-color",
   "accent-color",
