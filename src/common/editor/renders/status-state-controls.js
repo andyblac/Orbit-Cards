@@ -1,8 +1,11 @@
 import { html } from "lit";
 import {
+  formatDeviceClass,
   getStatusBadgeDeviceClasses,
   getStatusBadgeHideItems,
+  getStatusBadgeSensorThreshold,
   serializeStatusBadgeHideItems,
+  STATUS_BADGE_NON_NUMERIC_SENSOR_DEVICE_CLASSES,
   STATUS_BADGE_DOMAINS,
 } from "../../helpers/status-badge.js";
 import { getTemplateError } from "../../helpers/templates.js";
@@ -78,6 +81,11 @@ export function renderBadgeStateControl({
 }) {
   const domainValue = this._config?.domain || "";
   const selectedDeviceClasses = getStatusBadgeDeviceClasses(this._config);
+  const numericSensorDeviceClasses = getNumericSensorDeviceClasses(
+    this.hass,
+    domainValue,
+    selectedDeviceClasses
+  );
   const selectedType = badgeMode
     ? this._config?.card_visibility || "always"
     : stateSource;
@@ -134,6 +142,7 @@ export function renderBadgeStateControl({
                       area: undefined,
                       domain: undefined,
                       device_class: undefined,
+                      thresholds: undefined,
                       state_template: undefined,
                       active_template: undefined,
                       inactive_template: undefined,
@@ -147,6 +156,7 @@ export function renderBadgeStateControl({
                         area: undefined,
                         domain: undefined,
                         device_class: undefined,
+                        thresholds: undefined,
                         state_template: undefined,
                         active_template: undefined,
                         inactive_template: undefined,
@@ -159,6 +169,7 @@ export function renderBadgeStateControl({
                         area: undefined,
                         domain: undefined,
                         device_class: undefined,
+                        thresholds: undefined,
                         state_template: undefined,
                         name_template: undefined,
                         state_content: undefined,
@@ -179,6 +190,7 @@ export function renderBadgeStateControl({
                     area: undefined,
                     domain: undefined,
                     device_class: undefined,
+                    thresholds: undefined,
                     state_template: undefined,
                     active_template: undefined,
                     inactive_template: undefined,
@@ -199,6 +211,7 @@ export function renderBadgeStateControl({
                       area: undefined,
                       domain: undefined,
                       device_class: undefined,
+                      thresholds: undefined,
                       state_content: undefined,
                     }
             );
@@ -262,6 +275,7 @@ export function renderBadgeStateControl({
                   domain: e.detail.value || undefined,
                   device_class: undefined,
                   threshold: undefined,
+                  thresholds: undefined,
                 })}
               ></ha-generic-picker>
             </div>
@@ -296,6 +310,10 @@ export function renderBadgeStateControl({
                                 threshold: value.includes("battery")
                                   ? this._config?.threshold
                                   : undefined,
+                                thresholds: pruneSensorThresholds(
+                                  this._config?.thresholds,
+                                  value
+                                ),
                               });
                             }}
                           >${option.label}</ha-checkbox>
@@ -334,6 +352,78 @@ export function renderBadgeStateControl({
                   </div>
                 `
               : ""}
+
+            ${numericSensorDeviceClasses.map((deviceClass) => {
+              const rule = getSensorThresholdRule(
+                this._config,
+                deviceClass
+              );
+              const unit = getSensorDeviceClassUnit(
+                this.hass,
+                deviceClass
+              );
+
+              return html`
+                <div class="field sensor-threshold-field">
+                  <div class="field-header">
+                    <label>${formatDeviceClass(deviceClass)}</label>
+                    <ha-selector
+                      .hass=${this.hass}
+                      .selector=${{
+                        button_toggle: {
+                          options: [
+                            {
+                              label: this._t(
+                                deviceClass === "signal_strength"
+                                  ? "Stronger"
+                                  : "Above"
+                              ),
+                              value: "above",
+                            },
+                            {
+                              label: this._t(
+                                deviceClass === "signal_strength"
+                                  ? "Weaker"
+                                  : "Below"
+                              ),
+                              value: "below",
+                            },
+                          ],
+                        },
+                      }}
+                      .value=${rule.direction}
+                      @value-changed=${(e) => updateSensorThreshold.call(
+                        this,
+                        deviceClass,
+                        { direction: e.detail.value }
+                      )}
+                    ></ha-selector>
+                  </div>
+                  <ha-selector
+                    .hass=${this.hass}
+                    .label=${this._t("Threshold")}
+                    .selector=${{
+                      number: {
+                        step: 0.1,
+                        mode: "box",
+                        ...(unit ? { unit_of_measurement: unit } : {}),
+                      },
+                    }}
+                    .value=${rule.value}
+                    @value-changed=${(e) => updateSensorThreshold.call(
+                      this,
+                      deviceClass,
+                      {
+                        value: e.detail.value === "" ||
+                          e.detail.value === undefined
+                          ? 0
+                          : Number(e.detail.value),
+                      }
+                    )}
+                  ></ha-selector>
+                </div>
+              `;
+            })}
 
             ${renderAreaCountHidePicker.call(this)}
           `
@@ -547,6 +637,53 @@ function getDomainPickerItems() {
     sorting_label: this._t(domain.label),
     icon: domain.icon,
   }));
+}
+
+function getNumericSensorDeviceClasses(hass, domain, deviceClasses) {
+  if (domain !== "sensor") return [];
+
+  return deviceClasses.filter((deviceClass) =>
+    deviceClass !== "battery" &&
+    !STATUS_BADGE_NON_NUMERIC_SENSOR_DEVICE_CLASSES.has(deviceClass) &&
+    Object.values(hass?.states || {}).some((stateObj) =>
+      stateObj.entity_id.startsWith("sensor.") &&
+      stateObj.attributes?.device_class === deviceClass
+    )
+  );
+}
+
+function getSensorThresholdRule(config = {}, deviceClass) {
+  return getStatusBadgeSensorThreshold(config, deviceClass);
+}
+
+function updateSensorThreshold(deviceClass, changes = {}) {
+  const current = getSensorThresholdRule(this._config, deviceClass);
+  this._updateConfig({
+    thresholds: {
+      ...(this._config?.thresholds || {}),
+      [deviceClass]: { ...current, ...changes },
+    },
+  });
+}
+
+function pruneSensorThresholds(thresholds = {}, deviceClasses = []) {
+  const pruned = Object.fromEntries(
+    Object.entries(thresholds || {}).filter(([deviceClass]) =>
+      deviceClasses.includes(deviceClass) && deviceClass !== "battery"
+    )
+  );
+
+  return Object.keys(pruned).length ? pruned : undefined;
+}
+
+function getSensorDeviceClassUnit(hass, deviceClass) {
+  if (deviceClass === "power") return "W";
+
+  return Object.values(hass?.states || {}).find((stateObj) =>
+    stateObj.entity_id.startsWith("sensor.") &&
+    stateObj.attributes?.device_class === deviceClass &&
+    stateObj.attributes?.unit_of_measurement
+  )?.attributes?.unit_of_measurement || "";
 }
 
 function renderDomainPickerValue(domainValue) {

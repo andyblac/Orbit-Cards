@@ -1,4 +1,8 @@
 {
+  "Above": "Au-dessus",
+  "Below": "En dessous",
+  "Stronger": "Plus fort",
+  "Weaker": "Plus faible",
   "Current state": "État actuel",
   "Currently {state}": "Actuellement {state}",
   "No active entities": "Aucune entité active",

@@ -1,4 +1,8 @@
 {
+  "Above": "Above",
+  "Below": "Below",
+  "Stronger": "Stronger",
+  "Weaker": "Weaker",
   "Current state": "Current state",
   "Currently {state}": "Currently {state}",
   "No active entities": "No active entities",

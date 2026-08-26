@@ -29,12 +29,19 @@ export const STATUS_BADGE_DOMAINS = [
 ];
 
 export const CURRENT_STATE_ACTION = "Current state";
+export const STATUS_BADGE_NON_NUMERIC_SENSOR_DEVICE_CLASSES = new Set([
+  "date",
+  "enum",
+  "timestamp",
+  "uptime",
+]);
 export const STATUS_SOURCE_CONFIG_KEYS = [
   "state_source",
   "area",
   "domain",
   "device_class",
   "threshold",
+  "thresholds",
   "hide",
   "active_template",
   "inactive_template",
@@ -178,6 +185,8 @@ export function normalizeStatusBadgeConfig(config = {}) {
   const deviceClasses = getStatusBadgeDeviceClasses(normalized);
   const usesBatteryThreshold = stateSource === "area_count" &&
     deviceClasses.includes("battery");
+  const usesSensorThresholds = stateSource === "area_count" &&
+    normalized.domain === "sensor";
 
   if (deviceClasses.length === 0) {
     delete normalized.device_class;
@@ -196,6 +205,38 @@ export function normalizeStatusBadgeConfig(config = {}) {
     } else {
       normalized.threshold = Math.min(100, Math.max(0, threshold));
     }
+  }
+
+  if (!usesSensorThresholds) {
+    delete normalized.thresholds;
+  } else {
+    const thresholds = Object.fromEntries(
+      Object.entries(normalized.thresholds || {}).flatMap(
+        ([deviceClass, rule]) => {
+          if (
+            !deviceClasses.includes(deviceClass) ||
+            deviceClass === "battery"
+          ) {
+            return [];
+          }
+
+          const value = Number(rule?.value);
+          const defaultDirection = getStatusBadgeSensorDefaultDirection(
+            deviceClass
+          );
+          const direction = ["above", "below"].includes(rule?.direction)
+            ? rule.direction
+            : defaultDirection;
+          if (!Number.isFinite(value)) return [];
+          if (value === 0 && direction === defaultDirection) return [];
+
+          return [[deviceClass, { value, direction }]];
+        }
+      )
+    );
+
+    if (Object.keys(thresholds).length) normalized.thresholds = thresholds;
+    else delete normalized.thresholds;
   }
 
   delete normalized.include_low_sensors;
@@ -330,27 +371,100 @@ export function getStatusBadgeThreshold(config = {}) {
     : 20;
 }
 
+export function getStatusBadgeSensorThreshold(config = {}, deviceClass = "") {
+  const configured = config.thresholds?.[deviceClass] || {};
+  const value = Number(configured.value);
+  const defaultDirection = getStatusBadgeSensorDefaultDirection(deviceClass);
+
+  return {
+    value: Number.isFinite(value) ? value : 0,
+    direction: ["above", "below"].includes(configured.direction)
+      ? configured.direction
+      : defaultDirection,
+  };
+}
+
+export function getStatusBadgeSensorDefaultDirection(deviceClass = "") {
+  return deviceClass === "signal_strength" ? "below" : "above";
+}
+
 export function getStatusBadgeActiveEntities(entities = [], config = {},
   isActive = getEntityActiveState) {
-  const usesBatteryThreshold =
-    getStatusBadgeStateSource(config) === "area_count" &&
-    getStatusBadgeDeviceClasses(config).includes("battery");
+  const isAreaCount = getStatusBadgeStateSource(config) === "area_count";
+  const deviceClasses = getStatusBadgeDeviceClasses(config);
+  const usesBatteryThreshold = isAreaCount &&
+    deviceClasses.includes("battery");
+  const usesSensorThresholds = isAreaCount && config.domain === "sensor";
 
-  if (!usesBatteryThreshold) return entities.filter(isActive);
+  if (!usesBatteryThreshold && !usesSensorThresholds) {
+    return entities.filter(isActive);
+  }
 
   const threshold = getStatusBadgeThreshold(config);
 
   return entities.filter((stateObj) => {
-    if (stateObj?.attributes?.device_class !== "battery") {
-      return isActive(stateObj);
+    const deviceClass = stateObj?.attributes?.device_class;
+
+    if (deviceClass === "battery" && usesBatteryThreshold) {
+      const batteryLevel = getNumericSensorState(stateObj?.state);
+
+      return Number.isFinite(batteryLevel)
+        ? batteryLevel <= threshold
+        : stateObj?.entity_id?.startsWith("binary_sensor.") &&
+          isActive(stateObj);
     }
 
-    const batteryLevel = Number.parseFloat(stateObj?.state);
+    if (stateObj?.entity_id?.startsWith("sensor.") && usesSensorThresholds) {
+      if (STATUS_BADGE_NON_NUMERIC_SENSOR_DEVICE_CLASSES.has(deviceClass)) {
+        return isAvailableSensorState(stateObj?.state);
+      }
 
-    return Number.isFinite(batteryLevel)
-      ? batteryLevel <= threshold
-      : isActive(stateObj);
+      const value = deviceClass === "power"
+        ? getPowerStateWatts(stateObj)
+        : getNumericSensorState(stateObj?.state);
+
+      if (Number.isFinite(value)) {
+        const rule = getStatusBadgeSensorThreshold(config, deviceClass);
+        return rule.direction === "below"
+          ? value <= rule.value
+          : value > rule.value;
+      }
+
+      return false;
+    }
+
+    return isActive(stateObj);
   });
+}
+
+function isAvailableSensorState(state) {
+  const value = state?.toString().trim().toLowerCase();
+  return Boolean(value) && !["unknown", "unavailable", "none"].includes(value);
+}
+
+function getNumericSensorState(state) {
+  const text = state?.toString().trim();
+  if (!text) return Number.NaN;
+
+  const value = Number(text);
+  return Number.isFinite(value) ? value : Number.NaN;
+}
+
+function getPowerStateWatts(stateObj) {
+  const value = getNumericSensorState(stateObj?.state);
+  if (!Number.isFinite(value)) return Number.NaN;
+
+  const unit = stateObj?.attributes?.unit_of_measurement || "W";
+  const multiplier = {
+    mW: 0.001,
+    W: 1,
+    kW: 1000,
+    MW: 1000000,
+    GW: 1000000000,
+    TW: 1000000000000,
+  }[unit];
+
+  return multiplier === undefined ? Number.NaN : value * multiplier;
 }
 
 export function getStatusBadgeEntityDeviceClass(stateObj, domain) {
@@ -426,9 +540,12 @@ function preferBatteryPercentageEntities(hass, entities) {
   });
 
   return [...entitiesByDevice.values()].flatMap((deviceEntities) => {
+    // A sensor-domain battery entity is the device's percentage source. Keep
+    // preferring it even while its state is temporarily unavailable or
+    // malformed; otherwise the binary low-battery fallback can duplicate or
+    // incorrectly replace a percentage sensor that does exist.
     const percentageSensors = deviceEntities.filter((stateObj) =>
-      stateObj.entity_id.startsWith("sensor.") &&
-      Number.isFinite(Number.parseFloat(stateObj.state))
+      stateObj.entity_id.startsWith("sensor.")
     );
 
     return percentageSensors.length
