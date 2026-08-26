@@ -29,18 +29,26 @@ export function renderColorControl(
 ) {
   scheduleThemeColorWarmup.call(this);
 
+  const controlValue =
+    !allowTemplate && hasNativeTemplateSyntax(value) ? "" : value;
+
   const effectivePreviewValue = getEffectiveColorPreviewValue.call(
     this,
-    value,
+    controlValue,
     previewValue
   );
-  const defaultTab = getDefaultColorTab(value || effectivePreviewValue);
+  const defaultTab = getDefaultColorTab(
+    controlValue || effectivePreviewValue
+  );
   const requestedTab =
     this._colorPickerKey === pickerKey
       ? this._colorPickerTab || defaultTab
       : defaultTab;
-  const activeTab =
-    !allowTemplate && requestedTab === "template" ? defaultTab : requestedTab;
+  const activeTab = !allowTemplate && requestedTab === "template"
+    ? getDefaultColorTab(effectivePreviewValue) === "template"
+      ? "theme"
+      : getDefaultColorTab(effectivePreviewValue)
+    : requestedTab;
 
   return html`
     <div class="field">
@@ -60,7 +68,7 @@ export function renderColorControl(
                 this._colorPickerTab = "picker";
                 this._themeColorPickerOpen = false;
 
-                const effectiveValue = value || effectivePreviewValue;
+                const effectiveValue = controlValue || effectivePreviewValue;
 
                 if (effectiveValue && !isNativeColorValue(effectiveValue)) {
                   const nativeValue = this._getColorPickerValue(effectiveValue);
@@ -107,13 +115,13 @@ export function renderColorControl(
           </div>
 
           ${activeTab === "template"
-            ? renderColorTemplateInput.call(this, label, value, onUpdate)
+            ? renderColorTemplateInput.call(this, label, controlValue, onUpdate)
             : activeTab === "theme"
             ? html`
                 ${renderThemeColorPicker.call(
                   this,
                   label,
-                  value,
+                  controlValue,
                   onUpdate,
                   effectivePreviewValue,
                   pickerKey
@@ -123,7 +131,7 @@ export function renderColorControl(
                 ${renderNativeColorPicker.call(
                   this,
                   label,
-                  value,
+                  controlValue,
                   onUpdate,
                   effectivePreviewValue
                 )}
@@ -169,11 +177,22 @@ export function renderColorPair({
             },
           }}
           .value=${templateMode ? "template" : "custom"}
-          @value-changed=${(event) =>
-            onUpdate(
-              effectiveSourceKey,
-              event.detail.value === "template" ? "template" : undefined
-            )}
+          @value-changed=${(event) => {
+            const nextSource = event.detail.value === "template"
+              ? "template"
+              : "custom";
+
+            if (nextSource === "custom") {
+              if (hasNativeTemplateSyntax(config[onKey])) {
+                onUpdate(onKey, undefined);
+              }
+              if (hasNativeTemplateSyntax(config[offKey])) {
+                onUpdate(offKey, undefined);
+              }
+            }
+
+            onUpdate(effectiveSourceKey, nextSource);
+          }}
         ></ha-selector>
       </div>
 
