@@ -121,19 +121,20 @@ export function renderStatusSection() {
                       legacyTemplateKey: "accent_color",
                     })}
                     ${renderStatusIconSource.call(this, stateSource)}
-                    ${stateSource === "area_count"
-                      ? ""
-                      : html`
+                    ${stateSource === "template"
+                      ? html`
                           ${this._renderTemplateInput(
-                            stateSource === "template"
-                              ? "State"
-                              : "State template",
+                            "State template",
                             "state_template",
-                            {
-                              required: stateSource !== "template",
-                            }
+                            { required: false }
                           )}
-                        `}
+                          ${this._renderTemplateInput(
+                            "Label template",
+                            "label_template",
+                            { required: false }
+                          )}
+                        `
+                      : ""}
                   `)}
                 `}
 
@@ -363,22 +364,24 @@ function renderIconOnlyStatusConfig({
           selectedIsAreaCount
         )}
 
-        ${selectedIsAreaCount
-          ? ""
-          : html`
+        ${selectedStateSource === "template"
+          ? html`
               ${renderStatusItemInput.call(
                 this,
-                selectedStateSource === "template"
-                  ? "State"
-                  : "State template",
+                "State template",
                 "state_template",
                 selectedIndex,
-                selectedItem,
-                {
-                  required: selectedStateSource !== "template",
-                }
+                selectedItem
               )}
-            `}
+              ${renderStatusItemInput.call(
+                this,
+                "Label template",
+                "label_template",
+                selectedIndex,
+                selectedItem
+              )}
+            `
+          : ""}
       `)}
 
       ${selectedItem.entity || selectedStateSource !== "entity"
@@ -441,7 +444,10 @@ function renderStatusStateType(
             stateConfig
           ),
           badgeMode: false,
+          showActiveTemplate: true,
           showInactiveTemplate: true,
+          showStateTemplate: false,
+          showLabelTemplate: false,
           showNameTemplate: false,
           preserveStateConfig: true,
           renderAreaPicker: () => renderStatusAreaPicker.call(this, {
@@ -494,9 +500,9 @@ function mapStatusStateChanges(changes, entityKey) {
   return mapped;
 }
 
-function renderStatusItemInput(label, key, index, item, options = {}) {
+function renderStatusItemInput(label, key, index, item) {
   return this._renderTemplateInput(label, key, {
-    ...options,
+    required: false,
     value: item[key] || "",
     onValueChanged: (value) =>
       this._updateStatusItem(index, {

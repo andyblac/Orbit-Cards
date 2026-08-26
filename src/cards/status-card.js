@@ -613,6 +613,7 @@ class OrbitStatusCard extends LitElement {
               item.state_template,
               item.active_template,
               item.inactive_template,
+              item.label_template,
               item.name_template,
             ])
           .filter(Boolean)
@@ -639,6 +640,7 @@ class OrbitStatusCard extends LitElement {
           this._config?.state_template,
           this._config?.active_template,
           this._config?.inactive_template,
+          this._config?.label_template,
           this._config?.name_template,
         ])
       .filter(Boolean)

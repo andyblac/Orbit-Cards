@@ -101,6 +101,7 @@ export function getIconOnlyStatusItems(config = {}) {
       entity_icon_off_svg_color_override:
         config.entity_icon_off_svg_color_override,
       state_template: config.state_template,
+      label_template: config.label_template,
       name_template: config.name_template,
       tap_action: config.tap_action,
       hold_action: config.hold_action,
@@ -146,7 +147,7 @@ function getStatusState(item, rootConfig = {}) {
     config.name !== undefined &&
     config.name !== "";
 
-  const templatedState = stateSource !== "area_count" && config.state_template
+  const templatedState = stateSource === "template" && config.state_template
       ? this._evaluateStateTemplate(
           config.state_template,
           entityId
@@ -168,6 +169,14 @@ function getStatusState(item, rootConfig = {}) {
         )
       : null;
 
+  const templatedLabel =
+    stateSource === "template" && config.label_template
+      ? this._evaluateStateTemplate(
+          config.label_template,
+          entityId
+        )
+      : null;
+
   const cardName = templatedName !== null
     ? String(templatedName)
     : hasConfiguredName
@@ -182,7 +191,9 @@ function getStatusState(item, rootConfig = {}) {
         entityId ||
         localize(this.hass, "Status");
 
-  const statusText = stateSource === "template"
+  const statusText = templatedLabel !== null
+    ? String(templatedLabel)
+    : stateSource === "template"
     ? config.state_template
       ? formatTemplateState(templatedState)
       : stateObj

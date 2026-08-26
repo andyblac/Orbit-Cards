@@ -108,7 +108,10 @@ export function renderBadgeStateControl({
   domainConfig,
   deviceClassOptions,
   badgeMode,
+  showActiveTemplate = true,
   showInactiveTemplate = badgeMode,
+  showStateTemplate = false,
+  showLabelTemplate = false,
   showNameTemplate = !badgeMode,
   preserveStateConfig = false,
   renderEntityPicker,
@@ -214,9 +217,36 @@ export function renderBadgeStateControl({
               return;
             }
             if (preserveStateConfig) {
-              this._updateConfig({
-                state_source: value === "entity" ? undefined : value,
-              });
+              this._updateConfig(
+                value === "entity"
+                  ? {
+                      state_source: undefined,
+                      area: undefined,
+                      domain: undefined,
+                      device_class: undefined,
+                      thresholds: undefined,
+                      state_template: undefined,
+                      label_template: undefined,
+                      active_template: undefined,
+                      inactive_template: undefined,
+                    }
+                  : value === "area_count"
+                    ? {
+                        state_source: "area_count",
+                        entity: undefined,
+                        state_template: undefined,
+                        label_template: undefined,
+                        active_template: undefined,
+                        inactive_template: undefined,
+                      }
+                    : {
+                        state_source: "template",
+                        area: undefined,
+                        domain: undefined,
+                        device_class: undefined,
+                        thresholds: undefined,
+                      }
+              );
               return;
             }
             this._updateConfig(
@@ -483,24 +513,12 @@ export function renderBadgeStateControl({
                     ></ha-selector>
                     `
                 : ""}
-              <div class="field">
-                <ha-selector
-                  .hass=${this.hass}
-                  .label=${this._t("Active template")}
-                  .selector=${{ template: {} }}
-                  .value=${this._config?.active_template || ""}
-                  @value-changed=${(e) =>
-                    this._handleConfigUpdate(
-                      "active_template",
-                      e.detail.value || undefined
-                    )}
-                ></ha-selector>
-                ${renderTemplateError.call(
-                  this,
-                  this._config?.active_template,
-                  this._config?.entity || ""
-                )}
-              </div>
+              ${showActiveTemplate
+                ? renderStateTemplateField.call(this, {
+                    key: "active_template",
+                    label: "Active template",
+                  })
+                : ""}
               ${showInactiveTemplate
                 ? html`
                     <div class="field">
@@ -522,6 +540,18 @@ export function renderBadgeStateControl({
                       )}
                     </div>
                   `
+                : ""}
+              ${showStateTemplate
+                ? renderStateTemplateField.call(this, {
+                    key: "state_template",
+                    label: "State",
+                  })
+                : ""}
+              ${showLabelTemplate
+                ? renderStateTemplateField.call(this, {
+                    key: "label_template",
+                    label: "Label",
+                  })
                 : ""}
               ${showNameTemplate
                 ? html`
@@ -546,6 +576,30 @@ export function renderBadgeStateControl({
                 : ""}
             `
             : ""}
+    </div>
+  `;
+}
+
+function renderStateTemplateField({ key, label }) {
+  return html`
+    <div class="field">
+      <ha-selector
+        .hass=${this.hass}
+        .label=${this._t(label)}
+        .selector=${{ template: {} }}
+        .required=${false}
+        .value=${this._config?.[key] || ""}
+        @value-changed=${(e) =>
+          this._handleConfigUpdate(
+            key,
+            e.detail.value || undefined
+          )}
+      ></ha-selector>
+      ${renderTemplateError.call(
+        this,
+        this._config?.[key],
+        this._config?.entity || ""
+      )}
     </div>
   `;
 }

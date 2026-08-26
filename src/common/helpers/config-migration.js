@@ -125,6 +125,9 @@ export function migrateStatusCardConfig(config = {}) {
   let migrated = migrateTemplateKeys(nextConfig);
 
   migrated = migrateStatusName(nextConfig) || migrated;
+  if (nextConfig.mode !== "person") {
+    migrated = migrateStatusTemplateSource(nextConfig) || migrated;
+  }
   migrated = migrateStatusEntityActions(nextConfig) || migrated;
   migrated = migrateStatusEntityIcons(nextConfig) || migrated;
   migrated = migrateColorPresentation(nextConfig) || migrated;
@@ -149,12 +152,14 @@ export function migrateStatusCardConfig(config = {}) {
       const nextItem = { ...item };
       const templateMigrated = migrateTemplateKeys(nextItem);
       const nameMigrated = migrateStatusName(nextItem);
+      const stateSourceMigrated = migrateStatusTemplateSource(nextItem);
       const actionsMigrated = migrateStatusEntityActions(nextItem);
       const iconsMigrated = migrateStatusEntityIcons(nextItem);
       const colorsMigrated = migrateColorPresentation(nextItem);
       const itemMigrated =
         templateMigrated ||
         nameMigrated ||
+        stateSourceMigrated ||
         actionsMigrated ||
         iconsMigrated ||
         colorsMigrated;
@@ -334,6 +339,24 @@ function migrateStatusName(config) {
   }
 
   delete config.status_name;
+  return true;
+}
+
+function migrateStatusTemplateSource(config) {
+  const hasStateTemplate =
+    config.state_template !== undefined && config.state_template !== "";
+  const hasLabelTemplate =
+    config.label_template !== undefined && config.label_template !== "";
+
+  if (
+    (!hasStateTemplate && !hasLabelTemplate) ||
+    config.state_source === "template" ||
+    config.state_source === "area_count"
+  ) {
+    return false;
+  }
+
+  config.state_source = "template";
   return true;
 }
 
