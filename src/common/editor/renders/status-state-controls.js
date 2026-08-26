@@ -1,67 +1,11 @@
 import { html } from "lit";
 import {
-  renderActionSelector,
-} from "../helpers/helpers.js";
-import {
-  CURRENT_STATE_ACTION,
   getStatusBadgeDeviceClasses,
   getStatusBadgeHideItems,
   serializeStatusBadgeHideItems,
   STATUS_BADGE_DOMAINS,
 } from "../../helpers/status-badge.js";
 import { getTemplateError } from "../../helpers/templates.js";
-
-export function renderBadgeInteractions(stateSource) {
-  const defaultTapAction = stateSource === "entity"
-    ? "more-info"
-    : stateSource === "area_count"
-      ? CURRENT_STATE_ACTION
-      : "none";
-  const currentStateAction = {
-    id: CURRENT_STATE_ACTION,
-    primary: this._t("Current state"),
-    icon: "mdi:format-list-bulleted",
-  };
-
-  return html`
-    <ha-expansion-panel
-      class="badge-interactions-panel"
-      outlined
-      .expanded=${this._interactionsExpanded === true}
-      @expanded-changed=${(event) => {
-        this._interactionsExpanded = event.detail.expanded;
-      }}
-    >
-      <ha-icon slot="leading-icon" icon="mdi:gesture-tap-button"></ha-icon>
-      <div slot="header" role="heading" aria-level="3">
-        ${this._t("Interactions")}
-      </div>
-      <div class="badge-interactions-content">
-        ${renderActionSelector.call(
-          this,
-          "Tap behavior",
-          "tap_action",
-          defaultTapAction,
-          stateSource === "area_count"
-            ? { extraActions: [currentStateAction] }
-            : undefined
-        )}
-        ${renderActionSelector.call(
-          this,
-          "Hold behavior",
-          "hold_action",
-          "none"
-        )}
-        ${renderActionSelector.call(
-          this,
-          "Double tap behavior",
-          "double_tap_action",
-          "none"
-        )}
-      </div>
-    </ha-expansion-panel>
-  `;
-}
 
 export function renderBadgeIconControl(stateSource = "entity") {
   const iconSource = this._config?.icon_source ||

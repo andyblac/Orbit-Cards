@@ -21,10 +21,6 @@ export const statusEditorStyles = css`
   color: var(--secondary-text-color);
 }
 
-.section > .interactions-form {
-  margin-top: 0;
-}
-
 .content-panel-body {
   display: flex;
   flex-direction: column;

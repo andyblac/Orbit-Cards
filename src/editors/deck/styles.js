@@ -103,10 +103,6 @@ export const deckCardEditorStyles = [
       margin-bottom: -26px;
     }
 
-    .deck-interactions-section .interactions-form {
-      margin-top: 0;
-    }
-
     .deck-default-toggle {
       display: flex;
       align-items: center;

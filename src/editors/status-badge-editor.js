@@ -14,6 +14,7 @@ import {
   resolveIconPath,
 } from "../common/editor/helpers/helpers.js";
 import { editorStyles } from "../common/editor/styles/editor-styles.js";
+import { renderInteractionsSection } from "../common/editor/helpers/renders.js";
 import { updateEditorDocumentationContext } from "../common/helpers/documentation.js";
 import { sharedSvgCache } from "../common/helpers/svg-cache.js";
 import { localize } from "../common/localize.js";
@@ -23,6 +24,7 @@ import {
   getStatusBadgeAreaName,
   getStatusBadgeStateSource,
   normalizeStatusBadgeConfig,
+  CURRENT_STATE_ACTION,
   STATUS_BADGE_DOMAINS,
 } from "../common/helpers/status-badge.js";
 import {
@@ -33,7 +35,6 @@ import {
 import { CARD_VERSIONS } from "../version.js";
 import {
   renderBadgeIconControl,
-  renderBadgeInteractions,
   renderBadgeStateControl,
 } from "../common/editor/renders/status-state-controls.js";
 
@@ -55,7 +56,6 @@ class OrbitStatusBadgeEditor extends LitElement {
     _localIconFilesLoading: { state: true },
     _contentExpanded: { state: true },
     _stateTypeExpanded: { state: true },
-    _interactionsExpanded: { state: true },
     _templateRevision: { state: true },
   };
 
@@ -72,7 +72,6 @@ class OrbitStatusBadgeEditor extends LitElement {
     this._localIconFilesLoading = false;
     this._contentExpanded = false;
     this._stateTypeExpanded = false;
-    this._interactionsExpanded = false;
     this._namePickerEnhanceFrame = undefined;
     this._namePickerEnhanceAttempts = 0;
   }
@@ -573,7 +572,40 @@ class OrbitStatusBadgeEditor extends LitElement {
             </div>
           </ha-expansion-panel>
 
-          ${renderBadgeInteractions.call(this, stateSource)}
+          ${renderInteractionsSection.call(this, {
+            interactions: [
+              {
+                key: "tap_action",
+                formKey: "tap_action",
+                label: "Tap behavior",
+                defaultAction: stateSource === "entity"
+                  ? "more-info"
+                  : stateSource === "area_count"
+                    ? CURRENT_STATE_ACTION
+                    : "none",
+                defaultVisible: true,
+                customDefaultLabel: stateSource === "area_count"
+                  ? CURRENT_STATE_ACTION
+                  : undefined,
+              },
+              {
+                key: "hold_action",
+                formKey: "hold_action",
+                label: "Hold behavior",
+                defaultAction: "none",
+              },
+              {
+                key: "double_tap_action",
+                formKey: "double_tap_action",
+                label: "Double tap behavior",
+                defaultAction: "none",
+              },
+            ],
+            context: {
+              entity_id: this._config?.entity,
+              area_id: this._config?.area,
+            },
+          })}
         </div>
 
         <div class="editor-version">
@@ -589,8 +621,7 @@ class OrbitStatusBadgeEditor extends LitElement {
     ...editorStyles,
     css`
       .content-panel,
-      .state-type-panel,
-      .badge-interactions-panel {
+      .state-type-panel {
         display: block;
         --expansion-panel-content-padding: 0;
         border-radius: var(--ha-border-radius-md);
@@ -598,16 +629,14 @@ class OrbitStatusBadgeEditor extends LitElement {
       }
 
       .content-panel > [slot="header"],
-      .state-type-panel > [slot="header"],
-      .badge-interactions-panel > [slot="header"] {
+      .state-type-panel > [slot="header"] {
         margin: 0;
         font-size: inherit;
         font-weight: inherit;
       }
 
       .content-panel ha-icon,
-      .state-type-panel ha-icon,
-      .badge-interactions-panel > ha-icon {
+      .state-type-panel ha-icon {
         color: var(--secondary-text-color);
       }
 
@@ -620,13 +649,6 @@ class OrbitStatusBadgeEditor extends LitElement {
 
       .native-picker-label {
         display: block;
-      }
-
-      .badge-interactions-content {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        padding: 12px;
       }
     `,
   ];
