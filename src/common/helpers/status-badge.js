@@ -1,4 +1,5 @@
 import { getEntityAreaId } from "./suggestions.js";
+import { getEntityActiveState } from "./entities.js";
 
 export const STATUS_BADGE_DOMAINS = [
   { value: "light", label: "Lights", icon: "mdi:lightbulb" },
@@ -19,6 +20,12 @@ export const STATUS_BADGE_DOMAINS = [
     icon: "mdi:radiobox-marked",
     requiresDeviceClass: true,
   },
+  {
+    value: "sensor",
+    label: "Sensors",
+    icon: "mdi:gauge",
+    requiresDeviceClass: true,
+  },
 ];
 
 export const CURRENT_STATE_ACTION = "Current state";
@@ -27,6 +34,7 @@ export const STATUS_SOURCE_CONFIG_KEYS = [
   "area",
   "domain",
   "device_class",
+  "threshold",
   "hide",
   "active_template",
   "inactive_template",
@@ -110,6 +118,11 @@ export function getStatusBadgeHideItems(config = {}) {
       return;
     }
 
+    if (item === "low" && !items.some((entry) => entry.type === "low")) {
+      items.push({ type: "low" });
+      return;
+    }
+
     const label = typeof item?.label === "string"
       ? item.label.trim()
       : "";
@@ -124,9 +137,10 @@ export function getStatusBadgeHideItems(config = {}) {
 }
 
 export function serializeStatusBadgeHideItems(items = []) {
-  return items.map((item) => item?.type === "hidden"
-    ? "hidden"
-    : { label: item?.label }
+  return items.map((item) =>
+    ["hidden", "low"].includes(item?.type)
+      ? item.type
+      : { label: item?.label }
   );
 }
 
@@ -135,7 +149,15 @@ export function shouldHideStatusBadgeEntity(hass, entityId, config = {}) {
   const entity = hass?.entities?.[entityId];
 
   return hideItems.some((item) => {
-    if (item.type === "hidden") return Boolean(entity?.hidden);
+    if (item.type === "hidden") {
+      return Boolean(entity?.hidden_by || entity?.hidden);
+    }
+
+    if (item.type === "low") {
+      const stateObj = hass?.states?.[entityId];
+      return entityId.startsWith("binary_sensor.") &&
+        stateObj?.attributes?.device_class === "battery";
+    }
 
     return item.type === "label" &&
       Array.isArray(entity?.labels) &&
@@ -154,6 +176,8 @@ export function normalizeStatusBadgeConfig(config = {}) {
   });
 
   const deviceClasses = getStatusBadgeDeviceClasses(normalized);
+  const usesBatteryThreshold = stateSource === "area_count" &&
+    deviceClasses.includes("battery");
 
   if (deviceClasses.length === 0) {
     delete normalized.device_class;
@@ -162,6 +186,19 @@ export function normalizeStatusBadgeConfig(config = {}) {
       ? deviceClasses[0]
       : deviceClasses;
   }
+
+  if (!usesBatteryThreshold) {
+    delete normalized.threshold;
+  } else {
+    const threshold = Number(normalized.threshold);
+    if (!Number.isFinite(threshold) || threshold === 20) {
+      delete normalized.threshold;
+    } else {
+      normalized.threshold = Math.min(100, Math.max(0, threshold));
+    }
+  }
+
+  delete normalized.include_low_sensors;
 
   // Match native badge config behaviour: only persist values that differ from
   // the runtime defaults.
@@ -285,6 +322,37 @@ export function getStatusBadgeDeviceClasses(config = {}) {
   )];
 }
 
+export function getStatusBadgeThreshold(config = {}) {
+  const threshold = Number(config.threshold);
+
+  return Number.isFinite(threshold)
+    ? Math.min(100, Math.max(0, threshold))
+    : 20;
+}
+
+export function getStatusBadgeActiveEntities(entities = [], config = {},
+  isActive = getEntityActiveState) {
+  const usesBatteryThreshold =
+    getStatusBadgeStateSource(config) === "area_count" &&
+    getStatusBadgeDeviceClasses(config).includes("battery");
+
+  if (!usesBatteryThreshold) return entities.filter(isActive);
+
+  const threshold = getStatusBadgeThreshold(config);
+
+  return entities.filter((stateObj) => {
+    if (stateObj?.attributes?.device_class !== "battery") {
+      return isActive(stateObj);
+    }
+
+    const batteryLevel = Number.parseFloat(stateObj?.state);
+
+    return Number.isFinite(batteryLevel)
+      ? batteryLevel <= threshold
+      : isActive(stateObj);
+  });
+}
+
 export function getStatusBadgeEntityDeviceClass(stateObj, domain) {
   return stateObj?.attributes?.device_class ||
     (domain === "switch" ? "switch" : "");
@@ -320,14 +388,53 @@ export function getStatusBadgeAreaEntities(hass, config = {}) {
   if (!hass || !areaIds.length || !domain) return [];
   if (domainConfig.requiresDeviceClass && !deviceClasses.length) return [];
 
-  return Object.values(hass.states || {}).filter((stateObj) =>
-    stateObj.entity_id.startsWith(`${domain}.`) &&
+  const batteryDomains = deviceClasses.includes("battery") &&
+      ["sensor", "binary_sensor"].includes(domain)
+    ? new Set(["sensor", "binary_sensor"])
+    : null;
+  const entities = Object.values(hass.states || {}).filter((stateObj) =>
+    (batteryDomains
+      ? batteryDomains.has(stateObj.entity_id.split(".")[0])
+      : stateObj.entity_id.startsWith(`${domain}.`)) &&
     areaIds.includes(getEntityAreaId(hass, stateObj.entity_id)) &&
     (!domainConfig.requiresDeviceClass || deviceClasses.includes(
       getStatusBadgeEntityDeviceClass(stateObj, domain)
     )) &&
     !shouldHideStatusBadgeEntity(hass, stateObj.entity_id, config)
   );
+
+  return deviceClasses.includes("battery")
+    ? preferBatteryPercentageEntities(hass, entities)
+    : entities;
+}
+
+function preferBatteryPercentageEntities(hass, entities) {
+  const entitiesByDevice = new Map();
+
+  entities.forEach((stateObj) => {
+    if (stateObj?.attributes?.device_class !== "battery") {
+      entitiesByDevice.set(stateObj.entity_id, [stateObj]);
+      return;
+    }
+
+    const registryEntry = hass?.entities?.[stateObj.entity_id];
+    const deviceKey = registryEntry?.device_id || stateObj.entity_id;
+    entitiesByDevice.set(deviceKey, [
+      ...(entitiesByDevice.get(deviceKey) || []),
+      stateObj,
+    ]);
+  });
+
+  return [...entitiesByDevice.values()].flatMap((deviceEntities) => {
+    const percentageSensors = deviceEntities.filter((stateObj) =>
+      stateObj.entity_id.startsWith("sensor.") &&
+      Number.isFinite(Number.parseFloat(stateObj.state))
+    );
+
+    return percentageSensors.length
+      ? percentageSensors
+      : deviceEntities;
+  });
 }
 
 export function getStatusBadgeEntities(hass, config = {}) {

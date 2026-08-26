@@ -6,6 +6,7 @@ export function renderNamePicker({
   legacyValueKey = "",
   entityKey = "main_entity",
   areaKey = "area",
+  deviceClassKey = "device_class",
   defaultType = "",
   defaultMode = "composed",
   modeKey = valueKey,
@@ -20,6 +21,7 @@ export function renderNamePicker({
       valueKey,
       entityKey,
       areaKey,
+      deviceClassKey,
       defaultType,
       defaultMode,
       modeKey,
@@ -261,7 +263,7 @@ function renderNameChip(item, index, selectedItems, options) {
       @click=${(e) => openNamePicker(e)}
     >
       <ha-icon icon="mdi:drag-horizontal-variant"></ha-icon>
-      <span>${formatNameChipLabel.call(this, item)}</span>
+      <span>${formatNameChipLabel.call(this, item, options)}</span>
       <ha-icon
         class="name-picker-chip-remove"
         icon="mdi:close"
@@ -330,11 +332,14 @@ function getNameComposedSelectedItems(config = {}, options) {
     : [value];
 }
 
-function formatNameChipLabel(item) {
+function formatNameChipLabel(item, options) {
   if (!item) return "";
   if (item.type === "text") return `"${item.text || ""}"`;
   if (item.type === "area") return this._t("Area");
   if (item.type === "entity") return this._t("Entity");
+  if (item.type === "device_class") {
+    return this._t("Device class");
+  }
 
   return localizeEntityNamePickerType(this, item.type);
 }
@@ -353,6 +358,18 @@ function getNameComposedItems(selectedItems = [], options) {
   const stateObj = entityId
     ? this.hass?.states?.[entityId]
     : null;
+  const deviceClassName = getConfiguredDeviceClassName(
+    this._config,
+    options
+  );
+
+  if (deviceClassName && !selectedTypes.has("device_class")) {
+    items.push({
+      id: "device_class",
+      primary: this._t("Device class"),
+      secondary: deviceClassName,
+    });
+  }
 
   if (area && !selectedTypes.has("area")) {
     items.push({
@@ -410,7 +427,7 @@ function getNameComposedItems(selectedItems = [], options) {
 function parseNameComposedValue(value) {
   if (!value) return undefined;
 
-  return ["area", "device", "entity", "floor"].includes(value)
+  return ["area", "device", "device_class", "entity", "floor"].includes(value)
     ? { type: value }
     : {
         type: "text",
@@ -437,6 +454,13 @@ function getNamePickerValue(config = {}, options) {
     (config[options.entityKey] || config.entity)
   ) {
     return { type: "entity" };
+  }
+
+  if (
+    options.defaultType === "device_class" &&
+    getConfiguredDeviceClasses(config, options).length
+  ) {
+    return { type: "device_class" };
   }
 
   return undefined;
@@ -479,7 +503,11 @@ function updateNameConfig({ valueKey, legacyValueKey, value }) {
 
 
 function normalizeNameValue(value, config = {}, options) {
-  if (!value || (Array.isArray(value) && value.length === 0)) {
+  if (Array.isArray(value) && value.length === 0) {
+    return undefined;
+  }
+
+  if (!value) {
     return undefined;
   }
 
@@ -503,7 +531,28 @@ function hasDefaultContext(config = {}, options) {
     return Boolean(config[options.entityKey] || config.entity);
   }
 
+  if (options.defaultType === "device_class") {
+    return getConfiguredDeviceClasses(config, options).length > 0;
+  }
+
   return false;
+}
+
+function getConfiguredDeviceClasses(config = {}, options = {}) {
+  const configured = config?.[options.deviceClassKey || "device_class"];
+
+  return (Array.isArray(configured) ? configured : [configured])
+    .filter((value) => typeof value === "string")
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function getConfiguredDeviceClassName(config = {}, options = {}) {
+  return getConfiguredDeviceClasses(config, options)
+    .map((value) => value
+      .replaceAll("_", " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase()))
+    .join(", ");
 }
 
 function isSingleTypeValue(value, type) {

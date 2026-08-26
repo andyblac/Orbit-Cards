@@ -106,7 +106,7 @@ export function renderStatusSection() {
                       ${this._renderColor(["Accent", "Active", "Color"], "accent_on_color")}
                       ${this._renderColor(["Accent", "Inactive", "Color"], "accent_off_color")}
                     </div>
-                    ${renderStatusIconSource.call(this)}
+                    ${renderStatusIconSource.call(this, stateSource)}
                     ${stateSource === "area_count"
                       ? ""
                       : html`
@@ -181,13 +181,16 @@ export function renderStatusSection() {
 
 function renderStatusNamePicker() {
   const nativeNameKey = "ui.panel.lovelace.editor.card.generic.name";
+  const stateSource = getStatusBadgeStateSource(this._config);
+  const isAreaCount = stateSource === "area_count";
 
   return renderNamePicker.call(this, {
     label: this.hass.localize(nativeNameKey),
     valueKey: "name",
     entityKey: "entity",
-    defaultType: "entity",
-    defaultMode: "template",
+    defaultType: isAreaCount ? "device_class" : "entity",
+    defaultMode: stateSource === "template" ? "template" : "composed",
+    modeKey: `name:${stateSource}`,
     templateKey: "name_template",
   });
 }
@@ -338,7 +341,8 @@ function renderIconOnlyStatusConfig({
         ${renderStatusItemIconSource.call(
           this,
           selectedIndex,
-          selectedItem
+          selectedItem,
+          selectedIsAreaCount
         )}
 
         ${selectedIsAreaCount
@@ -489,11 +493,15 @@ function renderStatusItemColor(label, key, index, item) {
   );
 }
 
-function renderStatusIconSource() {
+function renderStatusIconSource(stateSource = "entity") {
+  const isAreaCount = stateSource === "area_count";
+
   return renderIconSourceControl.call(this, {
     label: "Icon",
     sourceKey: "entity_icon_source",
     entityKey: "entity",
+    defaultSource: isAreaCount ? "domain" : "entity",
+    defaultSourceLabel: isAreaCount ? "Domain" : "Entity",
     customIconKeys: [
       "entity_icon",
       "entity_icon_on",
@@ -517,7 +525,7 @@ function renderStatusIconSource() {
   });
 }
 
-function renderStatusItemIconSource(index, item) {
+function renderStatusItemIconSource(index, item, isAreaCount = false) {
   const editor = this;
   const scopedEditor = {
     hass: this.hass,
@@ -536,6 +544,8 @@ function renderStatusItemIconSource(index, item) {
     label: "Icon",
     sourceKey: "entity_icon_source",
     entityKey: "entity",
+    defaultSource: isAreaCount ? "domain" : "entity",
+    defaultSourceLabel: isAreaCount ? "Domain" : "Entity",
     customIconKeys: [
       "entity_icon",
       "entity_icon_on",

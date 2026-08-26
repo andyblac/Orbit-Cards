@@ -12,9 +12,12 @@ import {
 } from "../../../common/helpers/card-name.js";
 import { localize } from "../../../common/localize.js";
 import {
+  getStatusBadgeActiveEntities,
   getStatusBadgeAreaEntities,
+  getStatusBadgeDeviceClasses,
   getStatusBadgeDomainConfig,
   getStatusBadgeStateSource,
+  formatDeviceClass,
   pickStatusSourceConfig,
 } from "../../../common/helpers/status-badge.js";
 import { getTemplateResultActiveState } from "../../../common/helpers/templates.js";
@@ -109,8 +112,10 @@ function getStatusState(item, rootConfig = {}) {
   const areaEntities = stateSource === "area_count"
     ? getStatusBadgeAreaEntities(this.hass, config)
     : [];
-  const activeAreaEntities = areaEntities.filter((stateObj) =>
-    this._getEntityActiveState(stateObj)
+  const activeAreaEntities = getStatusBadgeActiveEntities(
+    areaEntities,
+    config,
+    (stateObj) => this._getEntityActiveState(stateObj)
   );
   const stateObj = stateSource === "area_count"
     ? activeAreaEntities[0] || areaEntities[0] || null
@@ -155,6 +160,12 @@ function getStatusState(item, rootConfig = {}) {
     ? String(templatedName)
     : hasConfiguredName
       ? formatCardNameValue(config.name, config, this.hass)
+      : stateSource === "area_count"
+        ? getStatusBadgeDeviceClasses(config).length
+          ? getStatusBadgeDeviceClasses(config)
+              .map(formatDeviceClass)
+              .join(", ")
+          : getStatusBadgeDomainConfig(config.domain).label
       : getStatusAttribute(stateObj, "friendly_name") ||
         entityId ||
         localize(this.hass, "Status");
@@ -215,6 +226,16 @@ function getStatusState(item, rootConfig = {}) {
   const icon = customStateIcon || (stateSource === "area_count"
     ? getStatusBadgeDomainConfig(config.domain).icon
     : "mdi:information-outline");
+  const primaryDeviceClass = getStatusBadgeDeviceClasses(config)[0] || "";
+  const nativeIconStateObj = stateSource === "area_count"
+    ? {
+        entity_id: `${config.domain || "sensor"}.orbit_status_card`,
+        state: stateObj?.state ?? (isOn ? "on" : "off"),
+        attributes: primaryDeviceClass
+          ? { device_class: primaryDeviceClass }
+          : {},
+      }
+    : stateObj;
 
   const selectedIconKey =
     iconSource === "custom" && isOn && customIconOn
@@ -247,8 +268,8 @@ function getStatusState(item, rootConfig = {}) {
     ...item,
     entityId,
     stateObj,
-    useStateIcon: stateSource !== "area_count" && Boolean(stateObj) &&
-      !customStateIcon,
+    nativeIconStateObj,
+    useStateIcon: Boolean(nativeIconStateObj) && !customStateIcon,
     cardName,
     statusText,
     icon,
@@ -273,8 +294,10 @@ function getStatusIconSource(config, entityId) {
   );
 
   if (savedSource === "custom") return "custom";
+  if (savedSource === "domain" && config.domain) return "domain";
   if (savedSource === "entity" && hasEntity) return "entity";
   if (hasCustomIcon) return "custom";
+  if (config.state_source === "area_count") return "domain";
   if (hasEntity) return "entity";
 
   return "entity";
@@ -287,6 +310,7 @@ function applyStatusState(state) {
   this._statusText = state.statusText || "";
   this._icon = state.icon || "mdi:information-outline";
   this._mainStateObj = state.stateObj || null;
+  this._mainIconStateObj = state.nativeIconStateObj || state.stateObj || null;
   this._useNativeMainIcon = state.useStateIcon ?? false;
   this._navigationPath = state.navigationPath || "";
   this._nameColor = state.nameColor || this._nameColor;

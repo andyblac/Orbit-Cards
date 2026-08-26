@@ -50,8 +50,8 @@ export const fieldStyles = css`
 }
 
 .name-picker-composed-picker {
-  --ha-generic-picker-width: min(720px, calc(100vw - 48px));
-  --ha-generic-picker-max-width: min(720px, calc(100vw - 48px));
+  --ha-generic-picker-width: min(360px, calc(100vw - 48px));
+  --ha-generic-picker-max-width: min(360px, calc(100vw - 48px));
 }
 
 .name-picker-composed-field {
@@ -110,6 +110,8 @@ export const fieldStyles = css`
 .status-badge-hide-hidden-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   min-height: 40px;
 }
 
@@ -124,6 +126,12 @@ export const fieldStyles = css`
 
 .status-badge-device-class-options ha-checkbox {
   display: inline-flex;
+}
+
+.status-area-count-low-sensors-hint {
+  color: var(--secondary-text-color);
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .color-pair,

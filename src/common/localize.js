@@ -154,6 +154,10 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
     "ui.panel.lovelace.editor.card.tile.interactions",
     "ui.panel.lovelace.editor.card.generic.interactions",
   ],
+  Threshold: [
+    "ui.components.selectors.selector.types.threshold",
+    "ui.panel.config.automation.editor.conditions.type.numeric_state.threshold",
+  ],
   None: [
     "ui.common.none",
   ],

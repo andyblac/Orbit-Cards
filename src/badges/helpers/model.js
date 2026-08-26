@@ -1,8 +1,8 @@
 import { computeFullColor } from "../../common/helpers/colors.js";
-import { getActiveEntities } from "../../common/helpers/active-entities-dialog.js";
 import {
   formatDeviceClass,
   getNativeEntityBadgeColor,
+  getStatusBadgeActiveEntities,
   getStatusBadgeDeviceClasses,
   getStatusBadgeDomainConfig,
   getStatusBadgeAreaName,
@@ -16,7 +16,10 @@ import {
 export function getStatusBadgeModel() {
   const stateSource = getStatusBadgeStateSource(this._config);
   const entities = this._getEntities();
-  const activeEntities = getActiveEntities(entities);
+  const activeEntities = getStatusBadgeActiveEntities(
+    entities,
+    this._config
+  );
   const templateResult = stateSource === "template"
     ? evaluateStateTemplate.call(
         this,

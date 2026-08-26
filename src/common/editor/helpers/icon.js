@@ -150,6 +150,8 @@ export function renderIconSourceControl({
   label = "Icon",
   sourceKey = "main_entity_icon_source",
   entityKey = "main_entity",
+  defaultSource = "entity",
+  defaultSourceLabel = "Entity",
   areaKey = "area",
   allowArea = false,
   allowNone = false,
@@ -159,6 +161,7 @@ export function renderIconSourceControl({
   const iconSource = getIconSource(this._config, {
     sourceKey,
     entityKey,
+    defaultSource,
     areaKey,
     allowArea,
     allowNone,
@@ -179,8 +182,8 @@ export function renderIconSourceControl({
         }
       : null,
     {
-      label: t(this, "Entity"),
-      value: "entity",
+      label: t(this, defaultSourceLabel),
+      value: defaultSource,
     },
     {
       label: t(this, "Custom"),
@@ -221,6 +224,7 @@ export function renderIconSourceControl({
 export function getIconSource(config = {}, {
   sourceKey = "main_entity_icon_source",
   entityKey = "main_entity",
+  defaultSource = "entity",
   areaKey = "area",
   allowArea = false,
   allowNone = false,
@@ -229,12 +233,17 @@ export function getIconSource(config = {}, {
   const savedSource = config[sourceKey];
   const hasArea = allowArea && Boolean(config[areaKey]);
   const hasEntity = Boolean(config[entityKey] || config.entity);
+  const hasDefaultSource = defaultSource === "domain"
+    ? Boolean(config.domain)
+    : hasEntity;
   const hasCustomIcon = customIconKeys.some((key) => Boolean(config[key]));
 
   if (savedSource === "custom") return "custom";
   if (savedSource === "none" && allowNone) return "none";
   if (savedSource === "area" && hasArea) return "area";
-  if (savedSource === "entity" && hasEntity) return "entity";
+  if (savedSource === defaultSource && hasDefaultSource) {
+    return defaultSource;
+  }
 
   if (allowArea) {
     if (hasArea) return "area";
@@ -243,9 +252,9 @@ export function getIconSource(config = {}, {
 
   if (hasCustomIcon) return "custom";
   if (allowNone) return "none";
-  if (hasEntity) return "entity";
+  if (hasDefaultSource) return defaultSource;
 
-  return allowArea ? "area" : "entity";
+  return allowArea ? "area" : defaultSource;
 }
 
 export async function loadLocalIconFiles(currentIcon = "") {

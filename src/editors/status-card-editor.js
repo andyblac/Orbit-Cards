@@ -859,6 +859,7 @@ function cleanAreaCountEntity(config) {
 
   delete config.entity;
   delete config.main_entity;
+  delete config.include_low_sensors;
 }
 
 function cleanDefaultStatusActions(config) {

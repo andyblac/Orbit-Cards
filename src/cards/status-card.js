@@ -55,6 +55,7 @@ import {
 } from "../common/helpers/suggestions.js";
 import {
   CURRENT_STATE_ACTION,
+  getStatusBadgeActiveEntities,
   getStatusBadgeAreaEntityIds,
   getStatusBadgeEntities,
   getStatusBadgeStateSource,
@@ -62,7 +63,6 @@ import {
 import { renderActiveEntitiesDialog } from "../common/renders/active-entities-dialog.js";
 import {
   activeEntitiesDialogProperties,
-  getActiveEntities,
   initializeActiveEntitiesDialog,
   openActiveEntitiesDialog,
   stopActiveEntitiesDurationTimer,
@@ -220,7 +220,11 @@ class OrbitStatusCard extends LitElement {
       : this._config;
     return renderActiveEntitiesDialog.call(
       this,
-      getActiveEntities(getStatusBadgeEntities(this.hass, config))
+      getStatusBadgeActiveEntities(
+        getStatusBadgeEntities(this.hass, config),
+        config,
+        (stateObj) => this._getEntityActiveState(stateObj)
+      )
     );
   }
 

@@ -65,5 +65,7 @@
   "Tab font size": "Tab font size",
   "Tab width": "Tab width",
   "Tabs": "Tabs",
-  "Tracker entity": "Tracker entity"
+  "Tracker entity": "Tracker entity",
+  "Low sensors": "Low sensors",
+  "Low sensors are only used when a device has no percentage sensor.": "Low sensors are only used when a device has no percentage sensor."
 }

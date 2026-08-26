@@ -73,11 +73,11 @@ export function renderStatusCard() {
                     : html`<img src=${iconPath} alt="" />`}
                 </div>
               `
-            : this._useNativeMainIcon && this._mainStateObj
+            : this._useNativeMainIcon && this._mainIconStateObj
             ? html`
                 <ha-state-icon
                   class="main-icon"
-                  .stateObj=${this._mainStateObj}
+                  .stateObj=${this._mainIconStateObj}
                 ></ha-state-icon>
               `
             : html`
@@ -165,11 +165,11 @@ function renderIconOnlyStatusItem(item, index) {
                 : html`<img src=${iconPath} alt="" />`}
             </div>
           `
-        : item.useStateIcon && item.stateObj
+        : item.useStateIcon && item.nativeIconStateObj
         ? html`
             <ha-state-icon
               class="main-icon"
-              .stateObj=${item.stateObj}
+              .stateObj=${item.nativeIconStateObj}
             ></ha-state-icon>
           `
         : html`

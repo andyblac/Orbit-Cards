@@ -65,5 +65,7 @@
   "Orbit Area Card v{version}": "Orbit Area Card v{version}",
   "Orbit Deck Card v{version}": "Orbit Deck Card v{version}",
   "Orbit Status Card v{version}": "Orbit Status Card v{version}",
-  "Orbit Status Badge v{version}": "Orbit Status Badge v{version}"
+  "Orbit Status Badge v{version}": "Orbit Status Badge v{version}",
+  "Low sensors": "Sensoren für niedrigen Batteriestand",
+  "Low sensors are only used when a device has no percentage sensor.": "Sensoren für niedrigen Batteriestand werden nur verwendet, wenn ein Gerät keinen Prozentsensor hat."
 }

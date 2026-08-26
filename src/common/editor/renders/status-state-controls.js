@@ -317,6 +317,7 @@ export function renderBadgeStateControl({
                 @value-changed=${(e) => this._updateConfig({
                   domain: e.detail.value || undefined,
                   device_class: undefined,
+                  threshold: undefined,
                 })}
               ></ha-generic-picker>
             </div>
@@ -344,15 +345,48 @@ export function renderBadgeStateControl({
                                     (item) => item !== option.value
                                   );
 
-                              this._handleConfigUpdate(
-                                "device_class",
-                                value.length ? value : undefined
-                              );
+                              this._updateConfig({
+                                device_class: value.length
+                                  ? value
+                                  : undefined,
+                                threshold: value.includes("battery")
+                                  ? this._config?.threshold
+                                  : undefined,
+                              });
                             }}
                           >${option.label}</ha-checkbox>
                         `;
                       })}
                     </div>
+                  </div>
+                `
+              : ""}
+
+            ${selectedDeviceClasses.includes("battery")
+              ? html`
+                  <div class="field">
+                    <ha-selector
+                      .hass=${this.hass}
+                      .label=${this._t("Threshold")}
+                      .selector=${{
+                        number: {
+                          min: 0,
+                          max: 100,
+                          step: 1,
+                          mode: "box",
+                          unit_of_measurement: "%",
+                        },
+                      }}
+                      .value=${this._config?.threshold ?? 20}
+                      @value-changed=${(e) =>
+                        this._handleConfigUpdate(
+                          "threshold",
+                          e.detail.value === "" ||
+                            e.detail.value === undefined
+                            ? undefined
+                            : Number(e.detail.value)
+                        )}
+                    ></ha-selector>
                   </div>
                 `
               : ""}
@@ -459,17 +493,25 @@ function renderAreaCountHidePicker() {
   const hideHiddenEntities = selectedItems.some(
     (item) => item.type === "hidden"
   );
+  const hideLowSensors = selectedItems.some(
+    (item) => item.type === "low"
+  );
+  const showLowSensors = getStatusBadgeDeviceClasses(
+    this._config
+  ).includes("battery");
   const selectedLabels = selectedItems
     .filter((item) => item.type === "label")
     .map((item) => item.label);
 
   const updateHideConfig = ({
     hidden = hideHiddenEntities,
+    low = hideLowSensors,
     labels = selectedLabels,
   } = {}) => {
     this._updateConfig({
       hide: serializeStatusBadgeHideItems([
         ...(hidden ? [{ type: "hidden" }] : []),
+        ...(low ? [{ type: "low" }] : []),
         ...labels.map((label) => ({ type: "label", label })),
       ]),
     });
@@ -499,7 +541,41 @@ function renderAreaCountHidePicker() {
               ></ha-icon>`
             : ""}
         </button>
+
+        ${showLowSensors
+          ? html`
+              <button
+                type="button"
+                class=${hideLowSensors
+                  ? "name-picker-chip"
+                  : "name-picker-add-chip"}
+                @click=${() =>
+                  updateHideConfig({ low: !hideLowSensors })}
+              >
+                <ha-icon icon=${hideLowSensors
+                  ? "mdi:battery-alert"
+                  : "mdi:plus"}></ha-icon>
+                <span>${this._t("Low sensors")}</span>
+                ${hideLowSensors
+                  ? html`<ha-icon
+                      class="name-picker-chip-remove"
+                      icon="mdi:close"
+                    ></ha-icon>`
+                  : ""}
+              </button>
+            `
+          : ""}
       </div>
+
+      ${showLowSensors
+        ? html`
+            <div class="status-area-count-low-sensors-hint">
+              ${this._t(
+                "Low sensors are only used when a device has no percentage sensor."
+              )}
+            </div>
+          `
+        : ""}
 
       <ha-selector
         .hass=${this.hass}
