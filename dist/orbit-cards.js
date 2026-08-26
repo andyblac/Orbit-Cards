@@ -7773,7 +7773,9 @@ function Kc(e = []) {
       .open=${!0}
       width="small"
       style=${s}
-      @closed=${() => Dc.call(this)}
+      @closed=${(e) => {
+		e.stopPropagation(), Dc.call(this);
+	}}
     >
       <ha-icon-button
         slot="headerNavigationIcon"
@@ -7856,8 +7858,8 @@ function Kc(e = []) {
             .open=${!0}
             type="alert"
             .preventScrimClose=${!0}
-            @closed=${() => {
-		this._activeEntitiesConfirmOpen = !1;
+            @closed=${(e) => {
+		e.stopPropagation(), this._activeEntitiesConfirmOpen = !1;
 	}}
             aria-labelledby="active-entities-confirmation-title"
             aria-describedby="active-entities-confirmation-description"

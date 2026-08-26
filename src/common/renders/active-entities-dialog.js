@@ -60,7 +60,10 @@ export function renderActiveEntitiesDialog(activeEntities = []) {
       .open=${true}
       width="small"
       style=${style}
-      @closed=${() => closeActiveEntitiesDialog.call(this)}
+      @closed=${(event) => {
+        event.stopPropagation();
+        closeActiveEntitiesDialog.call(this);
+      }}
     >
       <ha-icon-button
         slot="headerNavigationIcon"
@@ -176,7 +179,8 @@ export function renderActiveEntitiesDialog(activeEntities = []) {
             .open=${true}
             type="alert"
             .preventScrimClose=${true}
-            @closed=${() => {
+            @closed=${(event) => {
+              event.stopPropagation();
               this._activeEntitiesConfirmOpen = false;
             }}
             aria-labelledby="active-entities-confirmation-title"
