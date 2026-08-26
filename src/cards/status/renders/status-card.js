@@ -116,6 +116,7 @@ export function renderStatusCard() {
       </div>
     </ha-card>
     ${this._renderActiveEntitiesDialog()}
+    ${this._renderCurrentActivityDialog()}
   `;
 }
 

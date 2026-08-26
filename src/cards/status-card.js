@@ -56,6 +56,7 @@ import {
   isNumericEntity,
 } from "../common/helpers/suggestions.js";
 import {
+  CURRENT_ACTIVITY_ACTION,
   CURRENT_STATE_ACTION,
   getStatusBadgeActiveEntities,
   getStatusBadgeAreaEntityIds,
@@ -63,12 +64,18 @@ import {
   getStatusBadgeStateSource,
 } from "../common/helpers/status-badge.js";
 import { renderActiveEntitiesDialog } from "../common/renders/active-entities-dialog.js";
+import { renderCurrentActivityDialog } from "../common/renders/current-activity-dialog.js";
 import {
   activeEntitiesDialogProperties,
   initializeActiveEntitiesDialog,
   openActiveEntitiesDialog,
   stopActiveEntitiesDurationTimer,
 } from "../common/helpers/active-entities-dialog.js";
+import {
+  currentActivityDialogProperties,
+  initializeCurrentActivityDialog,
+  openCurrentActivityDialog,
+} from "../common/helpers/current-activity-dialog.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
@@ -95,6 +102,7 @@ import {
 import { renderStatusCard } from "./status/renders/status-card.js";
 import { statusCardStyles } from "./status/styles/status-card-styles.js";
 import { activeEntitiesDialogStyles } from "../common/styles/active-entities-dialog-styles.js";
+import { currentActivityDialogStyles } from "../common/styles/current-activity-dialog-styles.js";
 
 import "../editors/status-card-editor.js";
 
@@ -122,12 +130,14 @@ class OrbitStatusCard extends LitElement {
       _statusItems: { type: Array },
       _templateRevision: { type: Number },
       ...activeEntitiesDialogProperties,
+      ...currentActivityDialogProperties,
     };
   }
 
   constructor() {
     super();
     initializeActiveEntitiesDialog.call(this);
+    initializeCurrentActivityDialog.call(this);
     this._activeEntitiesStatusIndex = 0;
   }
 
@@ -211,6 +221,21 @@ class OrbitStatusCard extends LitElement {
       return;
     }
 
+    if (actionConfig?.action === CURRENT_ACTIVITY_ACTION) {
+      const index = actionConfig.status_index ?? 0;
+      const config = this._config?.mode === "icon_only"
+        ? getIconOnlyStatusItems(this._config)[index] || {}
+        : this._config || {};
+      const entityIds = getStatusBadgeActiveEntities(
+        getStatusBadgeEntities(this.hass, config),
+        config,
+        (stateObj) => this._getEntityActiveState(stateObj)
+      ).map((stateObj) => stateObj.entity_id);
+
+      openCurrentActivityDialog.call(this, entityIds);
+      return;
+    }
+
     return handleAction.call(this, actionConfig, entityId);
   }
 
@@ -228,6 +253,10 @@ class OrbitStatusCard extends LitElement {
         (stateObj) => this._getEntityActiveState(stateObj)
       )
     );
+  }
+
+  _renderCurrentActivityDialog() {
+    return renderCurrentActivityDialog.call(this);
   }
 
   _t(key, replacements) {
@@ -434,11 +463,9 @@ class OrbitStatusCard extends LitElement {
       ev,
       entityId,
       actionConfig?.action
-        ? actionConfig.action === CURRENT_STATE_ACTION
-          ? { ...actionConfig, status_index: index }
-          : actionConfig
+        ? getIndexedStatusAction(actionConfig, index)
         : { action: "more-info" },
-      doubleTapAction
+      getIndexedStatusAction(doubleTapAction, index)
     );
   }
 
@@ -447,9 +474,9 @@ class OrbitStatusCard extends LitElement {
       this,
       ev,
       this._getStatusItemEntityId(index),
-      this._isStatusItemMainIconEvent(ev)
+      getIndexedStatusAction(this._isStatusItemMainIconEvent(ev)
         ? this._getStatusItemMainEntityDoubleTapAction(index)
-        : this._getStatusItemCardDoubleTapAction(index)
+        : this._getStatusItemCardDoubleTapAction(index), index)
     );
   }
 
@@ -469,7 +496,7 @@ class OrbitStatusCard extends LitElement {
       this._statusItemLongPressTriggered = true;
 
       this._handleAction(
-        holdAction,
+        getIndexedStatusAction(holdAction, index),
         this._getStatusItemEntityId(index)
       );
     }, this._LONG_PRESS_DELAY);
@@ -498,7 +525,7 @@ class OrbitStatusCard extends LitElement {
     this._statusItemLongPressTriggered = true;
 
     this._handleAction(
-      holdAction,
+      getIndexedStatusAction(holdAction, index),
       this._getStatusItemEntityId(index)
     );
   }
@@ -918,13 +945,18 @@ class OrbitStatusCard extends LitElement {
     return renderStatusCard.call(this);
   }
 
-  static styles = [...statusCardStyles, activeEntitiesDialogStyles];
+  static styles = [
+    ...statusCardStyles,
+    activeEntitiesDialogStyles,
+    currentActivityDialogStyles,
+  ];
 }
 
 function canExecuteStatusActionWithoutEntity(actionConfig) {
   const action = actionConfig?.action;
 
   if (action === CURRENT_STATE_ACTION) return true;
+  if (action === CURRENT_ACTIVITY_ACTION) return true;
   if (action === "more-info") {
     return Boolean(actionConfig.entity || actionConfig.entity_id);
   }
@@ -938,6 +970,18 @@ function canExecuteStatusActionWithoutEntity(actionConfig) {
     "popup",
     "none",
   ].includes(action);
+}
+
+function getIndexedStatusAction(actionConfig, index) {
+  if (
+    ![CURRENT_STATE_ACTION, CURRENT_ACTIVITY_ACTION].includes(
+      actionConfig?.action
+    )
+  ) {
+    return actionConfig;
+  }
+
+  return { ...actionConfig, status_index: index };
 }
 
 function getStatusColumnCount(config = {}, count = 1) {

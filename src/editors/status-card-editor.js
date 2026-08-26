@@ -44,6 +44,7 @@ import {
   updateEditorDocumentationContext,
 } from "../common/helpers/documentation.js";
 import {
+  CURRENT_ACTIVITY_ACTION,
   CURRENT_STATE_ACTION,
   getStatusBadgeStateSource,
   pickStatusSourceConfig,
@@ -548,6 +549,7 @@ class OrbitStatusCardEditor extends LitElement {
           formKey: "tap_action",
           label: "Tap behavior",
           defaultAction: cardActionDefault,
+          customActions: [CURRENT_ACTIVITY_ACTION],
           defaultVisible: true,
           customDefaultLabel:
             cardActionDefault === CURRENT_STATE_ACTION
@@ -559,18 +561,21 @@ class OrbitStatusCardEditor extends LitElement {
           formKey: "hold_action",
           label: "Hold behavior",
           defaultAction: "none",
+          customActions: [CURRENT_ACTIVITY_ACTION],
         },
         {
           key: "double_tap_action",
           formKey: "double_tap_action",
           label: "Double tap behavior",
           defaultAction: "none",
+          customActions: [CURRENT_ACTIVITY_ACTION],
         },
         {
           key: "entity_tap_action",
           formKey: "icon_tap_action",
           label: "Icon tap behavior",
           defaultAction: mainEntityActionDefault,
+          customActions: [CURRENT_ACTIVITY_ACTION],
           customDefaultLabel:
             mainEntityActionDefault === CURRENT_STATE_ACTION
               ? CURRENT_STATE_ACTION
@@ -581,12 +586,14 @@ class OrbitStatusCardEditor extends LitElement {
           formKey: "icon_hold_action",
           label: "Icon hold behavior",
           defaultAction: "none",
+          customActions: [CURRENT_ACTIVITY_ACTION],
         },
         {
           key: "entity_double_tap_action",
           formKey: "icon_double_tap_action",
           label: "Icon double tap behavior",
           defaultAction: "none",
+          customActions: [CURRENT_ACTIVITY_ACTION],
         },
       ],
       context: {

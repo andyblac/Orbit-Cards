@@ -25,6 +25,7 @@ import {
   getStatusBadgeAreaName,
   getStatusBadgeStateSource,
   normalizeStatusBadgeConfig,
+  CURRENT_ACTIVITY_ACTION,
   CURRENT_STATE_ACTION,
   STATUS_BADGE_DOMAINS,
 } from "../common/helpers/status-badge.js";
@@ -599,6 +600,7 @@ class OrbitStatusBadgeEditor extends LitElement {
                   : stateSource === "area_count"
                     ? CURRENT_STATE_ACTION
                     : "none",
+                customActions: [CURRENT_ACTIVITY_ACTION],
                 defaultVisible: true,
                 customDefaultLabel: stateSource === "area_count"
                   ? CURRENT_STATE_ACTION
@@ -609,12 +611,14 @@ class OrbitStatusBadgeEditor extends LitElement {
                 formKey: "hold_action",
                 label: "Hold behavior",
                 defaultAction: "none",
+                customActions: [CURRENT_ACTIVITY_ACTION],
               },
               {
                 key: "double_tap_action",
                 formKey: "double_tap_action",
                 label: "Double tap behavior",
                 defaultAction: "none",
+                customActions: [CURRENT_ACTIVITY_ACTION],
               },
             ],
             context: {

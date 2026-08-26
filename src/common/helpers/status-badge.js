@@ -30,6 +30,7 @@ export const STATUS_BADGE_DOMAINS = [
 ];
 
 export const CURRENT_STATE_ACTION = "Current state";
+export const CURRENT_ACTIVITY_ACTION = "current-activity";
 export const STATUS_BADGE_NON_NUMERIC_SENSOR_DEVICE_CLASSES = new Set([
   "date",
   "enum",

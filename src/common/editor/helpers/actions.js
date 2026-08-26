@@ -2,9 +2,11 @@ import { html } from "lit";
 import { translateEditorLabel as t } from "./labels.js";
 
 function actionLabel(editor, action) {
+  const fallbackLabel = ACTION_LABELS[action];
+
   return (
     localizeHomeAssistantAction(editor?.hass, action) ||
-    ACTION_LABELS[action] ||
+    (fallbackLabel ? t(editor, fallbackLabel) : undefined) ||
     action
   );
 }
@@ -48,6 +50,7 @@ function localizeHomeAssistantAction(hass, action) {
 
 const ACTION_LABELS = {
   "Current state": "Current state",
+  "current-activity": "Current activity",
   "call-service": "Perform action",
   "more-info": "More info",
   navigate: "Navigate",
@@ -256,9 +259,23 @@ function shouldDisplayDefaultInteraction(config = {}, interaction) {
 function getInteractionSchema(interaction, context, config, editor) {
   const defaultAction = getActionName(interaction.defaultAction);
   const configuredAction = config?.[interaction.key];
+  const customActions = interaction.customActions || [];
+  const configuredActionName = getActionName(configuredAction);
+  const usesCustomActionPicker =
+    (interaction.customDefaultLabel && !configuredAction) ||
+    customActions.includes(configuredActionName);
 
-  if (interaction.customDefaultLabel && !configuredAction) {
-    const actions = getActionEditorActions(defaultAction);
+  if (usesCustomActionPicker) {
+    const actions = getActionEditorActions(defaultAction, customActions);
+    const defaultOption = interaction.customDefaultLabel && !configuredAction
+      ? [{
+          value: "__default__",
+          label: `${t(editor, "Default")} (${t(
+            editor,
+            interaction.customDefaultLabel
+          )})`,
+        }]
+      : [];
 
     return {
       name: interaction.formKey || interaction.key,
@@ -266,13 +283,7 @@ function getInteractionSchema(interaction, context, config, editor) {
         select: {
           mode: "dropdown",
           options: [
-            {
-              value: "__default__",
-              label: `${t(editor, "Default")} (${t(
-                editor,
-                interaction.customDefaultLabel
-              )})`,
-            },
+            ...defaultOption,
             ...actions.map((action) => ({
               value: action,
               label: actionLabel(editor, action),
@@ -287,7 +298,7 @@ function getInteractionSchema(interaction, context, config, editor) {
     name: interaction.formKey || interaction.key,
     selector: {
       ui_action: {
-        actions: getActionEditorActions(defaultAction),
+        actions: getActionEditorActions(defaultAction, customActions),
         default_action: defaultAction,
       },
     },
@@ -300,6 +311,14 @@ function getInteractionsFormData(config = {}, interactions) {
     const formKey = interaction.formKey || interaction.key;
     if (interaction.customDefaultLabel && !config?.[interaction.key]) {
       data[formKey] = "__default__";
+      return data;
+    }
+    if (
+      interaction.customActions?.includes(
+        getActionName(config?.[interaction.key])
+      )
+    ) {
+      data[formKey] = getActionName(config[interaction.key]);
       return data;
     }
     const value =
@@ -334,7 +353,12 @@ function getInteractionConfigChanges(
   return interactions.reduce((changes, interaction) => {
     const formKey = interaction.formKey || interaction.key;
     if (
-      interaction.customDefaultLabel &&
+      (
+        interaction.customDefaultLabel ||
+        interaction.customActions?.includes(
+          getActionName(config?.[interaction.key])
+        )
+      ) &&
       typeof formData[formKey] === "string"
     ) {
       changes[interaction.key] = formData[formKey] === "__default__"
@@ -408,8 +432,9 @@ function isNoneAction(value) {
   return value?.action === "none";
 }
 
-function getActionEditorActions(defaultAction) {
+function getActionEditorActions(defaultAction, customActions = []) {
   const actions = [
+    ...customActions,
     "more-info",
     "toggle",
     "navigate",
@@ -426,9 +451,11 @@ function getActionEditorActions(defaultAction) {
     actions.unshift(defaultAction);
   }
 
+  const uniqueActions = [...new Set(actions)];
+
   return defaultAction === "none"
-    ? actions
-    : [...actions, "none"];
+    ? uniqueActions
+    : [...uniqueActions, "none"];
 }
 
 function getDefaultActionConfig(defaultAction) {

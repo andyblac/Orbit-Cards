@@ -26,6 +26,7 @@ import {
   startLongPress,
 } from "../common/helpers/long-press.js";
 import {
+  CURRENT_ACTIVITY_ACTION,
   CURRENT_STATE_ACTION,
   getStatusBadgeAreaEntityIds,
   getStatusBadgeDefaultTapAction,
@@ -44,15 +45,22 @@ import {
 import { CARD_VERSIONS } from "../version.js";
 import { localize } from "../common/localize.js";
 import { renderActiveEntitiesDialog } from "../common/renders/active-entities-dialog.js";
+import { renderCurrentActivityDialog } from "../common/renders/current-activity-dialog.js";
 import {
   activeEntitiesDialogProperties,
   initializeActiveEntitiesDialog,
   openActiveEntitiesDialog,
   stopActiveEntitiesDurationTimer,
 } from "../common/helpers/active-entities-dialog.js";
+import {
+  currentActivityDialogProperties,
+  initializeCurrentActivityDialog,
+  openCurrentActivityDialog,
+} from "../common/helpers/current-activity-dialog.js";
 import { getStatusBadgeModel } from "./helpers/model.js";
 import { statusBadgeStyles } from "./styles/status-badge-styles.js";
 import { activeEntitiesDialogStyles } from "../common/styles/active-entities-dialog-styles.js";
+import { currentActivityDialogStyles } from "../common/styles/current-activity-dialog-styles.js";
 
 import "../editors/status-badge-editor.js";
 
@@ -65,11 +73,13 @@ class OrbitStatusBadge extends LitElement {
     _isHeadingBadge: { state: true },
     _templateRevision: { state: true },
     ...activeEntitiesDialogProperties,
+    ...currentActivityDialogProperties,
   };
 
   constructor() {
     super();
     initializeActiveEntitiesDialog.call(this);
+    initializeCurrentActivityDialog.call(this);
   }
 
   static getConfigElement() {
@@ -180,6 +190,15 @@ class OrbitStatusBadge extends LitElement {
   _handleAction(actionConfig, entityId = null) {
     if (actionConfig?.action === CURRENT_STATE_ACTION) {
       openActiveEntitiesDialog.call(this);
+      return;
+    }
+
+    if (actionConfig?.action === CURRENT_ACTIVITY_ACTION) {
+      const entityIds = this._getModel().activeEntities.map(
+        (stateObj) => stateObj.entity_id
+      );
+
+      openCurrentActivityDialog.call(this, entityIds);
       return;
     }
 
@@ -375,6 +394,7 @@ class OrbitStatusBadge extends LitElement {
       pointerup: (ev) => this._handlePointerEnd(ev),
     };
     const activeEntitiesDialog = this._renderActiveEntitiesDialog(model);
+    const currentActivityDialog = renderCurrentActivityDialog.call(this);
 
     if (badgeMode && !showCardBadge) return nothing;
 
@@ -397,6 +417,7 @@ class OrbitStatusBadge extends LitElement {
           ${content}
         </div>
         ${activeEntitiesDialog}
+        ${currentActivityDialog}
       `;
     }
 
@@ -441,10 +462,14 @@ class OrbitStatusBadge extends LitElement {
           </ha-badge>
         `;
 
-    return html`${badge}${activeEntitiesDialog}`;
+    return html`${badge}${activeEntitiesDialog}${currentActivityDialog}`;
   }
 
-  static styles = [statusBadgeStyles, activeEntitiesDialogStyles];
+  static styles = [
+    statusBadgeStyles,
+    activeEntitiesDialogStyles,
+    currentActivityDialogStyles,
+  ];
 }
 
 
