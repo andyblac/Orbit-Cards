@@ -195,6 +195,7 @@ export function getStatusBadgeModel() {
           context: representativeStateObj.context,
         },
     defaultStateContent: stateSource === "area_count" ? "count" : "state",
+    hasConfiguredColor: Boolean(configuredColor),
     hasIconColorOverride,
     iconColor: colorInput === "theme"
       ? getNativeEntityBadgeColor(representativeStateObj, isOn)

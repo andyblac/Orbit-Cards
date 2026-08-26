@@ -14500,6 +14500,7 @@ function ep() {
 			context: C.context
 		},
 		defaultStateContent: e === "area_count" ? "count" : "state",
+		hasConfiguredColor: !!x,
 		hasIconColorOverride: te,
 		iconColor: S === "theme" ? Mc(C, d) : Dt.call(this, S)
 	};
@@ -15233,7 +15234,7 @@ $f({
           <ha-heading-badge
             .type=${n ? "button" : "text"}
             style=${[
-				`--icon-color:${e.iconColor}`,
+				`--icon-color:${e.hasConfiguredColor ? e.iconColor : "currentColor"}`,
 				"--ha-heading-badge-font-size:var(--ha-heading-card-title-font-size,var(--ha-font-size-l))",
 				"--ha-heading-badge-font-weight:var(--ha-heading-card-title-font-weight,var(--ha-font-weight-normal))",
 				"--ha-heading-badge-line-height:var(--ha-heading-card-title-line-height,var(--ha-line-height-normal))"

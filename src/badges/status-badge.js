@@ -405,7 +405,9 @@ class OrbitStatusBadge extends LitElement {
           <ha-heading-badge
             .type=${hasAction ? "button" : "text"}
             style=${[
-              `--icon-color:${model.iconColor}`,
+              `--icon-color:${model.hasConfiguredColor
+                ? model.iconColor
+                : "currentColor"}`,
               "--ha-heading-badge-font-size:var(--ha-heading-card-title-font-size,var(--ha-font-size-l))",
               "--ha-heading-badge-font-weight:var(--ha-heading-card-title-font-weight,var(--ha-font-weight-normal))",
               "--ha-heading-badge-line-height:var(--ha-heading-card-title-line-height,var(--ha-line-height-normal))",
