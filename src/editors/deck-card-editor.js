@@ -34,10 +34,8 @@ import {
   orderDeckConfig,
 } from "./deck/config.js";
 import {
-  getDeckChildActionDefault,
   getDeckChildConfig,
   getDeckChildTypeName,
-  isVisibleDeckActionDefault,
 } from "./deck/item-helpers.js";
 import {
   ensureNativeBadgeEditor,
@@ -656,12 +654,6 @@ class OrbitDeckCardEditor extends LitElement {
 
   _renderDeckInteractions(index, item) {
     const attributes = item?.attributes || {};
-    const tapDefault = getDeckChildActionDefault(item, "tap_action");
-    const holdDefault = getDeckChildActionDefault(item, "hold_action");
-    const doubleTapDefault = getDeckChildActionDefault(
-      item,
-      "double_tap_action"
-    );
 
     return renderInteractionsSection.call(this, {
       expanded: false,
@@ -672,25 +664,16 @@ class OrbitDeckCardEditor extends LitElement {
           key: "tap_action",
           formKey: "tap_action",
           label: "Tap behavior",
-          defaultAction: tapDefault,
-          defaultVisible: isVisibleDeckActionDefault(tapDefault),
-          displayDefaultValue: isVisibleDeckActionDefault(tapDefault),
         },
         {
           key: "hold_action",
           formKey: "hold_action",
           label: "Hold behavior",
-          defaultAction: holdDefault,
-          defaultVisible: isVisibleDeckActionDefault(holdDefault),
-          displayDefaultValue: isVisibleDeckActionDefault(holdDefault),
         },
         {
           key: "double_tap_action",
           formKey: "double_tap_action",
           label: "Double tap behavior",
-          defaultAction: doubleTapDefault,
-          defaultVisible: isVisibleDeckActionDefault(doubleTapDefault),
-          displayDefaultValue: isVisibleDeckActionDefault(doubleTapDefault),
         },
       ],
       context: {

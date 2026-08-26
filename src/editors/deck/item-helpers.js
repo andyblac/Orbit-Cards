@@ -1,17 +1,3 @@
-export function getDeckChildActionDefault(item = {}, key) {
-  const child = getDeckChildConfig(item);
-
-  if (child?.[key]?.action) {
-    return child[key];
-  }
-
-  if (key === "tap_action" && child?.entity) {
-    return "more-info";
-  }
-
-  return "none";
-}
-
 export function getDeckChildConfig(item = {}) {
   return item?.badge || item?.card || {};
 }
@@ -56,14 +42,4 @@ export function getDeckChildTypeName(item = {}, hass, fallback = "Card") {
   return normalizedType
     .replace(/[-_]+/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
-export function isVisibleDeckActionDefault(action) {
-  return getDeckActionName(action) !== "none";
-}
-
-function getDeckActionName(action) {
-  return typeof action === "string"
-    ? action
-    : action?.action || "none";
 }
