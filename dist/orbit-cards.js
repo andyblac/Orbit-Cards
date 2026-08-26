@@ -8929,7 +8929,7 @@ function Hl() {
                   ${this._renderEntity("Battery entity {index}", "battery_entity_1", { index: 1 })}
                   ${this._renderEntity("Battery entity {index}", "battery_entity_2", { index: 2 })}
                   ${this._renderColorPair({
-		label: ["Accent", "Color"],
+		label: "Color",
 		onLabel: [
 			"Accent",
 			"Active",
@@ -8948,7 +8948,7 @@ function Hl() {
                   ${Kl.call(this, E`
                     ${Ul.call(this)}
                     ${this._renderColorPair({
-		label: ["Accent", "Color"],
+		label: "Color",
 		onLabel: [
 			"Accent",
 			"Active",
@@ -9126,7 +9126,7 @@ function Wl({ cardActionDefault: e, mainEntityActionDefault: t }) {
       ${Kl.call(this, E`
 
         ${this._renderColorPair({
-		label: ["Accent", "Color"],
+		label: "Color",
 		onLabel: [
 			"Accent",
 			"Active",

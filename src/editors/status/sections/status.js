@@ -85,7 +85,7 @@ export function renderStatusSection() {
                   ${this._renderEntity("Battery entity {index}", "battery_entity_1", { index: 1 })}
                   ${this._renderEntity("Battery entity {index}", "battery_entity_2", { index: 2 })}
                   ${this._renderColorPair({
-                    label: ["Accent", "Color"],
+                    label: "Color",
                     onLabel: ["Accent", "Active", "Color"],
                     offLabel: ["Accent", "Inactive", "Color"],
                     onKey: "accent_on_color",
@@ -106,7 +106,7 @@ export function renderStatusSection() {
                   ${renderStatusContentPanel.call(this, html`
                     ${renderStatusNamePicker.call(this)}
                     ${this._renderColorPair({
-                      label: ["Accent", "Color"],
+                      label: "Color",
                       onLabel: ["Accent", "Active", "Color"],
                       offLabel: ["Accent", "Inactive", "Color"],
                       onKey: "accent_on_color",
@@ -328,7 +328,7 @@ function renderIconOnlyStatusConfig({
       ${renderStatusContentPanel.call(this, html`
 
         ${this._renderColorPair({
-          label: ["Accent", "Color"],
+          label: "Color",
           onLabel: ["Accent", "Active", "Color"],
           offLabel: ["Accent", "Inactive", "Color"],
           onKey: "accent_on_color",
