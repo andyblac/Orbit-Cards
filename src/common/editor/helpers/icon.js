@@ -161,9 +161,18 @@ export function renderIconSourceControl({
   allowArea = false,
   allowNone = false,
   customIconKeys = [],
+  templateKey,
+  legacySourceKey,
+  legacyTemplateKeys = [],
   renderCustom,
 } = {}) {
-  const iconSource = getIconSource(this._config, {
+  const sourceConfig = legacySourceKey && this._config?.[sourceKey] == null
+    ? {
+        ...this._config,
+        [sourceKey]: this._config?.[legacySourceKey],
+      }
+    : this._config;
+  const iconSource = getIconSource(sourceConfig, {
     sourceKey,
     entityKey,
     defaultSource,
@@ -175,12 +184,17 @@ export function renderIconSourceControl({
   const customMode = iconSource === "custom";
   const templateMode = iconSource === "template";
   const templateIconKey = customIconKeys[0] || "icon";
-  const templateStorageKey = `${templateIconKey}_template`;
+  const templateStorageKey = templateKey || `${templateIconKey}_template`;
   const legacyTemplate = hasNativeTemplateSyntax(
     this._config?.[templateIconKey]
   )
     ? this._config[templateIconKey]
     : "";
+  const savedTemplate = this._config?.[templateStorageKey] ||
+    legacyTemplateKeys
+      .map((key) => this._config?.[key])
+      .find(Boolean) ||
+    legacyTemplate;
   const options = [
     allowNone
       ? {
@@ -252,7 +266,7 @@ export function renderIconSourceControl({
               <ha-selector
                 .hass=${this.hass}
                 .selector=${{ template: {} }}
-                .value=${this._config?.[templateStorageKey] || legacyTemplate}
+                .value=${savedTemplate}
                 @value-changed=${(event) => {
                   if (legacyTemplate) {
                     this._handleConfigUpdate(templateIconKey, "");

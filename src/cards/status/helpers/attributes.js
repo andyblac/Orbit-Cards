@@ -20,8 +20,10 @@ export function getConfiguredNavigationPath(config) {
 export function getStatusColor(config, stateObj, isOn) {
   const entityColor = getStatusAttribute(stateObj, "color");
 
-  if (config.accent_color_source === "template") {
-    return config.accent_color || entityColor || "theme";
+  const colorSource = config.color_source ?? config.accent_color_source;
+
+  if (colorSource === "template") {
+    return config.color || config.accent_color || entityColor || "theme";
   }
 
   return isOn

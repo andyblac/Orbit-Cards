@@ -34,6 +34,7 @@ import { statusEditorStyles } from "../common/editor/styles/status-editor.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import { hasNativeTemplateSyntax } from "../common/helpers/templates.js";
 import {
   migrateStatusCardConfig,
 } from "../common/helpers/config-migration.js";
@@ -116,6 +117,9 @@ class OrbitStatusCardEditor extends LitElement {
   }
 
   setConfig(config) {
+    const presentationMigrated = hasLegacyStatusPresentationConfig(
+      config || {}
+    );
     const {
       config: migratedConfig,
       migrated,
@@ -127,7 +131,7 @@ class OrbitStatusCardEditor extends LitElement {
       this._getStatusItems(this._config).length - 1
     );
 
-    if (migrated) {
+    if (migrated || presentationMigrated) {
       this._queueConfigMigration();
     }
   }
@@ -240,10 +244,16 @@ class OrbitStatusCardEditor extends LitElement {
       {
         entity: config?.entity || "",
         ...pickStatusSourceConfig(config),
+        color_source: config?.color_source ||
+          config?.accent_color_source || "",
+        color: config?.color || config?.accent_color || "",
         accent_color_source: config?.accent_color_source || "",
         accent_color: config?.accent_color || "",
         accent_on_color: config?.accent_on_color || "",
         accent_off_color: config?.accent_off_color || "",
+        icon_source: config?.icon_source ||
+          config?.entity_icon_source || "",
+        icon: config?.icon || config?.entity_icon_template || "",
         entity_icon_source: config?.entity_icon_source || "",
         entity_icon_template: config?.entity_icon_template || "",
         entity_icon: config?.entity_icon || "",
@@ -277,10 +287,14 @@ class OrbitStatusCardEditor extends LitElement {
         entities: undefined,
         entity: item.entity || undefined,
         ...pickStatusSourceConfig(item),
+        color_source: item.color_source,
+        color: item.color,
         accent_color_source: item.accent_color_source,
         accent_color: item.accent_color,
         accent_on_color: item.accent_on_color,
         accent_off_color: item.accent_off_color,
+        icon_source: item.icon_source,
+        icon: item.icon,
         entity_icon_source: item.entity_icon_source,
         entity_icon_template: item.entity_icon_template,
         entity_icon: item.entity_icon,
@@ -442,10 +456,14 @@ class OrbitStatusCardEditor extends LitElement {
     this._updateConfig({
       entity: nextItem.entity || "",
       ...pickStatusSourceConfig(nextItem),
+      color_source: nextItem.color_source || "",
+      color: nextItem.color || "",
       accent_color_source: nextItem.accent_color_source || "",
       accent_color: nextItem.accent_color || "",
       accent_on_color: nextItem.accent_on_color || "",
       accent_off_color: nextItem.accent_off_color || "",
+      icon_source: nextItem.icon_source || "",
+      icon: nextItem.icon || "",
       entity_icon_source: nextItem.entity_icon_source || "",
       entity_icon_template: nextItem.entity_icon_template || "",
       entity_icon: nextItem.entity_icon || "",
@@ -702,10 +720,14 @@ function cleanClearedStatusItem(item) {
 
 const STATUS_ENTITY_DEPENDENT_KEYS = [
   ...STATUS_SOURCE_CONFIG_KEYS,
+  "color_source",
+  "color",
   "accent_color_source",
   "accent_color",
   "accent_on_color",
   "accent_off_color",
+  "icon_source",
+  "icon",
   "entity_icon_source",
   "entity_icon_template",
   "entity_icon",
@@ -731,6 +753,8 @@ const PERSON_ENTITY_DEPENDENT_KEYS = [
   "eta_entity",
   "battery_entity_1",
   "battery_entity_2",
+  "color_source",
+  "color",
   "accent_color_source",
   "accent_color",
   "accent_on_color",
@@ -758,10 +782,14 @@ const STATUS_ITEM_KEYS = [
   "hide",
   "active_template",
   "inactive_template",
+  "color_source",
+  "color",
   "accent_color_source",
   "accent_color",
   "accent_on_color",
   "accent_off_color",
+  "icon_source",
+  "icon",
   "entity_icon_source",
   "entity_icon_template",
   "entity_icon",
@@ -794,10 +822,14 @@ const STATUS_STATE_CONFIG_ORDER = [
 ];
 
 const STATUS_COLOR_ICON_CONFIG_ORDER = [
+  "color_source",
+  "color",
   "accent_color_source",
   "accent_color",
   "accent_on_color",
   "accent_off_color",
+  "icon_source",
+  "icon",
   "entity_icon_source",
   "entity_icon_template",
   "entity_icon",
@@ -865,7 +897,9 @@ function getStatusConfigOrder(config) {
 }
 
 function orderStatusConfig(config) {
-  const cleanedConfig = cleanEmptyStatusValues(config);
+  const cleanedConfig = migrateStatusPresentationConfig(
+    cleanEmptyStatusValues(config)
+  );
   if (cleanedConfig.mode !== "icon_only") delete cleanedConfig.entities;
   moveRootAreaCountToStatusItems(cleanedConfig);
   cleanAreaCountEntity(cleanedConfig);
@@ -927,10 +961,92 @@ function orderStatusItem(item) {
     return item;
   }
 
-  const cleanedItem = cleanEmptyStatusValues(item);
+  const cleanedItem = migrateStatusPresentationConfig(
+    cleanEmptyStatusValues(item)
+  );
   cleanAreaCountEntity(cleanedItem);
   cleanDefaultStatusActions(cleanedItem);
   return orderObjectKeys(cleanedItem, STATUS_ITEM_KEYS);
+}
+
+function migrateStatusPresentationConfig(config = {}) {
+  const migrated = { ...config };
+
+  if (
+    migrated.color_source === undefined &&
+    migrated.accent_color_source !== undefined
+  ) {
+    migrated.color_source = migrated.accent_color_source;
+  }
+
+  if (
+    migrated.color === undefined &&
+    (migrated.color_source === "template" ||
+      hasNativeTemplateSyntax(migrated.accent_color)) &&
+    migrated.accent_color !== undefined
+  ) {
+    migrated.color = migrated.accent_color;
+  }
+
+  if (migrated.color_source !== undefined) {
+    delete migrated.accent_color_source;
+  }
+  if (migrated.color !== undefined) {
+    delete migrated.accent_color;
+  }
+
+  if (
+    migrated.icon_source === undefined &&
+    migrated.entity_icon_source !== undefined
+  ) {
+    migrated.icon_source = migrated.entity_icon_source;
+  }
+
+  if (
+    migrated.icon === undefined &&
+    migrated.entity_icon_template
+  ) {
+    migrated.icon = migrated.entity_icon_template;
+  }
+
+  if (
+    migrated.icon_source === "template" &&
+    migrated.icon === undefined &&
+    migrated.entity_icon !== undefined
+  ) {
+    migrated.icon = migrated.entity_icon;
+    delete migrated.entity_icon;
+  }
+
+  if (migrated.icon_source !== undefined) {
+    delete migrated.entity_icon_source;
+  }
+  if (migrated.icon !== undefined) {
+    delete migrated.entity_icon_template;
+  }
+
+  return migrated;
+}
+
+function hasLegacyStatusPresentationConfig(config = {}) {
+  const hasLegacyKeys = (value) => Boolean(
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    (
+      value.accent_color_source !== undefined ||
+      hasNativeTemplateSyntax(value.accent_color) ||
+      value.entity_icon_source !== undefined ||
+      value.entity_icon_template !== undefined ||
+      (
+        value.entity_icon_source === "template" &&
+        value.entity_icon !== undefined
+      )
+    )
+  );
+
+  return hasLegacyKeys(config) ||
+    (Array.isArray(config.entities) && config.entities.some(hasLegacyKeys));
 }
 
 function cleanAreaCountEntity(config) {

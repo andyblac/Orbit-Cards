@@ -150,6 +150,8 @@ export function renderColorPair({
   offKey,
   sourceKey,
   templateKey,
+  legacySourceKey,
+  legacyTemplateKey,
   config = this._config || {},
   onUpdate = (key, value) => this._handleConfigUpdate(key, value),
   onPreviewValue,
@@ -159,7 +161,11 @@ export function renderColorPair({
   const baseKey = onKey?.replace(/_on_color$/, "") || "accent";
   const effectiveSourceKey = sourceKey || `${baseKey}_color_source`;
   const effectiveTemplateKey = templateKey || `${baseKey}_color`;
-  const templateMode = config[effectiveSourceKey] === "template";
+  const configuredSource = config[effectiveSourceKey] ??
+    (legacySourceKey ? config[legacySourceKey] : undefined);
+  const configuredTemplate = config[effectiveTemplateKey] ??
+    (legacyTemplateKey ? config[legacyTemplateKey] : undefined);
+  const templateMode = configuredSource === "template";
 
   return html`
     <div class="color-pair-control">
@@ -202,7 +208,7 @@ export function renderColorPair({
               <ha-selector
                 .hass=${this.hass}
                 .selector=${{ template: {} }}
-                .value=${config[effectiveTemplateKey] || ""}
+                .value=${configuredTemplate || ""}
                 @value-changed=${(event) =>
                   onUpdate(
                     effectiveTemplateKey,

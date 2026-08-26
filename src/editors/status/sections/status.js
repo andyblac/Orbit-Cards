@@ -90,6 +90,10 @@ export function renderStatusSection() {
                     offLabel: ["Accent", "Inactive", "Color"],
                     onKey: "accent_on_color",
                     offKey: "accent_off_color",
+                    sourceKey: "color_source",
+                    templateKey: "color",
+                    legacySourceKey: "accent_color_source",
+                    legacyTemplateKey: "accent_color",
                   })}
                 `)
               : html`
@@ -111,6 +115,10 @@ export function renderStatusSection() {
                       offLabel: ["Accent", "Inactive", "Color"],
                       onKey: "accent_on_color",
                       offKey: "accent_off_color",
+                      sourceKey: "color_source",
+                      templateKey: "color",
+                      legacySourceKey: "accent_color_source",
+                      legacyTemplateKey: "accent_color",
                     })}
                     ${renderStatusIconSource.call(this, stateSource)}
                     ${stateSource === "area_count"
@@ -338,6 +346,10 @@ function renderIconOnlyStatusConfig({
           offLabel: ["Accent", "Inactive", "Color"],
           onKey: "accent_on_color",
           offKey: "accent_off_color",
+          sourceKey: "color_source",
+          templateKey: "color",
+          legacySourceKey: "accent_color_source",
+          legacyTemplateKey: "accent_color",
           config: selectedItem,
           pickerPrefix: `status-${selectedIndex}-`,
           onUpdate: (key, value) =>
@@ -498,7 +510,10 @@ function renderStatusIconSource(stateSource = "entity") {
 
   return renderIconSourceControl.call(this, {
     label: "Icon",
-    sourceKey: "entity_icon_source",
+    sourceKey: "icon_source",
+    legacySourceKey: "entity_icon_source",
+    templateKey: "icon",
+    legacyTemplateKeys: ["entity_icon_template"],
     entityKey: "entity",
     defaultSource: isAreaCount ? "domain" : "entity",
     defaultSourceLabel: isAreaCount ? "Domain" : "Entity",
@@ -542,7 +557,10 @@ function renderStatusItemIconSource(index, item, isAreaCount = false) {
 
   return renderIconSourceControl.call(scopedEditor, {
     label: "Icon",
-    sourceKey: "entity_icon_source",
+    sourceKey: "icon_source",
+    legacySourceKey: "entity_icon_source",
+    templateKey: "icon",
+    legacyTemplateKeys: ["entity_icon_template"],
     entityKey: "entity",
     defaultSource: isAreaCount ? "domain" : "entity",
     defaultSourceLabel: isAreaCount ? "Domain" : "Entity",
