@@ -8964,7 +8964,7 @@ function Hl() {
 	})}
                     ${Yl.call(this, r)}
                     ${r === "area_count" ? "" : E`
-                          ${this._renderTemplateInput("State template", "state_template")}
+                          ${this._renderTemplateInput(r === "template" ? "State" : "State template", "state_template")}
                         `}
                   `)}
                 `}
@@ -9147,7 +9147,7 @@ function Wl({ cardActionDefault: e, mainEntityActionDefault: t }) {
         ${Xl.call(this, r, i, o)}
 
         ${o ? "" : E`
-              ${Jl.call(this, "State template", "state_template", r, i)}
+              ${Jl.call(this, a === "template" ? "State" : "State template", "state_template", r, i)}
             `}
       `)}
 

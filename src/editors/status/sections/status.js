@@ -117,7 +117,9 @@ export function renderStatusSection() {
                       ? ""
                       : html`
                           ${this._renderTemplateInput(
-                            "State template",
+                            stateSource === "template"
+                              ? "State"
+                              : "State template",
                             "state_template"
                           )}
                         `}
@@ -351,7 +353,9 @@ function renderIconOnlyStatusConfig({
           : html`
               ${renderStatusItemInput.call(
                 this,
-                "State template",
+                selectedStateSource === "template"
+                  ? "State"
+                  : "State template",
                 "state_template",
                 selectedIndex,
                 selectedItem
