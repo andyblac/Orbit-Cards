@@ -910,6 +910,12 @@ function orderStatusConfig(config) {
   );
   if (cleanedConfig.mode !== "icon_only") delete cleanedConfig.entities;
   moveRootAreaCountToStatusItems(cleanedConfig);
+  if (
+    cleanedConfig.mode !== "person" &&
+    cleanedConfig.mode !== "icon_only"
+  ) {
+    cleanedConfig.state_source = getStatusBadgeStateSource(cleanedConfig);
+  }
   cleanAreaCountEntity(cleanedConfig);
   cleanDefaultStatusActions(cleanedConfig);
   const ordered = {};
@@ -969,6 +975,16 @@ function moveRootAreaCountToStatusItems(config) {
 }
 
 function orderStatusItem(item) {
+  if (typeof item === "string") {
+    return orderObjectKeys(
+      {
+        state_source: "entity",
+        entity: item,
+      },
+      STATUS_ITEM_KEYS
+    );
+  }
+
   if (!item || typeof item !== "object" || Array.isArray(item)) {
     return item;
   }
@@ -976,6 +992,7 @@ function orderStatusItem(item) {
   const cleanedItem = migrateStatusPresentationConfig(
     cleanEmptyStatusValues(item)
   );
+  cleanedItem.state_source = getStatusBadgeStateSource(cleanedItem);
   cleanAreaCountEntity(cleanedItem);
   cleanDefaultStatusActions(cleanedItem);
   return orderObjectKeys(cleanedItem, STATUS_ITEM_KEYS);
