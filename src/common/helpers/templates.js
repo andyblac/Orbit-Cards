@@ -129,6 +129,14 @@ export function getColorTemplateEntries(config) {
   return [...templates.values()];
 }
 
+export function getIconTemplateEntries(config) {
+  const templates = new Map();
+
+  collectIconTemplates(config, templates);
+
+  return [...templates.values()];
+}
+
 function collectColorTemplates(value, templates, key = "", entityId = "") {
   if (Array.isArray(value)) {
     value.forEach((item) =>
@@ -154,6 +162,43 @@ function collectColorTemplates(value, templates, key = "", entityId = "") {
   Object.entries(value).forEach(([childKey, childValue]) =>
     collectColorTemplates(childValue, templates, childKey, localEntityId)
   );
+}
+
+function collectIconTemplates(value, templates, key = "", entityId = "") {
+  if (Array.isArray(value)) {
+    value.forEach((item) =>
+      collectIconTemplates(item, templates, "", entityId)
+    );
+    return;
+  }
+
+  if (!value || typeof value !== "object") {
+    if (
+      typeof value === "string" &&
+      /(^|_)icon$/.test(key) &&
+      hasNativeTemplateSyntax(value)
+    ) {
+      const id = getTemplateId(value, entityId);
+      templates.set(id, { template: value, entityId });
+    }
+    return;
+  }
+
+  const localEntityId = value.entity || value.main_entity || entityId;
+
+  Object.entries(value).forEach(([childKey, childValue]) => {
+    const iconPrefix = childKey.match(/^(.*)_icon$/)?.[1];
+    const iconEntityId = iconPrefix !== undefined
+      ? value[iconPrefix] || localEntityId
+      : localEntityId;
+
+    collectIconTemplates(
+      childValue,
+      templates,
+      childKey,
+      iconEntityId
+    );
+  });
 }
 
 function subscribeTemplate(descriptor) {

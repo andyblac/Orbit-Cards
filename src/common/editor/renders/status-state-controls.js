@@ -8,7 +8,10 @@ import {
   STATUS_BADGE_NON_NUMERIC_SENSOR_DEVICE_CLASSES,
   STATUS_BADGE_DOMAINS,
 } from "../../helpers/status-badge.js";
-import { getTemplateError } from "../../helpers/templates.js";
+import {
+  getTemplateError,
+  hasNativeTemplateSyntax,
+} from "../../helpers/templates.js";
 
 export function renderBadgeIconControl(stateSource = "entity") {
   const iconSource = this._config?.icon_source ||
@@ -38,19 +41,36 @@ export function renderBadgeIconControl(stateSource = "entity") {
                   label: this._t("Custom"),
                   value: "custom",
                 },
+                {
+                  label: this._t("Template"),
+                  value: "template",
+                },
               ],
             },
           }}
           .value=${iconSource}
-          @value-changed=${(e) =>
-            e.detail.value === "custom"
-              ? this._handleConfigUpdate("icon_source", "custom")
-              : this._updateConfig({
-                  icon_source: undefined,
-                  icon: undefined,
-                  icon_on: undefined,
-                  icon_off: undefined,
-                })}
+          @value-changed=${(e) => {
+            const value = e.detail.value;
+
+            if (["custom", "template"].includes(value)) {
+              if (
+                iconSource !== value &&
+                [iconSource, value].includes("template") &&
+                this._config?.icon
+              ) {
+                this._handleConfigUpdate("icon", "");
+              }
+              this._handleConfigUpdate("icon_source", value);
+              return;
+            }
+
+            this._updateConfig({
+              icon_source: undefined,
+              icon: undefined,
+              icon_on: undefined,
+              icon_off: undefined,
+            });
+          }}
         ></ha-selector>
       </div>
 
@@ -60,6 +80,24 @@ export function renderBadgeIconControl(stateSource = "entity") {
             <div class="icon-pair">
               ${this._renderIconInput(["Active", "Icon"], "icon_on")}
               ${this._renderIconInput(["Inactive", "Icon"], "icon_off")}
+            </div>
+          `
+        : ""}
+      ${iconSource === "template"
+        ? html`
+            <div class="field icon-source-template-field">
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{ template: {} }}
+                .value=${hasNativeTemplateSyntax(this._config?.icon)
+                  ? this._config.icon
+                  : ""}
+                @value-changed=${(event) =>
+                  this._handleConfigUpdate(
+                    "icon",
+                    event.detail.value || ""
+                  )}
+              ></ha-selector>
             </div>
           `
         : ""}

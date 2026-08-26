@@ -98,12 +98,6 @@ function renderNamePickerFallback(options) {
           .selector=${{
             button_toggle: {
               options: [
-                ...(options.templateKey
-                  ? [{
-                      label: this._t("Template"),
-                      value: "template",
-                    }]
-                  : []),
                 {
                   label: localizeEntityNamePickerMode(this, "composed"),
                   value: "composed",
@@ -112,6 +106,12 @@ function renderNamePickerFallback(options) {
                   label: localizeEntityNamePickerMode(this, "custom"),
                   value: "custom",
                 },
+                ...(options.templateKey
+                  ? [{
+                      label: this._t("Template"),
+                      value: "template",
+                    }]
+                  : []),
               ],
             },
           }}

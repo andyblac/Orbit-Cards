@@ -84,10 +84,13 @@ export function renderStatusSection() {
                   ${this._renderEntity("ETA entity", "eta_entity")}
                   ${this._renderEntity("Battery entity {index}", "battery_entity_1", { index: 1 })}
                   ${this._renderEntity("Battery entity {index}", "battery_entity_2", { index: 2 })}
-                  <div class="color-pair">
-                    ${this._renderColor(["Accent", "Active", "Color"], "accent_on_color")}
-                    ${this._renderColor(["Accent", "Inactive", "Color"], "accent_off_color")}
-                  </div>
+                  ${this._renderColorPair({
+                    label: ["Accent", "Color"],
+                    onLabel: ["Accent", "Active", "Color"],
+                    offLabel: ["Accent", "Inactive", "Color"],
+                    onKey: "accent_on_color",
+                    offKey: "accent_off_color",
+                  })}
                 `)
               : html`
                   ${renderStatusStateType.call(
@@ -102,10 +105,13 @@ export function renderStatusSection() {
                   )}
                   ${renderStatusContentPanel.call(this, html`
                     ${renderStatusNamePicker.call(this)}
-                    <div class="color-pair">
-                      ${this._renderColor(["Accent", "Active", "Color"], "accent_on_color")}
-                      ${this._renderColor(["Accent", "Inactive", "Color"], "accent_off_color")}
-                    </div>
+                    ${this._renderColorPair({
+                      label: ["Accent", "Color"],
+                      onLabel: ["Accent", "Active", "Color"],
+                      offLabel: ["Accent", "Inactive", "Color"],
+                      onKey: "accent_on_color",
+                      offKey: "accent_off_color",
+                    })}
                     ${renderStatusIconSource.call(this, stateSource)}
                     ${stateSource === "area_count"
                       ? ""
@@ -321,22 +327,17 @@ function renderIconOnlyStatusConfig({
 
       ${renderStatusContentPanel.call(this, html`
 
-        <div class="color-pair">
-          ${renderStatusItemColor.call(
-            this,
-            ["Accent", "Active", "Color"],
-            "accent_on_color",
-            selectedIndex,
-            selectedItem
-          )}
-          ${renderStatusItemColor.call(
-            this,
-            ["Accent", "Inactive", "Color"],
-            "accent_off_color",
-            selectedIndex,
-            selectedItem
-          )}
-        </div>
+        ${this._renderColorPair({
+          label: ["Accent", "Color"],
+          onLabel: ["Accent", "Active", "Color"],
+          offLabel: ["Accent", "Inactive", "Color"],
+          onKey: "accent_on_color",
+          offKey: "accent_off_color",
+          config: selectedItem,
+          pickerPrefix: `status-${selectedIndex}-`,
+          onUpdate: (key, value) =>
+            this._updateStatusItem(selectedIndex, { [key]: value }),
+        })}
 
         ${renderStatusItemIconSource.call(
           this,
@@ -479,18 +480,6 @@ function renderStatusItemInput(label, key, index, item) {
         [key]: value,
       }),
   });
-}
-
-function renderStatusItemColor(label, key, index, item) {
-  return this._renderColorControl(
-    label,
-    `status-${index}-${key}`,
-    item[key] || "",
-    (value) =>
-      this._updateStatusItem(index, {
-        [key]: value,
-      })
-  );
 }
 
 function renderStatusIconSource(stateSource = "entity") {

@@ -12,6 +12,7 @@ import {
   renderArea,
   renderColor,
   renderColorControl,
+  renderColorPair,
   renderInput,
   renderTemplateInput,
   clearEntityConfig,
@@ -181,7 +182,9 @@ class OrbitAreaCardEditor extends LitElement {
       );
     const clearsCustomMainIcon =
       mainIconSourceChanged &&
-      nextChanges.main_entity_icon_source !== "custom";
+      !["custom", "template"].includes(
+        nextChanges.main_entity_icon_source
+      );
     const clearsEmptyDefaultMainIcon =
       mainIconSource !== "custom" &&
       nextConfig.main_entity_icon === "";
@@ -299,6 +302,10 @@ class OrbitAreaCardEditor extends LitElement {
       onUpdate,
       previewValue
     );
+  }
+
+  _renderColorPair(options) {
+    return renderColorPair.call(this, options);
   }
 
   _renderIconInput(label, key, placeholder = "mdi:lightbulb or icon.svg") {
@@ -534,6 +541,8 @@ const STATUS_ENTITY_DEPENDENT_SUFFIXES = [
 ];
 
 const BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
+  "_color_source",
+  "_color",
   "_on_color",
   "_off_color",
   "_icon_source",
@@ -547,6 +556,10 @@ const BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
 ];
 
 const CURVE_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
+  "_color_source",
+  "_color",
+  "_on_color",
+  "_off_color",
   "_icon_source",
   "_icon",
   "_icon_on",
@@ -558,6 +571,10 @@ const CURVE_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
 ];
 
 const ACTION_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
+  "_color_source",
+  "_color",
+  "_on_color",
+  "_off_color",
   "_icon_source",
   "_icon",
   "_icon_on",
@@ -599,6 +616,8 @@ const AREA_CONFIG_ORDER = [
   ]),
   ...[1, 2, 3, 4].flatMap((index) => [
     `button${index}`,
+    `button${index}_color_source`,
+    `button${index}_color`,
     `button${index}_on_color`,
     `button${index}_off_color`,
     `button${index}_icon_source`,
@@ -616,6 +635,8 @@ const AREA_CONFIG_ORDER = [
   "curve_buttons_lock_position",
   ...[1, 2, 3, 4, 5, 6].flatMap((index) => [
     `curve_button${index}`,
+    `curve_button${index}_color_source`,
+    `curve_button${index}_color`,
     `curve_button${index}_on_color`,
     `curve_button${index}_off_color`,
     `curve_button${index}_icon_source`,
@@ -631,6 +652,10 @@ const AREA_CONFIG_ORDER = [
     `curve_button${index}_double_tap_action`,
   ]),
   "action_button",
+  "action_button_color_source",
+  "action_button_color",
+  "action_button_on_color",
+  "action_button_off_color",
   "action_button_icon_source",
   "action_button_icon",
   "action_button_icon_on",

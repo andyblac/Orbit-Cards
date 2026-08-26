@@ -1,6 +1,7 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { orbitIconManifest } from "../../../icons/bundled.js";
+import { hasNativeTemplateSyntax } from "../../helpers/templates.js";
 
 function t(editor, key) {
   if (Array.isArray(key)) {
@@ -110,6 +111,8 @@ export function renderIconInput(label, key, placeholder) {
           <button
             type="button"
             class=${activeTab === "ha" ? "active" : ""}
+            aria-label=${t(this, "Icons")}
+            title=${t(this, "Icons")}
             @click=${() => {
               this._iconPickerKey = pickerKey;
               this._iconPickerTab = "ha";
@@ -120,6 +123,8 @@ export function renderIconInput(label, key, placeholder) {
           <button
             type="button"
             class=${activeTab === "files" ? "active" : ""}
+            aria-label=${t(this, "Files")}
+            title=${t(this, "Files")}
             @click=${() => {
               this._iconPickerKey = pickerKey;
               this._iconPickerTab = "files";
@@ -168,6 +173,8 @@ export function renderIconSourceControl({
     customIconKeys,
   });
   const customMode = iconSource === "custom";
+  const templateMode = iconSource === "template";
+  const templateIconKey = customIconKeys[0] || "icon";
   const options = [
     allowNone
       ? {
@@ -189,6 +196,10 @@ export function renderIconSourceControl({
       label: t(this, "Custom"),
       value: "custom",
     },
+    {
+      label: t(this, "Template"),
+      value: "template",
+    },
   ].filter(Boolean);
 
   return html`
@@ -206,9 +217,20 @@ export function renderIconSourceControl({
           }}
           .value=${iconSource}
           @value-changed=${(e) => {
+            const nextSource =
+              e.detail.value || (allowNone ? "none" : "custom");
+            const currentIcon = this._config?.[templateIconKey];
+            const crossesTemplateBoundary =
+              [iconSource, nextSource].includes("template") &&
+              iconSource !== nextSource;
+
+            if (crossesTemplateBoundary && currentIcon) {
+              this._handleConfigUpdate(templateIconKey, "");
+            }
+
             this._handleConfigUpdate(
               sourceKey,
-              e.detail.value || (allowNone ? "none" : "custom")
+              nextSource
             );
           }}
         ></ha-selector>
@@ -216,6 +238,26 @@ export function renderIconSourceControl({
 
       ${customMode && renderCustom
         ? renderCustom.call(this)
+        : ""}
+      ${templateMode
+        ? html`
+            <div class="field icon-source-template-field">
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{ template: {} }}
+                .value=${hasNativeTemplateSyntax(
+                  this._config?.[templateIconKey]
+                )
+                  ? this._config[templateIconKey]
+                  : ""}
+                @value-changed=${(event) =>
+                  this._handleConfigUpdate(
+                    templateIconKey,
+                    event.detail.value || ""
+                  )}
+              ></ha-selector>
+            </div>
+          `
         : ""}
     </div>
   `;
@@ -239,6 +281,7 @@ export function getIconSource(config = {}, {
   const hasCustomIcon = customIconKeys.some((key) => Boolean(config[key]));
 
   if (savedSource === "custom") return "custom";
+  if (savedSource === "template") return "template";
   if (savedSource === "none" && allowNone) return "none";
   if (savedSource === "area" && hasArea) return "area";
   if (savedSource === defaultSource && hasDefaultSource) {

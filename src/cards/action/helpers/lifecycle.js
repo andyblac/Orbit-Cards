@@ -1,3 +1,5 @@
+import { resolveIconTemplate } from "../../../common/helpers/icons.js";
+
 export function updateActionCard(changedProps) {
   if (
     !changedProps.has("_config") &&
@@ -53,12 +55,20 @@ function getActionState(item) {
   this._orbitColorTemplateEntityId = "";
   const iconSource = getItemIconSource(item, entityId);
   const customIcon =
-    iconSource === "custom"
-      ? item.main_entity_icon || item.icon || ""
+    ["custom", "template"].includes(iconSource)
+      ? resolveIconTemplate.call(
+          this,
+          item.main_entity_icon || item.icon,
+          entityId
+        )
       : "";
 
   const selectedIconKey =
-    iconSource === "custom" && item.main_entity_icon
+    iconSource === "template" && customIcon
+      ? item.main_entity_icon
+        ? "main_entity_icon"
+        : "icon"
+      : iconSource === "custom" && item.main_entity_icon
       ? "main_entity_icon"
       : iconSource === "custom" && item.icon
         ? "icon"
@@ -70,7 +80,9 @@ function getActionState(item) {
     ...item,
     entityId,
     stateObj,
-    useStateIcon: Boolean(stateObj) && !customIcon,
+    useStateIcon: Boolean(stateObj) &&
+      iconSource !== "template" &&
+      !customIcon,
     icon,
     iconColor,
     cardBackground,
@@ -87,6 +99,7 @@ function getItemIconSource(item, entityId) {
   const hasCustomIcon = Boolean(item.main_entity_icon || item.icon);
 
   if (savedSource === "custom") return "custom";
+  if (savedSource === "template") return "template";
   if (savedSource === "entity" && hasEntity) return "entity";
   if (hasCustomIcon) return "custom";
   if (hasEntity) return "entity";

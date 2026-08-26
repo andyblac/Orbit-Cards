@@ -597,6 +597,10 @@ export const iconStyles = css`
   opacity: 1;
 }
 
+.icon-source-template-field ha-selector {
+  display: block;
+}
+
 .file-icon-grid {
   display: grid;
   grid-template-columns: 1fr;

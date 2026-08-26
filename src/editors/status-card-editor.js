@@ -13,6 +13,7 @@ import {
   renderArea,
   renderColor,
   renderColorControl,
+  renderColorPair,
   renderInput,
   renderNumberInput,
   renderTemplateInput,
@@ -239,6 +240,8 @@ class OrbitStatusCardEditor extends LitElement {
       {
         entity: config?.entity || "",
         ...pickStatusSourceConfig(config),
+        accent_color_source: config?.accent_color_source || "",
+        accent_color: config?.accent_color || "",
         accent_on_color: config?.accent_on_color || "",
         accent_off_color: config?.accent_off_color || "",
         entity_icon_source: config?.entity_icon_source || "",
@@ -273,6 +276,8 @@ class OrbitStatusCardEditor extends LitElement {
         entities: undefined,
         entity: item.entity || undefined,
         ...pickStatusSourceConfig(item),
+        accent_color_source: item.accent_color_source,
+        accent_color: item.accent_color,
         accent_on_color: item.accent_on_color,
         accent_off_color: item.accent_off_color,
         entity_icon_source: item.entity_icon_source,
@@ -435,6 +440,8 @@ class OrbitStatusCardEditor extends LitElement {
     this._updateConfig({
       entity: nextItem.entity || "",
       ...pickStatusSourceConfig(nextItem),
+      accent_color_source: nextItem.accent_color_source || "",
+      accent_color: nextItem.accent_color || "",
       accent_on_color: nextItem.accent_on_color || "",
       accent_off_color: nextItem.accent_off_color || "",
       entity_icon_source: nextItem.entity_icon_source || "",
@@ -478,6 +485,10 @@ class OrbitStatusCardEditor extends LitElement {
       onUpdate,
       previewValue
     );
+  }
+
+  _renderColorPair(options) {
+    return renderColorPair.call(this, options);
   }
 
   _renderEntity(label, key, replacements) {
@@ -688,6 +699,8 @@ function cleanClearedStatusItem(item) {
 
 const STATUS_ENTITY_DEPENDENT_KEYS = [
   ...STATUS_SOURCE_CONFIG_KEYS,
+  "accent_color_source",
+  "accent_color",
   "accent_on_color",
   "accent_off_color",
   "entity_icon_source",
@@ -714,6 +727,8 @@ const PERSON_ENTITY_DEPENDENT_KEYS = [
   "eta_entity",
   "battery_entity_1",
   "battery_entity_2",
+  "accent_color_source",
+  "accent_color",
   "accent_on_color",
   "accent_off_color",
   "tap_action",
@@ -729,8 +744,18 @@ const TRACKER_ENTITY_DEPENDENT_KEYS = [
 ];
 
 const STATUS_ITEM_KEYS = [
+  "state_source",
   "entity",
-  ...STATUS_SOURCE_CONFIG_KEYS,
+  "area",
+  "domain",
+  "device_class",
+  "threshold",
+  "thresholds",
+  "hide",
+  "active_template",
+  "inactive_template",
+  "accent_color_source",
+  "accent_color",
   "accent_on_color",
   "accent_off_color",
   "entity_icon_source",
@@ -750,16 +775,22 @@ const STATUS_ITEM_KEYS = [
   "entity_double_tap_action",
 ];
 
-const STATUS_CONFIG_ORDER = [
-  "type",
-  "mode",
-  "name",
+const STATUS_STATE_CONFIG_ORDER = [
+  "state_source",
   "entity",
-  ...STATUS_SOURCE_CONFIG_KEYS,
-  "tracker_entity",
-  "eta_entity",
-  "battery_entity_1",
-  "battery_entity_2",
+  "area",
+  "domain",
+  "device_class",
+  "threshold",
+  "thresholds",
+  "hide",
+  "active_template",
+  "inactive_template",
+];
+
+const STATUS_COLOR_ICON_CONFIG_ORDER = [
+  "accent_color_source",
+  "accent_color",
   "accent_on_color",
   "accent_off_color",
   "entity_icon_source",
@@ -769,21 +800,63 @@ const STATUS_CONFIG_ORDER = [
   "entity_icon_svg_color_override",
   "entity_icon_on_svg_color_override",
   "entity_icon_off_svg_color_override",
-  "state_template",
-  "name_template",
+];
+
+const STATUS_INTERACTION_CONFIG_ORDER = [
   "tap_action",
   "hold_action",
   "double_tap_action",
   "entity_tap_action",
   "entity_hold_action",
   "entity_double_tap_action",
-  "wrap",
-  "items_per_row",
-  "separate_cards",
-  "entities",
+];
+
+const STATUS_STANDARD_CONFIG_ORDER = [
+  "type",
+  "mode",
+  ...STATUS_STATE_CONFIG_ORDER,
+  "name",
+  "name_template",
+  ...STATUS_COLOR_ICON_CONFIG_ORDER,
+  "state_template",
+  ...STATUS_INTERACTION_CONFIG_ORDER,
   "grid_options",
   "view_layout",
 ];
+
+const STATUS_PERSON_CONFIG_ORDER = [
+  "type",
+  "mode",
+  "name",
+  "name_template",
+  "entity",
+  "tracker_entity",
+  "eta_entity",
+  "battery_entity_1",
+  "battery_entity_2",
+  ...STATUS_COLOR_ICON_CONFIG_ORDER,
+  ...STATUS_INTERACTION_CONFIG_ORDER,
+  "grid_options",
+  "view_layout",
+];
+
+const STATUS_ICON_ONLY_CONFIG_ORDER = [
+  "type",
+  "mode",
+  "wrap",
+  "separate_cards",
+  "items_per_row",
+  "entities",
+  ...STATUS_INTERACTION_CONFIG_ORDER,
+  "grid_options",
+  "view_layout",
+];
+
+function getStatusConfigOrder(config) {
+  if (config?.mode === "person") return STATUS_PERSON_CONFIG_ORDER;
+  if (config?.mode === "icon_only") return STATUS_ICON_ONLY_CONFIG_ORDER;
+  return STATUS_STANDARD_CONFIG_ORDER;
+}
 
 function orderStatusConfig(config) {
   const cleanedConfig = cleanEmptyStatusValues(config);
@@ -794,7 +867,7 @@ function orderStatusConfig(config) {
   const ordered = {};
   const usedKeys = new Set();
 
-  STATUS_CONFIG_ORDER.forEach((key) => {
+  getStatusConfigOrder(cleanedConfig).forEach((key) => {
     if (Object.prototype.hasOwnProperty.call(cleanedConfig, key)) {
       ordered[key] =
         key === "entities" && Array.isArray(cleanedConfig[key])

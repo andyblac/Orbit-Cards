@@ -10,6 +10,7 @@ import {
   loadLocalIconFiles,
   mergeConfig,
   renderColor,
+  renderColorPair,
   renderIconInput,
   resolveIconPath,
 } from "../common/editor/helpers/helpers.js";
@@ -30,6 +31,8 @@ import {
 import {
   disconnectTemplateSubscriptions,
   evaluateStateTemplate,
+  getColorTemplateEntries,
+  getIconTemplateEntries,
   syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
 import { CARD_VERSIONS } from "../version.js";
@@ -134,9 +137,14 @@ class OrbitStatusBadgeEditor extends LitElement {
           ]
         : templates
       : [];
-    const entries = selectedTemplates
+    const stateEntries = selectedTemplates
       .filter(Boolean)
       .map((template) => ({ template, entityId: "" }));
+    const entries = [
+      ...stateEntries,
+      ...getColorTemplateEntries(this._config),
+      ...getIconTemplateEntries(this._config),
+    ];
 
     syncTemplateSubscriptions.call(
       this,
@@ -276,6 +284,10 @@ class OrbitStatusBadgeEditor extends LitElement {
 
   _renderColor(label, key, previewValue) {
     return renderColor.call(this, label, key, previewValue);
+  }
+
+  _renderColorPair(options) {
+    return renderColorPair.call(this, options);
   }
 
   _renderIconInput(label, key, placeholder = "mdi:lightbulb or icon.svg") {
@@ -466,18 +478,13 @@ class OrbitStatusBadgeEditor extends LitElement {
                     </div>
                   `}
 
-              <div class="color-pair">
-                ${this._renderColor(
-                  ["Active", "Color"],
-                  "accent_on_color",
-                  badgeMode ? "white" : "theme"
-                )}
-                ${this._renderColor(
-                  ["Inactive", "Color"],
-                  "accent_off_color",
-                  badgeMode ? "white" : "theme"
-                )}
-              </div>
+              ${this._renderColorPair({
+                label: "Color",
+                onKey: "accent_on_color",
+                offKey: "accent_off_color",
+                onPreviewValue: badgeMode ? "white" : "theme",
+                offPreviewValue: badgeMode ? "white" : "theme",
+              })}
 
               ${renderBadgeIconControl.call(this, stateSource)}
 

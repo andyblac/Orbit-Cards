@@ -24,7 +24,8 @@ export function renderColorControl(
   pickerKey,
   value,
   onUpdate,
-  previewValue
+  previewValue,
+  allowTemplate = true
 ) {
   scheduleThemeColorWarmup.call(this);
 
@@ -34,10 +35,12 @@ export function renderColorControl(
     previewValue
   );
   const defaultTab = getDefaultColorTab(value || effectivePreviewValue);
-  const activeTab =
+  const requestedTab =
     this._colorPickerKey === pickerKey
       ? this._colorPickerTab || defaultTab
       : defaultTab;
+  const activeTab =
+    !allowTemplate && requestedTab === "template" ? defaultTab : requestedTab;
 
   return html`
     <div class="field">
@@ -84,19 +87,23 @@ export function renderColorControl(
             >
               <ha-icon icon="mdi:palette-swatch"></ha-icon>
             </button>
-            <button
-              type="button"
-              class=${activeTab === "template" ? "active" : ""}
-              aria-label=${t(this, "Template")}
-              title=${t(this, "Template")}
-              @click=${() => {
-                this._colorPickerKey = pickerKey;
-                this._colorPickerTab = "template";
-                this._themeColorPickerOpen = false;
-              }}
-            >
-              <ha-icon icon="mdi:code-braces"></ha-icon>
-            </button>
+            ${allowTemplate
+              ? html`
+                  <button
+                    type="button"
+                    class=${activeTab === "template" ? "active" : ""}
+                    aria-label=${t(this, "Template")}
+                    title=${t(this, "Template")}
+                    @click=${() => {
+                      this._colorPickerKey = pickerKey;
+                      this._colorPickerTab = "template";
+                      this._themeColorPickerOpen = false;
+                    }}
+                  >
+                    <ha-icon icon="mdi:code-braces"></ha-icon>
+                  </button>
+                `
+              : ""}
           </div>
 
           ${activeTab === "template"
@@ -123,6 +130,90 @@ export function renderColorControl(
               `}
         </div>
       </div>
+    </div>
+  `;
+}
+
+export function renderColorPair({
+  label = "Color",
+  onLabel = ["Active", "Color"],
+  offLabel = ["Inactive", "Color"],
+  onKey,
+  offKey,
+  sourceKey,
+  templateKey,
+  config = this._config || {},
+  onUpdate = (key, value) => this._handleConfigUpdate(key, value),
+  onPreviewValue,
+  offPreviewValue,
+  pickerPrefix = "",
+} = {}) {
+  const baseKey = onKey?.replace(/_on_color$/, "") || "accent";
+  const effectiveSourceKey = sourceKey || `${baseKey}_color_source`;
+  const effectiveTemplateKey = templateKey || `${baseKey}_color`;
+  const templateMode = config[effectiveSourceKey] === "template";
+
+  return html`
+    <div class="color-pair-control">
+      <div class="field-header color-pair-source-header">
+        <label>${t(this, label)}</label>
+        <ha-selector
+          class="color-pair-source-selector"
+          .hass=${this.hass}
+          .selector=${{
+            button_toggle: {
+              options: [
+                { label: t(this, "Custom"), value: "custom" },
+                { label: t(this, "Template"), value: "template" },
+              ],
+            },
+          }}
+          .value=${templateMode ? "template" : "custom"}
+          @value-changed=${(event) =>
+            onUpdate(
+              effectiveSourceKey,
+              event.detail.value === "template" ? "template" : undefined
+            )}
+        ></ha-selector>
+      </div>
+
+      ${templateMode
+        ? html`
+            <div class="field color-source-template-field">
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{ template: {} }}
+                .value=${config[effectiveTemplateKey] || ""}
+                @value-changed=${(event) =>
+                  onUpdate(
+                    effectiveTemplateKey,
+                    event.detail.value || ""
+                  )}
+              ></ha-selector>
+            </div>
+          `
+        : html`
+            <div class="color-pair">
+              ${renderColorControl.call(
+                this,
+                onLabel,
+                `${pickerPrefix}${onKey}`,
+                config[onKey] || "",
+                (value) => onUpdate(onKey, value),
+                onPreviewValue,
+                false
+              )}
+              ${renderColorControl.call(
+                this,
+                offLabel,
+                `${pickerPrefix}${offKey}`,
+                config[offKey] || "",
+                (value) => onUpdate(offKey, value),
+                offPreviewValue,
+                false
+              )}
+            </div>
+          `}
     </div>
   `;
 }

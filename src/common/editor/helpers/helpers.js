@@ -36,6 +36,7 @@ import {
   renderArea,
   renderColor,
   renderColorControl,
+  renderColorPair,
 } from "./renders.js";
 
 /* ==========================================
@@ -296,6 +297,7 @@ export {
   renderArea,
   renderColor,
   renderColorControl,
+  renderColorPair,
   renderInput,
   renderNumberInput,
   renderTemplateInput,

@@ -37,6 +37,7 @@ import {
 import {
   disconnectTemplateSubscriptions,
   getColorTemplateEntries,
+  getIconTemplateEntries,
   syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
 import {
@@ -113,7 +114,10 @@ class OrbitActionCard extends LitElement {
     if (changedProps.has("_config") || changedProps.has("hass")) {
       syncTemplateSubscriptions.call(
         this,
-        getColorTemplateEntries(this._config)
+        [
+          ...getColorTemplateEntries(this._config),
+          ...getIconTemplateEntries(this._config),
+        ]
       );
     }
 

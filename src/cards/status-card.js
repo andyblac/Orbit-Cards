@@ -44,6 +44,7 @@ import {
   disconnectTemplateSubscriptions,
   evaluateStateTemplate,
   getColorTemplateEntries,
+  getIconTemplateEntries,
   syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
 import {
@@ -624,6 +625,7 @@ class OrbitStatusCard extends LitElement {
       return [
         ...stateEntries,
         ...getColorTemplateEntries(this._config),
+        ...getIconTemplateEntries(this._config),
       ];
     }
 
@@ -645,6 +647,7 @@ class OrbitStatusCard extends LitElement {
     return [
       ...stateEntries,
       ...getColorTemplateEntries(this._config),
+      ...getIconTemplateEntries(this._config),
     ];
   }
 

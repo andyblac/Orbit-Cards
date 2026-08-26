@@ -38,6 +38,7 @@ import { sharedSvgCache } from "../common/helpers/svg-cache.js";
 import {
   disconnectTemplateSubscriptions,
   getColorTemplateEntries,
+  getIconTemplateEntries,
   syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
 import { CARD_VERSIONS } from "../version.js";
@@ -164,6 +165,7 @@ class OrbitStatusBadge extends LitElement {
     syncTemplateSubscriptions.call(this, [
       ...entries,
       ...getColorTemplateEntries(this._config),
+      ...getIconTemplateEntries(this._config),
     ]);
   }
 

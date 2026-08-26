@@ -11,6 +11,7 @@ import {
   formatCardNameValue,
 } from "../../../common/helpers/card-name.js";
 import { localize } from "../../../common/localize.js";
+import { resolveIconTemplate } from "../../../common/helpers/icons.js";
 import {
   getStatusBadgeActiveEntities,
   getStatusBadgeAreaEntities,
@@ -80,6 +81,8 @@ export function getIconOnlyStatusItems(config = {}) {
     {
       entity: config.entity,
       ...pickStatusSourceConfig(config),
+      accent_color_source: config.accent_color_source,
+      accent_color: config.accent_color,
       accent_on_color: config.accent_on_color,
       accent_off_color: config.accent_off_color,
       entity_icon_source: config.entity_icon_source,
@@ -188,8 +191,11 @@ function getStatusState(item, rootConfig = {}) {
           ? this.formatState(stateObj)
           : "");
 
-  const customIcon =
-    config.entity_icon;
+  const customIcon = resolveIconTemplate.call(
+    this,
+    config.entity_icon,
+    entityId
+  );
 
   const customIconOn =
     config.entity_icon_on;
@@ -221,7 +227,9 @@ function getStatusState(item, rootConfig = {}) {
         );
   const iconSource = getStatusIconSource(config, entityId);
   const customStateIcon =
-    iconSource === "custom"
+    iconSource === "template"
+      ? customIcon
+      : iconSource === "custom"
       ? (isOn ? customIconOn : customIconOff) ||
         customIcon ||
         ""
@@ -242,7 +250,9 @@ function getStatusState(item, rootConfig = {}) {
     : stateObj;
 
   const selectedIconKey =
-    iconSource === "custom" && isOn && customIconOn
+    iconSource === "template" && customIcon
+      ? "entity_icon"
+      : iconSource === "custom" && isOn && customIconOn
       ? "entity_icon_on"
       : iconSource === "custom" && !isOn && customIconOff
         ? "entity_icon_off"
@@ -273,7 +283,9 @@ function getStatusState(item, rootConfig = {}) {
     entityId,
     stateObj,
     nativeIconStateObj,
-    useStateIcon: Boolean(nativeIconStateObj) && !customStateIcon,
+    useStateIcon: Boolean(nativeIconStateObj) &&
+      iconSource !== "template" &&
+      !customStateIcon,
     cardName,
     statusText,
     icon,
@@ -298,6 +310,7 @@ function getStatusIconSource(config, entityId) {
   );
 
   if (savedSource === "custom") return "custom";
+  if (savedSource === "template") return "template";
   if (savedSource === "domain" && config.domain) return "domain";
   if (savedSource === "entity" && hasEntity) return "entity";
   if (hasCustomIcon) return "custom";

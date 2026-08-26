@@ -16,6 +16,7 @@ import {
   formatTemplateState,
   getTemplateResultActiveState,
 } from "../../common/helpers/templates.js";
+import { resolveIconTemplate } from "../../common/helpers/icons.js";
 
 export function getStatusBadgeModel() {
   const stateSource = getStatusBadgeStateSource(this._config);
@@ -62,16 +63,25 @@ export function getStatusBadgeModel() {
   const domainConfig = getStatusBadgeDomainConfig(domain);
   const iconSource = this._config?.icon_source ||
     (this._config?.icon ? "custom" : "domain");
-  const basicIcon = this._config?.icon || "";
-  const stateIcon = isOn
+  const basicIcon = resolveIconTemplate.call(
+    this,
+    this._config?.icon,
+    selectedEntity?.entity_id || ""
+  );
+  const stateIcon = iconSource === "template"
+    ? basicIcon
+    : isOn
     ? this._config?.icon_on || basicIcon
     : this._config?.icon_off || basicIcon;
-  const icon = iconSource === "custom"
+  const icon = ["custom", "template"].includes(iconSource)
     ? stateIcon || domainConfig.icon
     : domainConfig.icon;
-  const configuredColorValue = isOn
-    ? this._config?.accent_on_color ?? this._config?.color
-    : this._config?.accent_off_color;
+  const configuredColorValue =
+    this._config?.accent_color_source === "template"
+      ? this._config?.accent_color
+      : isOn
+        ? this._config?.accent_on_color ?? this._config?.color
+        : this._config?.accent_off_color;
   const configuredColor = resolveColorTemplate.call(
     this,
     configuredColorValue
@@ -148,7 +158,9 @@ export function getStatusBadgeModel() {
           : this._config?.icon
             ? "icon"
             : "")
-    : "";
+    : iconSource === "template" && basicIcon
+      ? "icon"
+      : "";
 
   return {
     entities,

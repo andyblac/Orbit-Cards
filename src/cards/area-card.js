@@ -56,6 +56,7 @@ import {
   disconnectTemplateSubscriptions,
   evaluateStateTemplate,
   getColorTemplateEntries,
+  getIconTemplateEntries,
   syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
 import {
@@ -361,6 +362,7 @@ class OrbitAreaCard extends LitElement {
     return [
       ...entries,
       ...getColorTemplateEntries(this._config),
+      ...getIconTemplateEntries(this._config),
     ];
   }
 
