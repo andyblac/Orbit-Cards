@@ -41,11 +41,11 @@ var a = globalThis, o = a.ShadowRoot && (a.ShadyCSS === void 0 || a.ShadyCSS.nat
 	let t = "";
 	for (let n of e.cssRules) t += n.cssText;
 	return u(t);
-})(e) : e, { is: m, defineProperty: h, getOwnPropertyDescriptor: g, getOwnPropertyNames: _, getOwnPropertySymbols: v, getPrototypeOf: ee } = Object, te = globalThis, y = te.trustedTypes, b = y ? y.emptyScript : "", ne = te.reactiveElementPolyfillSupport, x = (e, t) => e, re = {
+})(e) : e, { is: m, defineProperty: h, getOwnPropertyDescriptor: g, getOwnPropertyNames: _, getOwnPropertySymbols: v, getPrototypeOf: y } = Object, ee = globalThis, b = ee.trustedTypes, x = b ? b.emptyScript : "", te = ee.reactiveElementPolyfillSupport, S = (e, t) => e, ne = {
 	toAttribute(e, t) {
 		switch (t) {
 			case Boolean:
-				e = e ? b : null;
+				e = e ? x : null;
 				break;
 			case Object:
 			case Array: e = e == null ? e : JSON.stringify(e);
@@ -70,23 +70,23 @@ var a = globalThis, o = a.ShadowRoot && (a.ShadyCSS === void 0 || a.ShadyCSS.nat
 		}
 		return n;
 	}
-}, ie = (e, t) => !m(e, t), ae = {
+}, re = (e, t) => !m(e, t), ie = {
 	attribute: !0,
 	type: String,
-	converter: re,
+	converter: ne,
 	reflect: !1,
 	useDefault: !1,
-	hasChanged: ie
+	hasChanged: re
 };
-Symbol.metadata ??= Symbol("metadata"), te.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
-var S = class extends HTMLElement {
+Symbol.metadata ??= Symbol("metadata"), ee.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
+var C = class extends HTMLElement {
 	static addInitializer(e) {
 		this._$Ei(), (this.l ??= []).push(e);
 	}
 	static get observedAttributes() {
 		return this.finalize(), this._$Eh && [...this._$Eh.keys()];
 	}
-	static createProperty(e, t = ae) {
+	static createProperty(e, t = ie) {
 		if (t.state && (t.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(e) && ((t = Object.create(t)).wrapped = !0), this.elementProperties.set(e, t), !t.noAccessor) {
 			let n = Symbol(), r = this.getPropertyDescriptor(e, n, t);
 			r !== void 0 && h(this.prototype, e, r);
@@ -112,16 +112,16 @@ var S = class extends HTMLElement {
 		};
 	}
 	static getPropertyOptions(e) {
-		return this.elementProperties.get(e) ?? ae;
+		return this.elementProperties.get(e) ?? ie;
 	}
 	static _$Ei() {
-		if (this.hasOwnProperty(x("elementProperties"))) return;
-		let e = ee(this);
+		if (this.hasOwnProperty(S("elementProperties"))) return;
+		let e = y(this);
 		e.finalize(), e.l !== void 0 && (this.l = [...e.l]), this.elementProperties = new Map(e.elementProperties);
 	}
 	static finalize() {
-		if (this.hasOwnProperty(x("finalized"))) return;
-		if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(x("properties"))) {
+		if (this.hasOwnProperty(S("finalized"))) return;
+		if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(S("properties"))) {
 			let e = this.properties, t = [..._(e), ...v(e)];
 			for (let n of t) this.createProperty(n, e[n]);
 		}
@@ -183,14 +183,14 @@ var S = class extends HTMLElement {
 	_$ET(e, t) {
 		let n = this.constructor.elementProperties.get(e), r = this.constructor._$Eu(e, n);
 		if (r !== void 0 && !0 === n.reflect) {
-			let i = (n.converter?.toAttribute === void 0 ? re : n.converter).toAttribute(t, n.type);
+			let i = (n.converter?.toAttribute === void 0 ? ne : n.converter).toAttribute(t, n.type);
 			this._$Em = e, i == null ? this.removeAttribute(r) : this.setAttribute(r, i), this._$Em = null;
 		}
 	}
 	_$AK(e, t) {
 		let n = this.constructor, r = n._$Eh.get(e);
 		if (r !== void 0 && this._$Em !== r) {
-			let e = n.getPropertyOptions(r), i = typeof e.converter == "function" ? { fromAttribute: e.converter } : e.converter?.fromAttribute === void 0 ? re : e.converter;
+			let e = n.getPropertyOptions(r), i = typeof e.converter == "function" ? { fromAttribute: e.converter } : e.converter?.fromAttribute === void 0 ? ne : e.converter;
 			this._$Em = r;
 			let a = i.fromAttribute(t, e.type);
 			this[r] = a ?? this._$Ej?.get(r) ?? a, this._$Em = null;
@@ -199,7 +199,7 @@ var S = class extends HTMLElement {
 	requestUpdate(e, t, n, r = !1, i) {
 		if (e !== void 0) {
 			let a = this.constructor;
-			if (!1 === r && (i = this[e]), n ??= a.getPropertyOptions(e), !((n.hasChanged ?? ie)(i, t) || n.useDefault && n.reflect && i === this._$Ej?.get(e) && !this.hasAttribute(a._$Eu(e, n)))) return;
+			if (!1 === r && (i = this[e]), n ??= a.getPropertyOptions(e), !((n.hasChanged ?? re)(i, t) || n.useDefault && n.reflect && i === this._$Ej?.get(e) && !this.hasAttribute(a._$Eu(e, n)))) return;
 			this.C(e, t, n);
 		}
 		!1 === this.isUpdatePending && (this._$ES = this._$EP());
@@ -263,10 +263,10 @@ var S = class extends HTMLElement {
 	updated(e) {}
 	firstUpdated(e) {}
 };
-S.elementStyles = [], S.shadowRootOptions = { mode: "open" }, S[x("elementProperties")] = /* @__PURE__ */ new Map(), S[x("finalized")] = /* @__PURE__ */ new Map(), ne?.({ ReactiveElement: S }), (te.reactiveElementVersions ??= []).push("2.1.2");
+C.elementStyles = [], C.shadowRootOptions = { mode: "open" }, C[S("elementProperties")] = /* @__PURE__ */ new Map(), C[S("finalized")] = /* @__PURE__ */ new Map(), te?.({ ReactiveElement: C }), (ee.reactiveElementVersions ??= []).push("2.1.2");
 //#endregion
 //#region node_modules/lit-html/lit-html.js
-var C = globalThis, oe = (e) => e, w = C.trustedTypes, se = w ? w.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, ce = "$lit$", T = `lit$${Math.random().toFixed(9).slice(2)}$`, le = "?" + T, ue = `<${le}>`, de = document, fe = () => de.createComment(""), pe = (e) => e === null || typeof e != "object" && typeof e != "function", me = Array.isArray, he = (e) => me(e) || typeof e?.[Symbol.iterator] == "function", ge = "[ 	\n\f\r]", _e = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, ve = /-->/g, ye = />/g, be = RegExp(`>|${ge}(?:([^\\s"'>=/]+)(${ge}*=${ge}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), xe = /'/g, Se = /"/g, Ce = /^(?:script|style|textarea|title)$/i, E = ((e) => (t, ...n) => ({
+var w = globalThis, ae = (e) => e, oe = w.trustedTypes, se = oe ? oe.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, ce = "$lit$", T = `lit$${Math.random().toFixed(9).slice(2)}$`, le = "?" + T, ue = `<${le}>`, de = document, fe = () => de.createComment(""), pe = (e) => e === null || typeof e != "object" && typeof e != "function", me = Array.isArray, he = (e) => me(e) || typeof e?.[Symbol.iterator] == "function", ge = "[ 	\n\f\r]", _e = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, ve = /-->/g, ye = />/g, be = RegExp(`>|${ge}(?:([^\\s"'>=/]+)(${ge}*=${ge}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), xe = /'/g, Se = /"/g, Ce = /^(?:script|style|textarea|title)$/i, E = ((e) => (t, ...n) => ({
 	_$litType$: e,
 	strings: t,
 	values: n
@@ -311,7 +311,7 @@ var De = (e, t) => {
 				if (Ce.test(i.tagName)) {
 					let e = i.textContent.split(T), t = e.length - 1;
 					if (t > 0) {
-						i.textContent = w ? w.emptyScript : "";
+						i.textContent = oe ? oe.emptyScript : "";
 						for (let n = 0; n < t; n++) i.append(e[n], fe()), Te.nextNode(), c.push({
 							type: 2,
 							index: ++a
@@ -419,8 +419,8 @@ var Ae = class {
 	}
 	_$AR(e = this._$AA.nextSibling, t) {
 		for (this._$AP?.(!1, !0, t); e !== this._$AB;) {
-			let t = oe(e).nextSibling;
-			oe(e).remove(), e = t;
+			let t = ae(e).nextSibling;
+			ae(e).remove(), e = t;
 		}
 	}
 	setConnected(e) {
@@ -499,8 +499,8 @@ var Ae = class {
 	U: Fe,
 	B: Ne,
 	F: Ie
-}, Re = C.litHtmlPolyfillSupport;
-Re?.(Oe, je), (C.litHtmlVersions ??= []).push("3.3.3");
+}, Re = w.litHtmlPolyfillSupport;
+Re?.(Oe, je), (w.litHtmlVersions ??= []).push("3.3.3");
 var ze = (e, t, n) => {
 	let r = n?.renderBefore ?? t, i = r._$litPart$;
 	if (i === void 0) {
@@ -508,7 +508,7 @@ var ze = (e, t, n) => {
 		r._$litPart$ = i = new je(t.insertBefore(fe(), e), e, void 0, n ?? {});
 	}
 	return i._$AI(e), i;
-}, Be = globalThis, k = class extends S {
+}, Be = globalThis, k = class extends C {
 	constructor() {
 		super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
 	}
@@ -2605,7 +2605,7 @@ function li({ label: e = "Icon", sourceKey: t = "main_entity_icon_source", entit
 		allowArea: o,
 		allowNone: s,
 		customIconKeys: c
-	}), m = p === "custom", h = p === "template", g = c[0] || "icon", _ = l || `${g}_template`, v = P(this._config?.[g]) ? this._config[g] : "", ee = this._config?.[_] || d.map((e) => this._config?.[e]).find(Boolean) || v, te = [
+	}), m = p === "custom", h = p === "template", g = c[0] || "icon", _ = l || `${g}_template`, v = P(this._config?.[g]) ? this._config[g] : "", y = this._config?.[_] || d.map((e) => this._config?.[e]).find(Boolean) || v, ee = [
 		s ? {
 			label: U(this, "None"),
 			value: "none"
@@ -2635,7 +2635,7 @@ function li({ label: e = "Icon", sourceKey: t = "main_entity_icon_source", entit
         <ha-selector
           class="main-entity-icon-source-selector"
           .hass=${this.hass}
-          .selector=${{ button_toggle: { options: te } }}
+          .selector=${{ button_toggle: { options: ee } }}
           .value=${p}
           @value-changed=${(e) => {
 		let n = e.detail.value || (s ? "none" : "custom");
@@ -2650,7 +2650,7 @@ function li({ label: e = "Icon", sourceKey: t = "main_entity_icon_source", entit
               <ha-selector
                 .hass=${this.hass}
                 .selector=${{ template: {} }}
-                .value=${ee}
+                .value=${y}
                 @value-changed=${(e) => {
 		v && this._handleConfigUpdate(g, ""), this._handleConfigUpdate(_, e.detail.value || "");
 	}}
@@ -3079,7 +3079,7 @@ function Ki(e, t, n, r, i, a = !0) {
   `;
 }
 function qi({ label: e = "Color", onLabel: t = ["Active", "Color"], offLabel: n = ["Inactive", "Color"], onKey: r, offKey: i, sourceKey: a, templateKey: o, legacySourceKey: s, legacyTemplateKey: c, config: l = this._config || {}, onUpdate: u = (e, t) => this._handleConfigUpdate(e, t), onPreviewValue: d, offPreviewValue: f, pickerPrefix: p = "" } = {}) {
-	let m = r?.replace(/(?:_on_color|_color_on)$/, "") || "color", h = a || `${m}_color_source`, g = o || `${m}_color`, _ = l[h] ?? (s ? l[s] : void 0), v = l[g] ?? (c ? l[c] : void 0), ee = _ === "template";
+	let m = r?.replace(/(?:_on_color|_color_on)$/, "") || "color", h = a || `${m}_color_source`, g = o || `${m}_color`, _ = l[h] ?? (s ? l[s] : void 0), v = l[g] ?? (c ? l[c] : void 0), y = _ === "template";
 	return E`
     <div class="color-pair-control">
       <div class="field-header color-pair-source-header">
@@ -3094,7 +3094,7 @@ function qi({ label: e = "Color", onLabel: t = ["Active", "Color"], offLabel: n 
 		label: K(this, "Template"),
 		value: "template"
 	}] } }}
-          .value=${ee ? "template" : "custom"}
+          .value=${y ? "template" : "custom"}
           @value-changed=${(e) => {
 		let t = e.detail.value === "template" ? "template" : "custom";
 		t === "custom" && (P(l[r]) && u(r, void 0), P(l[i]) && u(i, void 0)), u(h, t);
@@ -3102,7 +3102,7 @@ function qi({ label: e = "Color", onLabel: t = ["Active", "Color"], offLabel: n 
         ></ha-selector>
       </div>
 
-      ${ee ? E`
+      ${y ? E`
             <div class="field color-source-template-field">
               <ha-selector
                 .hass=${this.hass}
@@ -8254,26 +8254,26 @@ function _l(e, t = {}) {
 		...e
 	}, r = X(n), i = e.entity || t.entity, a = r === "area_count" ? Tc(this.hass, n) : [], o = yc(a, n, (e) => this._getEntityActiveState(e)), s = r === "area_count" ? o[0] || a[0] || null : i && this.hass ? this.hass.states[i] : null, c = i || s?.entity_id || "", l = c.split(".")[0] || n.domain || "";
 	n.entity = c;
-	let u = n.mode !== "icon_only" && Object.prototype.hasOwnProperty.call(n, "name") && n.name !== void 0 && n.name !== "", d = r === "template" && n.state_template ? this._evaluateStateTemplate(n.state_template, c) : null, f = r === "template" && n.active_template ? this._evaluateStateTemplate(n.active_template, c) : null, p = r === "template" && n.inactive_template ? this._evaluateStateTemplate(n.inactive_template, c) : null, m = r !== "area_count" && n.name_template ? this._evaluateStateTemplate(n.name_template, c) : null, h = r === "template" && n.label_template ? this._evaluateStateTemplate(n.label_template, c) : null, g = m === null ? u ? Wt(n.name, n, this.hass) : r === "area_count" ? Z(n).length ? Z(n).map(hc).join(", ") : lc(n.domain).label : Q(s, "friendly_name") || c || J(this.hass, "Status") : String(m), _ = h === null ? r === "template" ? n.state_template ? gt(d) : s ? Q(s, "label") || this.formatState(s) : "" : r === "area_count" ? String(o.length) : Q(s, "label") || (s ? this.formatState(s) : "") : String(h), v = n.icon_on ?? n.entity_icon_on, ee = n.icon_off ?? n.entity_icon_off, te = !!(n.state_template || n.active_template || n.inactive_template), y = r === "template" ? te ? ht(f, l) ? !0 : ht(p, l) ? !1 : ht(d, l) : s ? this._getEntityActiveState(s) : !1 : r === "area_count" ? o.length > 0 : ll(s, (e) => this._getEntityActiveState(e), d), b = vl(n, c), ne = Pn.call(this, n.icon, c), x = b === "template" ? ne : b === "custom" && ((y ? v : ee) || ne) || "", re = x || (r === "area_count" ? lc(n.domain).icon : "mdi:information-outline"), ie = Z(n)[0] || "", ae = r === "area_count" ? {
+	let u = n.mode !== "icon_only" && Object.prototype.hasOwnProperty.call(n, "name") && n.name !== void 0 && n.name !== "", d = r === "template" && n.state_template ? this._evaluateStateTemplate(n.state_template, c) : null, f = r === "template" && n.active_template ? this._evaluateStateTemplate(n.active_template, c) : null, p = r === "template" && n.inactive_template ? this._evaluateStateTemplate(n.inactive_template, c) : null, m = r !== "area_count" && n.name_template ? this._evaluateStateTemplate(n.name_template, c) : null, h = r === "template" && n.label_template ? this._evaluateStateTemplate(n.label_template, c) : null, g = m === null ? u ? Wt(n.name, n, this.hass) : r === "area_count" ? Z(n).length ? Z(n).map(hc).join(", ") : lc(n.domain).label : Q(s, "friendly_name") || c || J(this.hass, "Status") : String(m), _ = h === null ? r === "template" ? n.state_template ? gt(d) : s ? Q(s, "label") || this.formatState(s) : "" : r === "area_count" ? String(o.length) : Q(s, "label") || (s ? this.formatState(s) : "") : String(h), v = n.icon_on ?? n.entity_icon_on, y = n.icon_off ?? n.entity_icon_off, ee = !!(n.state_template || n.active_template || n.inactive_template), b = r === "template" ? ee ? ht(f, l) ? !0 : ht(p, l) ? !1 : ht(d, l) : s ? this._getEntityActiveState(s) : !1 : r === "area_count" ? o.length > 0 : ll(s, (e) => this._getEntityActiveState(e), d), x = vl(n, c), te = Pn.call(this, n.icon, c), S = x === "template" ? te : x === "custom" && ((b ? v : y) || te) || "", ne = S || (r === "area_count" ? lc(n.domain).icon : "mdi:information-outline"), re = Z(n)[0] || "", ie = r === "area_count" ? {
 		entity_id: `${n.domain || "sensor"}.orbit_status_card`,
-		state: s?.state ?? (y ? "on" : "off"),
-		attributes: ie ? { device_class: ie } : {}
-	} : s, S = b === "template" && ne ? "icon" : b === "custom" && y && v ? n.icon_on ? "icon_on" : "entity_icon_on" : b === "custom" && !y && ee ? n.icon_off ? "icon_off" : "entity_icon_off" : b === "custom" && ne ? n.icon ? "icon" : "entity_icon" : "", C = cl(n, s, y), oe = dl(n, s), w = this._computeFullColor(C), se = this._computeFullColor(C), ce = this._computeCircleColor(C), T = y ? this._computeFullColor(C) : this._computeIconColor(C);
+		state: s?.state ?? (b ? "on" : "off"),
+		attributes: re ? { device_class: re } : {}
+	} : s, C = x === "template" && te ? "icon" : x === "custom" && b && v ? n.icon_on ? "icon_on" : "entity_icon_on" : x === "custom" && !b && y ? n.icon_off ? "icon_off" : "entity_icon_off" : x === "custom" && te ? n.icon ? "icon" : "entity_icon" : "", w = cl(n, s, b), ae = dl(n, s), oe = this._computeFullColor(w), se = this._computeFullColor(w), ce = this._computeCircleColor(w), T = b ? this._computeFullColor(w) : this._computeIconColor(w);
 	return {
 		...e,
 		entityId: c,
 		stateObj: s,
-		nativeIconStateObj: ae,
-		useStateIcon: !!ae && b !== "template" && !x,
+		nativeIconStateObj: ie,
+		useStateIcon: !!ie && x !== "template" && !S,
 		cardName: g,
 		statusText: _,
-		icon: re,
-		navigationPath: oe,
-		nameColor: w,
+		icon: ne,
+		navigationPath: ae,
+		nameColor: oe,
 		statusColor: se,
 		circleColor: ce,
 		iconColor: T,
-		svgForceColor: S ? this._getSvgColorOverride(n, S) : !0
+		svgForceColor: C ? this._getSvgColorOverride(n, C) : !0
 	};
 }
 function vl(e, t) {
@@ -14439,58 +14439,57 @@ function Yf({ tag: e, badgeClass: t, name: n, description: r, version: a, docume
 //#endregion
 //#region src/badges/helpers/model.js
 function Xf() {
-	let e = X(this._config), t = this._getEntities(), n = yc(t, this._config), r = e === "template" ? I.call(this, this._config?.state_template, "") ?? "unavailable" : "", i = this._config?.active_template?.trim() || "", a = e === "template" && i ? I.call(this, i, "") : null, o = this._config?.inactive_template?.trim() || "", s = e === "template" && o ? I.call(this, o, "") : null, c = t[0]?.entity_id?.split(".")[0] || this._config?.domain || "", l = !!o && ht(s, c), u = e === "template" ? ht(a ?? r, c) : n.length > 0, d = this._config?.display_style === "badge" && !this._config?.card_visibility ? !0 : u, f = t[0], p = Z(this._config), m = p[0] || "", h = f?.entity_id.split(".")[0] || this._config?.domain || "", g = lc(h), _ = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), v = Pn.call(this, this._config?.icon, f?.entity_id || ""), ee = _ === "template" ? v : d ? this._config?.icon_on || v : this._config?.icon_off || v, te = ["custom", "template"].includes(_) && ee || g.icon, y = this._config?.color_source === "template" ? this._config?.color : d ? this._config?.color_on ?? (this._config?.color_source ? void 0 : this._config?.color) : this._config?.color_off, b = L.call(this, y), ne = !!(b && ![
+	let e = X(this._config), t = this._getEntities(), n = yc(t, this._config), r = e === "template" ? I.call(this, this._config?.state_template, "") ?? "unavailable" : "", i = this._config?.active_template?.trim() || "", a = e === "template" && i ? I.call(this, i, "") : null, o = this._config?.inactive_template?.trim() || "", s = e === "template" && o ? I.call(this, o, "") : null, c = t[0]?.entity_id?.split(".")[0] || this._config?.domain || "", l = !!o && ht(s, c), u = e === "template" ? ht(a ?? r, c) : n.length > 0, d = this._config?.display_style === "badge" && !this._config?.card_visibility ? !0 : u, f = t[0], p = Z(this._config), m = p[0] || "", h = f?.entity_id.split(".")[0] || this._config?.domain || "", g = lc(h), _ = this._config?.icon_source || (this._config?.icon ? "custom" : "domain"), v = Pn.call(this, this._config?.icon, f?.entity_id || ""), y = _ === "template" ? v : d ? this._config?.icon_on || v : this._config?.icon_off || v, ee = ["custom", "template"].includes(_) && y || g.icon, b = this._config?.color_source === "template" ? this._config?.color : d ? this._config?.color_on ?? (this._config?.color_source ? void 0 : this._config?.color) : this._config?.color_off, x = L.call(this, b), te = !!(x && ![
 		"theme",
 		"state",
 		"state-active",
 		"state-inactive"
-	].includes(b)), x = !b || [
+	].includes(x)), S = !x || [
 		"theme",
 		"state",
 		"state-active",
 		"state-inactive"
-	].includes(b) ? "theme" : b, re = e === "template" && this._config?.name_template?.trim() || "", ie = re ? I.call(this, re, "") : null, ae = String(ie ?? "").trim(), S = e === "template" && !f ? {
+	].includes(x) ? "theme" : x, ne = e === "template" && this._config?.name_template?.trim() || "", re = ne ? I.call(this, ne, "") : null, ie = String(re ?? "").trim(), C = e === "template" && !f ? {
 		entity_id: "sensor.orbit_status_badge_template",
 		state: r || "unavailable",
-		attributes: { friendly_name: ae || "Template" }
+		attributes: { friendly_name: ie || "Template" }
 	} : n[0] || t[0] || {
 		entity_id: `${h || "sensor"}.orbit_status_badge`,
 		state: d ? "on" : "off",
 		attributes: m ? { device_class: m } : {}
-	}, C = ["entity", "template"].includes(e) ? S : {
+	}, w = ["entity", "template"].includes(e) ? C : {
 		entity_id: `${h}.orbit_status_badge`,
-		state: S.state,
+		state: C.state,
 		attributes: m ? { device_class: m } : {}
-	}, oe = kc(this.hass, this._config), w = this._config?.name, se = p.map((e) => hc(e)).join(", "), ce = (f && this.hass?.formatEntityName ? this.hass.formatEntityName(f) : "") || (e === "template" ? "Template" : oe || se || g.label), T = w && this.hass?.formatEntityName && this.hass.formatEntityName(S, Zf(w, ae)) || ce, le = _ === "custom" ? d && this._config?.icon_on ? "icon_on" : !d && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : _ === "template" && v ? "icon" : "";
+	}, ae = w.entity_id?.startsWith("sensor.") ? !1 : d, oe = kc(this.hass, this._config), se = this._config?.name, ce = p.map((e) => hc(e)).join(", "), T = (f && this.hass?.formatEntityName ? this.hass.formatEntityName(f) : "") || (e === "template" ? "Template" : oe || ce || g.label), le = se && this.hass?.formatEntityName && this.hass.formatEntityName(C, Zf(se, ie)) || T, ue = _ === "custom" ? d && this._config?.icon_on ? "icon_on" : !d && this._config?.icon_off ? "icon_off" : this._config?.icon ? "icon" : "" : _ === "template" && v ? "icon" : "";
 	return {
 		entities: t,
 		activeEntities: n,
 		isOn: d,
 		inactiveTemplateActive: l,
 		count: n.length,
-		displayValue: e === "template" ? gt(r) : e === "entity" ? S.state : n.length,
-		label: T,
-		icon: te,
-		iconKey: le,
+		displayValue: e === "template" ? gt(r) : e === "entity" ? C.state : n.length,
+		label: le,
+		icon: ee,
+		iconKey: ue,
 		iconSource: _,
 		stateSource: e,
-		representativeStateObj: S,
-		iconStateObj: C,
-		displayStateObj: ["entity", "template"].includes(e) ? S : {
+		representativeStateObj: C,
+		iconStateObj: w,
+		displayStateObj: ["entity", "template"].includes(e) ? C : {
 			entity_id: "sensor.orbit_status_badge_count",
 			state: d ? "on" : "off",
 			attributes: {
 				count: n.length,
-				friendly_name: T
+				friendly_name: le
 			},
-			last_changed: S.last_changed,
-			last_updated: S.last_updated,
-			context: S.context
+			last_changed: C.last_changed,
+			last_updated: C.last_updated,
+			context: C.context
 		},
 		defaultStateContent: e === "area_count" ? "count" : "state",
-		hasConfiguredColor: !!b,
-		hasIconColorOverride: ne,
-		iconColor: x === "theme" ? jc(S, d) : Ot.call(this, x)
+		hasIconColorOverride: te,
+		iconColor: S === "theme" ? jc(w, ae) : Ot.call(this, S)
 	};
 }
 function Zf(e, t) {
@@ -15219,7 +15218,7 @@ Yf({
           <ha-heading-badge
             .type=${n ? "button" : "text"}
             style=${[
-				`--icon-color:${e.hasConfiguredColor ? e.iconColor : "currentColor"}`,
+				`--icon-color:${e.iconColor}`,
 				"--ha-heading-badge-font-size:var(--ha-heading-card-title-font-size,var(--ha-font-size-l))",
 				"--ha-heading-badge-font-weight:var(--ha-heading-card-title-font-weight,var(--ha-font-weight-normal))",
 				"--ha-heading-badge-line-height:var(--ha-heading-card-title-line-height,var(--ha-line-height-normal))"

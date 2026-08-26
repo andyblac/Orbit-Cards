@@ -133,6 +133,9 @@ export function getStatusBadgeModel() {
           ? { device_class: primaryDeviceClass }
           : {},
       };
+  const nativeColorIsActive = iconStateObj.entity_id?.startsWith("sensor.")
+    ? false
+    : isOn;
   const areaName = getStatusBadgeAreaName(this.hass, this._config);
   const configuredName = this._config?.name;
   const deviceClassLabel = deviceClasses
@@ -195,10 +198,9 @@ export function getStatusBadgeModel() {
           context: representativeStateObj.context,
         },
     defaultStateContent: stateSource === "area_count" ? "count" : "state",
-    hasConfiguredColor: Boolean(configuredColor),
     hasIconColorOverride,
     iconColor: colorInput === "theme"
-      ? getNativeEntityBadgeColor(representativeStateObj, isOn)
+      ? getNativeEntityBadgeColor(iconStateObj, nativeColorIsActive)
       : computeFullColor.call(this, colorInput),
   };
 }
