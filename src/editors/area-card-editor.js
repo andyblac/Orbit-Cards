@@ -523,6 +523,7 @@ customElements.define(
 
 const MAIN_ENTITY_DEPENDENT_KEYS = [
   "main_entity_icon_source",
+  "main_entity_icon_template",
   "main_entity_icon",
   "main_entity_icon_on",
   "main_entity_icon_off",
@@ -536,6 +537,7 @@ const MAIN_ENTITY_DEPENDENT_KEYS = [
 
 const STATUS_ENTITY_DEPENDENT_SUFFIXES = [
   "_icon_source",
+  "_icon_template",
   "_icon",
   "_decimal_places",
 ];
@@ -546,6 +548,7 @@ const BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
   "_on_color",
   "_off_color",
   "_icon_source",
+  "_icon_template",
   "_icon",
   "_icon_on",
   "_icon_off",
@@ -561,6 +564,7 @@ const CURVE_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
   "_on_color",
   "_off_color",
   "_icon_source",
+  "_icon_template",
   "_icon",
   "_icon_on",
   "_icon_off",
@@ -576,6 +580,7 @@ const ACTION_BUTTON_ENTITY_DEPENDENT_SUFFIXES = [
   "_on_color",
   "_off_color",
   "_icon_source",
+  "_icon_template",
   "_icon",
   "_icon_on",
   "_icon_off",
@@ -598,6 +603,7 @@ const AREA_CONFIG_ORDER = [
   "double_tap_action",
   "main_entity",
   "main_entity_icon_source",
+  "main_entity_icon_template",
   "main_entity_icon",
   "main_entity_icon_on",
   "main_entity_icon_off",
@@ -611,6 +617,7 @@ const AREA_CONFIG_ORDER = [
   ...[1, 2, 3].flatMap((index) => [
     `status${index}`,
     `status${index}_icon_source`,
+    `status${index}_icon_template`,
     `status${index}_icon`,
     `status${index}_decimal_places`,
   ]),
@@ -621,6 +628,7 @@ const AREA_CONFIG_ORDER = [
     `button${index}_on_color`,
     `button${index}_off_color`,
     `button${index}_icon_source`,
+    `button${index}_icon_template`,
     `button${index}_icon`,
     `button${index}_icon_on`,
     `button${index}_icon_off`,
@@ -640,6 +648,7 @@ const AREA_CONFIG_ORDER = [
     `curve_button${index}_on_color`,
     `curve_button${index}_off_color`,
     `curve_button${index}_icon_source`,
+    `curve_button${index}_icon_template`,
     `curve_button${index}_icon`,
     `curve_button${index}_icon_on`,
     `curve_button${index}_icon_off`,
@@ -657,6 +666,7 @@ const AREA_CONFIG_ORDER = [
   "action_button_on_color",
   "action_button_off_color",
   "action_button_icon_source",
+  "action_button_icon_template",
   "action_button_icon",
   "action_button_icon_on",
   "action_button_icon_off",

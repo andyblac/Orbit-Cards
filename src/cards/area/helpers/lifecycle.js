@@ -35,12 +35,6 @@ export function updateAreaCard(changedProps) {
     isOn
   );
 
-  const customIcon = resolveIconTemplate.call(
-    this,
-    this._config.main_entity_icon,
-    mainEntity
-  );
-
   const customIconOn =
     this._config.main_entity_icon_on;
 
@@ -48,6 +42,14 @@ export function updateAreaCard(changedProps) {
     this._config.main_entity_icon_off;
   const iconSource =
     getMainEntityIconSource(this._config, areaId, mainEntity);
+  const customIcon = resolveIconTemplate.call(
+    this,
+    iconSource === "template"
+      ? this._config.main_entity_icon_template ||
+        this._config.main_entity_icon
+      : this._config.main_entity_icon,
+    mainEntity
+  );
   const useCustomIcon =
     ["custom", "template"].includes(iconSource);
 
@@ -106,17 +108,20 @@ function getStatusItems() {
 
       const stateObj = this.hass?.states[entityId];
       const iconKey = `status${index}`;
-      const customIcon = resolveIconTemplate.call(
-        this,
-        this._config[`${iconKey}_icon`],
-        entityId
-      );
       const iconSource = getStatusIconSource.call(
         this,
         iconKey,
         entityId
       );
-      const icon = iconSource === "custom"
+      const customIcon = resolveIconTemplate.call(
+        this,
+        iconSource === "template"
+          ? this._config[`${iconKey}_icon_template`] ||
+            this._config[`${iconKey}_icon`]
+          : this._config[`${iconKey}_icon`],
+        entityId
+      );
+      const icon = ["custom", "template"].includes(iconSource)
         ? customIcon
         : "";
 
@@ -360,7 +365,7 @@ function getButtonSvgColorOverride(key, isOn) {
 
   const iconKey =
     iconSource === "template"
-      ? customIcon
+      ? this._config?.[`${key}_icon_template`] || customIcon
         ? `${key}_icon`
         : ""
       : isOn && customIconOn
@@ -377,14 +382,17 @@ function getButtonSvgColorOverride(key, isOn) {
 }
 
 function getButtonIcon(key, isOn) {
-  const customIcon = resolveIconTemplate.call(
-    this,
-    this._config?.[`${key}_icon`],
-    this._config?.[key] || ""
-  );
   const customIconOn = this._config?.[`${key}_icon_on`];
   const customIconOff = this._config?.[`${key}_icon_off`];
   const iconSource = getButtonIconSource.call(this, key);
+  const customIcon = resolveIconTemplate.call(
+    this,
+    iconSource === "template"
+      ? this._config?.[`${key}_icon_template`] ||
+        this._config?.[`${key}_icon`]
+      : this._config?.[`${key}_icon`],
+    this._config?.[key] || ""
+  );
 
   if (iconSource === "entity") {
     return "";

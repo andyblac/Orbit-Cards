@@ -65,7 +65,9 @@ export function getStatusBadgeModel() {
     (this._config?.icon ? "custom" : "domain");
   const basicIcon = resolveIconTemplate.call(
     this,
-    this._config?.icon,
+    iconSource === "template"
+      ? this._config?.icon_template || this._config?.icon
+      : this._config?.icon,
     selectedEntity?.entity_id || ""
   );
   const stateIcon = iconSource === "template"

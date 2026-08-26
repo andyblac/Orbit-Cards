@@ -175,6 +175,12 @@ export function renderIconSourceControl({
   const customMode = iconSource === "custom";
   const templateMode = iconSource === "template";
   const templateIconKey = customIconKeys[0] || "icon";
+  const templateStorageKey = `${templateIconKey}_template`;
+  const legacyTemplate = hasNativeTemplateSyntax(
+    this._config?.[templateIconKey]
+  )
+    ? this._config[templateIconKey]
+    : "";
   const options = [
     allowNone
       ? {
@@ -219,12 +225,13 @@ export function renderIconSourceControl({
           @value-changed=${(e) => {
             const nextSource =
               e.detail.value || (allowNone ? "none" : "custom");
-            const currentIcon = this._config?.[templateIconKey];
-            const crossesTemplateBoundary =
-              [iconSource, nextSource].includes("template") &&
-              iconSource !== nextSource;
 
-            if (crossesTemplateBoundary && currentIcon) {
+            if (
+              iconSource === "template" &&
+              nextSource !== "template" &&
+              legacyTemplate
+            ) {
+              this._handleConfigUpdate(templateStorageKey, legacyTemplate);
               this._handleConfigUpdate(templateIconKey, "");
             }
 
@@ -245,16 +252,16 @@ export function renderIconSourceControl({
               <ha-selector
                 .hass=${this.hass}
                 .selector=${{ template: {} }}
-                .value=${hasNativeTemplateSyntax(
-                  this._config?.[templateIconKey]
-                )
-                  ? this._config[templateIconKey]
-                  : ""}
-                @value-changed=${(event) =>
+                .value=${this._config?.[templateStorageKey] || legacyTemplate}
+                @value-changed=${(event) => {
+                  if (legacyTemplate) {
+                    this._handleConfigUpdate(templateIconKey, "");
+                  }
                   this._handleConfigUpdate(
-                    templateIconKey,
+                    templateStorageKey,
                     event.detail.value || ""
-                  )}
+                  );
+                }}
               ></ha-selector>
             </div>
           `

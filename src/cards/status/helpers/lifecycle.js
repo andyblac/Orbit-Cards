@@ -86,6 +86,7 @@ export function getIconOnlyStatusItems(config = {}) {
       accent_on_color: config.accent_on_color,
       accent_off_color: config.accent_off_color,
       entity_icon_source: config.entity_icon_source,
+      entity_icon_template: config.entity_icon_template,
       entity_icon: config.entity_icon,
       entity_icon_on: config.entity_icon_on,
       entity_icon_off: config.entity_icon_off,
@@ -191,12 +192,6 @@ function getStatusState(item, rootConfig = {}) {
           ? this.formatState(stateObj)
           : "");
 
-  const customIcon = resolveIconTemplate.call(
-    this,
-    config.entity_icon,
-    entityId
-  );
-
   const customIconOn =
     config.entity_icon_on;
 
@@ -226,6 +221,13 @@ function getStatusState(item, rootConfig = {}) {
           templatedState
         );
   const iconSource = getStatusIconSource(config, entityId);
+  const customIcon = resolveIconTemplate.call(
+    this,
+    iconSource === "template"
+      ? config.entity_icon_template || config.entity_icon
+      : config.entity_icon,
+    entityId
+  );
   const customStateIcon =
     iconSource === "template"
       ? customIcon

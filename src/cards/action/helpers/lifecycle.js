@@ -26,6 +26,7 @@ export function getActionItems(config = {}) {
       entity: config.main_entity,
       accent_color: config.accent_color,
       main_entity_icon_source: config.main_entity_icon_source,
+      main_entity_icon_template: config.main_entity_icon_template,
       main_entity_icon: config.main_entity_icon,
       main_entity_icon_svg_color_override:
         config.main_entity_icon_svg_color_override,
@@ -58,14 +59,19 @@ function getActionState(item) {
     ["custom", "template"].includes(iconSource)
       ? resolveIconTemplate.call(
           this,
-          item.main_entity_icon || item.icon,
+          iconSource === "template"
+            ? item.main_entity_icon_template ||
+              item.icon_template ||
+              item.main_entity_icon ||
+              item.icon
+            : item.main_entity_icon || item.icon,
           entityId
         )
       : "";
 
   const selectedIconKey =
     iconSource === "template" && customIcon
-      ? item.main_entity_icon
+      ? item.main_entity_icon_template || item.main_entity_icon
         ? "main_entity_icon"
         : "icon"
       : iconSource === "custom" && item.main_entity_icon

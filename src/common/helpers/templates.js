@@ -175,7 +175,9 @@ function collectIconTemplates(value, templates, key = "", entityId = "") {
   if (!value || typeof value !== "object") {
     if (
       typeof value === "string" &&
-      /(^|_)icon$/.test(key) &&
+      (/(^|_)icon$/.test(key) ||
+        key === "icon_template" ||
+        key.endsWith("_icon_template")) &&
       hasNativeTemplateSyntax(value)
     ) {
       const id = getTemplateId(value, entityId);
@@ -187,7 +189,9 @@ function collectIconTemplates(value, templates, key = "", entityId = "") {
   const localEntityId = value.entity || value.main_entity || entityId;
 
   Object.entries(value).forEach(([childKey, childValue]) => {
-    const iconPrefix = childKey.match(/^(.*)_icon$/)?.[1];
+    const iconPrefix = childKey.match(
+      /^(.*)_icon(?:_template)?$/
+    )?.[1];
     const iconEntityId = iconPrefix !== undefined
       ? value[iconPrefix] || localEntityId
       : localEntityId;

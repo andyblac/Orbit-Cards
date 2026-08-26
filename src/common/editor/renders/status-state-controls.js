@@ -52,14 +52,19 @@ export function renderBadgeIconControl(stateSource = "entity") {
           @value-changed=${(e) => {
             const value = e.detail.value;
 
+            if (
+              iconSource === "template" &&
+              value !== "template" &&
+              hasNativeTemplateSyntax(this._config?.icon)
+            ) {
+              this._handleConfigUpdate(
+                "icon_template",
+                this._config.icon
+              );
+              this._handleConfigUpdate("icon", "");
+            }
+
             if (["custom", "template"].includes(value)) {
-              if (
-                iconSource !== value &&
-                [iconSource, value].includes("template") &&
-                this._config?.icon
-              ) {
-                this._handleConfigUpdate("icon", "");
-              }
               this._handleConfigUpdate("icon_source", value);
               return;
             }
@@ -89,14 +94,19 @@ export function renderBadgeIconControl(stateSource = "entity") {
               <ha-selector
                 .hass=${this.hass}
                 .selector=${{ template: {} }}
-                .value=${hasNativeTemplateSyntax(this._config?.icon)
-                  ? this._config.icon
-                  : ""}
-                @value-changed=${(event) =>
+                .value=${this._config?.icon_template ||
+                  (hasNativeTemplateSyntax(this._config?.icon)
+                    ? this._config.icon
+                    : "")}
+                @value-changed=${(event) => {
+                  if (hasNativeTemplateSyntax(this._config?.icon)) {
+                    this._handleConfigUpdate("icon", "");
+                  }
                   this._handleConfigUpdate(
-                    "icon",
+                    "icon_template",
                     event.detail.value || ""
-                  )}
+                  );
+                }}
               ></ha-selector>
             </div>
           `

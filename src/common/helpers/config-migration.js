@@ -133,6 +133,7 @@ export function migrateStatusCardConfig(config = {}) {
 function migrateStatusEntityIcons(config) {
   const iconKeys = [
     "icon_source",
+    "icon_template",
     "icon",
     "icon_on",
     "icon_off",
