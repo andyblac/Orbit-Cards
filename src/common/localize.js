@@ -58,6 +58,10 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Add: [
     "ui.common.add",
   ],
+  Above: [
+    "ui.components.selectors.numeric_threshold.crossed.above",
+    "ui.panel.config.automation.editor.conditions.type.numeric_state.above",
+  ],
   "Add card": [
     "ui.panel.lovelace.editor.edit_card.add",
   ],
@@ -81,6 +85,10 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Background: [
     "ui.panel.lovelace.editor.card.tile.background",
     "ui.panel.lovelace.editor.card.generic.background",
+  ],
+  Below: [
+    "ui.components.selectors.numeric_threshold.crossed.below",
+    "ui.panel.config.automation.editor.conditions.type.numeric_state.below",
   ],
   "Binary sensors": [
     "component.binary_sensor.entity_component._.name_plural",
