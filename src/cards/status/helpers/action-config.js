@@ -50,7 +50,13 @@ export function getCardTapAction() {
 
   const stateSource = getStatusBadgeStateSource(sourceConfig);
 
-  if (stateSource === "area_count" || stateSource === "template") {
+  if (stateSource === "area_count") {
+    return sourceConfig.tap_action?.action
+      ? sourceConfig.tap_action
+      : { action: CURRENT_STATE_ACTION };
+  }
+
+  if (stateSource === "template") {
     return sourceConfig.tap_action?.action
       ? sourceConfig.tap_action
       : { action: "more-info" };
@@ -93,6 +99,10 @@ export function getStatusItemCardTapAction(index = 0) {
 
   if (this._config.tap_action?.action) {
     return this._config.tap_action;
+  }
+
+  if (getStatusBadgeStateSource(item) === "area_count") {
+    return { action: CURRENT_STATE_ACTION, status_index: index };
   }
 
   return {

@@ -28,7 +28,9 @@ export function renderStatusSection() {
     ? "entity"
     : getStatusBadgeStateSource(this._config);
   const cardActionDefault =
-    stateSource === "area_count" || stateSource === "template"
+    stateSource === "area_count"
+      ? CURRENT_STATE_ACTION
+      : stateSource === "template"
       ? "more-info"
       : isIconOnly || isPerson
       ? "more-info"
@@ -125,6 +127,10 @@ export function renderStatusSection() {
                       label: "Tap behavior",
                       defaultAction: cardActionDefault,
                       defaultVisible: true,
+                      customDefaultLabel:
+                        cardActionDefault === CURRENT_STATE_ACTION
+                          ? CURRENT_STATE_ACTION
+                          : undefined,
                     },
                     {
                       key: "hold_action",
@@ -199,7 +205,7 @@ function renderIconOnlyStatusConfig({
   const selectedStateSource = getStatusBadgeStateSource(selectedItem);
   const selectedIsAreaCount = selectedStateSource === "area_count";
   const selectedCardActionDefault = selectedIsAreaCount
-    ? "more-info"
+    ? CURRENT_STATE_ACTION
     : cardActionDefault;
   const selectedMainEntityActionDefault = selectedIsAreaCount
     ? CURRENT_STATE_ACTION

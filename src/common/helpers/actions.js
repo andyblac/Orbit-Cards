@@ -17,10 +17,15 @@ export function handleAction(actionConfig, entityId = null) {
     }
 
     case "more-info": {
+      const moreInfoEntityId =
+        actionConfig.entity ||
+        actionConfig.entity_id ||
+        entityId;
+
       this.dispatchEvent(
         new CustomEvent("hass-more-info", {
           detail: {
-            entityId,
+            entityId: moreInfoEntityId,
           },
           bubbles: true,
           composed: true,

@@ -342,8 +342,13 @@ function getInteractionConfigChanges(
         : { action: formData[formKey] };
       return changes;
     }
-    const nextValue = normalizeEditedActionValue(
+    const configuredValue = config?.[interaction.key];
+    const formValue = preserveMoreInfoEntity(
       formData[formKey],
+      configuredValue
+    );
+    const nextValue = normalizeEditedActionValue(
+      formValue,
       interaction.defaultAction
     );
 
@@ -354,6 +359,26 @@ function getInteractionConfigChanges(
         : nextValue;
     return changes;
   }, {});
+}
+
+function preserveMoreInfoEntity(value, configuredValue) {
+  if (
+    !value ||
+    typeof value !== "object" ||
+    value.action !== "more-info" ||
+    value.entity ||
+    value.entity_id ||
+    configuredValue?.action !== "more-info"
+  ) {
+    return value;
+  }
+
+  const configuredEntity =
+    configuredValue.entity || configuredValue.entity_id;
+
+  return configuredEntity
+    ? { ...value, entity: configuredEntity }
+    : value;
 }
 
 function getInteractionLabel(editor, item, interactions, sectionTitle) {
@@ -738,6 +763,16 @@ function cleanActionConfig(value) {
 
   if (action === "navigate") {
     config.navigation_path = value.navigation_path || "";
+    return config;
+  }
+
+  if (action === "more-info") {
+    const entity = value.entity || value.entity_id;
+
+    if (entity) {
+      config.entity = entity;
+    }
+
     return config;
   }
 

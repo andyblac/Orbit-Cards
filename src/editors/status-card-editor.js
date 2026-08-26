@@ -122,10 +122,7 @@ class OrbitStatusCardEditor extends LitElement {
       this._getStatusItems(this._config).length - 1
     );
 
-    if (
-      migrated ||
-      JSON.stringify(this._config) !== JSON.stringify(migratedConfig || {})
-    ) {
+    if (migrated) {
       this._queueConfigMigration();
     }
   }
@@ -491,6 +488,10 @@ class OrbitStatusCardEditor extends LitElement {
           label: "Tap behavior",
           defaultAction: cardActionDefault,
           defaultVisible: true,
+          customDefaultLabel:
+            cardActionDefault === CURRENT_STATE_ACTION
+              ? CURRENT_STATE_ACTION
+              : undefined,
         },
         {
           key: "hold_action",
@@ -843,7 +844,7 @@ function cleanAreaCountEntity(config) {
 function cleanDefaultStatusActions(config) {
   if (config?.state_source !== "area_count") return;
 
-  if (config.tap_action?.action === "more-info") {
+  if (config.tap_action?.action === CURRENT_STATE_ACTION) {
     delete config.tap_action;
   }
   if (config.entity_tap_action?.action === CURRENT_STATE_ACTION) {
