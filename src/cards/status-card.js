@@ -261,7 +261,8 @@ class OrbitStatusCard extends LitElement {
         getStatusBadgeEntities(this.hass, config),
         config,
         (stateObj) => this._getEntityActiveState(stateObj)
-      )
+      ),
+      config
     );
   }
 

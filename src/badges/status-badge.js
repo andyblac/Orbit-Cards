@@ -345,7 +345,11 @@ class OrbitStatusBadge extends LitElement {
   }
 
   _renderActiveEntitiesDialog(model) {
-    return renderActiveEntitiesDialog.call(this, model.activeEntities);
+    return renderActiveEntitiesDialog.call(
+      this,
+      model.activeEntities,
+      this._config
+    );
   }
 
   render() {

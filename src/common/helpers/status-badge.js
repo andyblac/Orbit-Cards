@@ -1,6 +1,10 @@
 import { getEntityAreaId } from "./suggestions.js";
-import { getEntityActiveState } from "./entities.js";
+import {
+  formatEntityState,
+  getEntityActiveState,
+} from "./entities.js";
 import { migrateStatusBadgeConfig } from "./config-migration.js";
+import { localize } from "../localize.js";
 
 export const STATUS_BADGE_DOMAINS = [
   { value: "light", label: "Lights", icon: "mdi:lightbulb" },
@@ -389,6 +393,73 @@ export function getStatusBadgeSensorThreshold(config = {}, deviceClass = "") {
 
 export function getStatusBadgeSensorDefaultDirection(deviceClass = "") {
   return deviceClass === "signal_strength" ? "below" : "above";
+}
+
+export function getStatusBadgeThresholdDisplayState(hass, config = {}) {
+  if (!hasStatusBadgeThresholdRule(config)) return "";
+
+  const deviceClasses = getStatusBadgeDeviceClasses(config);
+
+  if (deviceClasses.length !== 1) return "";
+
+  const deviceClass = deviceClasses[0];
+  let direction;
+  let value;
+  let unit;
+
+  if (deviceClass === "battery") {
+    direction = "below";
+    value = getStatusBadgeThreshold(config);
+    unit = "%";
+  } else if (
+    config.domain === "sensor" &&
+    !STATUS_BADGE_NON_NUMERIC_SENSOR_DEVICE_CLASSES.has(deviceClass)
+  ) {
+    const threshold = getStatusBadgeSensorThreshold(config, deviceClass);
+    direction = threshold.direction;
+    value = threshold.value;
+    unit = getStatusBadgeSensorUnit(hass, deviceClass);
+  } else {
+    return "";
+  }
+
+  const directionLabel = localize(
+    hass,
+    direction === "below" ? "Below" : "Above"
+  ).replace(/^\p{L}/u, (letter) => letter.toLocaleLowerCase());
+  const formattedThreshold = formatEntityState(
+    {
+      entity_id: "sensor.orbit_status_threshold",
+      state: String(value),
+      attributes: {
+        device_class: deviceClass,
+        ...(unit ? { unit_of_measurement: unit } : {}),
+      },
+    },
+    hass
+  );
+
+  return `${directionLabel} ${formattedThreshold}`;
+}
+
+export function hasStatusBadgeThresholdRule(config = {}) {
+  if (getStatusBadgeStateSource(config) !== "area_count") return false;
+
+  return getStatusBadgeDeviceClasses(config).some((deviceClass) =>
+    deviceClass === "battery" ||
+    config.domain === "sensor" &&
+      !STATUS_BADGE_NON_NUMERIC_SENSOR_DEVICE_CLASSES.has(deviceClass)
+  );
+}
+
+export function getStatusBadgeSensorUnit(hass, deviceClass) {
+  if (deviceClass === "power") return "W";
+
+  return Object.values(hass?.states || {}).find((stateObj) =>
+    stateObj.entity_id.startsWith("sensor.") &&
+    stateObj.attributes?.device_class === deviceClass &&
+    stateObj.attributes?.unit_of_measurement
+  )?.attributes?.unit_of_measurement || "";
 }
 
 export function getStatusBadgeActiveEntities(entities = [], config = {},
