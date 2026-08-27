@@ -4,6 +4,7 @@
 
 import { LitElement, html } from "lit";
 import { registerOrbitCard } from "../common/helpers/card-registration.js";
+import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
 import {
   getDeckItemPadding,
@@ -56,6 +57,7 @@ import {
   applyDeckCardSurface,
   applyPaddingTarget,
   connectDeckPaddingObserver,
+  disconnectDeckCardSurfaceObserver,
   disconnectDeckPaddingObserver,
   getCardElements,
   getDeckItemWrapper,
@@ -918,6 +920,10 @@ class OrbitDeckCard extends LitElement {
         </div>
       </ha-card>
     `;
+  }
+
+  _t(key, replacements) {
+    return localize(this.hass, key, replacements);
   }
 
   render() {

@@ -14460,7 +14460,7 @@ var sp = [
 		this._deckEntryGeneration += 1, e.forEach((e) => {
 			let t = e?.element;
 			t && new Set([t, ...kf(t)]).forEach((e) => {
-				disconnectDeckCardSurfaceObserver(e), Ff(e);
+				Of(e), Ff(e);
 			});
 		});
 	}
@@ -14661,6 +14661,9 @@ var sp = [
         </div>
       </ha-card>
     `;
+	}
+	_t(e, t) {
+		return V(this.hass, e, t);
 	}
 	render() {
 		let e = ef(this._config);
