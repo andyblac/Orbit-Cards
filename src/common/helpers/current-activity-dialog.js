@@ -6,6 +6,10 @@ export const currentActivityDialogProperties = {
   _currentActivityLoading: { state: true },
   _currentActivityError: { state: true },
   _currentActivityHeight: { state: true },
+  _currentActivityScope: { state: true },
+  _currentActivityCurrentEntityIds: { state: true },
+  _currentActivityAllEntityIds: { state: true },
+  _currentActivityShowScopeToggle: { state: true },
 };
 
 export function initializeCurrentActivityDialog() {
@@ -14,19 +18,51 @@ export function initializeCurrentActivityDialog() {
   this._currentActivityLoading = false;
   this._currentActivityError = "";
   this._currentActivityHeight = `${DEFAULT_CURRENT_ACTIVITY_HEIGHT}px`;
+  this._currentActivityScope = "current";
+  this._currentActivityCurrentEntityIds = [];
+  this._currentActivityAllEntityIds = [];
+  this._currentActivityShowScopeToggle = false;
   this._currentActivityRequest = 0;
   this._currentActivityHeightTimer = null;
 }
 
-export async function openCurrentActivityDialog(entityIds = []) {
-  const entities = [...new Set(entityIds.filter(Boolean))];
+export function openCurrentActivityDialog(
+  currentEntityIds = [],
+  allEntityIds = currentEntityIds,
+  showScopeToggle = false
+) {
+  const currentEntities = uniqueEntityIds(currentEntityIds);
+  const allEntities = uniqueEntityIds(allEntityIds);
+
+  this._currentActivityScope = "current";
+  this._currentActivityCurrentEntityIds = currentEntities;
+  this._currentActivityAllEntityIds = allEntities;
+  this._currentActivityShowScopeToggle = Boolean(showScopeToggle);
+  this._currentActivityOpen = true;
+
+  loadCurrentActivityScope.call(this, "current");
+}
+
+export function setCurrentActivityScope(scope) {
+  const nextScope = scope === "all" ? "all" : "current";
+  if (nextScope === this._currentActivityScope) return;
+
+  this._currentActivityScope = nextScope;
+  loadCurrentActivityScope.call(this, nextScope);
+}
+
+async function loadCurrentActivityScope(scope) {
+  const entities = scope === "all"
+    ? this._currentActivityAllEntityIds
+    : this._currentActivityCurrentEntityIds;
   const request = ++this._currentActivityRequest;
 
-  this._currentActivityOpen = true;
   this._currentActivityCard = null;
   this._currentActivityLoading = true;
   this._currentActivityError = "";
   this._currentActivityHeight = `${DEFAULT_CURRENT_ACTIVITY_HEIGHT}px`;
+  window.clearTimeout(this._currentActivityHeightTimer);
+  this._currentActivityHeightTimer = null;
 
   if (!entities.length) {
     this._currentActivityLoading = false;
@@ -70,9 +106,17 @@ export function closeCurrentActivityDialog() {
   this._currentActivityLoading = false;
   this._currentActivityError = "";
   this._currentActivityHeight = `${DEFAULT_CURRENT_ACTIVITY_HEIGHT}px`;
+  this._currentActivityScope = "current";
+  this._currentActivityCurrentEntityIds = [];
+  this._currentActivityAllEntityIds = [];
+  this._currentActivityShowScopeToggle = false;
   this._currentActivityRequest += 1;
   window.clearTimeout(this._currentActivityHeightTimer);
   this._currentActivityHeightTimer = null;
+}
+
+function uniqueEntityIds(entityIds = []) {
+  return [...new Set(entityIds.filter(Boolean))];
 }
 
 function syncCurrentActivityHeight(card, request, attempt = 0) {

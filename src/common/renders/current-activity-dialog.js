@@ -1,6 +1,7 @@
 import { html, nothing } from "lit";
 import {
   closeCurrentActivityDialog,
+  setCurrentActivityScope,
 } from "../helpers/current-activity-dialog.js";
 
 export function renderCurrentActivityDialog() {
@@ -28,6 +29,34 @@ export function renderCurrentActivityDialog() {
         <ha-icon icon="mdi:close"></ha-icon>
       </ha-icon-button>
       <span slot="headerTitle">${this._t("Current activity")}</span>
+      ${this._currentActivityShowScopeToggle
+        ? html`
+            <ha-selector
+              slot="headerActionItems"
+              class="current-activity-scope-selector"
+              .hass=${this.hass}
+              .selector=${{
+                button_toggle: {
+                  options: [
+                    {
+                      label: this._t("Current"),
+                      value: "current",
+                    },
+                    {
+                      label: this._t("All"),
+                      value: "all",
+                    },
+                  ],
+                },
+              }}
+              .value=${this._currentActivityScope || "current"}
+              @value-changed=${(event) => {
+                event.stopPropagation();
+                setCurrentActivityScope.call(this, event.detail.value);
+              }}
+            ></ha-selector>
+          `
+        : nothing}
       <div
         class="current-activity-dialog-content"
         style=${`--current-activity-height:${this._currentActivityHeight || "140px"}`}

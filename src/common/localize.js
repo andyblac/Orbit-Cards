@@ -107,6 +107,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Clear: [
     "ui.common.clear",
   ],
+  Current: [
+    "ui.common.current",
+  ],
   Custom: [
     "ui.components.entity.entity-name-picker.mode_custom",
     "ui.panel.lovelace.editor.edit_card.pick_card.custom",

@@ -194,11 +194,22 @@ class OrbitStatusBadge extends LitElement {
     }
 
     if (actionConfig?.action === CURRENT_ACTIVITY_ACTION) {
-      const entityIds = this._getModel().activeEntities.map(
+      const model = this._getModel();
+      const activeEntityIds = model.activeEntities.map(
         (stateObj) => stateObj.entity_id
       );
+      const isAreaCount = getStatusBadgeStateSource(this._config) ===
+        "area_count";
+      const allEntityIds = isAreaCount
+        ? model.entities.map((stateObj) => stateObj.entity_id)
+        : activeEntityIds;
 
-      openCurrentActivityDialog.call(this, entityIds);
+      openCurrentActivityDialog.call(
+        this,
+        activeEntityIds,
+        allEntityIds,
+        isAreaCount
+      );
       return;
     }
 

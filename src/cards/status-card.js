@@ -226,13 +226,23 @@ class OrbitStatusCard extends LitElement {
       const config = this._config?.mode === "icon_only"
         ? getIconOnlyStatusItems(this._config)[index] || {}
         : this._config || {};
-      const entityIds = getStatusBadgeActiveEntities(
-        getStatusBadgeEntities(this.hass, config),
+      const entities = getStatusBadgeEntities(this.hass, config);
+      const activeEntityIds = getStatusBadgeActiveEntities(
+        entities,
         config,
         (stateObj) => this._getEntityActiveState(stateObj)
       ).map((stateObj) => stateObj.entity_id);
+      const isAreaCount = getStatusBadgeStateSource(config) === "area_count";
+      const allEntityIds = isAreaCount
+        ? entities.map((stateObj) => stateObj.entity_id)
+        : activeEntityIds;
 
-      openCurrentActivityDialog.call(this, entityIds);
+      openCurrentActivityDialog.call(
+        this,
+        activeEntityIds,
+        allEntityIds,
+        isAreaCount
+      );
       return;
     }
 

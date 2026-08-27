@@ -22,6 +22,10 @@ export const currentActivityDialogStyles = css`
     overflow-y: auto;
   }
 
+  .current-activity-scope-selector {
+    width: 180px;
+  }
+
   .current-activity-dialog-content > hui-logbook-card,
   .current-activity-dialog-content > ha-card {
     display: block;
@@ -42,6 +46,10 @@ export const currentActivityDialogStyles = css`
   }
 
   @media (max-width: 600px) {
+    .current-activity-scope-selector {
+      width: 156px;
+    }
+
     .current-activity-dialog-content {
       padding-inline: 0;
     }
