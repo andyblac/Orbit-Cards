@@ -357,6 +357,28 @@ export function formatDeviceClass(deviceClass = "") {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+export function getStatusBadgeDeviceClassLabel(deviceClass = "") {
+  // Home Assistant's entity_component `<device_class>.name` translation is
+  // the default entity name, not a label for the class itself. For example,
+  // switch.outlet is "Socket" in en-GB even though the class is "Outlet".
+  return formatDeviceClass(deviceClass);
+}
+
+export function getStatusBadgeActivityTitleDetail(hass, config = {}) {
+  const deviceClasses = getStatusBadgeDeviceClasses(config);
+
+  if (deviceClasses.length) {
+    return deviceClasses
+      .map((deviceClass) => getStatusBadgeDeviceClassLabel(deviceClass))
+      .join(", ");
+  }
+
+  const domain = config?.domain || "";
+  const domainConfig = getStatusBadgeDomainConfig(domain);
+
+  return localize(hass, domainConfig.label);
+}
+
 export function getStatusBadgeDeviceClasses(config = {}) {
   const configured = Array.isArray(config?.device_class)
     ? config.device_class
@@ -563,7 +585,7 @@ export function getStatusBadgeDeviceClassOptions(hass, config = {}) {
     .sort((left, right) => left.localeCompare(right))
     .map((value) => ({
       value,
-      label: formatDeviceClass(value),
+      label: getStatusBadgeDeviceClassLabel(value),
     }));
 }
 

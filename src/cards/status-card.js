@@ -59,6 +59,7 @@ import {
   CURRENT_ACTIVITY_ACTION,
   CURRENT_STATE_ACTION,
   getStatusBadgeActiveEntities,
+  getStatusBadgeActivityTitleDetail,
   getStatusBadgeAreaEntityIds,
   getStatusBadgeEntities,
   getStatusBadgeStateSource,
@@ -236,12 +237,17 @@ class OrbitStatusCard extends LitElement {
       const allEntityIds = isAreaCount
         ? entities.map((stateObj) => stateObj.entity_id)
         : activeEntityIds;
+      const activityTitleDetail = getStatusBadgeActivityTitleDetail(
+        this.hass,
+        config
+      );
 
       openCurrentActivityDialog.call(
         this,
         activeEntityIds,
         allEntityIds,
-        isAreaCount
+        isAreaCount,
+        activityTitleDetail
       );
       return;
     }

@@ -1,6 +1,7 @@
 import { html, nothing } from "lit";
 import {
   closeCurrentActivityDialog,
+  setCurrentActivityDateRange,
   setCurrentActivityScope,
 } from "../helpers/current-activity-dialog.js";
 
@@ -28,7 +29,11 @@ export function renderCurrentActivityDialog() {
       >
         <ha-icon icon="mdi:close"></ha-icon>
       </ha-icon-button>
-      <span slot="headerTitle">${this._t("Current activity")}</span>
+      <span slot="headerTitle">
+        ${this._t("Activity")}${this._currentActivityTitleDetail
+          ? ` · ${this._currentActivityTitleDetail}`
+          : ""}
+      </span>
       ${this._currentActivityShowScopeToggle
         ? html`
             <ha-selector
@@ -55,6 +60,22 @@ export function renderCurrentActivityDialog() {
                 setCurrentActivityScope.call(this, event.detail.value);
               }}
             ></ha-selector>
+          `
+        : nothing}
+      ${this._currentActivityHasDateRangePicker
+        ? html`
+            <div class="current-activity-date-browser">
+              <ha-date-range-picker
+                .startDate=${this._currentActivityStartDate}
+                .endDate=${this._currentActivityEndDate}
+                .timePicker=${true}
+                backdrop
+                @value-changed=${(event) => {
+                  event.stopPropagation();
+                  setCurrentActivityDateRange.call(this, event.detail.value);
+                }}
+              ></ha-date-range-picker>
+            </div>
           `
         : nothing}
       <div

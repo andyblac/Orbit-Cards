@@ -1,6 +1,6 @@
 import { html } from "lit";
 import {
-  formatDeviceClass,
+  getStatusBadgeDeviceClassLabel,
   getStatusBadgeDeviceClasses,
   getStatusBadgeHideItems,
   getStatusBadgeSensorUnit,
@@ -433,7 +433,9 @@ export function renderBadgeStateControl({
               return html`
                 <div class="field sensor-threshold-field">
                   <div class="field-header">
-                    <label>${formatDeviceClass(deviceClass)}</label>
+                    <label>${getStatusBadgeDeviceClassLabel(
+                      deviceClass
+                    )}</label>
                     <ha-selector
                       .hass=${this.hass}
                       .selector=${{
