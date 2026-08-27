@@ -8364,6 +8364,7 @@ function Ml() {
     <ha-adaptive-dialog
       class="current-activity-dialog"
       .open=${!0}
+      flexcontent
       width="small"
       @closed=${(e) => {
 		e.stopPropagation(), El.call(this);
@@ -11283,6 +11284,31 @@ var xd = d`
 
     .current-activity-date-browser {
       padding-inline: 0;
+    }
+  }
+
+  @media (max-width: 870px), (max-height: 500px) {
+    .current-activity-dialog {
+      --ha-bottom-sheet-height: min(
+        90dvh,
+        calc(
+          100dvh - max(var(--safe-area-inset-top, 0px), 48px)
+        )
+      );
+      --ha-bottom-sheet-max-height: var(--ha-bottom-sheet-height);
+      --dialog-content-padding: 0;
+    }
+
+    .current-activity-dialog-content {
+      flex: 1 1 auto;
+      min-height: 0;
+      height: auto;
+      max-height: none;
+    }
+
+    .current-activity-dialog-content > ha-logbook {
+      min-height: 0;
+      max-height: none;
     }
   }
 `, Td = class extends k {

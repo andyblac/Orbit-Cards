@@ -16,6 +16,7 @@ export function renderCurrentActivityDialog() {
     <ha-adaptive-dialog
       class="current-activity-dialog"
       .open=${true}
+      flexcontent
       width="small"
       @closed=${(event) => {
         event.stopPropagation();
