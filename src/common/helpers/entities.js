@@ -1,4 +1,16 @@
-export function formatEntityState(stateObj) {
+export function formatEntityState(stateObj, hass = null) {
+  let nativeState = null;
+
+  try {
+    nativeState = hass?.formatEntityState?.(stateObj);
+  } catch (_error) {
+    nativeState = null;
+  }
+
+  if (nativeState !== null && nativeState !== undefined && nativeState !== "") {
+    return nativeState;
+  }
+
   const unit = stateObj.attributes.unit_of_measurement || "";
   const value = stateObj.state;
 

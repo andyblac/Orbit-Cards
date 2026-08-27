@@ -173,7 +173,7 @@ export function getStatusBadgeModel() {
     inactiveTemplateActive,
     count: activeEntities.length,
     displayValue: stateSource === "template"
-      ? formatTemplateState(templateResult)
+      ? formatTemplateState(templateResult, this.hass, templateDomain)
       : stateSource === "entity"
         ? representativeStateObj.state
         : activeEntities.length,

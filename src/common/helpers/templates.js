@@ -1,4 +1,7 @@
-import { getNativeStateActiveState } from "./entities.js";
+import {
+  formatEntityState,
+  getNativeStateActiveState,
+} from "./entities.js";
 
 const TEMPLATE_RESULT_PREFIX = "__ORBIT_TEMPLATE_RESULT_START_8C4F2A__";
 const TEMPLATE_RESULT_SUFFIX = "__ORBIT_TEMPLATE_RESULT_END_8C4F2A__";
@@ -114,15 +117,102 @@ export function getTemplateResultActiveState(result, domain = "") {
   return getNativeStateActiveState(normalized, domain);
 }
 
-export function formatTemplateState(result) {
+export function formatTemplateState(result, hass = null, domain = "") {
   const value = String(result ?? "").trim();
+  const nativeValue = getNativeTemplateState(value, hass, domain);
 
-  if (!value.includes("_")) return value;
+  if (nativeValue) return nativeValue;
+
+  if (!value.includes("_")) {
+    return value.replace(/^\p{L}/u, (letter) => letter.toLocaleUpperCase());
+  }
 
   return value
     .replace(/_+/g, " ")
     .replace(/\b\p{L}/gu, (letter) => letter.toLocaleUpperCase());
 }
+
+function getNativeTemplateState(value, hass, domain) {
+  if (!value || !hass) return "";
+
+  const normalizedValue = value.toLowerCase();
+  const domains = domain
+    ? [domain]
+    : getNativeTemplateStateDomains(hass);
+  const translatedValues = new Set();
+
+  for (const nativeDomain of domains) {
+    const keys = [
+      `component.${nativeDomain}.entity_component._.state.${normalizedValue}`,
+      `state_badge.${nativeDomain}.${normalizedValue}`,
+    ];
+
+    for (const key of keys) {
+      const translated = hass.localize?.(key);
+
+      if (translated && translated !== key) translatedValues.add(translated);
+    }
+  }
+
+  if (translatedValues.size === 1) {
+    return [...translatedValues][0];
+  }
+
+  if (!domain) return "";
+
+  const formattedValue = formatEntityState(
+    {
+      entity_id: `${domain}.orbit_template_state`,
+      state: value,
+      attributes: {},
+    },
+    hass
+  );
+
+  return formattedValue && formattedValue !== value ? formattedValue : "";
+}
+
+function getNativeTemplateStateDomains(hass) {
+  const configuredDomains = Object.keys(hass.states || {})
+    .map((entityId) => entityId.split(".")[0])
+    .filter(Boolean);
+
+  return [...new Set([
+    ...configuredDomains,
+    ...NATIVE_TEMPLATE_STATE_DOMAINS,
+  ])];
+}
+
+const NATIVE_TEMPLATE_STATE_DOMAINS = [
+  "alarm_control_panel",
+  "alert",
+  "automation",
+  "binary_sensor",
+  "calendar",
+  "camera",
+  "climate",
+  "cover",
+  "device_tracker",
+  "fan",
+  "humidifier",
+  "input_boolean",
+  "lawn_mower",
+  "light",
+  "lock",
+  "media_player",
+  "person",
+  "plant",
+  "remote",
+  "script",
+  "siren",
+  "sun",
+  "switch",
+  "timer",
+  "update",
+  "vacuum",
+  "valve",
+  "water_heater",
+];
 
 export function getColorTemplateEntries(config) {
   const templates = new Map();

@@ -195,7 +195,7 @@ function getStatusState(item, rootConfig = {}) {
     ? String(templatedLabel)
     : stateSource === "template"
     ? config.state_template
-      ? formatTemplateState(templatedState)
+      ? formatTemplateState(templatedState, this.hass, templateDomain)
       : stateObj
         ? getStatusAttribute(stateObj, "label") ||
           this.formatState(stateObj)

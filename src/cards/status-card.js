@@ -608,7 +608,7 @@ class OrbitStatusCard extends LitElement {
   }
 
   formatState(stateObj) {
-    return formatEntityState(stateObj);
+    return formatEntityState(stateObj, this.hass);
   }
 
   _getEntityActiveState(stateObj) {
