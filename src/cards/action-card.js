@@ -47,6 +47,7 @@ import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
 import { migrateActionCardConfig } from "../common/helpers/config-migration.js";
+import { localize } from "../common/localize.js";
 
 import {
   getActionItems,
@@ -314,6 +315,10 @@ class OrbitActionCard extends LitElement {
     if (ev.stopImmediatePropagation) {
       ev.stopImmediatePropagation();
     }
+  }
+
+  _t(key, replacements) {
+    return localize(this.hass, key, replacements);
   }
 
   render() {

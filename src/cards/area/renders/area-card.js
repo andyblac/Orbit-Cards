@@ -1,6 +1,6 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { isEntityUnavailable } from "../../../common/helpers/entities.js";
+import { getEntityIssue } from "../../../common/helpers/entities.js";
 
 export function renderAreaCard() {
   const buttons = this._buttonModels || [];
@@ -85,17 +85,11 @@ export function renderAreaCard() {
                   ></ha-icon>
                 `}
 
-            ${isEntityUnavailable(this._mainStateObj)
-              ? html`
-                  <ha-tile-badge
-                    class="entity-unavailable-badge"
-                    title=${this._t("Unavailable")}
-                    aria-label=${this._t("Unavailable")}
-                  >
-                    <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
-                  </ha-tile-badge>
-                `
-              : ""}
+            ${renderEntityIssueBadge.call(
+              this,
+              this._config.main_entity || this._config.entity,
+              this._mainStateObj
+            )}
           </div>
 
         </div>
@@ -130,6 +124,20 @@ function renderStatusItems() {
 }
 
 function renderStatusIcon(item) {
+  if (getEntityIssue(item.entityId, item.stateObj) === "missing") {
+    const label = this._t("Entity not found");
+
+    return html`
+      <ha-icon
+        class="status-prefix-icon"
+        .icon=${"mdi:alert-circle-outline"}
+        title=${label}
+        aria-label=${label}
+        style="color:var(--error-color)"
+      ></ha-icon>
+    `;
+  }
+
   if (!item.icon && !item.useStateIcon) return "";
 
   if (item.isImage) {
@@ -164,5 +172,25 @@ function renderStatusIcon(item) {
     <span class="status-prefix-text">
       ${item.icon}
     </span>
+  `;
+}
+
+function renderEntityIssueBadge(entityId, stateObj) {
+  const issue = getEntityIssue(entityId, stateObj);
+
+  if (!issue) return "";
+
+  const label = this._t(
+    issue === "missing" ? "Entity not found" : "Unavailable"
+  );
+
+  return html`
+    <ha-tile-badge
+      class="entity-unavailable-badge ${issue === "missing" ? "entity-missing-badge" : ""}"
+      title=${label}
+      aria-label=${label}
+    >
+      <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
+    </ha-tile-badge>
   `;
 }

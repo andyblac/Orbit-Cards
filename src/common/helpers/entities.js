@@ -117,3 +117,10 @@ const NATIVE_INACTIVE_STATES = new Set([
 export function isEntityUnavailable(stateObj) {
   return stateObj?.state?.toString().toLowerCase() === "unavailable";
 }
+
+export function getEntityIssue(entityId, stateObj) {
+  if (isEntityUnavailable(stateObj)) return "unavailable";
+  if (entityId && !stateObj) return "missing";
+
+  return null;
+}

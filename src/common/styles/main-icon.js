@@ -69,4 +69,8 @@ export const MainIconStyles = css`
     pointer-events: none;
     z-index: 10;
   }
+
+  .entity-unavailable-badge.entity-missing-badge {
+    --tile-badge-background-color: var(--error-color);
+  }
 `;
