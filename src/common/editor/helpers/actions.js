@@ -262,18 +262,20 @@ function getInteractionSchema(interaction, context, config, editor) {
   const customActions = interaction.customActions || [];
   const configuredActionName = getActionName(configuredAction);
   const usesCustomActionPicker =
+    (customActions.length > 0 && !configuredAction) ||
     (interaction.customDefaultLabel && !configuredAction) ||
     customActions.includes(configuredActionName);
 
   if (usesCustomActionPicker) {
     const actions = getActionEditorActions(defaultAction, customActions);
-    const defaultOption = interaction.customDefaultLabel && !configuredAction
+    const defaultOption = !configuredAction
       ? [{
           value: "__default__",
-          label: `${t(editor, "Default")} (${t(
-            editor,
+          label: `${t(editor, "Default")} (${
             interaction.customDefaultLabel
-          )})`,
+              ? t(editor, interaction.customDefaultLabel)
+              : actionLabel(editor, defaultAction)
+          })`,
         }]
       : [];
 
@@ -354,10 +356,8 @@ function getInteractionConfigChanges(
     const formKey = interaction.formKey || interaction.key;
     if (
       (
-        interaction.customDefaultLabel ||
-        interaction.customActions?.includes(
-          getActionName(config?.[interaction.key])
-        )
+        formData[formKey] === "__default__" ||
+        interaction.customActions?.includes(formData[formKey])
       ) &&
       typeof formData[formKey] === "string"
     ) {

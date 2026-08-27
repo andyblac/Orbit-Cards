@@ -49,11 +49,13 @@ import { renderActiveEntitiesDialog } from "../common/renders/active-entities-di
 import { renderCurrentActivityDialog } from "../common/renders/current-activity-dialog.js";
 import {
   activeEntitiesDialogProperties,
+  closeActiveEntitiesDialog,
   initializeActiveEntitiesDialog,
   openActiveEntitiesDialog,
   stopActiveEntitiesDurationTimer,
 } from "../common/helpers/active-entities-dialog.js";
 import {
+  closeCurrentActivityDialog,
   currentActivityDialogProperties,
   initializeCurrentActivityDialog,
   openCurrentActivityDialog,
@@ -190,11 +192,13 @@ class OrbitStatusBadge extends LitElement {
 
   _handleAction(actionConfig, entityId = null) {
     if (actionConfig?.action === CURRENT_STATE_ACTION) {
+      closeCurrentActivityDialog.call(this);
       openActiveEntitiesDialog.call(this);
       return;
     }
 
     if (actionConfig?.action === CURRENT_ACTIVITY_ACTION) {
+      closeActiveEntitiesDialog.call(this);
       const model = this._getModel();
       const activeEntityIds = model.activeEntities.map(
         (stateObj) => stateObj.entity_id

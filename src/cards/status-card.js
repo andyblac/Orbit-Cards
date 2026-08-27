@@ -68,11 +68,13 @@ import { renderActiveEntitiesDialog } from "../common/renders/active-entities-di
 import { renderCurrentActivityDialog } from "../common/renders/current-activity-dialog.js";
 import {
   activeEntitiesDialogProperties,
+  closeActiveEntitiesDialog,
   initializeActiveEntitiesDialog,
   openActiveEntitiesDialog,
   stopActiveEntitiesDurationTimer,
 } from "../common/helpers/active-entities-dialog.js";
 import {
+  closeCurrentActivityDialog,
   currentActivityDialogProperties,
   initializeCurrentActivityDialog,
   openCurrentActivityDialog,
@@ -217,12 +219,14 @@ class OrbitStatusCard extends LitElement {
 
   _handleAction(actionConfig, entityId = null) {
     if (actionConfig?.action === CURRENT_STATE_ACTION) {
+      closeCurrentActivityDialog.call(this);
       this._activeEntitiesStatusIndex = actionConfig.status_index ?? 0;
       openActiveEntitiesDialog.call(this);
       return;
     }
 
     if (actionConfig?.action === CURRENT_ACTIVITY_ACTION) {
+      closeActiveEntitiesDialog.call(this);
       const index = actionConfig.status_index ?? 0;
       const config = this._config?.mode === "icon_only"
         ? getIconOnlyStatusItems(this._config)[index] || {}
