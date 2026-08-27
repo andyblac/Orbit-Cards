@@ -932,7 +932,30 @@ class OrbitDeckCard extends LitElement {
     if (!decks.length) {
       return html`
         <ha-card class="deck-card empty">
-          <div>${this._t("Add card")}</div>
+          <div class="deck-empty-preview">
+            <div class="deck-empty-illustration" aria-hidden="true">
+              <span class="deck-empty-tile deck-empty-tile-main">
+                <span class="deck-empty-orbit"></span>
+                <span class="deck-empty-line"></span>
+                <span class="deck-empty-line short"></span>
+              </span>
+              <span class="deck-empty-tile deck-empty-tile-top">
+                <span class="deck-empty-dot"></span>
+                <span class="deck-empty-line"></span>
+              </span>
+              <span class="deck-empty-tile deck-empty-tile-bottom">
+                <span class="deck-empty-dot"></span>
+                <span class="deck-empty-line short"></span>
+              </span>
+            </div>
+            <div class="deck-empty-copy">
+              <div class="deck-empty-title">${this._t("Add card")}</div>
+              <div class="deck-empty-modes">
+                ${this._t("Wrap")} · ${this._t("Tabs")} ·
+                ${this._t("Overlay")}
+              </div>
+            </div>
+          </div>
         </ha-card>
       `;
     }

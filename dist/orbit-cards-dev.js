@@ -13030,11 +13030,136 @@ var If = [ld, d`
   }
 
   .deck-card.empty {
-    min-height: 96px;
+    min-height: 132px;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .deck-empty-preview {
+    width: min(100%, 360px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+
+  .deck-empty-illustration {
+    width: 132px;
+    height: 76px;
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: 1.45fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 6px;
+    transform: rotate(-2deg);
+  }
+
+  .deck-empty-tile {
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid color-mix(
+      in srgb,
+      var(--primary-color) 28%,
+      var(--divider-color)
+    );
+    border-radius: 10px;
+    background: color-mix(
+      in srgb,
+      var(--primary-color) 9%,
+      var(--card-background-color)
+    );
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    box-sizing: border-box;
+  }
+
+  .deck-empty-tile-main {
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .deck-empty-tile-top,
+  .deck-empty-tile-bottom {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .deck-empty-orbit {
+    width: 26px;
+    height: 26px;
+    border: 3px solid var(--primary-color);
+    border-radius: 50%;
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  .deck-empty-orbit::after {
+    content: "";
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    inset-inline-end: -5px;
+    top: 1px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--card-background-color);
+  }
+
+  .deck-empty-dot {
+    width: 11px;
+    height: 11px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--primary-color);
+    opacity: 0.82;
+  }
+
+  .deck-empty-line {
+    width: 100%;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--primary-text-color);
+    opacity: 0.28;
+  }
+
+  .deck-empty-line.short {
+    width: 64%;
+  }
+
+  .deck-empty-copy {
+    min-width: 0;
+  }
+
+  .deck-empty-title {
+    color: var(--primary-text-color);
+    font-size: var(--ha-font-size-l, 16px);
+    font-weight: var(--ha-font-weight-medium, 500);
+    line-height: 1.35;
+  }
+
+  .deck-empty-modes {
+    margin-top: 5px;
     color: var(--secondary-text-color);
+    font-size: var(--ha-font-size-s, 12px);
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 360px) {
+    .deck-empty-preview {
+      gap: 16px;
+    }
+
+    .deck-empty-illustration {
+      width: 108px;
+      height: 68px;
+    }
   }
 
   .deck-wrap {
@@ -14669,7 +14794,30 @@ var sp = [
 		let e = ef(this._config);
 		return e.length ? this._config?.layout === "tabs" ? this._renderTabs(e) : this._config?.layout === "overlay" ? this._renderOverlay() : this._renderWrap(e) : T`
         <ha-card class="deck-card empty">
-          <div>${this._t("Add card")}</div>
+          <div class="deck-empty-preview">
+            <div class="deck-empty-illustration" aria-hidden="true">
+              <span class="deck-empty-tile deck-empty-tile-main">
+                <span class="deck-empty-orbit"></span>
+                <span class="deck-empty-line"></span>
+                <span class="deck-empty-line short"></span>
+              </span>
+              <span class="deck-empty-tile deck-empty-tile-top">
+                <span class="deck-empty-dot"></span>
+                <span class="deck-empty-line"></span>
+              </span>
+              <span class="deck-empty-tile deck-empty-tile-bottom">
+                <span class="deck-empty-dot"></span>
+                <span class="deck-empty-line short"></span>
+              </span>
+            </div>
+            <div class="deck-empty-copy">
+              <div class="deck-empty-title">${this._t("Add card")}</div>
+              <div class="deck-empty-modes">
+                ${this._t("Wrap")} · ${this._t("Tabs")} ·
+                ${this._t("Overlay")}
+              </div>
+            </div>
+          </div>
         </ha-card>
       `;
 	}
