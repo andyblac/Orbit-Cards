@@ -1,6 +1,9 @@
 import { css } from "lit";
+import { EditorPreviewSelectionStyles } from "../../../common/styles/editor-preview-selection.js";
 
-export const deckCardStyles = css`
+export const deckCardStyles = [
+  EditorPreviewSelectionStyles,
+  css`
   ha-card.deck-card {
     border-radius: var(--ha-card-border-radius, 15px);
     overflow: visible;
@@ -56,6 +59,21 @@ export const deckCardStyles = css`
   .deck-spacer {
     flex: 1 1 0;
     min-width: 0;
+  }
+
+  .deck-item.orbit-editor-preview-resized {
+    flex: 0 0 var(--orbit-editor-preview-width, 50%);
+  }
+
+  .deck-row:has(.orbit-editor-preview-resized) {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .deck-item.orbit-editor-preview-resized >
+    .deck-item-interaction.orbit-editor-preview-selected {
+    height: auto;
+    width: 100%;
   }
 
   .deck-item-interaction {
@@ -205,4 +223,5 @@ export const deckCardStyles = css`
     font-weight: var(--ha-font-weight-bold, 700);
     margin-bottom: 8px;
   }
-`;
+`,
+];

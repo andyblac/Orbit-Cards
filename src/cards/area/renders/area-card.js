@@ -89,8 +89,8 @@ export function renderAreaCard() {
               ? html`
                   <ha-tile-badge
                     class="entity-unavailable-badge"
-                    title="Unavailable"
-                    aria-label="Unavailable"
+                    title=${this._t("Unavailable")}
+                    aria-label=${this._t("Unavailable")}
                   >
                     <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
                   </ha-tile-badge>

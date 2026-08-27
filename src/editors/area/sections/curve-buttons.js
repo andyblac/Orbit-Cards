@@ -110,25 +110,19 @@ function renderButtonFields(
         : this._renderEntity("Entity", key)}
 
       ${options.showColors
-        ? html`
-            <div class="color-pair">
-              ${renderAccentOverrideColor.call(
-                this,
-                ["Active", "Color"],
-                `${key}_on_color`
-              )}
-              ${renderAccentOverrideColor.call(
-                this,
-                ["Inactive", "Color"],
-                `${key}_off_color`
-              )}
-            </div>
-          `
+        ? this._renderColorPair({
+            label: "Color",
+            onKey: `${key}_color_on`,
+            offKey: `${key}_color_off`,
+            onPreviewValue: this._config?.color || "theme",
+            offPreviewValue: this._config?.color || "theme",
+          })
         : ""}
 
       ${renderIconSourceControl.call(this, {
         label: "Icon",
         sourceKey: `${key}_icon_source`,
+        templateKey: `${key}_icon`,
         entityKey: key,
         customIconKeys: [
           `${key}_icon`,
@@ -269,18 +263,4 @@ function renderFilteredActionEntity(label, key, options = {}) {
       })}
     </div>
   `;
-}
-
-function renderAccentOverrideColor(label, key) {
-  const rawValue = this._config?.[key] || "";
-  const value = rawValue === "theme" ? "" : rawValue;
-  const previewValue = value || this._config?.accent_color || "theme";
-
-  return this._renderColorControl(
-    label,
-    key,
-    value,
-    (nextValue) => this._handleConfigUpdate(key, nextValue),
-    previewValue
-  );
 }

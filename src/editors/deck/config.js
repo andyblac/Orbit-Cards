@@ -3,9 +3,9 @@ const DECK_CONFIG_ORDER = [
   "layout",
   "items_per_row",
   "separate_cards",
+  "tab_width_mode",
   "tab_font_size",
   "tab_divider",
-  "tab_width_mode",
   "tab_color",
   "tab_active_color",
   "tab_background_color",
@@ -18,6 +18,26 @@ const DECK_ITEM_KEYS = [
   "attributes",
   "badge",
   "card",
+];
+
+const DECK_ATTRIBUTE_KEYS = [
+  "default",
+  "icon",
+  "name",
+  "width",
+  "fit",
+  "left",
+  "top",
+  "height",
+  "transparent_background",
+  "force_padding",
+  "padding_top",
+  "padding_bottom",
+  "padding_left",
+  "padding_right",
+  "tap_action",
+  "hold_action",
+  "double_tap_action",
 ];
 
 export function orderDeckConfig(config) {
@@ -105,7 +125,10 @@ function orderDeckItem(item) {
 
   const cleanedItem = {
     ...item,
-    attributes: cleanObject(item.attributes || {}),
+    attributes: orderObjectKeys(
+      cleanObject(item.attributes || {}),
+      DECK_ATTRIBUTE_KEYS
+    ),
   };
 
   if (item.badge?.type) {
@@ -130,6 +153,24 @@ function orderDeckItem(item) {
     if (!usedKeys.has(key)) {
       ordered[key] = cleanedItem[key];
     }
+  });
+
+  return ordered;
+}
+
+function orderObjectKeys(config, keyOrder) {
+  const ordered = {};
+  const usedKeys = new Set();
+
+  keyOrder.forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(config, key)) {
+      ordered[key] = config[key];
+      usedKeys.add(key);
+    }
+  });
+
+  Object.keys(config).forEach((key) => {
+    if (!usedKeys.has(key)) ordered[key] = config[key];
   });
 
   return ordered;

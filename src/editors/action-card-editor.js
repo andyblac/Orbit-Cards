@@ -38,6 +38,7 @@ import { CARD_VERSIONS } from "../version.js";
 import {
   updateEditorDocumentationContext,
 } from "../common/helpers/documentation.js";
+import { migrateActionCardConfig } from "../common/helpers/config-migration.js";
 
 class OrbitActionCardEditor extends LitElement {
   static svgCache = sharedSvgCache;
@@ -88,11 +89,16 @@ class OrbitActionCardEditor extends LitElement {
   }
 
   setConfig(config) {
-    this._config = config || {};
+    const { config: migratedConfig, migrated } =
+      migrateActionCardConfig(config || {});
+    this._config = orderActionConfig(migratedConfig || {});
     this._selectedActionIndex = Math.min(
       this._selectedActionIndex || 0,
-      this._getActionItems(config).length - 1
+      this._getActionItems(this._config).length - 1
     );
+    if (migrated) {
+      queueMicrotask(() => this._dispatchConfigChanged(this._config));
+    }
   }
 
   _t(key, replacements) {
@@ -104,9 +110,13 @@ class OrbitActionCardEditor extends LitElement {
       mergeConfig(this._config, changes)
     );
 
+    this._dispatchConfigChanged(this._config);
+  }
+
+  _dispatchConfigChanged(config) {
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
-        config: this._config,
+        config,
       },
       bubbles: true,
       composed: true,
@@ -129,9 +139,9 @@ class OrbitActionCardEditor extends LitElement {
     return [
       {
         entity: config?.main_entity || "",
-        accent_color: config?.accent_color || "",
-        main_entity_icon_source: config?.main_entity_icon_source || "",
-        main_entity_icon: config?.main_entity_icon || "",
+        color: config?.color || "",
+        icon_source: config?.icon_source || "",
+        icon: config?.icon || "",
         tap_action: config?.tap_action,
         hold_action: config?.hold_action,
         double_tap_action: config?.double_tap_action,
@@ -244,9 +254,9 @@ class OrbitActionCardEditor extends LitElement {
 
     this._updateConfig({
       main_entity: nextItem.entity || "",
-      accent_color: nextItem.accent_color || "",
-      main_entity_icon_source: nextItem.main_entity_icon_source || "",
-      main_entity_icon: nextItem.main_entity_icon || "",
+      color: nextItem.color || "",
+      icon_source: nextItem.icon_source || "",
+      icon: nextItem.icon || "",
       tap_action: nextItem.tap_action,
       hold_action: nextItem.hold_action,
       double_tap_action: nextItem.double_tap_action,
@@ -450,9 +460,9 @@ function cleanClearedActionItem(item) {
 }
 
 const ACTION_ENTITY_DEPENDENT_KEYS = [
-  "accent_color",
-  "main_entity_icon_source",
-  "main_entity_icon",
+  "color",
+  "icon_source",
+  "icon",
   "tap_action",
   "hold_action",
   "double_tap_action",
@@ -465,10 +475,10 @@ const ACTION_GROUP_ROOT_KEYS = [
 
 const ACTION_ITEM_KEYS = [
   "entity",
-  "accent_color",
-  "main_entity_icon_source",
-  "main_entity_icon",
-  "main_entity_icon_svg_color_override",
+  "color",
+  "icon_source",
+  "icon",
+  "icon_svg_color_override",
   "tap_action",
   "hold_action",
   "double_tap_action",
@@ -476,17 +486,17 @@ const ACTION_ITEM_KEYS = [
 
 const ACTION_CONFIG_ORDER = [
   "type",
-  "main_entity",
-  "accent_color",
-  "main_entity_icon_source",
-  "main_entity_icon",
-  "main_entity_icon_svg_color_override",
-  "tap_action",
-  "hold_action",
-  "double_tap_action",
   "wrap",
   "actions_per_row",
   "separate_cards",
+  "main_entity",
+  "color",
+  "icon_source",
+  "icon",
+  "icon_svg_color_override",
+  "tap_action",
+  "hold_action",
+  "double_tap_action",
   "entities",
   "grid_options",
   "view_layout",

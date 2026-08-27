@@ -26,15 +26,16 @@ import {
   updateEditorDocumentationContext,
 } from "../common/helpers/documentation.js";
 import {
+  migrateDeckCardConfig,
+} from "../common/helpers/config-migration.js";
+import {
   normalizeDeckAttributeLabels,
   normalizeDeckItem,
   orderDeckConfig,
 } from "./deck/config.js";
 import {
-  getDeckChildActionDefault,
   getDeckChildConfig,
   getDeckChildTypeName,
-  isVisibleDeckActionDefault,
 } from "./deck/item-helpers.js";
 import {
   ensureNativeBadgeEditor,
@@ -94,14 +95,15 @@ class OrbitDeckCardEditor extends LitElement {
   }
 
   setConfig(config) {
-    const normalized = normalizeDeckAttributeLabels(config || {});
-
-    this._config = {
+    const migrated = migrateDeckCardConfig(config || {});
+    const normalized = normalizeDeckAttributeLabels(migrated.config);
+    const normalizedConfig = {
       ...normalized.config,
-      layout: ["tabs", "overlay"].includes(config?.layout)
-        ? config.layout
+      layout: ["tabs", "overlay"].includes(migrated.config?.layout)
+        ? migrated.config.layout
         : "wrap",
     };
+    this._config = orderDeckConfig(normalizedConfig);
     this._selectedDeckIndex = Math.min(
       this._selectedDeckIndex || 0,
       Math.max(0, this._getDeckItems().length - 1)
@@ -110,7 +112,7 @@ class OrbitDeckCardEditor extends LitElement {
     this._childPickerType = selectedItem?.badge ? "badge" : "card";
     this._updateDocumentationContext();
 
-    if (normalized.changed) {
+    if (migrated.migrated || normalized.changed) {
       queueMicrotask(() => this._dispatchConfigChanged());
     }
   }
@@ -652,12 +654,6 @@ class OrbitDeckCardEditor extends LitElement {
 
   _renderDeckInteractions(index, item) {
     const attributes = item?.attributes || {};
-    const tapDefault = getDeckChildActionDefault(item, "tap_action");
-    const holdDefault = getDeckChildActionDefault(item, "hold_action");
-    const doubleTapDefault = getDeckChildActionDefault(
-      item,
-      "double_tap_action"
-    );
 
     return renderInteractionsSection.call(this, {
       expanded: false,
@@ -668,25 +664,16 @@ class OrbitDeckCardEditor extends LitElement {
           key: "tap_action",
           formKey: "tap_action",
           label: "Tap behavior",
-          defaultAction: tapDefault,
-          defaultVisible: isVisibleDeckActionDefault(tapDefault),
-          displayDefaultValue: isVisibleDeckActionDefault(tapDefault),
         },
         {
           key: "hold_action",
           formKey: "hold_action",
           label: "Hold behavior",
-          defaultAction: holdDefault,
-          defaultVisible: isVisibleDeckActionDefault(holdDefault),
-          displayDefaultValue: isVisibleDeckActionDefault(holdDefault),
         },
         {
           key: "double_tap_action",
           formKey: "double_tap_action",
           label: "Double tap behavior",
-          defaultAction: doubleTapDefault,
-          defaultVisible: isVisibleDeckActionDefault(doubleTapDefault),
-          displayDefaultValue: isVisibleDeckActionDefault(doubleTapDefault),
         },
       ],
       context: {

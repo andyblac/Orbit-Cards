@@ -1,6 +1,6 @@
-import { getEntityColor } from "../../common/helpers/icons.js";
-import { getEntityAreaId } from "../../common/helpers/suggestions.js";
-import { getNativeEntityBadgeColor } from "../../common/helpers/status-badge.js";
+import { getEntityColor } from "./icons.js";
+import { getEntityAreaId } from "./suggestions.js";
+import { getNativeEntityBadgeColor } from "./status-badge.js";
 
 const ACTIVE_ENTITY_CONTROLS = {
   light: { service: "turn_off", icon: "mdi:power" },
@@ -37,7 +37,7 @@ export function getActiveEntityControl(hass, stateObj) {
 }
 
 export function getActiveEntityGroupControl(controllable) {
-  if (controllable.length < 2) return null;
+  if (!controllable.length) return null;
 
   const firstControl = controllable[0].control;
   return controllable.every(({ control }) =>
@@ -53,8 +53,7 @@ export function getActiveEntityName(hass, stateObj) {
     stateObj?.attributes?.friendly_name ||
     stateObj?.entity_id ||
     "";
-  const areaId = getEntityAreaId(hass, stateObj?.entity_id);
-  const areaName = hass?.areas?.[areaId]?.name?.trim();
+  const areaName = getActiveEntityAreaName(hass, stateObj);
 
   if (!areaName || name.length <= areaName.length) return name;
 
@@ -64,6 +63,15 @@ export function getActiveEntityName(hass, stateObj) {
   );
 
   return name.replace(areaPrefix, "").trim() || name;
+}
+
+export function getActiveEntityAreaName(hass, stateObj) {
+  const areaId =
+    getEntityAreaId(hass, stateObj?.entity_id) ||
+    stateObj?.attributes?.area_id ||
+    "";
+
+  return hass?.areas?.[areaId]?.name?.trim() || "";
 }
 
 export function getActiveEntityNameCollator(hass) {
@@ -79,6 +87,18 @@ export function getActiveEntityNameCollator(hass) {
   return nameCollators.get(locale);
 }
 
+export function getActiveEntityFormattedState(hass, stateObj) {
+  const formattedState = hass?.formatEntityState?.(stateObj);
+
+  if (formattedState) return formattedState;
+
+  const state = String(stateObj?.state || "").replaceAll("_", " ");
+
+  return state
+    ? state[0].toUpperCase() + state.slice(1)
+    : "";
+}
+
 export function compareActiveEntityNames(collator, a, b) {
   return collator.compare(a.name, b.name) ||
     a.stateObj.entity_id.localeCompare(b.stateObj.entity_id);
@@ -86,7 +106,11 @@ export function compareActiveEntityNames(collator, a, b) {
 
 export function getActiveEntitiesDialogWidth(controls, groupControl) {
   const longestNameLength = controls.reduce(
-    (length, { name }) => Math.max(length, name.length),
+    (length, { name, areaName }) => Math.max(
+      length,
+      name.length,
+      areaName?.length || 0
+    ),
     0
   );
   const contentWidth = 132 + (longestNameLength * 8);

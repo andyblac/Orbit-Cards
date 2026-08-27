@@ -2,9 +2,11 @@ import { html } from "lit";
 import { translateEditorLabel as t } from "./labels.js";
 
 function actionLabel(editor, action) {
+  const fallbackLabel = ACTION_LABELS[action];
+
   return (
     localizeHomeAssistantAction(editor?.hass, action) ||
-    ACTION_LABELS[action] ||
+    (fallbackLabel ? t(editor, fallbackLabel) : undefined) ||
     action
   );
 }
@@ -47,7 +49,8 @@ function localizeHomeAssistantAction(hass, action) {
 }
 
 const ACTION_LABELS = {
-  "active-entities": "Active entities",
+  "Current state": "Current state",
+  "current-activity": "Current activity",
   "call-service": "Perform action",
   "more-info": "More info",
   navigate: "Navigate",
@@ -201,14 +204,14 @@ export function renderInteractionsSection({
       icon: "mdi:gesture-tap-button",
       schema: [
         ...defaultInteractions.map((interaction) =>
-          getInteractionSchema(interaction, context)
+          getInteractionSchema(interaction, context, config, this)
         ),
         {
           name: "",
           type: "optional_actions",
           flatten: true,
           schema: optionalInteractions.map((interaction) =>
-            getInteractionSchema(interaction, context)
+            getInteractionSchema(interaction, context, config, this)
           ),
         },
       ],
@@ -253,14 +256,49 @@ function shouldDisplayDefaultInteraction(config = {}, interaction) {
   );
 }
 
-function getInteractionSchema(interaction, context) {
+function getInteractionSchema(interaction, context, config, editor) {
   const defaultAction = getActionName(interaction.defaultAction);
+  const configuredAction = config?.[interaction.key];
+  const customActions = interaction.customActions || [];
+  const configuredActionName = getActionName(configuredAction);
+  const usesCustomActionPicker =
+    (interaction.customDefaultLabel && !configuredAction) ||
+    customActions.includes(configuredActionName);
+
+  if (usesCustomActionPicker) {
+    const actions = getActionEditorActions(defaultAction, customActions);
+    const defaultOption = interaction.customDefaultLabel && !configuredAction
+      ? [{
+          value: "__default__",
+          label: `${t(editor, "Default")} (${t(
+            editor,
+            interaction.customDefaultLabel
+          )})`,
+        }]
+      : [];
+
+    return {
+      name: interaction.formKey || interaction.key,
+      selector: {
+        select: {
+          mode: "dropdown",
+          options: [
+            ...defaultOption,
+            ...actions.map((action) => ({
+              value: action,
+              label: actionLabel(editor, action),
+            })),
+          ],
+        },
+      },
+    };
+  }
 
   return {
     name: interaction.formKey || interaction.key,
     selector: {
       ui_action: {
-        actions: getActionEditorActions(defaultAction),
+        actions: getActionEditorActions(defaultAction, customActions),
         default_action: defaultAction,
       },
     },
@@ -271,6 +309,18 @@ function getInteractionSchema(interaction, context) {
 function getInteractionsFormData(config = {}, interactions) {
   return interactions.reduce((data, interaction) => {
     const formKey = interaction.formKey || interaction.key;
+    if (interaction.customDefaultLabel && !config?.[interaction.key]) {
+      data[formKey] = "__default__";
+      return data;
+    }
+    if (
+      interaction.customActions?.includes(
+        getActionName(config?.[interaction.key])
+      )
+    ) {
+      data[formKey] = getActionName(config[interaction.key]);
+      return data;
+    }
     const value =
       config?.[interaction.key] ||
       (
@@ -302,8 +352,27 @@ function getInteractionConfigChanges(
 ) {
   return interactions.reduce((changes, interaction) => {
     const formKey = interaction.formKey || interaction.key;
-    const nextValue = normalizeEditedActionValue(
+    if (
+      (
+        interaction.customDefaultLabel ||
+        interaction.customActions?.includes(
+          getActionName(config?.[interaction.key])
+        )
+      ) &&
+      typeof formData[formKey] === "string"
+    ) {
+      changes[interaction.key] = formData[formKey] === "__default__"
+        ? undefined
+        : { action: formData[formKey] };
+      return changes;
+    }
+    const configuredValue = config?.[interaction.key];
+    const formValue = preserveMoreInfoEntity(
       formData[formKey],
+      configuredValue
+    );
+    const nextValue = normalizeEditedActionValue(
+      formValue,
       interaction.defaultAction
     );
 
@@ -314,6 +383,26 @@ function getInteractionConfigChanges(
         : nextValue;
     return changes;
   }, {});
+}
+
+function preserveMoreInfoEntity(value, configuredValue) {
+  if (
+    !value ||
+    typeof value !== "object" ||
+    value.action !== "more-info" ||
+    value.entity ||
+    value.entity_id ||
+    configuredValue?.action !== "more-info"
+  ) {
+    return value;
+  }
+
+  const configuredEntity =
+    configuredValue.entity || configuredValue.entity_id;
+
+  return configuredEntity
+    ? { ...value, entity: configuredEntity }
+    : value;
 }
 
 function getInteractionLabel(editor, item, interactions, sectionTitle) {
@@ -343,8 +432,9 @@ function isNoneAction(value) {
   return value?.action === "none";
 }
 
-function getActionEditorActions(defaultAction) {
+function getActionEditorActions(defaultAction, customActions = []) {
   const actions = [
+    ...customActions,
     "more-info",
     "toggle",
     "navigate",
@@ -353,9 +443,19 @@ function getActionEditorActions(defaultAction) {
     "assist",
   ];
 
+  if (
+    defaultAction &&
+    defaultAction !== "none" &&
+    !actions.includes(defaultAction)
+  ) {
+    actions.unshift(defaultAction);
+  }
+
+  const uniqueActions = [...new Set(actions)];
+
   return defaultAction === "none"
-    ? actions
-    : [...actions, "none"];
+    ? uniqueActions
+    : [...uniqueActions, "none"];
 }
 
 function getDefaultActionConfig(defaultAction) {
@@ -693,6 +793,16 @@ function cleanActionConfig(value) {
     return config;
   }
 
+  if (action === "more-info") {
+    const entity = value.entity || value.entity_id;
+
+    if (entity) {
+      config.entity = entity;
+    }
+
+    return config;
+  }
+
   if (action === "call-service") {
     config.service =
       value.service ||
@@ -734,4 +844,3 @@ function cleanActionConfig(value) {
 
   return config;
 }
-

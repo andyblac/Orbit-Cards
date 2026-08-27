@@ -1,3 +1,5 @@
+import { getNativeStateActiveState } from "./entities.js";
+
 const TEMPLATE_RESULT_PREFIX = "__ORBIT_TEMPLATE_RESULT_START_8C4F2A__";
 const TEMPLATE_RESULT_SUFFIX = "__ORBIT_TEMPLATE_RESULT_END_8C4F2A__";
 
@@ -77,8 +79,11 @@ export function evaluateStateTemplate(template, entityId = "") {
   if (!template) return null;
 
   const normalizedTemplate = migrateLegacyTemplate(template)?.trim();
-  const record = this.__orbitTemplateSubscriptions?.get(
+  const subscriptions = this.__orbitTemplateSubscriptions;
+  const record = subscriptions?.get(
     getTemplateId(normalizedTemplate, entityId)
+  ) || [...(subscriptions?.values() || [])].find(
+    (entry) => entry.template === normalizedTemplate
   );
 
   return record?.result ?? null;
@@ -95,29 +100,112 @@ export function getTemplateError(template, entityId = "") {
   return record?.error || "";
 }
 
-export function getTemplateResultActiveState(result) {
+export function getTemplateResultActiveState(result, domain = "") {
   const normalized = String(result ?? "").trim().toLowerCase();
-
-  if (
-    !normalized ||
-    [
-      "false",
-      "off",
-      "no",
-      "none",
-      "null",
-      "unknown",
-      "unavailable",
-    ].includes(normalized)
-  ) {
-    return false;
-  }
-
   const numericResult = Number(normalized);
 
-  return Number.isFinite(numericResult)
-    ? numericResult !== 0
-    : true;
+  if (normalized && Number.isFinite(numericResult)) {
+    return numericResult !== 0;
+  }
+
+  if (["true", "yes"].includes(normalized)) return true;
+  if (["false", "no"].includes(normalized)) return false;
+
+  return getNativeStateActiveState(normalized, domain);
+}
+
+export function formatTemplateState(result) {
+  const value = String(result ?? "").trim();
+
+  if (!value.includes("_")) return value;
+
+  return value
+    .replace(/_+/g, " ")
+    .replace(/\b\p{L}/gu, (letter) => letter.toLocaleUpperCase());
+}
+
+export function getColorTemplateEntries(config) {
+  const templates = new Map();
+
+  collectColorTemplates(config, templates);
+
+  return [...templates.values()];
+}
+
+export function getIconTemplateEntries(config) {
+  const templates = new Map();
+
+  collectIconTemplates(config, templates);
+
+  return [...templates.values()];
+}
+
+function collectColorTemplates(value, templates, key = "", entityId = "") {
+  if (Array.isArray(value)) {
+    value.forEach((item) =>
+      collectColorTemplates(item, templates, "", entityId)
+    );
+    return;
+  }
+
+  if (!value || typeof value !== "object") {
+    if (
+      typeof value === "string" &&
+      (key === "color" || key.endsWith("_color")) &&
+      hasNativeTemplateSyntax(value)
+    ) {
+      const id = getTemplateId(value, entityId);
+      templates.set(id, { template: value, entityId });
+    }
+    return;
+  }
+
+  const localEntityId = value.entity || value.main_entity || entityId;
+
+  Object.entries(value).forEach(([childKey, childValue]) =>
+    collectColorTemplates(childValue, templates, childKey, localEntityId)
+  );
+}
+
+function collectIconTemplates(value, templates, key = "", entityId = "") {
+  if (Array.isArray(value)) {
+    value.forEach((item) =>
+      collectIconTemplates(item, templates, "", entityId)
+    );
+    return;
+  }
+
+  if (!value || typeof value !== "object") {
+    if (
+      typeof value === "string" &&
+      (/(^|_)icon$/.test(key) ||
+        key === "icon_template" ||
+        key.endsWith("_icon_template")) &&
+      hasNativeTemplateSyntax(value)
+    ) {
+      const id = getTemplateId(value, entityId);
+      templates.set(id, { template: value, entityId });
+    }
+    return;
+  }
+
+  const localEntityId = value.entity || value.main_entity || entityId;
+
+  Object.entries(value).forEach(([childKey, childValue]) => {
+    const iconPrefix = childKey.match(
+      /^(.*)_icon(?:_template)?$/
+    )?.[1];
+    const iconEntityId = iconPrefix !== undefined
+      ? value[iconPrefix] || localEntityId
+      : localEntityId;
+
+    collectIconTemplates(
+      childValue,
+      templates,
+      childKey,
+      iconEntityId
+    );
+  });
 }
 
 function subscribeTemplate(descriptor) {
@@ -125,6 +213,8 @@ function subscribeTemplate(descriptor) {
   const { id, template, entityId, configSignature } = descriptor;
   const record = {
     configSignature,
+    template,
+    entityId,
     result: null,
     error: "",
     subscription: undefined,

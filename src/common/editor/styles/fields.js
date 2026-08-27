@@ -30,7 +30,8 @@ export const fieldStyles = css`
 
 .editor-header-button-toggle,
 .main-entity-icon-source-selector,
-.name-picker-mode-selector {
+.name-picker-mode-selector,
+.color-pair-source-selector {
   flex: 0 1 auto;
   width: auto;
   max-width: 100%;
@@ -42,6 +43,23 @@ export const fieldStyles = css`
   min-height: 40px;
 }
 
+.color-pair-control {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.color-pair-source-header {
+  min-height: 40px;
+}
+
+.color-pair-source-header > label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .name-picker-field ha-entity-name-picker,
 .name-picker-custom-input,
 .name-picker-composed-picker {
@@ -50,8 +68,8 @@ export const fieldStyles = css`
 }
 
 .name-picker-composed-picker {
-  --ha-generic-picker-width: min(720px, calc(100vw - 48px));
-  --ha-generic-picker-max-width: min(720px, calc(100vw - 48px));
+  --ha-generic-picker-width: min(360px, calc(100vw - 48px));
+  --ha-generic-picker-max-width: min(360px, calc(100vw - 48px));
 }
 
 .name-picker-composed-field {
@@ -110,6 +128,8 @@ export const fieldStyles = css`
 .status-badge-hide-hidden-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   min-height: 40px;
 }
 
@@ -124,6 +144,12 @@ export const fieldStyles = css`
 
 .status-badge-device-class-options ha-checkbox {
   display: inline-flex;
+}
+
+.status-area-count-low-sensors-hint {
+  color: var(--secondary-text-color);
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .color-pair,

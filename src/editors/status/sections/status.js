@@ -9,20 +9,40 @@ import {
   getGroupedEditorState,
   renderGroupedEditorOptions,
 } from "../../../common/editor/helpers/group-options.js";
+import {
+  CURRENT_ACTIVITY_ACTION,
+  CURRENT_STATE_ACTION,
+  getStatusBadgeDeviceClassOptions,
+  getStatusBadgeDomainConfig,
+  getStatusBadgeStateSource,
+} from "../../../common/helpers/status-badge.js";
+import {
+  renderBadgeStateControl,
+  renderStatusAreaPicker,
+} from "../../../common/editor/renders/status-state-controls.js";
 
 export function renderStatusSection() {
   const mode = this._config?.mode || "standard";
   const isIconOnly = mode === "icon_only";
   const isPerson = mode === "person";
+  const stateSource = isPerson
+    ? "entity"
+    : getStatusBadgeStateSource(this._config);
   const cardActionDefault =
-    isIconOnly || isPerson
+    stateSource === "area_count"
+      ? CURRENT_ACTIVITY_ACTION
+      : stateSource === "template"
+      ? "more-info"
+      : isIconOnly || isPerson
       ? "more-info"
       : "navigate";
   const effectiveCardAction =
     this._config?.tap_action?.action ||
     cardActionDefault;
   const mainEntityActionDefault =
-    isIconOnly || isPerson
+    stateSource === "area_count"
+      ? CURRENT_STATE_ACTION
+      : isIconOnly || isPerson
       ? effectiveCardAction
       : "more-info";
 
@@ -42,9 +62,9 @@ export function renderStatusSection() {
             }}
             .value=${mode}
             @value-changed=${(e) =>
-              this._updateConfig({
-                mode: e.detail.value || "standard",
-              })}
+              this._handleStatusModeChange(
+                e.detail.value || "standard"
+              )}
           ></ha-selector>
         </div>
       </div>
@@ -57,43 +77,69 @@ export function renderStatusSection() {
         })
       : html`
           <div class="section">
-            ${renderStatusNamePicker.call(this)}
-
             ${isPerson
-              ? html`
-                  ${this._renderEntity("Person entity", "main_entity")}
+              ? renderStatusContentPanel.call(this, html`
+                  ${renderStatusNamePicker.call(this)}
+                  ${this._renderEntity("Person entity", "entity")}
                   ${this._renderEntity("Tracker entity", "tracker_entity")}
                   ${this._renderEntity("ETA entity", "eta_entity")}
                   ${this._renderEntity("Battery entity {index}", "battery_entity_1", { index: 1 })}
                   ${this._renderEntity("Battery entity {index}", "battery_entity_2", { index: 2 })}
-                  <div class="color-pair">
-                    ${this._renderColor(["Accent", "Active", "Color"], "accent_on_color")}
-                    ${this._renderColor(["Accent", "Inactive", "Color"], "accent_off_color")}
-                  </div>
-                `
+                  ${this._renderColorPair({
+                    label: "Color",
+                    onLabel: ["Active", "Color"],
+                    offLabel: ["Inactive", "Color"],
+                    onKey: "color_on",
+                    offKey: "color_off",
+                    sourceKey: "color_source",
+                    templateKey: "color",
+                    legacySourceKey: "accent_color_source",
+                    legacyTemplateKey: "accent_color",
+                  })}
+                `)
               : html`
-                  <div class="field">
-                    <label>${this._t("Main entity")}</label>
-
-                    ${renderEntitySelector.call(this, {
-                      value: this._config?.main_entity || "",
-                      filterOptions: STATUS_MAIN_ENTITY_DOMAIN_FILTERS,
-                      onValueChanged: (value) =>
-                        this._handleEntityUpdate
-                          ? this._handleEntityUpdate("main_entity", value)
-                          : this._handleConfigUpdate("main_entity", value),
+                  ${renderStatusStateType.call(
+                    this,
+                    this._config,
+                    "entity",
+                    (changes) => this._updateConfig(changes),
+                    (value) => this._handleEntityUpdate(
+                      "entity",
+                      value
+                    )
+                  )}
+                  ${renderStatusContentPanel.call(this, html`
+                    ${renderStatusNamePicker.call(this)}
+                    ${this._renderColorPair({
+                      label: "Color",
+                      onLabel: ["Active", "Color"],
+                      offLabel: ["Inactive", "Color"],
+                      onKey: "color_on",
+                      offKey: "color_off",
+                      sourceKey: "color_source",
+                      templateKey: "color",
+                      legacySourceKey: "accent_color_source",
+                      legacyTemplateKey: "accent_color",
                     })}
-                  </div>
-                  <div class="color-pair">
-                    ${this._renderColor(["Accent", "Active", "Color"], "accent_on_color")}
-                    ${this._renderColor(["Accent", "Inactive", "Color"], "accent_off_color")}
-                  </div>
-                  ${renderStatusIconSource.call(this)}
-                  ${this._renderTemplateInput("State template", "state_template")}
-                  ${this._renderTemplateInput("Label template", "label_template")}
+                    ${renderStatusIconSource.call(this, stateSource)}
+                    ${stateSource === "template"
+                      ? html`
+                          ${this._renderTemplateInput(
+                            "State template",
+                            "state_template",
+                            { required: false }
+                          )}
+                          ${this._renderTemplateInput(
+                            "Label template",
+                            "label_template",
+                            { required: false }
+                          )}
+                        `
+                      : ""}
+                  `)}
                 `}
 
-            ${this._config?.main_entity
+            ${this._config?.entity || stateSource !== "entity"
               ? renderInteractionsSection.call(this, {
                   interactions: [
                     {
@@ -101,42 +147,53 @@ export function renderStatusSection() {
                       formKey: "tap_action",
                       label: "Tap behavior",
                       defaultAction: cardActionDefault,
+                      customActions: [CURRENT_ACTIVITY_ACTION],
                       defaultVisible: true,
+                      customDefaultLabel: getCustomStatusActionLabel(
+                        cardActionDefault
+                      ),
                     },
                     {
                       key: "hold_action",
                       formKey: "hold_action",
                       label: "Hold behavior",
                       defaultAction: "none",
+                      customActions: [CURRENT_ACTIVITY_ACTION],
                     },
                     {
                       key: "double_tap_action",
                       formKey: "double_tap_action",
                       label: "Double tap behavior",
                       defaultAction: "none",
+                      customActions: [CURRENT_ACTIVITY_ACTION],
                     },
                     {
-                      key: "main_entity_tap_action",
+                      key: "entity_tap_action",
                       formKey: "icon_tap_action",
                       label: "Icon tap behavior",
                       defaultAction: mainEntityActionDefault,
-                      defaultVisible: true,
+                      customActions: [CURRENT_ACTIVITY_ACTION],
+                      customDefaultLabel: getCustomStatusActionLabel(
+                        mainEntityActionDefault
+                      ),
                     },
                     {
-                      key: "main_entity_hold_action",
+                      key: "entity_hold_action",
                       formKey: "icon_hold_action",
                       label: "Icon hold behavior",
                       defaultAction: "none",
+                      customActions: [CURRENT_ACTIVITY_ACTION],
                     },
                     {
-                      key: "main_entity_double_tap_action",
+                      key: "entity_double_tap_action",
                       formKey: "icon_double_tap_action",
                       label: "Icon double tap behavior",
                       defaultAction: "none",
+                      customActions: [CURRENT_ACTIVITY_ACTION],
                     },
                   ],
                   context: {
-                    entity_id: this._config.main_entity,
+                    entity_id: this._config.entity,
                     area_id: this._config.area,
                   },
                 })
@@ -147,11 +204,18 @@ export function renderStatusSection() {
 }
 
 function renderStatusNamePicker() {
+  const nativeNameKey = "ui.panel.lovelace.editor.card.generic.name";
+  const stateSource = getStatusBadgeStateSource(this._config);
+  const isAreaCount = stateSource === "area_count";
+
   return renderNamePicker.call(this, {
-    label: "Status name",
-    valueKey: "status_name",
-    entityKey: "main_entity",
-    defaultType: "entity",
+    label: this.hass.localize(nativeNameKey),
+    valueKey: "name",
+    entityKey: "entity",
+    defaultType: isAreaCount ? "device_class" : "entity",
+    defaultMode: stateSource === "template" ? "template" : "composed",
+    modeKey: `name:${stateSource}`,
+    templateKey: "name_template",
   });
 }
 
@@ -165,6 +229,14 @@ function renderIconOnlyStatusConfig({
     items.length - 1
   );
   const selectedItem = items[selectedIndex] || {};
+  const selectedStateSource = getStatusBadgeStateSource(selectedItem);
+  const selectedIsAreaCount = selectedStateSource === "area_count";
+  const selectedCardActionDefault = selectedIsAreaCount
+    ? CURRENT_ACTIVITY_ACTION
+    : cardActionDefault;
+  const selectedMainEntityActionDefault = selectedIsAreaCount
+    ? CURRENT_STATE_ACTION
+    : mainEntityActionDefault;
   const {
     itemsPerRow,
     shouldWrapTabs,
@@ -263,71 +335,184 @@ function renderIconOnlyStatusConfig({
         </div>
       </div>
 
-      <div class="field">
-        <label>${this._t("Main entity")}</label>
+      ${renderStatusStateType.call(
+        this,
+        selectedItem,
+        "entity",
+        (changes) => this._updateStatusItem(selectedIndex, changes),
+        (value) => this._updateStatusItem(selectedIndex, { entity: value })
+      )}
 
-        ${renderEntitySelector.call(this, {
-          value: selectedItem.entity || "",
-          filterOptions: STATUS_MAIN_ENTITY_DOMAIN_FILTERS,
-          onValueChanged: (value) =>
-            this._updateStatusItem(selectedIndex, {
-              entity: value,
-            }),
+      ${renderStatusContentPanel.call(this, html`
+
+        ${this._renderColorPair({
+          label: "Color",
+          onLabel: ["Active", "Color"],
+          offLabel: ["Inactive", "Color"],
+          onKey: "color_on",
+          offKey: "color_off",
+          sourceKey: "color_source",
+          templateKey: "color",
+          legacySourceKey: "accent_color_source",
+          legacyTemplateKey: "accent_color",
+          config: selectedItem,
+          pickerPrefix: `status-${selectedIndex}-`,
+          onUpdate: (key, value) =>
+            this._updateStatusItem(selectedIndex, { [key]: value }),
         })}
-      </div>
 
-      <div class="color-pair">
-        ${renderStatusItemColor.call(
+        ${renderStatusItemIconSource.call(
           this,
-          ["Accent", "Active", "Color"],
-          "accent_on_color",
           selectedIndex,
-          selectedItem
+          selectedItem,
+          selectedIsAreaCount
         )}
-        ${renderStatusItemColor.call(
-          this,
-          ["Accent", "Inactive", "Color"],
-          "accent_off_color",
-          selectedIndex,
-          selectedItem
-        )}
-      </div>
 
-      ${renderStatusItemIconSource.call(
-        this,
-        selectedIndex,
-        selectedItem
-      )}
+        ${selectedStateSource === "template"
+          ? html`
+              ${renderStatusItemInput.call(
+                this,
+                "State template",
+                "state_template",
+                selectedIndex,
+                selectedItem
+              )}
+              ${renderStatusItemInput.call(
+                this,
+                "Label template",
+                "label_template",
+                selectedIndex,
+                selectedItem
+              )}
+            `
+          : ""}
+      `)}
 
-      ${renderStatusItemInput.call(
-        this,
-        "State template",
-        "state_template",
-        selectedIndex,
-        selectedItem
-      )}
-      ${renderStatusItemInput.call(
-        this,
-        "Label template",
-        "label_template",
-        selectedIndex,
-        selectedItem
-      )}
-
-      ${selectedItem.entity
+      ${selectedItem.entity || selectedStateSource !== "entity"
         ? this._renderStatusItemInteractions(
             selectedIndex,
             selectedItem,
-            cardActionDefault,
-            mainEntityActionDefault
+            selectedCardActionDefault,
+            selectedMainEntityActionDefault
           )
         : ""}
     </div>
   `;
 }
 
+function getCustomStatusActionLabel(action) {
+  if (action === CURRENT_STATE_ACTION) return CURRENT_STATE_ACTION;
+  if (action === CURRENT_ACTIVITY_ACTION) return "Current activity";
+  return undefined;
+}
+
+function renderStatusStateType(
+  config,
+  entityKey,
+  updateConfig,
+  updateEntity
+) {
+  const stateConfig = {
+    ...config,
+    entity: config?.[entityKey] || "",
+  };
+  const stateSource = getStatusBadgeStateSource(stateConfig);
+  const scopedEditor = {
+    hass: this.hass,
+    _config: stateConfig,
+    _t: this._t.bind(this),
+    _updateConfig: (changes) => updateConfig(
+      mapStatusStateChanges(changes, entityKey)
+    ),
+    _handleConfigUpdate: (key, value) => updateConfig(
+      mapStatusStateChanges({ [key]: value }, entityKey)
+    ),
+  };
+
+  return html`
+    <ha-expansion-panel
+      class="state-type-panel"
+      outlined
+      .expanded=${this._statusStateTypeExpanded === true}
+      @expanded-changed=${(event) => {
+        this._statusStateTypeExpanded = event.detail.expanded;
+      }}
+    >
+      <ha-icon
+        slot="leading-icon"
+        icon="mdi:format-list-bulleted-type"
+      ></ha-icon>
+      <div slot="header" role="heading" aria-level="3">
+        ${this._t("State type")}
+      </div>
+      <div class="content-panel-body">
+        ${renderBadgeStateControl.call(scopedEditor, {
+          stateSource,
+          domainConfig: getStatusBadgeDomainConfig(stateConfig.domain),
+          deviceClassOptions: getStatusBadgeDeviceClassOptions(
+            this.hass,
+            stateConfig
+          ),
+          badgeMode: false,
+          showActiveTemplate: true,
+          showInactiveTemplate: true,
+          showStateTemplate: false,
+          showLabelTemplate: false,
+          showNameTemplate: false,
+          preserveStateConfig: true,
+          renderAreaPicker: () => renderStatusAreaPicker.call(this, {
+            config,
+            updateConfig,
+          }),
+          renderEntityPicker: (label = "Main entity") => html`
+            <div class="field">
+              ${label ? html`<label>${this._t(label)}</label>` : ""}
+              ${renderEntitySelector.call(this, {
+                value: config?.[entityKey] || "",
+                filterOptions: STATUS_MAIN_ENTITY_DOMAIN_FILTERS,
+                onValueChanged: updateEntity,
+              })}
+            </div>
+          `,
+        })}
+      </div>
+    </ha-expansion-panel>
+  `;
+}
+
+function renderStatusContentPanel(content) {
+  return html`
+    <ha-expansion-panel
+      class="content-panel status-content-panel"
+      outlined
+      .expanded=${this._statusContentExpanded === true}
+      @expanded-changed=${(event) => {
+        this._statusContentExpanded = event.detail.expanded;
+      }}
+    >
+      <ha-icon slot="leading-icon" icon="mdi:text-short"></ha-icon>
+      <div slot="header" role="heading" aria-level="3">
+        ${this._t("Content")}
+      </div>
+      <div class="content-panel-body">${content}</div>
+    </ha-expansion-panel>
+  `;
+}
+
+function mapStatusStateChanges(changes, entityKey) {
+  const mapped = { ...changes };
+
+  if (Object.prototype.hasOwnProperty.call(mapped, "entity")) {
+    mapped[entityKey] = mapped.entity;
+    delete mapped.entity;
+  }
+
+  return mapped;
+}
+
 function renderStatusItemInput(label, key, index, item) {
   return this._renderTemplateInput(label, key, {
+    required: false,
     value: item[key] || "",
     onValueChanged: (value) =>
       this._updateStatusItem(index, {
@@ -336,39 +521,34 @@ function renderStatusItemInput(label, key, index, item) {
   });
 }
 
-function renderStatusItemColor(label, key, index, item) {
-  return this._renderColorControl(
-    label,
-    `status-${index}-${key}`,
-    item[key] || "",
-    (value) =>
-      this._updateStatusItem(index, {
-        [key]: value,
-      })
-  );
-}
+function renderStatusIconSource(stateSource = "entity") {
+  const isAreaCount = stateSource === "area_count";
 
-function renderStatusIconSource() {
   return renderIconSourceControl.call(this, {
     label: "Icon",
-    sourceKey: "main_entity_icon_source",
-    entityKey: "main_entity",
+    sourceKey: "icon_source",
+    legacySourceKey: "entity_icon_source",
+    templateKey: "icon",
+    legacyTemplateKeys: ["entity_icon_template"],
+    entityKey: "entity",
+    defaultSource: isAreaCount ? "domain" : "entity",
+    defaultSourceLabel: isAreaCount ? "Domain" : "Entity",
     customIconKeys: [
-      "main_entity_icon",
-      "main_entity_icon_on",
-      "main_entity_icon_off",
+      "icon",
+      "icon_on",
+      "icon_off",
     ],
     renderCustom() {
       return html`
-        ${this._renderIconInput("", "main_entity_icon")}
+        ${this._renderIconInput("", "icon")}
         <div class="icon-pair">
           ${this._renderIconInput(
             ["Active", "Icon"],
-            "main_entity_icon_on"
+            "icon_on"
           )}
           ${this._renderIconInput(
             ["Inactive", "Icon"],
-            "main_entity_icon_off"
+            "icon_off"
           )}
         </div>
       `;
@@ -376,7 +556,7 @@ function renderStatusIconSource() {
   });
 }
 
-function renderStatusItemIconSource(index, item) {
+function renderStatusItemIconSource(index, item, isAreaCount = false) {
   const editor = this;
   const scopedEditor = {
     hass: this.hass,
@@ -393,24 +573,29 @@ function renderStatusItemIconSource(index, item) {
 
   return renderIconSourceControl.call(scopedEditor, {
     label: "Icon",
-    sourceKey: "main_entity_icon_source",
+    sourceKey: "icon_source",
+    legacySourceKey: "entity_icon_source",
+    templateKey: "icon",
+    legacyTemplateKeys: ["entity_icon_template"],
     entityKey: "entity",
+    defaultSource: isAreaCount ? "domain" : "entity",
+    defaultSourceLabel: isAreaCount ? "Domain" : "Entity",
     customIconKeys: [
-      "main_entity_icon",
-      "main_entity_icon_on",
-      "main_entity_icon_off",
+      "icon",
+      "icon_on",
+      "icon_off",
     ],
     renderCustom() {
       return html`
-        ${this._renderIconInput("", "main_entity_icon")}
+        ${this._renderIconInput("", "icon")}
         <div class="icon-pair">
           ${this._renderIconInput(
             ["Active", "Icon"],
-            "main_entity_icon_on"
+            "icon_on"
           )}
           ${this._renderIconInput(
             ["Inactive", "Icon"],
-            "main_entity_icon_off"
+            "icon_off"
           )}
         </div>
       `;

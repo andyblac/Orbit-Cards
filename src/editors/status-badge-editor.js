@@ -10,32 +10,38 @@ import {
   loadLocalIconFiles,
   mergeConfig,
   renderColor,
+  renderColorPair,
   renderIconInput,
   resolveIconPath,
 } from "../common/editor/helpers/helpers.js";
 import { editorStyles } from "../common/editor/styles/editor-styles.js";
+import { renderInteractionsSection } from "../common/editor/helpers/renders.js";
 import { updateEditorDocumentationContext } from "../common/helpers/documentation.js";
 import { sharedSvgCache } from "../common/helpers/svg-cache.js";
 import { localize } from "../common/localize.js";
 import {
-  formatDeviceClass,
-  getStatusBadgeDeviceClasses,
-  getStatusBadgeEntityDeviceClass,
+  getStatusBadgeDeviceClassOptions,
+  getStatusBadgeAreaIds,
+  getStatusBadgeAreaName,
   getStatusBadgeStateSource,
   normalizeStatusBadgeConfig,
+  CURRENT_ACTIVITY_ACTION,
+  CURRENT_STATE_ACTION,
   STATUS_BADGE_DOMAINS,
 } from "../common/helpers/status-badge.js";
 import {
   disconnectTemplateSubscriptions,
   evaluateStateTemplate,
+  getColorTemplateEntries,
+  getIconTemplateEntries,
   syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
 import { CARD_VERSIONS } from "../version.js";
+import { migrateStatusBadgeConfig } from "../common/helpers/config-migration.js";
 import {
   renderBadgeIconControl,
-  renderBadgeInteractions,
   renderBadgeStateControl,
-} from "./status-badge/sections.js";
+} from "../common/editor/renders/status-state-controls.js";
 
 const STATE_CONTENT_ENTITY_ID = "sensor.orbit_status_badge_preview";
 
@@ -55,7 +61,6 @@ class OrbitStatusBadgeEditor extends LitElement {
     _localIconFilesLoading: { state: true },
     _contentExpanded: { state: true },
     _stateTypeExpanded: { state: true },
-    _interactionsExpanded: { state: true },
     _templateRevision: { state: true },
   };
 
@@ -72,7 +77,6 @@ class OrbitStatusBadgeEditor extends LitElement {
     this._localIconFilesLoading = false;
     this._contentExpanded = false;
     this._stateTypeExpanded = false;
-    this._interactionsExpanded = false;
     this._namePickerEnhanceFrame = undefined;
     this._namePickerEnhanceAttempts = 0;
   }
@@ -135,9 +139,14 @@ class OrbitStatusBadgeEditor extends LitElement {
           ]
         : templates
       : [];
-    const entries = selectedTemplates
+    const stateEntries = selectedTemplates
       .filter(Boolean)
       .map((template) => ({ template, entityId: "" }));
+    const entries = [
+      ...stateEntries,
+      ...getColorTemplateEntries(this._config),
+      ...getIconTemplateEntries(this._config),
+    ];
 
     syncTemplateSubscriptions.call(
       this,
@@ -244,7 +253,13 @@ class OrbitStatusBadgeEditor extends LitElement {
   }
 
   setConfig(config) {
-    this._config = normalizeStatusBadgeConfig(config || {});
+    const { config: migratedConfig, migrated } =
+      migrateStatusBadgeConfig(config || {});
+    const normalizedConfig = normalizeStatusBadgeConfig(migratedConfig);
+    this._config = orderStatusBadgeConfig(normalizedConfig);
+    if (migrated) {
+      queueMicrotask(() => this._dispatchConfigChanged(this._config));
+    }
   }
 
   _t(key, replacements) {
@@ -252,8 +267,10 @@ class OrbitStatusBadgeEditor extends LitElement {
   }
 
   _updateConfig(changes) {
-    this._config = normalizeStatusBadgeConfig(
-      mergeConfig(this._config, changes)
+    this._config = orderStatusBadgeConfig(
+      normalizeStatusBadgeConfig(
+        mergeConfig(this._config, changes)
+      )
     );
     this._dispatchConfigChanged(this._config);
   }
@@ -268,7 +285,7 @@ class OrbitStatusBadgeEditor extends LitElement {
 
   _handleConfigUpdate(key, value) {
     const nativeColorDefault =
-      ["accent_on_color", "accent_off_color"].includes(key) &&
+      ["color_on", "color_off"].includes(key) &&
       (!value || value === "theme");
     this._updateConfig({
       [key]: nativeColorDefault || value === "" ? undefined : value,
@@ -277,6 +294,10 @@ class OrbitStatusBadgeEditor extends LitElement {
 
   _renderColor(label, key, previewValue) {
     return renderColor.call(this, label, key, previewValue);
+  }
+
+  _renderColorPair(options) {
+    return renderColorPair.call(this, options);
   }
 
   _renderIconInput(label, key, placeholder = "mdi:lightbulb or icon.svg") {
@@ -308,32 +329,12 @@ class OrbitStatusBadgeEditor extends LitElement {
   }
 
   _getDeviceClassOptions() {
-    const domain = this._config?.domain || "";
-    const configured = getStatusBadgeDeviceClasses(this._config);
-    const deviceClasses = new Set();
-
-    if (!domain) return [];
-
-    Object.values(this.hass?.states || {}).forEach((stateObj) => {
-      if (!stateObj.entity_id.startsWith(`${domain}.`)) return;
-
-      const deviceClass = getStatusBadgeEntityDeviceClass(stateObj, domain);
-      if (deviceClass) deviceClasses.add(deviceClass);
-    });
-
-    configured.forEach((deviceClass) => deviceClasses.add(deviceClass));
-
-    return [...deviceClasses]
-      .sort((left, right) => left.localeCompare(right))
-      .map((deviceClass) => ({
-        value: deviceClass,
-        label: formatDeviceClass(deviceClass),
-      }));
+    return getStatusBadgeDeviceClassOptions(this.hass, this._config);
   }
 
   _getStateContentHass() {
     const now = new Date().toISOString();
-    const areaName = this.hass?.areas?.[this._config?.area]?.name;
+    const areaName = getStatusBadgeAreaName(this.hass, this._config);
     const nameTemplate = this._config?.name_template?.trim() || "";
     const templateName = getStatusBadgeStateSource(this._config) === "template"
       ? String(
@@ -359,7 +360,7 @@ class OrbitStatusBadgeEditor extends LitElement {
         [STATE_CONTENT_ENTITY_ID]: {
           entity_id: STATE_CONTENT_ENTITY_ID,
           platform: "orbit",
-          area_id: this._config?.area || null,
+          area_id: getStatusBadgeAreaIds(this._config)[0] || null,
           device_id: null,
         },
       },
@@ -438,6 +439,7 @@ class OrbitStatusBadgeEditor extends LitElement {
                 domainConfig,
                 deviceClassOptions,
                 badgeMode,
+                areaMultiple: true,
               })}
             </div>
           </ha-expansion-panel>
@@ -486,18 +488,13 @@ class OrbitStatusBadgeEditor extends LitElement {
                     </div>
                   `}
 
-              <div class="color-pair">
-                ${this._renderColor(
-                  ["Active", "Color"],
-                  "accent_on_color",
-                  badgeMode ? "white" : "theme"
-                )}
-                ${this._renderColor(
-                  ["Inactive", "Color"],
-                  "accent_off_color",
-                  badgeMode ? "white" : "theme"
-                )}
-              </div>
+              ${this._renderColorPair({
+                label: "Color",
+                onKey: "color_on",
+                offKey: "color_off",
+                onPreviewValue: badgeMode ? "white" : "theme",
+                offPreviewValue: badgeMode ? "white" : "theme",
+              })}
 
               ${renderBadgeIconControl.call(this, stateSource)}
 
@@ -592,7 +589,43 @@ class OrbitStatusBadgeEditor extends LitElement {
             </div>
           </ha-expansion-panel>
 
-          ${renderBadgeInteractions.call(this, stateSource)}
+          ${renderInteractionsSection.call(this, {
+            interactions: [
+              {
+                key: "tap_action",
+                formKey: "tap_action",
+                label: "Tap behavior",
+                defaultAction: stateSource === "entity"
+                  ? "more-info"
+                  : stateSource === "area_count"
+                    ? CURRENT_STATE_ACTION
+                    : "none",
+                customActions: [CURRENT_ACTIVITY_ACTION],
+                defaultVisible: true,
+                customDefaultLabel: stateSource === "area_count"
+                  ? CURRENT_STATE_ACTION
+                  : undefined,
+              },
+              {
+                key: "hold_action",
+                formKey: "hold_action",
+                label: "Hold behavior",
+                defaultAction: "none",
+                customActions: [CURRENT_ACTIVITY_ACTION],
+              },
+              {
+                key: "double_tap_action",
+                formKey: "double_tap_action",
+                label: "Double tap behavior",
+                defaultAction: "none",
+                customActions: [CURRENT_ACTIVITY_ACTION],
+              },
+            ],
+            context: {
+              entity_id: this._config?.entity,
+              area_id: this._config?.area,
+            },
+          })}
         </div>
 
         <div class="editor-version">
@@ -608,8 +641,7 @@ class OrbitStatusBadgeEditor extends LitElement {
     ...editorStyles,
     css`
       .content-panel,
-      .state-type-panel,
-      .badge-interactions-panel {
+      .state-type-panel {
         display: block;
         --expansion-panel-content-padding: 0;
         border-radius: var(--ha-border-radius-md);
@@ -617,16 +649,14 @@ class OrbitStatusBadgeEditor extends LitElement {
       }
 
       .content-panel > [slot="header"],
-      .state-type-panel > [slot="header"],
-      .badge-interactions-panel > [slot="header"] {
+      .state-type-panel > [slot="header"] {
         margin: 0;
         font-size: inherit;
         font-weight: inherit;
       }
 
       .content-panel ha-icon,
-      .state-type-panel ha-icon,
-      .badge-interactions-panel > ha-icon {
+      .state-type-panel ha-icon {
         color: var(--secondary-text-color);
       }
 
@@ -640,16 +670,90 @@ class OrbitStatusBadgeEditor extends LitElement {
       .native-picker-label {
         display: block;
       }
-
-      .badge-interactions-content {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        padding: 12px;
-      }
     `,
   ];
 
+}
+
+const STATUS_BADGE_STATE_KEYS = [
+  "state_source",
+  "entity",
+  "area",
+  "domain",
+  "device_class",
+  "threshold",
+  "thresholds",
+  "hide",
+  "active_template",
+  "inactive_template",
+  "name_template",
+  "state_template",
+];
+
+const STATUS_BADGE_CONTENT_KEYS = [
+  "card_color",
+  "name",
+  "color_source",
+  "color",
+  "color_on",
+  "color_off",
+  "icon_source",
+  "icon",
+  "icon_on",
+  "icon_off",
+  "icon_svg_color_override",
+  "icon_on_svg_color_override",
+  "icon_off_svg_color_override",
+  "show_name",
+  "show_state",
+  "show_icon",
+  "show_entity_picture",
+  "state_content",
+];
+
+const STATUS_BADGE_INTERACTION_KEYS = [
+  "tap_action",
+  "hold_action",
+  "double_tap_action",
+];
+
+function orderStatusBadgeConfig(config = {}) {
+  const badgeMode = config.display_style === "badge";
+  const keyOrder = badgeMode
+    ? [
+        "type",
+        "display_style",
+        "entity",
+        "card_visibility",
+        ...STATUS_BADGE_STATE_KEYS.filter((key) => key !== "entity"),
+        ...STATUS_BADGE_CONTENT_KEYS,
+        ...STATUS_BADGE_INTERACTION_KEYS,
+        "grid_options",
+        "view_layout",
+      ]
+    : [
+        "type",
+        "display_style",
+        ...STATUS_BADGE_STATE_KEYS,
+        ...STATUS_BADGE_CONTENT_KEYS,
+        ...STATUS_BADGE_INTERACTION_KEYS,
+        "grid_options",
+        "view_layout",
+      ];
+  const ordered = {};
+  const usedKeys = new Set();
+
+  keyOrder.forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(config, key)) {
+      ordered[key] = config[key];
+      usedKeys.add(key);
+    }
+  });
+  Object.keys(config).forEach((key) => {
+    if (!usedKeys.has(key)) ordered[key] = config[key];
+  });
+
+  return ordered;
 }
 
 customElements.define(

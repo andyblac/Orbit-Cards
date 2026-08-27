@@ -11,6 +11,20 @@ import {
   formatCardNameValue,
 } from "../../../common/helpers/card-name.js";
 import { localize } from "../../../common/localize.js";
+import { resolveIconTemplate } from "../../../common/helpers/icons.js";
+import {
+  getStatusBadgeActiveEntities,
+  getStatusBadgeAreaEntities,
+  getStatusBadgeDeviceClasses,
+  getStatusBadgeDomainConfig,
+  getStatusBadgeStateSource,
+  formatDeviceClass,
+  pickStatusSourceConfig,
+} from "../../../common/helpers/status-badge.js";
+import {
+  formatTemplateState,
+  getTemplateResultActiveState,
+} from "../../../common/helpers/templates.js";
 
 export function updateStatusCard(changedProps) {
   if (
@@ -38,7 +52,7 @@ export function updateStatusCard(changedProps) {
     return;
   }
 
-  const entityId = this._config.main_entity;
+  const entityId = this._config.entity;
   const statusState = getStatusState.call(
     this,
     {
@@ -65,115 +79,207 @@ export function getIconOnlyStatusItems(config = {}) {
 
   return [
     {
-      entity: config.main_entity,
-      accent_on_color: config.accent_on_color,
-      accent_off_color: config.accent_off_color,
-      main_entity_icon_source: config.main_entity_icon_source,
-      main_entity_icon: config.main_entity_icon,
-      main_entity_icon_on: config.main_entity_icon_on,
-      main_entity_icon_off: config.main_entity_icon_off,
-      main_entity_icon_svg_color_override:
-        config.main_entity_icon_svg_color_override,
-      main_entity_icon_on_svg_color_override:
-        config.main_entity_icon_on_svg_color_override,
-      main_entity_icon_off_svg_color_override:
-        config.main_entity_icon_off_svg_color_override,
+      entity: config.entity,
+      ...pickStatusSourceConfig(config),
+      color_source: config.color_source,
+      color: config.color,
+      color_on: config.color_on,
+      color_off: config.color_off,
+      icon_source: config.icon_source,
+      icon: config.icon,
+      icon_on: config.icon_on,
+      icon_off: config.icon_off,
+      entity_icon_source: config.entity_icon_source,
+      entity_icon_template: config.entity_icon_template,
+      entity_icon: config.entity_icon,
+      entity_icon_on: config.entity_icon_on,
+      entity_icon_off: config.entity_icon_off,
+      entity_icon_svg_color_override:
+        config.entity_icon_svg_color_override,
+      entity_icon_on_svg_color_override:
+        config.entity_icon_on_svg_color_override,
+      entity_icon_off_svg_color_override:
+        config.entity_icon_off_svg_color_override,
       state_template: config.state_template,
       label_template: config.label_template,
+      name_template: config.name_template,
       tap_action: config.tap_action,
       hold_action: config.hold_action,
       double_tap_action: config.double_tap_action,
-      main_entity_tap_action: config.main_entity_tap_action,
-      main_entity_hold_action: config.main_entity_hold_action,
-      main_entity_double_tap_action:
-        config.main_entity_double_tap_action,
+      entity_tap_action: config.entity_tap_action,
+      entity_hold_action: config.entity_hold_action,
+      entity_double_tap_action:
+        config.entity_double_tap_action,
     },
   ];
 }
 
 function getStatusState(item, rootConfig = {}) {
-  const entityId = item.entity || rootConfig.main_entity;
-  const stateObj =
-    entityId && this.hass
-      ? this.hass.states[entityId]
-      : null;
-
   const config = {
     ...rootConfig,
     ...item,
-    main_entity: entityId,
   };
+  const stateSource = getStatusBadgeStateSource(config);
+  const configuredEntityId = item.entity || rootConfig.entity;
+  const areaEntities = stateSource === "area_count"
+    ? getStatusBadgeAreaEntities(this.hass, config)
+    : [];
+  const activeAreaEntities = getStatusBadgeActiveEntities(
+    areaEntities,
+    config,
+    (stateObj) => this._getEntityActiveState(stateObj)
+  );
+  const stateObj = stateSource === "area_count"
+    ? activeAreaEntities[0] || areaEntities[0] || null
+    : configuredEntityId && this.hass
+      ? this.hass.states[configuredEntityId]
+      : null;
+  const entityId = configuredEntityId || stateObj?.entity_id || "";
+  const templateDomain = entityId.split(".")[0] || config.domain || "";
+  config.entity = entityId;
 
   const isIconOnly =
     config.mode === "icon_only";
 
   const hasConfiguredName =
     !isIconOnly &&
-    Object.prototype.hasOwnProperty.call(config, "status_name") &&
-    config.status_name !== undefined &&
-    config.status_name !== "";
-  const cardName = hasConfiguredName
-    ? formatCardNameValue(config.status_name, config, this.hass)
-    : getStatusAttribute(stateObj, "friendly_name") ||
-      entityId ||
-      localize(this.hass, "Status");
+    Object.prototype.hasOwnProperty.call(config, "name") &&
+    config.name !== undefined &&
+    config.name !== "";
 
-  const templatedState =
-    config.state_template
+  const templatedState = stateSource === "template" && config.state_template
       ? this._evaluateStateTemplate(
           config.state_template,
           entityId
         )
       : null;
+  const activeTemplate = stateSource === "template" && config.active_template
+    ? this._evaluateStateTemplate(config.active_template, entityId)
+    : null;
+  const inactiveTemplate = stateSource === "template" &&
+      config.inactive_template
+    ? this._evaluateStateTemplate(config.inactive_template, entityId)
+    : null;
+
+  const templatedName =
+    stateSource !== "area_count" && config.name_template
+      ? this._evaluateStateTemplate(
+          config.name_template,
+          entityId
+        )
+      : null;
 
   const templatedLabel =
-    config.label_template
+    stateSource === "template" && config.label_template
       ? this._evaluateStateTemplate(
           config.label_template,
           entityId
         )
       : null;
 
-  const statusText =
-    templatedLabel ??
-    (
-      getStatusAttribute(stateObj, "label") ||
-      (stateObj
-        ? this.formatState(stateObj)
-        : "")
-    );
+  const cardName = templatedName !== null
+    ? String(templatedName)
+    : hasConfiguredName
+      ? formatCardNameValue(config.name, config, this.hass)
+      : stateSource === "area_count"
+        ? getStatusBadgeDeviceClasses(config).length
+          ? getStatusBadgeDeviceClasses(config)
+              .map(formatDeviceClass)
+              .join(", ")
+          : getStatusBadgeDomainConfig(config.domain).label
+      : getStatusAttribute(stateObj, "friendly_name") ||
+        entityId ||
+        localize(this.hass, "Status");
 
-  const customIcon =
-    config.main_entity_icon;
+  const statusText = templatedLabel !== null
+    ? String(templatedLabel)
+    : stateSource === "template"
+    ? config.state_template
+      ? formatTemplateState(templatedState)
+      : stateObj
+        ? getStatusAttribute(stateObj, "label") ||
+          this.formatState(stateObj)
+        : ""
+    : stateSource === "area_count"
+      ? String(activeAreaEntities.length)
+      : getStatusAttribute(stateObj, "label") ||
+        (stateObj
+          ? this.formatState(stateObj)
+          : "");
 
-  const customIconOn =
-    config.main_entity_icon_on;
+  const customIconOn = config.icon_on ?? config.entity_icon_on;
 
-  const customIconOff =
-    config.main_entity_icon_off;
+  const customIconOff = config.icon_off ?? config.entity_icon_off;
 
-  const isOn = getStatusActiveState(
-    stateObj,
-    (entity) => this._getEntityActiveState(entity),
-    templatedState
+  const hasConfiguredStateTemplate = Boolean(
+    config.state_template ||
+    config.active_template ||
+    config.inactive_template
   );
+  const isOn = stateSource === "template"
+    ? hasConfiguredStateTemplate
+      ? getTemplateResultActiveState(activeTemplate, templateDomain)
+        ? true
+        : getTemplateResultActiveState(inactiveTemplate, templateDomain)
+          ? false
+          : getTemplateResultActiveState(templatedState, templateDomain)
+      : stateObj
+        ? getStatusActiveState(
+            stateObj,
+            (entity) => this._getEntityActiveState(entity)
+          )
+        : false
+    : stateSource === "area_count"
+      ? activeAreaEntities.length > 0
+      : getStatusActiveState(
+          stateObj,
+          (entity) => this._getEntityActiveState(entity),
+          templatedState
+        );
   const iconSource = getStatusIconSource(config, entityId);
+  const customIcon = resolveIconTemplate.call(
+    this,
+    config.icon,
+    entityId
+  );
   const customStateIcon =
-    iconSource === "custom"
+    iconSource === "template"
+      ? customIcon
+      : iconSource === "custom"
       ? (isOn ? customIconOn : customIconOff) ||
         customIcon ||
         ""
       : "";
 
-  const icon = customStateIcon || "mdi:information-outline";
+  const icon = customStateIcon || (stateSource === "area_count"
+    ? getStatusBadgeDomainConfig(config.domain).icon
+    : "mdi:information-outline");
+  const primaryDeviceClass = getStatusBadgeDeviceClasses(config)[0] || "";
+  const nativeIconStateObj = stateSource === "area_count"
+    ? {
+        entity_id: `${config.domain || "sensor"}.orbit_status_card`,
+        state: stateObj?.state ?? (isOn ? "on" : "off"),
+        attributes: primaryDeviceClass
+          ? { device_class: primaryDeviceClass }
+          : {},
+      }
+    : stateObj;
 
   const selectedIconKey =
-    iconSource === "custom" && isOn && customIconOn
-      ? "main_entity_icon_on"
-      : iconSource === "custom" && !isOn && customIconOff
-        ? "main_entity_icon_off"
-        : iconSource === "custom" && customIcon
-          ? "main_entity_icon"
+    iconSource === "template" && customIcon
+      ? "icon"
+    : iconSource === "custom" && isOn && customIconOn
+      ? config.icon_on
+        ? "icon_on"
+        : "entity_icon_on"
+    : iconSource === "custom" && !isOn && customIconOff
+        ? config.icon_off
+          ? "icon_off"
+          : "entity_icon_off"
+      : iconSource === "custom" && customIcon
+          ? config.icon
+            ? "icon"
+            : "entity_icon"
           : "";
 
   const statusColor = getStatusColor(
@@ -198,7 +304,10 @@ function getStatusState(item, rootConfig = {}) {
     ...item,
     entityId,
     stateObj,
-    useStateIcon: Boolean(stateObj) && !customStateIcon,
+    nativeIconStateObj,
+    useStateIcon: Boolean(nativeIconStateObj) &&
+      iconSource !== "template" &&
+      !customStateIcon,
     cardName,
     statusText,
     icon,
@@ -214,17 +323,23 @@ function getStatusState(item, rootConfig = {}) {
 }
 
 function getStatusIconSource(config, entityId) {
-  const savedSource = config.main_entity_icon_source;
+  const savedSource = config.icon_source ?? config.entity_icon_source;
   const hasEntity = Boolean(entityId);
   const hasCustomIcon = Boolean(
-    config.main_entity_icon ||
-    config.main_entity_icon_on ||
-    config.main_entity_icon_off
+    config.icon ||
+    config.icon_on ||
+    config.icon_off ||
+    config.entity_icon ||
+    config.entity_icon_on ||
+    config.entity_icon_off
   );
 
   if (savedSource === "custom") return "custom";
+  if (savedSource === "template") return "template";
+  if (savedSource === "domain" && config.domain) return "domain";
   if (savedSource === "entity" && hasEntity) return "entity";
   if (hasCustomIcon) return "custom";
+  if (config.state_source === "area_count") return "domain";
   if (hasEntity) return "entity";
 
   return "entity";
@@ -237,6 +352,7 @@ function applyStatusState(state) {
   this._statusText = state.statusText || "";
   this._icon = state.icon || "mdi:information-outline";
   this._mainStateObj = state.stateObj || null;
+  this._mainIconStateObj = state.nativeIconStateObj || state.stateObj || null;
   this._useNativeMainIcon = state.useStateIcon ?? false;
   this._navigationPath = state.navigationPath || "";
   this._nameColor = state.nameColor || this._nameColor;
@@ -247,7 +363,7 @@ function applyStatusState(state) {
 }
 
 function updatePersonStatusCard() {
-  const personId = this._config.main_entity;
+  const personId = this._config.entity;
   const trackerId = this._config.tracker_entity;
   const etaId = this._config.eta_entity;
 
@@ -267,13 +383,13 @@ function updatePersonStatusCard() {
       : null;
 
   const hasConfiguredName =
-    Object.prototype.hasOwnProperty.call(this._config, "status_name") &&
-    this._config.status_name !== undefined &&
-    this._config.status_name !== "";
+    Object.prototype.hasOwnProperty.call(this._config, "name") &&
+    this._config.name !== undefined &&
+    this._config.name !== "";
 
   this._cardName = hasConfiguredName
     ? formatCardNameValue(
-        this._config.status_name,
+        this._config.name,
         this._config,
         this.hass
       )
@@ -283,21 +399,22 @@ function updatePersonStatusCard() {
       trackerId ||
       localize(this.hass, "Person");
 
-  const templatedLabel =
-    this._config.label_template
+  const templatedName =
+    this._config.name_template
       ? this._evaluateStateTemplate(
-          this._config.label_template,
+          this._config.name_template,
           trackerId
         )
       : null;
 
+  if (templatedName !== null) {
+    this._cardName = String(templatedName);
+  }
+
   const baseStatus =
-    templatedLabel ??
-    (
-      trackerObj
-        ? formatPersonTrackerState.call(this, trackerObj)
-        : ""
-    );
+    trackerObj
+      ? formatPersonTrackerState.call(this, trackerObj)
+      : "";
 
   const eta =
     etaObj &&

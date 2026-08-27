@@ -1,6 +1,8 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { isEntityUnavailable } from "../../../common/helpers/entities.js";
+import { isCardEditorPreview } from "../../../common/helpers/editor-preview.js";
+import { STATUS_PREVIEW_SELECTED_INDEX } from "../../../editors/status-card-editor.js";
 
 export function renderStatusCard() {
   const mode = this._config?.mode || "standard";
@@ -72,11 +74,11 @@ export function renderStatusCard() {
                     : html`<img src=${iconPath} alt="" />`}
                 </div>
               `
-            : this._useNativeMainIcon && this._mainStateObj
+            : this._useNativeMainIcon && this._mainIconStateObj
             ? html`
                 <ha-state-icon
                   class="main-icon"
-                  .stateObj=${this._mainStateObj}
+                  .stateObj=${this._mainIconStateObj}
                 ></ha-state-icon>
               `
             : html`
@@ -85,7 +87,7 @@ export function renderStatusCard() {
                   .icon=${this._icon}
                 ></ha-icon>
             `}
-          ${renderUnavailableBadge(this._mainStateObj)}
+          ${renderUnavailableBadge.call(this, this._mainStateObj)}
         </div>
 
         ${mode === "icon_only"
@@ -113,6 +115,8 @@ export function renderStatusCard() {
           `}
       </div>
     </ha-card>
+    ${this._renderActiveEntitiesDialog()}
+    ${this._renderCurrentActivityDialog()}
   `;
 }
 
@@ -138,6 +142,15 @@ function renderIconOnlyStatusStack(items, columnCount) {
 }
 
 function renderIconOnlyStatusItem(item, index) {
+  const previewSelectedIndex =
+    this._config?.[STATUS_PREVIEW_SELECTED_INDEX];
+  const isPreviewSelected =
+    isCardEditorPreview(this) &&
+    Number.isInteger(previewSelectedIndex) &&
+    previewSelectedIndex === index;
+  const previewClass = isPreviewSelected
+    ? "orbit-editor-preview-selected"
+    : "";
   const badgeText = getIconOnlyStatusText(item.statusText);
   const iconPath = this._isImageIcon(item.icon)
     ? this._resolveIconPath(item.icon)
@@ -155,11 +168,11 @@ function renderIconOnlyStatusItem(item, index) {
                 : html`<img src=${iconPath} alt="" />`}
             </div>
           `
-        : item.useStateIcon && item.stateObj
+        : item.useStateIcon && item.nativeIconStateObj
         ? html`
             <ha-state-icon
               class="main-icon"
-              .stateObj=${item.stateObj}
+              .stateObj=${item.nativeIconStateObj}
             ></ha-state-icon>
           `
         : html`
@@ -168,7 +181,7 @@ function renderIconOnlyStatusItem(item, index) {
               .icon=${item.icon}
             ></ha-icon>
           `}
-      ${renderUnavailableBadge(item.stateObj)}
+      ${renderUnavailableBadge.call(this, item.stateObj)}
     </div>
 
     <div
@@ -184,7 +197,7 @@ function renderIconOnlyStatusItem(item, index) {
   if (isFlattenedGroup) {
     return html`
       <div
-        class="status-icon-item"
+        class="status-icon-item ${previewClass}"
         style="
           --status-circle-color:${item.circleColor};
           --status-icon-color:${item.iconColor};
@@ -204,7 +217,7 @@ function renderIconOnlyStatusItem(item, index) {
 
   return html`
     <ha-card
-      class="status-icon-item"
+      class="status-icon-item ${previewClass}"
       style="
         --status-circle-color:${item.circleColor};
         --status-icon-color:${item.iconColor};
@@ -305,7 +318,7 @@ function renderPersonBadge(
             `
           : html`<ha-icon .icon=${icon}></ha-icon>`}
       </span>
-      ${renderUnavailableBadge(stateObj)}
+      ${renderUnavailableBadge.call(this, stateObj)}
     </span>
   `;
 }
@@ -315,8 +328,8 @@ function renderUnavailableBadge(stateObj) {
     ? html`
         <ha-tile-badge
           class="entity-unavailable-badge"
-          title="Unavailable"
-          aria-label="Unavailable"
+          title=${this._t("Unavailable")}
+          aria-label=${this._t("Unavailable")}
         >
           <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
         </ha-tile-badge>

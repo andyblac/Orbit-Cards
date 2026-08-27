@@ -67,7 +67,7 @@ export function renderCurveButtons() {
                       style="color:${button.iconColor};"
                     ></ha-icon>
                   `}
-              ${renderUnavailableBadge(button.stateObj)}
+              ${renderUnavailableBadge.call(this, button.stateObj)}
             </button>
           `;
         }
@@ -124,7 +124,7 @@ function renderActionButton(button) {
               style="color:${button.iconColor};"
             ></ha-icon>
           `}
-      ${renderUnavailableBadge(button.stateObj)}
+      ${renderUnavailableBadge.call(this, button.stateObj)}
     </button>
   `;
 }
@@ -134,8 +134,8 @@ function renderUnavailableBadge(stateObj) {
     ? html`
         <ha-tile-badge
           class="entity-unavailable-badge"
-          title="Unavailable"
-          aria-label="Unavailable"
+          title=${this._t("Unavailable")}
+          aria-label=${this._t("Unavailable")}
         >
           <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
         </ha-tile-badge>

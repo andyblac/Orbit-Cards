@@ -9,7 +9,7 @@ export const actionStyles = css`
 
 .interactions-form {
   display: block;
-  margin-top: 16px;
+  margin-top: 0;
 }
 
 .interactions-form ha-form {

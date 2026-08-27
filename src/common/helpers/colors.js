@@ -1,4 +1,10 @@
+import {
+  evaluateStateTemplate,
+  hasNativeTemplateSyntax,
+} from "./templates.js";
+
 export function computeFullColor(colorInput) {
+  colorInput = resolveColorTemplate.call(this, colorInput);
   if (!colorInput) return "rgb(var(--color-theme))";
 
   const color = colorInput.toString().trim();
@@ -11,6 +17,7 @@ export function computeFullColor(colorInput) {
 }
 
 export function computeIconColor(colorInput) {
+  colorInput = resolveColorTemplate.call(this, colorInput);
   if (!colorInput) return "rgba(var(--color-theme), 0.3)";
 
   const color = colorInput.toString().trim();
@@ -19,10 +26,11 @@ export function computeIconColor(colorInput) {
     return "rgba(var(--color-theme), 0.3)";
   }
 
-  return getColorMix(color, 70);
+  return getColorMix.call(this, color, 70);
 }
 
 export function computeCircleColor(colorInput) {
+  colorInput = resolveColorTemplate.call(this, colorInput);
   if (!colorInput) return "rgba(var(--color-theme), 0.2)";
 
   const color = colorInput.toString().trim();
@@ -31,15 +39,16 @@ export function computeCircleColor(colorInput) {
     return "rgba(var(--color-theme), 0.05)";
   }
 
-  return getColorMix(color, 20);
+  return getColorMix.call(this, color, 20);
 }
 
 export function computeButtonBackground(colorInput) {
+  colorInput = resolveColorTemplate.call(this, colorInput);
   if (!colorInput) return "rgba(var(--color-theme), 0.25)";
 
   const color = colorInput.toString().trim();
 
-  return getColorMix(color, 25);
+  return getColorMix.call(this, color, 25);
 }
 
 export function getCssColor(colorInput) {
@@ -147,12 +156,22 @@ function hasCssVariable(name) {
 }
 
 export function getColorMix(colorInput, percent) {
+  colorInput = resolveColorTemplate.call(this, colorInput);
+  if (!colorInput) return "transparent";
   const color = colorInput.toString().trim();
   const cssColor = isCssColor(color)
     ? color
     : getCssColor(color);
 
   return `color-mix(in srgb, transparent, ${cssColor} ${percent}%)`;
+}
+
+export function resolveColorTemplate(colorInput) {
+  if (!hasNativeTemplateSyntax(colorInput)) return colorInput;
+
+  const entityId = this?._orbitColorTemplateEntityId || "";
+
+  return evaluateStateTemplate.call(this, colorInput, entityId) || "";
 }
 
 export function isCssColor(colorInput) {

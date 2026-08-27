@@ -17,15 +17,6 @@ export function getCardName(config, hass, fallback = "Card") {
       fallback
     );
   }
-  if (config.status_name) {
-    return formatCardNameValue(
-      config.status_name,
-      config,
-      hass,
-      fallback
-    );
-  }
-
   const areaId = config.area;
 
   if (areaId && hass?.areas?.[areaId]) {
@@ -56,6 +47,19 @@ function formatCardNameItem(item, config, hass, fallback) {
   if (item.type === "text") return item.text || "";
   if (item.type === "area") return getAreaName(config, hass) || "";
   if (item.type === "floor") return getFloorName(config, hass) || "";
+  if (item.type === "device_class") {
+    const configured = Array.isArray(config.device_class)
+      ? config.device_class
+      : [config.device_class];
+
+    return configured
+      .filter((value) => typeof value === "string" && value.trim())
+      .map((value) => value
+        .trim()
+        .replaceAll("_", " ")
+        .replace(/\b\w/g, (letter) => letter.toUpperCase()))
+      .join(", ");
+  }
 
   const stateObj = getNameContextState(config, hass);
 

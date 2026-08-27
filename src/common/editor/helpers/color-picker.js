@@ -3,6 +3,7 @@ import {
   hasThemeColorName,
   isHaStandardColorName,
 } from "../../helpers/colors.js";
+import { hasNativeTemplateSyntax } from "../../helpers/templates.js";
 import { translateEditorLabel as t } from "./labels.js";
 
 export function renderColor(label, key, previewValue) {
@@ -23,20 +24,31 @@ export function renderColorControl(
   pickerKey,
   value,
   onUpdate,
-  previewValue
+  previewValue,
+  allowTemplate = true
 ) {
   scheduleThemeColorWarmup.call(this);
 
+  const controlValue =
+    !allowTemplate && hasNativeTemplateSyntax(value) ? "" : value;
+
   const effectivePreviewValue = getEffectiveColorPreviewValue.call(
     this,
-    value,
+    controlValue,
     previewValue
   );
-  const defaultTab = getDefaultColorTab(value || effectivePreviewValue);
-  const activeTab =
+  const defaultTab = getDefaultColorTab(
+    controlValue || effectivePreviewValue
+  );
+  const requestedTab =
     this._colorPickerKey === pickerKey
       ? this._colorPickerTab || defaultTab
       : defaultTab;
+  const activeTab = !allowTemplate && requestedTab === "template"
+    ? getDefaultColorTab(effectivePreviewValue) === "template"
+      ? "theme"
+      : getDefaultColorTab(effectivePreviewValue)
+    : requestedTab;
 
   return html`
     <div class="field">
@@ -49,12 +61,14 @@ export function renderColorControl(
             <button
               type="button"
               class=${activeTab === "picker" ? "active" : ""}
+              aria-label=${t(this, "Picker")}
+              title=${t(this, "Picker")}
               @click=${() => {
                 this._colorPickerKey = pickerKey;
                 this._colorPickerTab = "picker";
                 this._themeColorPickerOpen = false;
 
-                const effectiveValue = value || effectivePreviewValue;
+                const effectiveValue = controlValue || effectivePreviewValue;
 
                 if (effectiveValue && !isNativeColorValue(effectiveValue)) {
                   const nativeValue = this._getColorPickerValue(effectiveValue);
@@ -65,11 +79,13 @@ export function renderColorControl(
                 }
               }}
             >
-              ${t(this, "Color")}
+              <ha-icon icon="mdi:eyedropper"></ha-icon>
             </button>
             <button
               type="button"
               class=${activeTab === "theme" ? "active" : ""}
+              aria-label=${t(this, "Theme")}
+              title=${t(this, "Theme")}
               @click=${() => {
                 this._colorPickerKey = pickerKey;
                 this._colorPickerTab = "theme";
@@ -77,16 +93,35 @@ export function renderColorControl(
                 this._themeColorSearch = "";
               }}
             >
-              ${t(this, "Theme")}
+              <ha-icon icon="mdi:palette-swatch"></ha-icon>
             </button>
+            ${allowTemplate
+              ? html`
+                  <button
+                    type="button"
+                    class=${activeTab === "template" ? "active" : ""}
+                    aria-label=${t(this, "Template")}
+                    title=${t(this, "Template")}
+                    @click=${() => {
+                      this._colorPickerKey = pickerKey;
+                      this._colorPickerTab = "template";
+                      this._themeColorPickerOpen = false;
+                    }}
+                  >
+                    <ha-icon icon="mdi:code-braces"></ha-icon>
+                  </button>
+                `
+              : ""}
           </div>
 
-          ${activeTab === "theme"
+          ${activeTab === "template"
+            ? renderColorTemplateInput.call(this, label, controlValue, onUpdate)
+            : activeTab === "theme"
             ? html`
                 ${renderThemeColorPicker.call(
                   this,
                   label,
-                  value,
+                  controlValue,
                   onUpdate,
                   effectivePreviewValue,
                   pickerKey
@@ -96,13 +131,128 @@ export function renderColorControl(
                 ${renderNativeColorPicker.call(
                   this,
                   label,
-                  value,
+                  controlValue,
                   onUpdate,
                   effectivePreviewValue
                 )}
               `}
         </div>
       </div>
+    </div>
+  `;
+}
+
+export function renderColorPair({
+  label = "Color",
+  onLabel = ["Active", "Color"],
+  offLabel = ["Inactive", "Color"],
+  onKey,
+  offKey,
+  sourceKey,
+  templateKey,
+  legacySourceKey,
+  legacyTemplateKey,
+  config = this._config || {},
+  onUpdate = (key, value) => this._handleConfigUpdate(key, value),
+  onPreviewValue,
+  offPreviewValue,
+  pickerPrefix = "",
+} = {}) {
+  const baseKey = onKey?.replace(/(?:_on_color|_color_on)$/, "") || "color";
+  const effectiveSourceKey = sourceKey || `${baseKey}_color_source`;
+  const effectiveTemplateKey = templateKey || `${baseKey}_color`;
+  const configuredSource = config[effectiveSourceKey] ??
+    (legacySourceKey ? config[legacySourceKey] : undefined);
+  const configuredTemplate = config[effectiveTemplateKey] ??
+    (legacyTemplateKey ? config[legacyTemplateKey] : undefined);
+  const templateMode = configuredSource === "template";
+
+  return html`
+    <div class="color-pair-control">
+      <div class="field-header color-pair-source-header">
+        <label>${t(this, label)}</label>
+        <ha-selector
+          class="color-pair-source-selector"
+          .hass=${this.hass}
+          .selector=${{
+            button_toggle: {
+              options: [
+                { label: t(this, "Custom"), value: "custom" },
+                { label: t(this, "Template"), value: "template" },
+              ],
+            },
+          }}
+          .value=${templateMode ? "template" : "custom"}
+          @value-changed=${(event) => {
+            const nextSource = event.detail.value === "template"
+              ? "template"
+              : "custom";
+
+            if (nextSource === "custom") {
+              if (hasNativeTemplateSyntax(config[onKey])) {
+                onUpdate(onKey, undefined);
+              }
+              if (hasNativeTemplateSyntax(config[offKey])) {
+                onUpdate(offKey, undefined);
+              }
+            }
+
+            onUpdate(effectiveSourceKey, nextSource);
+          }}
+        ></ha-selector>
+      </div>
+
+      ${templateMode
+        ? html`
+            <div class="field color-source-template-field">
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{ template: {} }}
+                .value=${configuredTemplate || ""}
+                @value-changed=${(event) =>
+                  onUpdate(
+                    effectiveTemplateKey,
+                    event.detail.value || ""
+                  )}
+              ></ha-selector>
+            </div>
+          `
+        : html`
+            <div class="color-pair">
+              ${renderColorControl.call(
+                this,
+                onLabel,
+                `${pickerPrefix}${onKey}`,
+                config[onKey] || "",
+                (value) => onUpdate(onKey, value),
+                onPreviewValue,
+                false
+              )}
+              ${renderColorControl.call(
+                this,
+                offLabel,
+                `${pickerPrefix}${offKey}`,
+                config[offKey] || "",
+                (value) => onUpdate(offKey, value),
+                offPreviewValue,
+                false
+              )}
+            </div>
+          `}
+    </div>
+  `;
+}
+
+function renderColorTemplateInput(label, value, onUpdate) {
+  return html`
+    <div class="color-template-input">
+      <ha-selector
+        .hass=${this.hass}
+        .label=${label ? t(this, label) : t(this, "Template")}
+        .selector=${{ template: {} }}
+        .value=${hasNativeTemplateSyntax(value) ? value : ""}
+        @value-changed=${(event) => onUpdate(event.detail.value || "")}
+      ></ha-selector>
     </div>
   `;
 }
@@ -292,7 +442,7 @@ function renderThemeColorPickerRow(item) {
     <ha-combo-box-item type="button" compact>
       ${renderThemeColorPickerStart.call(this, item)}
       <span slot="headline">${item.primary}</span>
-      ${renderThemeColorPickerBadge(item)}
+      ${renderThemeColorPickerBadge.call(this, item)}
     </ha-combo-box-item>
   `;
 }
@@ -303,7 +453,7 @@ function renderThemeColorPickerValue(item) {
   return html`
     ${renderThemeColorPickerStart.call(this, item)}
     <span slot="headline">${item.primary}</span>
-    ${renderThemeColorPickerBadge(item)}
+    ${renderThemeColorPickerBadge.call(this, item)}
   `;
 }
 
@@ -341,7 +491,7 @@ function renderThemeColorPickerBadge(item) {
       <span
         slot="end"
         class="theme-source-badge theme-source-badge-theme"
-        aria-label="Theme"
+        aria-label=${t(this, "Theme")}
       >T</span>
     `;
   }
@@ -351,7 +501,7 @@ function renderThemeColorPickerBadge(item) {
         <span
           slot="end"
           class="theme-source-badge theme-source-badge-standard"
-          aria-label="Standard"
+          aria-label=${t(this, "Standard")}
         >S</span>
       `
     : "";
@@ -658,7 +808,7 @@ function isStandardFallbackColor(color) {
 
 function getThemeColorLabel(color) {
   if (color === "theme") return t(this, "State color (default)");
-  if (color === "light") return t(this, "State Light color");
+  if (color === "light") return t(this, "State light color");
   if (color === "primary-color") return t(this, "Primary");
   if (color === "primary-text-color") return t(this, "Primary text color");
   if (color === "card-background-color") return t(this, "Card background");
@@ -682,7 +832,7 @@ const THEME_COLOR_ALIASES = {
 
 const THEME_COLOR_OPTIONS = [
   { id: "theme", label: "State color (default)" },
-  { id: "light", label: "State Light color" },
+  { id: "light", label: "State light color" },
   "primary-color",
   "card-background-color",
   "accent-color",
@@ -740,6 +890,7 @@ function getDefaultColorTab(value) {
   const color = value?.toString().trim();
 
   if (!color) return "theme";
+  if (hasNativeTemplateSyntax(color)) return "template";
 
   return isNativeColorValue(color)
     ? "picker"
@@ -758,4 +909,3 @@ function isNativeColorValue(value) {
     )
   );
 }
-

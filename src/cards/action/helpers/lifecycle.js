@@ -1,5 +1,11 @@
+import { resolveIconTemplate } from "../../../common/helpers/icons.js";
+
 export function updateActionCard(changedProps) {
-  if (!changedProps.has("_config") && !changedProps.has("hass")) return;
+  if (
+    !changedProps.has("_config") &&
+    !changedProps.has("hass") &&
+    !changedProps.has("_templateRevision")
+  ) return;
 
   this._actions = getActionItems(this._config).map((item) =>
     getActionState.call(this, item)
@@ -18,11 +24,11 @@ export function getActionItems(config = {}) {
   return [
     {
       entity: config.main_entity,
-      accent_color: config.accent_color,
-      main_entity_icon_source: config.main_entity_icon_source,
-      main_entity_icon: config.main_entity_icon,
-      main_entity_icon_svg_color_override:
-        config.main_entity_icon_svg_color_override,
+      color: config.color,
+      icon_source: config.icon_source,
+      icon: config.icon,
+      icon_svg_color_override:
+        config.icon_svg_color_override,
       tap_action: config.tap_action,
       hold_action: config.hold_action,
       double_tap_action: config.double_tap_action,
@@ -38,25 +44,29 @@ function getActionState(item) {
       : null;
 
   const accentColor =
-    item.accent_color || this._config.accent_color || "theme";
+    item.color || this._config.color || "theme";
+  this._orbitColorTemplateEntityId = entityId || "";
 
   const isRunning = isActionEntityRunning(stateObj);
   const cardBackground = this._computeCircleColor(accentColor);
   const iconColor = isRunning
     ? this._computeFullColor(accentColor)
     : this._computeIconColor(accentColor);
+  this._orbitColorTemplateEntityId = "";
   const iconSource = getItemIconSource(item, entityId);
   const customIcon =
-    iconSource === "custom"
-      ? item.main_entity_icon || item.icon || ""
+    ["custom", "template"].includes(iconSource)
+      ? resolveIconTemplate.call(
+          this,
+          item.icon,
+          entityId
+        )
       : "";
 
   const selectedIconKey =
-    iconSource === "custom" && item.main_entity_icon
-      ? "main_entity_icon"
-      : iconSource === "custom" && item.icon
-        ? "icon"
-        : "";
+    ["custom", "template"].includes(iconSource) && customIcon
+      ? "icon"
+      : "";
 
   const icon = customIcon || "mdi:play-circle";
 
@@ -64,7 +74,9 @@ function getActionState(item) {
     ...item,
     entityId,
     stateObj,
-    useStateIcon: Boolean(stateObj) && !customIcon,
+    useStateIcon: Boolean(stateObj) &&
+      iconSource !== "template" &&
+      !customIcon,
     icon,
     iconColor,
     cardBackground,
@@ -76,11 +88,12 @@ function getActionState(item) {
 }
 
 function getItemIconSource(item, entityId) {
-  const savedSource = item.main_entity_icon_source;
+  const savedSource = item.icon_source;
   const hasEntity = Boolean(entityId);
-  const hasCustomIcon = Boolean(item.main_entity_icon || item.icon);
+  const hasCustomIcon = Boolean(item.icon);
 
   if (savedSource === "custom") return "custom";
+  if (savedSource === "template") return "template";
   if (savedSource === "entity" && hasEntity) return "entity";
   if (hasCustomIcon) return "custom";
   if (hasEntity) return "entity";

@@ -1,7 +1,21 @@
 import { getBundledOrbitSvg } from "../../icons/bundled.js";
+import { resolveColorTemplate } from "./colors.js";
+import {
+  evaluateStateTemplate,
+  hasNativeTemplateSyntax,
+} from "./templates.js";
+
+export function resolveIconTemplate(iconInput, entityId = "") {
+  if (!hasNativeTemplateSyntax(iconInput)) return iconInput || "";
+
+  return evaluateStateTemplate.call(this, iconInput, entityId) || "";
+}
 
 export function getMainIconColor(stateObj, isOn) {
-  const accentColor = this._config.accent_color || "theme";
+  const accentColor = resolveColorTemplate.call(
+    this,
+    this._config.color || "theme"
+  );
 
   if (!isOn) {
     return this._computeIconColor(accentColor);

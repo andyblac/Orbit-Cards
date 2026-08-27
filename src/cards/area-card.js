@@ -55,6 +55,8 @@ import {
 import {
   disconnectTemplateSubscriptions,
   evaluateStateTemplate,
+  getColorTemplateEntries,
+  getIconTemplateEntries,
   syncTemplateSubscriptions,
 } from "../common/helpers/templates.js";
 import {
@@ -112,7 +114,7 @@ class OrbitAreaCard extends LitElement {
     const area = getFirstAreaId(hass);
     const config = {
       type: "custom:orbit-area-card",
-      accent_color: "blue",
+      color: "blue",
       tap_action: {
         action: "navigate",
         navigation_path: "/lovelace/home",
@@ -137,10 +139,10 @@ class OrbitAreaCard extends LitElement {
   setConfig(config) {
     this._config = migrateAreaCardConfig(config).config;
 
-    this._areaColor = this._computeFullColor(this._config.accent_color);
-    this._statusColor = this._computeFullColor(this._config.status_color || this._config.accent_color);
-    this._iconColor = this._computeIconColor(this._config.accent_color);
-    this._circleColor = this._computeCircleColor(this._config.accent_color);
+    this._areaColor = this._computeFullColor(this._config.color);
+    this._statusColor = this._computeFullColor(this._config.status_color || this._config.color);
+    this._iconColor = this._computeIconColor(this._config.color);
+    this._circleColor = this._computeCircleColor(this._config.color);
   }
 
   willUpdate(changedProps) {
@@ -331,7 +333,12 @@ class OrbitAreaCard extends LitElement {
   }
 
   _getTemplateEntries() {
-    const entries = [];
+    const entries = this._config?.state_template
+      ? [{
+          template: this._config.state_template,
+          entityId: this._config?.main_entity || "",
+        }]
+      : [];
     const keys = [
       "button1",
       "button2",
@@ -357,7 +364,11 @@ class OrbitAreaCard extends LitElement {
       }
     }
 
-    return entries;
+    return [
+      ...entries,
+      ...getColorTemplateEntries(this._config),
+      ...getIconTemplateEntries(this._config),
+    ];
   }
 
   _getRelevantEntities() {
@@ -460,7 +471,7 @@ function getAreaEntitySuggestion(hass, entityId) {
   const config = {
     type: "custom:orbit-area-card",
     main_entity: entityId,
-    accent_color: domain === "light" ? "light" : "theme",
+    color: domain === "light" ? "light" : "theme",
   };
 
   if (area) {

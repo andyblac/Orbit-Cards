@@ -1,6 +1,7 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { orbitIconManifest } from "../../../icons/bundled.js";
+import { hasNativeTemplateSyntax } from "../../helpers/templates.js";
 
 function t(editor, key) {
   if (Array.isArray(key)) {
@@ -110,6 +111,8 @@ export function renderIconInput(label, key, placeholder) {
           <button
             type="button"
             class=${activeTab === "ha" ? "active" : ""}
+            aria-label=${t(this, "Icons")}
+            title=${t(this, "Icons")}
             @click=${() => {
               this._iconPickerKey = pickerKey;
               this._iconPickerTab = "ha";
@@ -120,6 +123,8 @@ export function renderIconInput(label, key, placeholder) {
           <button
             type="button"
             class=${activeTab === "files" ? "active" : ""}
+            aria-label=${t(this, "Files")}
+            title=${t(this, "Files")}
             @click=${() => {
               this._iconPickerKey = pickerKey;
               this._iconPickerTab = "files";
@@ -150,21 +155,46 @@ export function renderIconSourceControl({
   label = "Icon",
   sourceKey = "main_entity_icon_source",
   entityKey = "main_entity",
+  defaultSource = "entity",
+  defaultSourceLabel = "Entity",
   areaKey = "area",
   allowArea = false,
   allowNone = false,
   customIconKeys = [],
+  templateKey,
+  legacySourceKey,
+  legacyTemplateKeys = [],
   renderCustom,
 } = {}) {
-  const iconSource = getIconSource(this._config, {
+  const sourceConfig = legacySourceKey && this._config?.[sourceKey] == null
+    ? {
+        ...this._config,
+        [sourceKey]: this._config?.[legacySourceKey],
+      }
+    : this._config;
+  const iconSource = getIconSource(sourceConfig, {
     sourceKey,
     entityKey,
+    defaultSource,
     areaKey,
     allowArea,
     allowNone,
     customIconKeys,
   });
   const customMode = iconSource === "custom";
+  const templateMode = iconSource === "template";
+  const templateIconKey = customIconKeys[0] || "icon";
+  const templateStorageKey = templateKey || `${templateIconKey}_template`;
+  const legacyTemplate = hasNativeTemplateSyntax(
+    this._config?.[templateIconKey]
+  )
+    ? this._config[templateIconKey]
+    : "";
+  const savedTemplate = this._config?.[templateStorageKey] ||
+    legacyTemplateKeys
+      .map((key) => this._config?.[key])
+      .find(Boolean) ||
+    legacyTemplate;
   const options = [
     allowNone
       ? {
@@ -179,12 +209,16 @@ export function renderIconSourceControl({
         }
       : null,
     {
-      label: t(this, "Entity"),
-      value: "entity",
+      label: t(this, defaultSourceLabel),
+      value: defaultSource,
     },
     {
       label: t(this, "Custom"),
       value: "custom",
+    },
+    {
+      label: t(this, "Template"),
+      value: "template",
     },
   ].filter(Boolean);
 
@@ -203,9 +237,30 @@ export function renderIconSourceControl({
           }}
           .value=${iconSource}
           @value-changed=${(e) => {
+            const nextSource =
+              e.detail.value || (allowNone ? "none" : "custom");
+
+            if (
+              templateStorageKey === templateIconKey &&
+              iconSource !== nextSource &&
+              [iconSource, nextSource].includes("template")
+            ) {
+              this._handleConfigUpdate(templateIconKey, "");
+            }
+
+            if (
+              templateStorageKey !== templateIconKey &&
+              iconSource === "template" &&
+              nextSource !== "template" &&
+              legacyTemplate
+            ) {
+              this._handleConfigUpdate(templateStorageKey, legacyTemplate);
+              this._handleConfigUpdate(templateIconKey, "");
+            }
+
             this._handleConfigUpdate(
               sourceKey,
-              e.detail.value || (allowNone ? "none" : "custom")
+              nextSource
             );
           }}
         ></ha-selector>
@@ -214,6 +269,26 @@ export function renderIconSourceControl({
       ${customMode && renderCustom
         ? renderCustom.call(this)
         : ""}
+      ${templateMode
+        ? html`
+            <div class="field icon-source-template-field">
+              <ha-selector
+                .hass=${this.hass}
+                .selector=${{ template: {} }}
+                .value=${savedTemplate}
+                @value-changed=${(event) => {
+                  if (legacyTemplate) {
+                    this._handleConfigUpdate(templateIconKey, "");
+                  }
+                  this._handleConfigUpdate(
+                    templateStorageKey,
+                    event.detail.value || ""
+                  );
+                }}
+              ></ha-selector>
+            </div>
+          `
+        : ""}
     </div>
   `;
 }
@@ -221,6 +296,7 @@ export function renderIconSourceControl({
 export function getIconSource(config = {}, {
   sourceKey = "main_entity_icon_source",
   entityKey = "main_entity",
+  defaultSource = "entity",
   areaKey = "area",
   allowArea = false,
   allowNone = false,
@@ -229,12 +305,18 @@ export function getIconSource(config = {}, {
   const savedSource = config[sourceKey];
   const hasArea = allowArea && Boolean(config[areaKey]);
   const hasEntity = Boolean(config[entityKey] || config.entity);
+  const hasDefaultSource = defaultSource === "domain"
+    ? Boolean(config.domain)
+    : hasEntity;
   const hasCustomIcon = customIconKeys.some((key) => Boolean(config[key]));
 
   if (savedSource === "custom") return "custom";
+  if (savedSource === "template") return "template";
   if (savedSource === "none" && allowNone) return "none";
   if (savedSource === "area" && hasArea) return "area";
-  if (savedSource === "entity" && hasEntity) return "entity";
+  if (savedSource === defaultSource && hasDefaultSource) {
+    return defaultSource;
+  }
 
   if (allowArea) {
     if (hasArea) return "area";
@@ -243,9 +325,9 @@ export function getIconSource(config = {}, {
 
   if (hasCustomIcon) return "custom";
   if (allowNone) return "none";
-  if (hasEntity) return "entity";
+  if (hasDefaultSource) return defaultSource;
 
-  return allowArea ? "area" : "entity";
+  return allowArea ? "area" : defaultSource;
 }
 
 export async function loadLocalIconFiles(currentIcon = "") {

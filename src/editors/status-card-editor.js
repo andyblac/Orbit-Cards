@@ -13,6 +13,7 @@ import {
   renderArea,
   renderColor,
   renderColorControl,
+  renderColorPair,
   renderInput,
   renderNumberInput,
   renderTemplateInput,
@@ -33,6 +34,7 @@ import { statusEditorStyles } from "../common/editor/styles/status-editor.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import { hasNativeTemplateSyntax } from "../common/helpers/templates.js";
 import {
   migrateStatusCardConfig,
 } from "../common/helpers/config-migration.js";
@@ -41,6 +43,17 @@ import { CARD_VERSIONS } from "../version.js";
 import {
   updateEditorDocumentationContext,
 } from "../common/helpers/documentation.js";
+import {
+  CURRENT_ACTIVITY_ACTION,
+  CURRENT_STATE_ACTION,
+  getStatusBadgeStateSource,
+  pickStatusSourceConfig,
+  STATUS_SOURCE_CONFIG_KEYS,
+} from "../common/helpers/status-badge.js";
+
+export const STATUS_PREVIEW_SELECTED_INDEX = Symbol.for(
+  "orbit-status-card-preview-selected-index"
+);
 
 class OrbitStatusCardEditor extends LitElement {
   static svgCache = sharedSvgCache;
@@ -59,6 +72,8 @@ class OrbitStatusCardEditor extends LitElement {
     _orbitIconFilesLoading: { state: true },
     _localIconFiles: { state: true },
     _localIconFilesLoading: { state: true },
+    _statusStateTypeExpanded: { state: true },
+    _statusContentExpanded: { state: true },
   };
 
   constructor() {
@@ -75,6 +90,8 @@ class OrbitStatusCardEditor extends LitElement {
     this._orbitIconFilesLoading = false;
     this._localIconFiles = [];
     this._localIconFilesLoading = false;
+    this._statusStateTypeExpanded = false;
+    this._statusContentExpanded = false;
   }
 
   connectedCallback() {
@@ -101,18 +118,21 @@ class OrbitStatusCardEditor extends LitElement {
   }
 
   setConfig(config) {
+    const presentationMigrated = hasLegacyStatusPresentationConfig(
+      config || {}
+    );
     const {
       config: migratedConfig,
       migrated,
     } = migrateStatusCardConfig(config || {});
 
-    this._config = migratedConfig || {};
+    this._config = orderStatusConfig(migratedConfig || {});
     this._selectedStatusIndex = Math.min(
       this._selectedStatusIndex || 0,
       this._getStatusItems(this._config).length - 1
     );
 
-    if (migrated) {
+    if (migrated || presentationMigrated) {
       this._queueConfigMigration();
     }
   }
@@ -126,7 +146,9 @@ class OrbitStatusCardEditor extends LitElement {
 
       this.dispatchEvent(new CustomEvent("config-changed", {
         detail: {
-          config: orderStatusConfig(this._config),
+          config: this._getPreviewConfig(
+            orderStatusConfig(this._config)
+          ),
         },
         bubbles: true,
         composed: true,
@@ -141,11 +163,18 @@ class OrbitStatusCardEditor extends LitElement {
 
     this.dispatchEvent(new CustomEvent("config-changed", {
       detail: {
-        config: this._config,
+        config: this._getPreviewConfig(),
       },
       bubbles: true,
       composed: true,
     }));
+  }
+
+  _getPreviewConfig(config = this._config) {
+    return {
+      ...config,
+      [STATUS_PREVIEW_SELECTED_INDEX]: this._selectedStatusIndex || 0,
+    };
   }
 
   _handleInput(key, e) {
@@ -164,7 +193,15 @@ class OrbitStatusCardEditor extends LitElement {
       return;
     }
 
-    if (key === "main_entity") {
+    if (
+      key === "entity" &&
+      getStatusBadgeStateSource(this._config) !== "entity"
+    ) {
+      this._handleConfigUpdate(key, value);
+      return;
+    }
+
+    if (key === "entity") {
       this._clearMainEntity();
       return;
     }
@@ -183,14 +220,14 @@ class OrbitStatusCardEditor extends LitElement {
   _clearMainEntity() {
     if (this._config?.mode === "person") {
       this._updateConfig(clearEntityConfig(
-        "main_entity",
+        "entity",
         PERSON_ENTITY_DEPENDENT_KEYS
       ));
       return;
     }
 
     this._updateConfig(clearEntityConfig(
-      "main_entity",
+      "entity",
       STATUS_ENTITY_DEPENDENT_KEYS
     ));
   }
@@ -206,28 +243,98 @@ class OrbitStatusCardEditor extends LitElement {
 
     return [
       {
-        entity: config?.main_entity || "",
-        accent_on_color: config?.accent_on_color || "",
-        accent_off_color: config?.accent_off_color || "",
-        main_entity_icon_source: config?.main_entity_icon_source || "",
-        main_entity_icon: config?.main_entity_icon || "",
-        main_entity_icon_on: config?.main_entity_icon_on || "",
-        main_entity_icon_off: config?.main_entity_icon_off || "",
+        entity: config?.entity || "",
+        ...pickStatusSourceConfig(config),
+        color_source: config?.color_source ||
+          config?.accent_color_source || "",
+        color: config?.color || config?.accent_color || "",
+        accent_color_source: config?.accent_color_source || "",
+        accent_color: config?.accent_color || "",
+        color_on: config?.color_on || "",
+        color_off: config?.color_off || "",
+        icon_source: config?.icon_source ||
+          config?.entity_icon_source || "",
+        icon: config?.icon || config?.entity_icon || "",
+        icon_on: config?.icon_on || config?.entity_icon_on || "",
+        icon_off: config?.icon_off || config?.entity_icon_off || "",
+        entity_icon_source: config?.entity_icon_source || "",
+        entity_icon_template: config?.entity_icon_template || "",
+        entity_icon: config?.entity_icon || "",
+        entity_icon_on: config?.entity_icon_on || "",
+        entity_icon_off: config?.entity_icon_off || "",
         state_template: config?.state_template || "",
         label_template: config?.label_template || "",
+        name_template: config?.name_template || "",
         tap_action: config?.tap_action,
         hold_action: config?.hold_action,
         double_tap_action: config?.double_tap_action,
-        main_entity_tap_action: config?.main_entity_tap_action,
-        main_entity_hold_action: config?.main_entity_hold_action,
-        main_entity_double_tap_action:
-          config?.main_entity_double_tap_action,
+        entity_tap_action: config?.entity_tap_action,
+        entity_hold_action: config?.entity_hold_action,
+        entity_double_tap_action:
+          config?.entity_double_tap_action,
       },
     ];
   }
 
+  _handleStatusModeChange(nextMode) {
+    if (this._config?.mode === "icon_only" && nextMode === "standard") {
+      const items = this._getStatusItems();
+      const selectedIndex = Math.min(
+        this._selectedStatusIndex || 0,
+        items.length - 1
+      );
+      const item = items[selectedIndex] || {};
+
+      this._updateConfig({
+        ...clearKeys(STATUS_GROUP_ROOT_KEYS),
+        mode: nextMode,
+        entities: undefined,
+        entity: item.entity || undefined,
+        ...pickStatusSourceConfig(item),
+        color_source: item.color_source,
+        color: item.color,
+        accent_color_source: item.accent_color_source,
+        accent_color: item.accent_color,
+        color_on: item.color_on,
+        color_off: item.color_off,
+        icon_source: item.icon_source,
+        icon: item.icon,
+        icon_on: item.icon_on,
+        icon_off: item.icon_off,
+        entity_icon_source: item.entity_icon_source,
+        entity_icon_template: item.entity_icon_template,
+        entity_icon: item.entity_icon,
+        entity_icon_on: item.entity_icon_on,
+        entity_icon_off: item.entity_icon_off,
+        state_template: item.state_template,
+        label_template: item.label_template,
+        name_template: item.name_template,
+        tap_action: item.tap_action,
+        hold_action: item.hold_action,
+        double_tap_action: item.double_tap_action,
+        entity_tap_action: item.entity_tap_action,
+        entity_hold_action: item.entity_hold_action,
+        entity_double_tap_action:
+          item.entity_double_tap_action,
+      });
+      return;
+    }
+
+    this._updateConfig({
+      mode: nextMode,
+      ...(nextMode === "icon_only" ? {} : { entities: undefined }),
+    });
+  }
+
   _selectStatusItem(index) {
     this._selectedStatusIndex = index;
+    this.dispatchEvent(new CustomEvent("config-changed", {
+      detail: {
+        config: this._getPreviewConfig(),
+      },
+      bubbles: true,
+      composed: true,
+    }));
   }
 
   _addStatusItem() {
@@ -270,7 +377,7 @@ class OrbitStatusCardEditor extends LitElement {
 
     if (items.length <= 1) {
       this._updateConfig(clearEntityConfig(
-        "main_entity",
+        "entity",
         STATUS_ENTITY_DEPENDENT_KEYS
       ));
       return;
@@ -316,7 +423,10 @@ class OrbitStatusCardEditor extends LitElement {
       ...changes,
     };
 
-    if (changes.entity === "") {
+    if (
+      changes.entity === "" &&
+      getStatusBadgeStateSource(nextItem) === "entity"
+    ) {
       cleanClearedStatusItem(nextItem);
     }
 
@@ -339,31 +449,45 @@ class OrbitStatusCardEditor extends LitElement {
       return;
     }
 
-    if (changes.entity === "") {
+    if (
+      changes.entity === "" &&
+      getStatusBadgeStateSource(nextItem) === "entity"
+    ) {
       this._updateConfig(clearEntityConfig(
-        "main_entity",
+        "entity",
         STATUS_ENTITY_DEPENDENT_KEYS
       ));
       return;
     }
 
     this._updateConfig({
-      main_entity: nextItem.entity || "",
-      accent_on_color: nextItem.accent_on_color || "",
-      accent_off_color: nextItem.accent_off_color || "",
-      main_entity_icon_source: nextItem.main_entity_icon_source || "",
-      main_entity_icon: nextItem.main_entity_icon || "",
-      main_entity_icon_on: nextItem.main_entity_icon_on || "",
-      main_entity_icon_off: nextItem.main_entity_icon_off || "",
+      entity: nextItem.entity || "",
+      ...pickStatusSourceConfig(nextItem),
+      color_source: nextItem.color_source || "",
+      color: nextItem.color || "",
+      accent_color_source: nextItem.accent_color_source || "",
+      accent_color: nextItem.accent_color || "",
+      color_on: nextItem.color_on || "",
+      color_off: nextItem.color_off || "",
+      icon_source: nextItem.icon_source || "",
+      icon: nextItem.icon || "",
+      icon_on: nextItem.icon_on || "",
+      icon_off: nextItem.icon_off || "",
+      entity_icon_source: nextItem.entity_icon_source || "",
+      entity_icon_template: nextItem.entity_icon_template || "",
+      entity_icon: nextItem.entity_icon || "",
+      entity_icon_on: nextItem.entity_icon_on || "",
+      entity_icon_off: nextItem.entity_icon_off || "",
       state_template: nextItem.state_template || "",
       label_template: nextItem.label_template || "",
+      name_template: nextItem.name_template || "",
       tap_action: nextItem.tap_action,
       hold_action: nextItem.hold_action,
       double_tap_action: nextItem.double_tap_action,
-      main_entity_tap_action: nextItem.main_entity_tap_action,
-      main_entity_hold_action: nextItem.main_entity_hold_action,
-      main_entity_double_tap_action:
-        nextItem.main_entity_double_tap_action,
+      entity_tap_action: nextItem.entity_tap_action,
+      entity_hold_action: nextItem.entity_hold_action,
+      entity_double_tap_action:
+        nextItem.entity_double_tap_action,
     });
   }
 
@@ -394,6 +518,10 @@ class OrbitStatusCardEditor extends LitElement {
     );
   }
 
+  _renderColorPair(options) {
+    return renderColorPair.call(this, options);
+  }
+
   _renderEntity(label, key, replacements) {
     return renderEntity.call(this, label, key, replacements);
   }
@@ -421,38 +549,49 @@ class OrbitStatusCardEditor extends LitElement {
           formKey: "tap_action",
           label: "Tap behavior",
           defaultAction: cardActionDefault,
+          customActions: [CURRENT_ACTIVITY_ACTION],
           defaultVisible: true,
+          customDefaultLabel: getCustomStatusActionLabel(
+            cardActionDefault
+          ),
         },
         {
           key: "hold_action",
           formKey: "hold_action",
           label: "Hold behavior",
           defaultAction: "none",
+          customActions: [CURRENT_ACTIVITY_ACTION],
         },
         {
           key: "double_tap_action",
           formKey: "double_tap_action",
           label: "Double tap behavior",
           defaultAction: "none",
+          customActions: [CURRENT_ACTIVITY_ACTION],
         },
         {
-          key: "main_entity_tap_action",
+          key: "entity_tap_action",
           formKey: "icon_tap_action",
           label: "Icon tap behavior",
           defaultAction: mainEntityActionDefault,
-          defaultVisible: true,
+          customActions: [CURRENT_ACTIVITY_ACTION],
+          customDefaultLabel: getCustomStatusActionLabel(
+            mainEntityActionDefault
+          ),
         },
         {
-          key: "main_entity_hold_action",
+          key: "entity_hold_action",
           formKey: "icon_hold_action",
           label: "Icon hold behavior",
           defaultAction: "none",
+          customActions: [CURRENT_ACTIVITY_ACTION],
         },
         {
-          key: "main_entity_double_tap_action",
+          key: "entity_double_tap_action",
           formKey: "icon_double_tap_action",
           label: "Icon double tap behavior",
           defaultAction: "none",
+          customActions: [CURRENT_ACTIVITY_ACTION],
         },
       ],
       context: {
@@ -593,24 +732,31 @@ function cleanClearedStatusItem(item) {
 }
 
 const STATUS_ENTITY_DEPENDENT_KEYS = [
-  "accent_on_color",
-  "accent_off_color",
-  "main_entity_icon_source",
-  "main_entity_icon",
-  "main_entity_icon_on",
-  "main_entity_icon_off",
+  ...STATUS_SOURCE_CONFIG_KEYS,
+  "color_source",
+  "color",
+  "color_on",
+  "color_off",
+  "icon_source",
+  "icon",
+  "icon_on",
+  "icon_off",
+  "icon_svg_color_override",
+  "icon_on_svg_color_override",
+  "icon_off_svg_color_override",
   "state_template",
   "label_template",
+  "name_template",
   "tap_action",
   "hold_action",
   "double_tap_action",
-  "main_entity_tap_action",
-  "main_entity_hold_action",
-  "main_entity_double_tap_action",
+  "entity_tap_action",
+  "entity_hold_action",
+  "entity_double_tap_action",
 ];
 
 const STATUS_GROUP_ROOT_KEYS = [
-  "main_entity",
+  "entity",
   ...STATUS_ENTITY_DEPENDENT_KEYS,
 ];
 
@@ -619,14 +765,16 @@ const PERSON_ENTITY_DEPENDENT_KEYS = [
   "eta_entity",
   "battery_entity_1",
   "battery_entity_2",
-  "accent_on_color",
-  "accent_off_color",
+  "color_source",
+  "color",
+  "color_on",
+  "color_off",
   "tap_action",
   "hold_action",
   "double_tap_action",
-  "main_entity_tap_action",
-  "main_entity_hold_action",
-  "main_entity_double_tap_action",
+  "entity_tap_action",
+  "entity_hold_action",
+  "entity_double_tap_action",
 ];
 
 const TRACKER_ENTITY_DEPENDENT_KEYS = [
@@ -634,89 +782,349 @@ const TRACKER_ENTITY_DEPENDENT_KEYS = [
 ];
 
 const STATUS_ITEM_KEYS = [
+  "state_source",
   "entity",
-  "accent_on_color",
-  "accent_off_color",
-  "main_entity_icon_source",
-  "main_entity_icon",
-  "main_entity_icon_on",
-  "main_entity_icon_off",
-  "main_entity_icon_svg_color_override",
-  "main_entity_icon_on_svg_color_override",
-  "main_entity_icon_off_svg_color_override",
+  "area",
+  "domain",
+  "device_class",
+  "threshold",
+  "thresholds",
+  "hide",
+  "active_template",
+  "inactive_template",
+  "entity_tap_action",
+  "entity_hold_action",
+  "entity_double_tap_action",
+  "color_source",
+  "color",
+  "color_on",
+  "color_off",
+  "icon_source",
+  "icon",
+  "icon_on",
+  "icon_off",
+  "icon_svg_color_override",
+  "icon_on_svg_color_override",
+  "icon_off_svg_color_override",
   "state_template",
   "label_template",
+  "name_template",
   "tap_action",
   "hold_action",
   "double_tap_action",
-  "main_entity_tap_action",
-  "main_entity_hold_action",
-  "main_entity_double_tap_action",
 ];
 
-const STATUS_CONFIG_ORDER = [
-  "type",
-  "mode",
-  "status_name",
-  "main_entity",
-  "tracker_entity",
-  "eta_entity",
-  "battery_entity_1",
-  "battery_entity_2",
-  "accent_on_color",
-  "accent_off_color",
-  "main_entity_icon_source",
-  "main_entity_icon",
-  "main_entity_icon_on",
-  "main_entity_icon_off",
-  "main_entity_icon_svg_color_override",
-  "main_entity_icon_on_svg_color_override",
-  "main_entity_icon_off_svg_color_override",
-  "state_template",
-  "label_template",
+const STATUS_STATE_CONFIG_ORDER = [
+  "state_source",
+  "entity",
+  "area",
+  "domain",
+  "device_class",
+  "threshold",
+  "thresholds",
+  "hide",
+  "active_template",
+  "inactive_template",
+];
+
+const STATUS_COLOR_ICON_CONFIG_ORDER = [
+  "color_source",
+  "color",
+  "color_on",
+  "color_off",
+  "icon_source",
+  "icon",
+  "icon_on",
+  "icon_off",
+  "icon_svg_color_override",
+  "icon_on_svg_color_override",
+  "icon_off_svg_color_override",
+];
+
+const STATUS_CARD_INTERACTION_CONFIG_ORDER = [
   "tap_action",
   "hold_action",
   "double_tap_action",
-  "main_entity_tap_action",
-  "main_entity_hold_action",
-  "main_entity_double_tap_action",
-  "wrap",
-  "items_per_row",
-  "separate_cards",
-  "entities",
+];
+
+const STATUS_ENTITY_INTERACTION_CONFIG_ORDER = [
+  "entity_tap_action",
+  "entity_hold_action",
+  "entity_double_tap_action",
+];
+
+const STATUS_STANDARD_CONFIG_ORDER = [
+  "type",
+  "mode",
+  ...STATUS_STATE_CONFIG_ORDER,
+  ...STATUS_ENTITY_INTERACTION_CONFIG_ORDER,
+  "name",
+  "name_template",
+  ...STATUS_COLOR_ICON_CONFIG_ORDER,
+  "state_template",
+  "label_template",
+  ...STATUS_CARD_INTERACTION_CONFIG_ORDER,
   "grid_options",
   "view_layout",
 ];
 
+const STATUS_PERSON_CONFIG_ORDER = [
+  "type",
+  "mode",
+  "name",
+  "name_template",
+  "entity",
+  "tracker_entity",
+  "eta_entity",
+  "battery_entity_1",
+  "battery_entity_2",
+  ...STATUS_ENTITY_INTERACTION_CONFIG_ORDER,
+  ...STATUS_COLOR_ICON_CONFIG_ORDER,
+  ...STATUS_CARD_INTERACTION_CONFIG_ORDER,
+  "grid_options",
+  "view_layout",
+];
+
+const STATUS_ICON_ONLY_CONFIG_ORDER = [
+  "type",
+  "mode",
+  "wrap",
+  "separate_cards",
+  "items_per_row",
+  "entities",
+  ...STATUS_CARD_INTERACTION_CONFIG_ORDER,
+  "grid_options",
+  "view_layout",
+];
+
+function getStatusConfigOrder(config) {
+  if (config?.mode === "person") return STATUS_PERSON_CONFIG_ORDER;
+  if (config?.mode === "icon_only") return STATUS_ICON_ONLY_CONFIG_ORDER;
+  return STATUS_STANDARD_CONFIG_ORDER;
+}
+
 function orderStatusConfig(config) {
+  const cleanedConfig = migrateStatusPresentationConfig(
+    cleanEmptyStatusValues(config)
+  );
+  if (cleanedConfig.mode !== "icon_only") delete cleanedConfig.entities;
+  moveRootAreaCountToStatusItems(cleanedConfig);
+  if (
+    cleanedConfig.mode !== "person" &&
+    cleanedConfig.mode !== "icon_only"
+  ) {
+    cleanedConfig.state_source = getStatusBadgeStateSource(cleanedConfig);
+  }
+  cleanAreaCountEntity(cleanedConfig);
+  cleanDefaultStatusActions(cleanedConfig);
   const ordered = {};
   const usedKeys = new Set();
 
-  STATUS_CONFIG_ORDER.forEach((key) => {
-    if (Object.prototype.hasOwnProperty.call(config, key)) {
+  getStatusConfigOrder(cleanedConfig).forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(cleanedConfig, key)) {
       ordered[key] =
-        key === "entities" && Array.isArray(config[key])
-          ? config[key].map(orderStatusItem)
-          : config[key];
+        key === "entities" && Array.isArray(cleanedConfig[key])
+          ? cleanedConfig[key].map(orderStatusItem)
+          : cleanedConfig[key];
       usedKeys.add(key);
     }
   });
 
-  Object.keys(config).forEach((key) => {
+  Object.keys(cleanedConfig).forEach((key) => {
     if (!usedKeys.has(key)) {
-      ordered[key] = config[key];
+      ordered[key] = cleanedConfig[key];
     }
   });
 
   return ordered;
 }
 
+function moveRootAreaCountToStatusItems(config) {
+  if (
+    config?.mode !== "icon_only" ||
+    config.state_source !== "area_count" ||
+    !Array.isArray(config.entities) ||
+    config.entities.length === 0
+  ) {
+    return;
+  }
+
+  const areaCountConfig = pickStatusSourceConfig(config);
+
+  config.entities = config.entities.map((item) => {
+    const normalizedItem = typeof item === "string"
+      ? { entity: item }
+      : { ...(item || {}) };
+
+    if (normalizedItem.state_source === undefined) {
+      Object.assign(normalizedItem, areaCountConfig);
+      cleanAreaCountEntity(normalizedItem);
+    }
+
+    return normalizedItem;
+  });
+
+  STATUS_SOURCE_CONFIG_KEYS.forEach((key) => {
+    delete config[key];
+  });
+}
+
 function orderStatusItem(item) {
+  if (typeof item === "string") {
+    return orderObjectKeys(
+      {
+        state_source: "entity",
+        entity: item,
+      },
+      STATUS_ITEM_KEYS
+    );
+  }
+
   if (!item || typeof item !== "object" || Array.isArray(item)) {
     return item;
   }
 
-  return orderObjectKeys(item, STATUS_ITEM_KEYS);
+  const cleanedItem = migrateStatusPresentationConfig(
+    cleanEmptyStatusValues(item)
+  );
+  cleanedItem.state_source = getStatusBadgeStateSource(cleanedItem);
+  cleanAreaCountEntity(cleanedItem);
+  cleanDefaultStatusItemActions(cleanedItem);
+  return orderObjectKeys(cleanedItem, STATUS_ITEM_KEYS);
+}
+
+function migrateStatusPresentationConfig(config = {}) {
+  const migrated = { ...config };
+
+  if (
+    migrated.color_source === undefined &&
+    migrated.accent_color_source !== undefined
+  ) {
+    migrated.color_source = migrated.accent_color_source;
+  }
+
+  if (
+    migrated.color === undefined &&
+    (migrated.color_source === "template" ||
+      hasNativeTemplateSyntax(migrated.accent_color)) &&
+    migrated.accent_color !== undefined
+  ) {
+    migrated.color = migrated.accent_color;
+  }
+
+  if (migrated.color_source !== undefined) {
+    delete migrated.accent_color_source;
+  }
+  if (migrated.color !== undefined) {
+    delete migrated.accent_color;
+  }
+
+  if (
+    migrated.icon_source === undefined &&
+    migrated.entity_icon_source !== undefined
+  ) {
+    migrated.icon_source = migrated.entity_icon_source;
+  }
+
+  if (
+    migrated.icon_source === "template" &&
+    migrated.icon === undefined
+  ) {
+    migrated.icon = migrated.icon_template ||
+      migrated.entity_icon_template ||
+      migrated.entity_icon;
+  }
+
+  const iconKeyPairs = [
+    ["icon", "entity_icon"],
+    ["icon_on", "entity_icon_on"],
+    ["icon_off", "entity_icon_off"],
+    ["icon_svg_color_override", "entity_icon_svg_color_override"],
+    ["icon_on_svg_color_override", "entity_icon_on_svg_color_override"],
+    ["icon_off_svg_color_override", "entity_icon_off_svg_color_override"],
+  ];
+
+  iconKeyPairs.forEach(([nextKey, legacyKey]) => {
+    if (
+      migrated[nextKey] === undefined &&
+      migrated[legacyKey] !== undefined &&
+      !(nextKey === "icon" && migrated.icon_source === "template")
+    ) {
+      migrated[nextKey] = migrated[legacyKey];
+    }
+    delete migrated[legacyKey];
+  });
+
+  delete migrated.entity_icon_source;
+  delete migrated.entity_icon_template;
+  delete migrated.icon_template;
+
+  return migrated;
+}
+
+function hasLegacyStatusPresentationConfig(config = {}) {
+  const hasLegacyKeys = (value) => Boolean(
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    (
+      value.accent_color_source !== undefined ||
+      hasNativeTemplateSyntax(value.accent_color) ||
+      value.entity_icon_source !== undefined ||
+      value.entity_icon_template !== undefined ||
+      value.entity_icon !== undefined ||
+      value.entity_icon_on !== undefined ||
+      value.entity_icon_off !== undefined ||
+      value.icon_template !== undefined
+    )
+  );
+
+  return hasLegacyKeys(config) ||
+    (Array.isArray(config.entities) && config.entities.some(hasLegacyKeys));
+}
+
+function cleanAreaCountEntity(config) {
+  if (config?.state_source !== "area_count") return;
+
+  delete config.entity;
+  delete config.main_entity;
+  delete config.include_low_sensors;
+}
+
+function cleanDefaultStatusActions(config) {
+  if (config?.state_source !== "area_count") return;
+
+  if (config.tap_action?.action === CURRENT_ACTIVITY_ACTION) {
+    delete config.tap_action;
+  }
+  if (config.entity_tap_action?.action === CURRENT_STATE_ACTION) {
+    delete config.entity_tap_action;
+  }
+}
+
+function cleanDefaultStatusItemActions(config) {
+  if (config?.state_source !== "area_count") return;
+
+  if (config.tap_action?.action === CURRENT_ACTIVITY_ACTION) {
+    delete config.tap_action;
+  }
+  if (config.entity_tap_action?.action === CURRENT_STATE_ACTION) {
+    delete config.entity_tap_action;
+  }
+}
+
+function getCustomStatusActionLabel(action) {
+  if (action === CURRENT_STATE_ACTION) return CURRENT_STATE_ACTION;
+  if (action === CURRENT_ACTIVITY_ACTION) return "Current activity";
+  return undefined;
+}
+
+function cleanEmptyStatusValues(config = {}) {
+  return Object.fromEntries(
+    Object.entries(config).filter(([, value]) =>
+      value !== undefined && value !== ""
+    )
+  );
 }
 
 function orderObjectKeys(config, keyOrder) {

@@ -35,11 +35,18 @@ import {
   shouldUpdateForEntities,
 } from "../common/helpers/updates.js";
 import {
+  disconnectTemplateSubscriptions,
+  getColorTemplateEntries,
+  getIconTemplateEntries,
+  syncTemplateSubscriptions,
+} from "../common/helpers/templates.js";
+import {
   getEntityDomain,
 } from "../common/helpers/suggestions.js";
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import { migrateActionCardConfig } from "../common/helpers/config-migration.js";
 
 import {
   getActionItems,
@@ -64,6 +71,7 @@ class OrbitActionCard extends LitElement {
       _cardBackground: { type: String },
       _isRunning: { type: Boolean },
       _actions: { type: Array },
+      _templateRevision: { type: Number },
     };
   }
 
@@ -77,7 +85,7 @@ class OrbitActionCard extends LitElement {
     return {
       type: "custom:orbit-action-card",
       main_entity: "",
-      accent_color: "theme",
+      color: "theme",
     };
   }
 
@@ -93,9 +101,9 @@ class OrbitActionCard extends LitElement {
   }
 
   setConfig(config) {
-    this._config = config;
+    this._config = migrateActionCardConfig(config).config;
 
-    const color = config.accent_color || "theme";
+    const color = this._config.color || "theme";
 
     this._iconColor = this._computeIconColor(color);
     this._cardBackground = this._computeCircleColor(color);
@@ -104,10 +112,21 @@ class OrbitActionCard extends LitElement {
   }
 
   willUpdate(changedProps) {
+    if (changedProps.has("_config") || changedProps.has("hass")) {
+      syncTemplateSubscriptions.call(
+        this,
+        [
+          ...getColorTemplateEntries(this._config),
+          ...getIconTemplateEntries(this._config),
+        ]
+      );
+    }
+
     return updateActionCard.call(this, changedProps);
   }
 
   disconnectedCallback() {
+    disconnectTemplateSubscriptions.call(this);
     this._clearHoldTimer();
     this._clearDoubleTapTimer();
     super.disconnectedCallback();

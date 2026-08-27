@@ -10,6 +10,10 @@ import {
   shouldApplyDeckItemPadding,
 } from "../common/helpers/deck-padding.js";
 import {
+  migrateDeckCardConfig,
+} from "../common/helpers/config-migration.js";
+import { isCardEditorPreview } from "../common/helpers/editor-preview.js";
+import {
   clearDoubleTapTimer,
   handleAction,
   handleDoubleTapAction,
@@ -23,6 +27,11 @@ import {
   finishLongPress,
   startLongPress,
 } from "../common/helpers/long-press.js";
+import {
+  disconnectTemplateSubscriptions,
+  getColorTemplateEntries,
+  syncTemplateSubscriptions,
+} from "../common/helpers/templates.js";
 import {
   getDeckItems,
   getDeckItemAction,
@@ -75,6 +84,7 @@ class OrbitDeckCard extends LitElement {
       _config: { type: Object },
       _deckCards: { state: true },
       _selectedIndex: { state: true },
+      _templateRevision: { state: true },
     };
   }
 
@@ -105,12 +115,22 @@ class OrbitDeckCard extends LitElement {
   }
 
   disconnectedCallback() {
+    disconnectTemplateSubscriptions.call(this);
     this._cancelLongPress();
     this._clearDoubleTapTimer();
     this._clearOverlayGeometryObserver();
     this._disconnectDeckEntryObservers();
     this._unbindDeckItemActionListeners();
     super.disconnectedCallback();
+  }
+
+  willUpdate(changedProps) {
+    if (changedProps.has("_config") || changedProps.has("hass")) {
+      syncTemplateSubscriptions.call(
+        this,
+        getColorTemplateEntries(this._config)
+      );
+    }
   }
 
   static getConfigElement() {
@@ -138,12 +158,13 @@ class OrbitDeckCard extends LitElement {
   }
 
   setConfig(config) {
-    const layout = ["tabs", "overlay"].includes(config?.layout)
-      ? config.layout
+    const migrated = migrateDeckCardConfig(config || {});
+    const layout = ["tabs", "overlay"].includes(migrated.config?.layout)
+      ? migrated.config.layout
       : "wrap";
 
     this._config = {
-      ...config,
+      ...migrated.config,
       layout,
     };
 
@@ -151,7 +172,10 @@ class OrbitDeckCard extends LitElement {
     const defaultSelectionKey = getDefaultSelectionKey(decks);
     const defaultIndex = getDefaultDeckIndex(decks);
 
-    if (Number.isInteger(config?.[DECK_PREVIEW_SELECTED_INDEX])) {
+    if (
+      isCardEditorPreview(this) &&
+      Number.isInteger(config?.[DECK_PREVIEW_SELECTED_INDEX])
+    ) {
       this._selectedIndex = Math.min(
         Math.max(0, config[DECK_PREVIEW_SELECTED_INDEX]),
         Math.max(0, decks.length - 1)
@@ -635,12 +659,18 @@ class OrbitDeckCard extends LitElement {
       entry?.item,
       entry?.index
     );
+    const previewSelectedIndex =
+      this._config?.[DECK_PREVIEW_SELECTED_INDEX];
+    const isPreviewSelected =
+      isCardEditorPreview(this) &&
+      Number.isInteger(previewSelectedIndex) &&
+      previewSelectedIndex === entry?.index;
 
     return html`
       <div
         class="deck-item-interaction ${hasActions ? "has-actions" : ""} ${
           transparentBackground ? "transparent-background" : ""
-        }"
+        } ${isPreviewSelected ? "orbit-editor-preview-selected" : ""}"
         data-deck-index=${entry?.index ?? ""}
       >
         ${this._renderDeckEntry(entry)}
@@ -655,7 +685,7 @@ class OrbitDeckCard extends LitElement {
 
     return html`
       <ha-card class="deck-error-card">
-        <div class="deck-error-title">Configuration error</div>
+        <div class="deck-error-title">${this._t("Configuration error")}</div>
         <div>${entry?.error || "No card configured"}</div>
       </ha-card>
     `;
@@ -761,11 +791,27 @@ class OrbitDeckCard extends LitElement {
         <div class="deck-wrap">
           ${rows.map((row) => html`
             <div class="deck-row">
-              ${row.map((entry) => html`
-                <div class="deck-item">
-                  ${this._renderInteractiveDeckEntry(entry)}
-                </div>
-              `)}
+              ${row.map((entry) => {
+                const isPreviewSelected =
+                  isCardEditorPreview(this) &&
+                  this._config?.[DECK_PREVIEW_SELECTED_INDEX] === entry.index;
+                const previewWidth = isPreviewSelected
+                  ? getDeckEditorPreviewWidth(entry, columns)
+                  : "";
+
+                return html`
+                  <div
+                    class="deck-item ${previewWidth
+                      ? "orbit-editor-preview-resized"
+                      : ""}"
+                    style=${previewWidth
+                      ? `--orbit-editor-preview-width:${previewWidth};`
+                      : ""}
+                  >
+                    ${this._renderInteractiveDeckEntry(entry)}
+                  </div>
+                `;
+              })}
               ${renderRowSpacers(row.length, columns)}
             </div>
           `)}
@@ -789,7 +835,7 @@ class OrbitDeckCard extends LitElement {
       (entry) => entry !== selectedEntry
     );
     const tabWidthMode = getTabWidthMode(this._config);
-    const tabStyles = getTabStyleVariables(this._config);
+    const tabStyles = getTabStyleVariables.call(this, this._config);
 
     return html`
       <ha-card
@@ -880,7 +926,7 @@ class OrbitDeckCard extends LitElement {
     if (!decks.length) {
       return html`
         <ha-card class="deck-card empty">
-          <div>Add card</div>
+          <div>${this._t("Add card")}</div>
         </ha-card>
       `;
     }
@@ -897,6 +943,34 @@ class OrbitDeckCard extends LitElement {
   }
 
   static styles = deckCardStyles;
+}
+
+function getDeckEditorPreviewWidth(entry, deckColumns) {
+  const childConfig = getDeckItemRenderConfig(entry?.item);
+  const configuredColumns = childConfig?.grid_options?.columns;
+  let columns = configuredColumns === "full"
+    ? 12
+    : Number(configuredColumns);
+
+  if (!Number.isFinite(columns) || columns <= 0) {
+    try {
+      columns = Number(entry?.element?.getLayoutOptions?.()?.grid_columns);
+    } catch (_error) {
+      columns = 0;
+    }
+  }
+
+  if (!Number.isFinite(columns) || columns <= 0) {
+    columns = 6;
+  }
+
+  const normalWidth =
+    Math.min(12, Math.max(1, columns)) / 12 * 100;
+  const slotWidth = 100 / Math.max(1, Number(deckColumns) || 1);
+
+  return normalWidth > slotWidth + 0.01
+    ? `${normalWidth}%`
+    : "";
 }
 
 

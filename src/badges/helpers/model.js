@@ -1,22 +1,29 @@
-import { computeFullColor } from "../../common/helpers/colors.js";
-import { getEntityActiveState } from "../../common/helpers/entities.js";
+import {
+  computeFullColor,
+  resolveColorTemplate,
+} from "../../common/helpers/colors.js";
 import {
   formatDeviceClass,
   getNativeEntityBadgeColor,
+  getStatusBadgeActiveEntities,
   getStatusBadgeDeviceClasses,
   getStatusBadgeDomainConfig,
+  getStatusBadgeAreaName,
   getStatusBadgeStateSource,
 } from "../../common/helpers/status-badge.js";
 import {
   evaluateStateTemplate,
+  formatTemplateState,
   getTemplateResultActiveState,
 } from "../../common/helpers/templates.js";
+import { resolveIconTemplate } from "../../common/helpers/icons.js";
 
 export function getStatusBadgeModel() {
   const stateSource = getStatusBadgeStateSource(this._config);
   const entities = this._getEntities();
-  const activeEntities = entities.filter((stateObj) =>
-    getEntityActiveState(stateObj)
+  const activeEntities = getStatusBadgeActiveEntities(
+    entities,
+    this._config
   );
   const templateResult = stateSource === "template"
     ? evaluateStateTemplate.call(
@@ -34,11 +41,14 @@ export function getStatusBadgeModel() {
       inactiveTemplate
     ? evaluateStateTemplate.call(this, inactiveTemplate, "")
     : null;
+  const templateDomain = entities[0]?.entity_id?.split(".")[0] ||
+    this._config?.domain || "";
   const inactiveTemplateActive = Boolean(inactiveTemplate) &&
-    getTemplateResultActiveState(inactiveTemplateResult);
+    getTemplateResultActiveState(inactiveTemplateResult, templateDomain);
   const computedIsOn = stateSource === "template"
     ? getTemplateResultActiveState(
-        activeTemplateResult ?? templateResult
+        activeTemplateResult ?? templateResult,
+        templateDomain
       )
     : activeEntities.length > 0;
   const isOn = this._config?.display_style === "badge" &&
@@ -53,16 +63,30 @@ export function getStatusBadgeModel() {
   const domainConfig = getStatusBadgeDomainConfig(domain);
   const iconSource = this._config?.icon_source ||
     (this._config?.icon ? "custom" : "domain");
-  const basicIcon = this._config?.icon || "";
-  const stateIcon = isOn
+  const basicIcon = resolveIconTemplate.call(
+    this,
+    this._config?.icon,
+    selectedEntity?.entity_id || ""
+  );
+  const stateIcon = iconSource === "template"
+    ? basicIcon
+    : isOn
     ? this._config?.icon_on || basicIcon
     : this._config?.icon_off || basicIcon;
-  const icon = iconSource === "custom"
+  const icon = ["custom", "template"].includes(iconSource)
     ? stateIcon || domainConfig.icon
     : domainConfig.icon;
-  const configuredColor = isOn
-    ? this._config?.accent_on_color ?? this._config?.color
-    : this._config?.accent_off_color;
+  const configuredColorValue =
+    this._config?.color_source === "template"
+      ? this._config?.color
+      : isOn
+        ? this._config?.color_on ??
+          (this._config?.color_source ? undefined : this._config?.color)
+        : this._config?.color_off;
+  const configuredColor = resolveColorTemplate.call(
+    this,
+    configuredColorValue
+  );
   const hasIconColorOverride = Boolean(configuredColor && ![
     "theme",
     "state",
@@ -109,7 +133,10 @@ export function getStatusBadgeModel() {
           ? { device_class: primaryDeviceClass }
           : {},
       };
-  const areaName = this.hass?.areas?.[this._config?.area]?.name || "";
+  const nativeColorIsActive = iconStateObj.entity_id?.startsWith("sensor.")
+    ? false
+    : isOn;
+  const areaName = getStatusBadgeAreaName(this.hass, this._config);
   const configuredName = this._config?.name;
   const deviceClassLabel = deviceClasses
     .map((deviceClass) => formatDeviceClass(deviceClass))
@@ -135,7 +162,9 @@ export function getStatusBadgeModel() {
           : this._config?.icon
             ? "icon"
             : "")
-    : "";
+    : iconSource === "template" && basicIcon
+      ? "icon"
+      : "";
 
   return {
     entities,
@@ -144,7 +173,7 @@ export function getStatusBadgeModel() {
     inactiveTemplateActive,
     count: activeEntities.length,
     displayValue: stateSource === "template"
-      ? templateResult
+      ? formatTemplateState(templateResult)
       : stateSource === "entity"
         ? representativeStateObj.state
         : activeEntities.length,
@@ -171,8 +200,8 @@ export function getStatusBadgeModel() {
     defaultStateContent: stateSource === "area_count" ? "count" : "state",
     hasIconColorOverride,
     iconColor: colorInput === "theme"
-      ? getNativeEntityBadgeColor(representativeStateObj, isOn)
-      : computeFullColor(colorInput),
+      ? getNativeEntityBadgeColor(iconStateObj, nativeColorIsActive)
+      : computeFullColor.call(this, colorInput),
   };
 }
 

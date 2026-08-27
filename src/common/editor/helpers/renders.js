@@ -4,6 +4,7 @@ import { translateEditorLabel as t } from "./labels.js";
 export {
   renderColor,
   renderColorControl,
+  renderColorPair,
 } from "./color-picker.js";
 export {
   renderActionSelector,

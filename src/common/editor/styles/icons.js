@@ -74,7 +74,7 @@ export const iconStyles = css`
 .color-tabs {
   display: flex;
   align-items: end;
-  gap: 10px;
+  gap: 0;
   margin-bottom: 10px;
   border-bottom: 1px solid var(--orbit-editor-border);
   overflow-x: auto;
@@ -82,7 +82,8 @@ export const iconStyles = css`
 
 .color-tabs button {
   position: relative;
-  min-width: 92px;
+  flex: 1 1 0;
+  min-width: 44px;
   height: 34px;
   padding: 0 12px;
   border: 0;
@@ -97,6 +98,11 @@ export const iconStyles = css`
   line-height: var(--ha-line-height-normal, 20px);
   opacity: 0.62;
   overflow: hidden;
+}
+
+.color-tabs button ha-icon {
+  --mdc-icon-size: 20px;
+  pointer-events: none;
 }
 
 .color-tabs button.active {
@@ -233,6 +239,14 @@ export const iconStyles = css`
 
 .theme-color-picker {
   position: relative;
+}
+
+.color-template-input {
+  position: relative;
+}
+
+.color-template-input ha-selector {
+  display: block;
 }
 
 .theme-color-picker ha-generic-picker {
@@ -581,6 +595,10 @@ export const iconStyles = css`
   color: var(--primary-color);
   border-bottom-color: var(--primary-color);
   opacity: 1;
+}
+
+.icon-source-template-field ha-selector {
+  display: block;
 }
 
 .file-icon-grid {
