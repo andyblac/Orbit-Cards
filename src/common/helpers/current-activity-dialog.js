@@ -71,6 +71,46 @@ export function setCurrentActivityScope(scope) {
   loadCurrentActivityScope.call(this, nextScope);
 }
 
+export function syncCurrentActivityEntities(
+  currentEntityIds = [],
+  allEntityIds = currentEntityIds
+) {
+  if (!this._currentActivityOpen) return;
+
+  const previousCurrent = this._currentActivityCurrentEntityIds;
+  const previousAll = this._currentActivityAllEntityIds;
+  const currentEntities = uniqueEntityIds([
+    ...previousCurrent,
+    ...currentEntityIds,
+  ]);
+  const allEntities = uniqueEntityIds(allEntityIds);
+  const currentChanged = !sameEntityIds(previousCurrent, currentEntities);
+  const allChanged = !sameEntityIds(previousAll, allEntities);
+
+  if (!currentChanged && !allChanged) return;
+
+  this._currentActivityCurrentEntityIds = currentEntities;
+  this._currentActivityAllEntityIds = allEntities;
+
+  const selectedChanged = this._currentActivityScope === "all"
+    ? allChanged
+    : currentChanged;
+  if (!selectedChanged) return;
+
+  const selectedEntities = this._currentActivityScope === "all"
+    ? allEntities
+    : currentEntities;
+  const card = this._currentActivityCard;
+
+  if (card?.localName === "ha-logbook" && selectedEntities.length) {
+    card.hass = this.hass;
+    card.entityIds = selectedEntities;
+    return;
+  }
+
+  loadCurrentActivityScope.call(this, this._currentActivityScope);
+}
+
 export function setCurrentActivityDateRange(value = {}) {
   const startDate = validDate(value.startDate);
   const endDate = validDate(value.endDate);
@@ -138,12 +178,7 @@ async function loadCurrentActivityScope(scope) {
     if (request !== this._currentActivityRequest) return;
 
     card.hass = this.hass;
-    card.time = {
-      range: [
-        this._currentActivityStartDate,
-        this._currentActivityEndDate,
-      ],
-    };
+    card.time = currentActivityTime.call(this);
     card.entityIds = entities;
     card.virtualize = true;
     card.narrow = true;
@@ -159,6 +194,19 @@ async function loadCurrentActivityScope(scope) {
       this._currentActivityLoading = false;
     }
   }
+}
+
+function currentActivityTime() {
+  if (!this._currentActivityHeightLocked) {
+    return { recent: 24 * 60 * 60 };
+  }
+
+  return {
+    range: [
+      this._currentActivityStartDate,
+      this._currentActivityEndDate,
+    ],
+  };
 }
 
 export function closeCurrentActivityDialog() {
@@ -183,6 +231,11 @@ export function closeCurrentActivityDialog() {
 
 function uniqueEntityIds(entityIds = []) {
   return [...new Set(entityIds.filter(Boolean))];
+}
+
+function sameEntityIds(left = [], right = []) {
+  return left.length === right.length &&
+    left.every((entityId, index) => entityId === right[index]);
 }
 
 function defaultCurrentActivityRange() {

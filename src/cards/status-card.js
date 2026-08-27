@@ -78,6 +78,7 @@ import {
   currentActivityDialogProperties,
   initializeCurrentActivityDialog,
   openCurrentActivityDialog,
+  syncCurrentActivityEntities,
 } from "../common/helpers/current-activity-dialog.js";
 import {
   sharedSvgCache,
@@ -142,6 +143,7 @@ class OrbitStatusCard extends LitElement {
     initializeActiveEntitiesDialog.call(this);
     initializeCurrentActivityDialog.call(this);
     this._activeEntitiesStatusIndex = 0;
+    this._currentActivityStatusIndex = 0;
   }
 
   static getConfigElement() {
@@ -191,9 +193,31 @@ class OrbitStatusCard extends LitElement {
   willUpdate(changedProps) {
     if (changedProps.has("_config") || changedProps.has("hass")) {
       syncTemplateSubscriptions.call(this, this._getTemplateEntries());
+      this._syncCurrentActivityEntities();
     }
 
     return updateStatusCard.call(this, changedProps);
+  }
+
+  _syncCurrentActivityEntities() {
+    if (!this._currentActivityOpen) return;
+
+    const index = this._currentActivityStatusIndex ?? 0;
+    const config = this._config?.mode === "icon_only"
+      ? getIconOnlyStatusItems(this._config)[index] || {}
+      : this._config || {};
+    const entities = getStatusBadgeEntities(this.hass, config);
+    const activeEntityIds = getStatusBadgeActiveEntities(
+      entities,
+      config,
+      (stateObj) => this._getEntityActiveState(stateObj)
+    ).map((stateObj) => stateObj.entity_id);
+
+    syncCurrentActivityEntities.call(
+      this,
+      activeEntityIds,
+      entities.map((stateObj) => stateObj.entity_id)
+    );
   }
 
   disconnectedCallback() {
@@ -228,6 +252,7 @@ class OrbitStatusCard extends LitElement {
     if (actionConfig?.action === CURRENT_ACTIVITY_ACTION) {
       closeActiveEntitiesDialog.call(this);
       const index = actionConfig.status_index ?? 0;
+      this._currentActivityStatusIndex = index;
       const config = this._config?.mode === "icon_only"
         ? getIconOnlyStatusItems(this._config)[index] || {}
         : this._config || {};

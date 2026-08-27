@@ -59,6 +59,7 @@ import {
   currentActivityDialogProperties,
   initializeCurrentActivityDialog,
   openCurrentActivityDialog,
+  syncCurrentActivityEntities,
 } from "../common/helpers/current-activity-dialog.js";
 import { getStatusBadgeModel } from "./helpers/model.js";
 import { statusBadgeStyles } from "./styles/status-badge-styles.js";
@@ -120,7 +121,19 @@ class OrbitStatusBadge extends LitElement {
   updated(changedProperties) {
     if (changedProperties.has("hass") || changedProperties.has("_config")) {
       this._syncTemplateSubscriptions();
+      this._syncCurrentActivityEntities();
     }
+  }
+
+  _syncCurrentActivityEntities() {
+    if (!this._currentActivityOpen) return;
+
+    const model = this._getModel();
+    syncCurrentActivityEntities.call(
+      this,
+      model.activeEntities.map((stateObj) => stateObj.entity_id),
+      model.entities.map((stateObj) => stateObj.entity_id)
+    );
   }
 
   shouldUpdate(changedProperties) {
