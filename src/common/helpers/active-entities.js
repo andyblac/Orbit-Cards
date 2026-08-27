@@ -88,6 +88,8 @@ export function getActiveEntityNameCollator(hass) {
 }
 
 export function getActiveEntityFormattedState(hass, stateObj) {
+  if (!stateObj) return "";
+
   const formattedState = hass?.formatEntityState?.(stateObj);
 
   if (formattedState) return formattedState;

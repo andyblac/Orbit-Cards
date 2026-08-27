@@ -8060,6 +8060,7 @@ function cl(e) {
 	})), nl.get(t);
 }
 function ll(e, t) {
+	if (!t) return "";
 	let n = e?.formatEntityState?.(t);
 	if (n) return n;
 	let r = String(t?.state || "").replaceAll("_", " ");
