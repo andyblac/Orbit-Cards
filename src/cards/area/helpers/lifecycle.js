@@ -126,7 +126,9 @@ function getStatusItems() {
       );
       const icon = ["custom", "template"].includes(iconSource)
         ? customIcon
-        : "";
+        : !stateObj
+          ? "mdi:alert-circle-outline"
+          : "";
 
       return {
         entityId,
@@ -283,8 +285,7 @@ function getActionButtonModel() {
 
 function getAreaButtonModel(prefix, entityId, index, options) {
   const stateObj = this.hass?.states[entityId];
-
-  if (!stateObj) return null;
+  const isMissing = Boolean(entityId && !stateObj);
 
   const key = options.key || `${prefix}${index + 1}`;
   const stateTemplate = this._config?.[`${key}_state_template`];
@@ -309,7 +310,10 @@ function getAreaButtonModel(prefix, entityId, index, options) {
     entityId
   );
 
-  const icon = getButtonIcon.call(this, key, isOn);
+  const configuredIcon = getButtonIcon.call(this, key, isOn);
+  const icon = configuredIcon || (isMissing
+    ? "mdi:alert-circle-outline"
+    : "");
 
   const isImage = this._isImageIcon(icon);
   const previousIconState = this._buttonIconStates?.get(key);
@@ -344,11 +348,15 @@ function getAreaButtonModel(prefix, entityId, index, options) {
     tapAction:
       this._config?.[`${key}_tap_action`] ||
       options.defaultAction,
-    backgroundColor: options.getBackgroundColor
+    backgroundColor: isMissing
+      ? "color-mix(in srgb, var(--error-color) 12%, transparent)"
+      : options.getBackgroundColor
       ? options.getBackgroundColor.call(this, key, stateObj, isOn)
       : "",
     icon,
-    iconColor: options.getIconColor.call(this, key, stateObj, isOn),
+    iconColor: isMissing
+      ? "var(--error-color)"
+      : options.getIconColor.call(this, key, stateObj, isOn),
     iconPath: isImage
       ? this._resolveIconPath(icon)
       : "",

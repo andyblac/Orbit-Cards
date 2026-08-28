@@ -1,4 +1,5 @@
 const DEFAULT_CURRENT_ACTIVITY_HEIGHT = 140;
+const MAX_CURRENT_ACTIVITY_HEIGHT = "calc(100dvh - 216px)";
 
 export const currentActivityDialogProperties = {
   _currentActivityOpen: { state: true },
@@ -10,6 +11,11 @@ export const currentActivityDialogProperties = {
   _currentActivityCurrentEntityIds: { state: true },
   _currentActivityAllEntityIds: { state: true },
   _currentActivityShowScopeToggle: { state: true },
+  _currentActivityStartDate: { state: true },
+  _currentActivityEndDate: { state: true },
+  _currentActivityHasDateRangePicker: { state: true },
+  _currentActivityHeightLocked: { state: true },
+  _currentActivityTitleDetail: { state: true },
 };
 
 export function initializeCurrentActivityDialog() {
@@ -22,6 +28,14 @@ export function initializeCurrentActivityDialog() {
   this._currentActivityCurrentEntityIds = [];
   this._currentActivityAllEntityIds = [];
   this._currentActivityShowScopeToggle = false;
+  const { startDate, endDate } = defaultCurrentActivityRange();
+  this._currentActivityStartDate = startDate;
+  this._currentActivityEndDate = endDate;
+  this._currentActivityHasDateRangePicker = Boolean(
+    customElements.get("ha-date-range-picker")
+  );
+  this._currentActivityHeightLocked = false;
+  this._currentActivityTitleDetail = "";
   this._currentActivityRequest = 0;
   this._currentActivityHeightTimer = null;
 }
@@ -29,7 +43,8 @@ export function initializeCurrentActivityDialog() {
 export function openCurrentActivityDialog(
   currentEntityIds = [],
   allEntityIds = currentEntityIds,
-  showScopeToggle = false
+  showScopeToggle = false,
+  titleDetail = ""
 ) {
   const currentEntities = uniqueEntityIds(currentEntityIds);
   const allEntities = uniqueEntityIds(allEntityIds);
@@ -38,6 +53,11 @@ export function openCurrentActivityDialog(
   this._currentActivityCurrentEntityIds = currentEntities;
   this._currentActivityAllEntityIds = allEntities;
   this._currentActivityShowScopeToggle = Boolean(showScopeToggle);
+  this._currentActivityTitleDetail = String(titleDetail || "").trim();
+  const { startDate, endDate } = defaultCurrentActivityRange();
+  this._currentActivityStartDate = startDate;
+  this._currentActivityEndDate = endDate;
+  this._currentActivityHeightLocked = false;
   this._currentActivityOpen = true;
 
   loadCurrentActivityScope.call(this, "current");
@@ -51,6 +71,72 @@ export function setCurrentActivityScope(scope) {
   loadCurrentActivityScope.call(this, nextScope);
 }
 
+export function syncCurrentActivityEntities(
+  currentEntityIds = [],
+  allEntityIds = currentEntityIds
+) {
+  if (!this._currentActivityOpen) return;
+
+  const previousCurrent = this._currentActivityCurrentEntityIds;
+  const previousAll = this._currentActivityAllEntityIds;
+  const currentEntities = uniqueEntityIds([
+    ...previousCurrent,
+    ...currentEntityIds,
+  ]);
+  const allEntities = uniqueEntityIds(allEntityIds);
+  const currentChanged = !sameEntityIds(previousCurrent, currentEntities);
+  const allChanged = !sameEntityIds(previousAll, allEntities);
+
+  if (!currentChanged && !allChanged) return;
+
+  this._currentActivityCurrentEntityIds = currentEntities;
+  this._currentActivityAllEntityIds = allEntities;
+
+  const selectedChanged = this._currentActivityScope === "all"
+    ? allChanged
+    : currentChanged;
+  if (!selectedChanged) return;
+
+  const selectedEntities = this._currentActivityScope === "all"
+    ? allEntities
+    : currentEntities;
+  const card = this._currentActivityCard;
+
+  if (card?.localName === "ha-logbook" && selectedEntities.length) {
+    card.hass = this.hass;
+    card.entityIds = selectedEntities;
+    return;
+  }
+
+  loadCurrentActivityScope.call(this, this._currentActivityScope);
+}
+
+export function setCurrentActivityDateRange(value = {}) {
+  const startDate = validDate(value.startDate);
+  const endDate = validDate(value.endDate);
+  if (!startDate || !endDate || endDate <= startDate) return;
+
+  this._currentActivityStartDate = startDate;
+  this._currentActivityEndDate = endDate;
+  this._currentActivityHeightLocked = true;
+  this._currentActivityHeight = MAX_CURRENT_ACTIVITY_HEIGHT;
+
+  const card = this._currentActivityCard;
+  if (card?.localName === "ha-logbook") {
+    this._currentActivityRequest += 1;
+    window.clearTimeout(this._currentActivityHeightTimer);
+    this._currentActivityHeightTimer = null;
+    this._currentActivityLoading = false;
+    this._currentActivityError = "";
+    card.hass = this.hass;
+    card.time = { range: [startDate, endDate] };
+    card.requestUpdate?.();
+    return;
+  }
+
+  loadCurrentActivityScope.call(this, this._currentActivityScope);
+}
+
 async function loadCurrentActivityScope(scope) {
   const entities = scope === "all"
     ? this._currentActivityAllEntityIds
@@ -60,7 +146,9 @@ async function loadCurrentActivityScope(scope) {
   this._currentActivityCard = null;
   this._currentActivityLoading = true;
   this._currentActivityError = "";
-  this._currentActivityHeight = `${DEFAULT_CURRENT_ACTIVITY_HEIGHT}px`;
+  this._currentActivityHeight = this._currentActivityHeightLocked
+    ? MAX_CURRENT_ACTIVITY_HEIGHT
+    : `${DEFAULT_CURRENT_ACTIVITY_HEIGHT}px`;
   window.clearTimeout(this._currentActivityHeightTimer);
   this._currentActivityHeightTimer = null;
 
@@ -76,16 +164,24 @@ async function loadCurrentActivityScope(scope) {
     }
 
     const helpers = await window.loadCardHelpers();
-    const card = helpers.createCardElement({
+    this._currentActivityHasDateRangePicker =
+      await ensureDateRangePicker(helpers);
+    helpers.createCardElement({
       type: "logbook",
-      entities,
+      target: { entity_id: entities },
       hours_to_show: 24,
     });
+    await customElements.whenDefined("ha-logbook");
+
+    const card = document.createElement("ha-logbook");
 
     if (request !== this._currentActivityRequest) return;
 
     card.hass = this.hass;
-    card.layout = "panel";
+    card.time = currentActivityTime.call(this);
+    card.entityIds = entities;
+    card.virtualize = true;
+    card.narrow = true;
     this._currentActivityCard = card;
     syncCurrentActivityHeight.call(this, card, request);
   } catch (error) {
@@ -100,6 +196,19 @@ async function loadCurrentActivityScope(scope) {
   }
 }
 
+function currentActivityTime() {
+  if (!this._currentActivityHeightLocked) {
+    return { recent: 24 * 60 * 60 };
+  }
+
+  return {
+    range: [
+      this._currentActivityStartDate,
+      this._currentActivityEndDate,
+    ],
+  };
+}
+
 export function closeCurrentActivityDialog() {
   this._currentActivityOpen = false;
   this._currentActivityCard = null;
@@ -110,6 +219,11 @@ export function closeCurrentActivityDialog() {
   this._currentActivityCurrentEntityIds = [];
   this._currentActivityAllEntityIds = [];
   this._currentActivityShowScopeToggle = false;
+  const { startDate, endDate } = defaultCurrentActivityRange();
+  this._currentActivityStartDate = startDate;
+  this._currentActivityEndDate = endDate;
+  this._currentActivityHeightLocked = false;
+  this._currentActivityTitleDetail = "";
   this._currentActivityRequest += 1;
   window.clearTimeout(this._currentActivityHeightTimer);
   this._currentActivityHeightTimer = null;
@@ -119,16 +233,53 @@ function uniqueEntityIds(entityIds = []) {
   return [...new Set(entityIds.filter(Boolean))];
 }
 
+function sameEntityIds(left = [], right = []) {
+  return left.length === right.length &&
+    left.every((entityId, index) => entityId === right[index]);
+}
+
+function defaultCurrentActivityRange() {
+  const endDate = new Date();
+  return {
+    startDate: new Date(endDate.getTime() - 24 * 60 * 60 * 1000),
+    endDate,
+  };
+}
+
+function validDate(value) {
+  if (!(value instanceof Date) || Number.isNaN(value.getTime())) return null;
+  return new Date(value);
+}
+
+async function ensureDateRangePicker(helpers) {
+  if (customElements.get("ha-date-range-picker")) return true;
+
+  try {
+    helpers.createCardElement({ type: "energy-date-selection" });
+    return await Promise.race([
+      customElements.whenDefined("ha-date-range-picker").then(() => true),
+      new Promise((resolve) => window.setTimeout(() => resolve(false), 3000)),
+    ]);
+  } catch (_error) {
+    return false;
+  }
+}
+
 function syncCurrentActivityHeight(card, request, attempt = 0) {
+  if (this._currentActivityHeightLocked) return;
+
   window.clearTimeout(this._currentActivityHeightTimer);
   this._currentActivityHeightTimer = window.setTimeout(async () => {
     if (
       request !== this._currentActivityRequest ||
-      card !== this._currentActivityCard
+      card !== this._currentActivityCard ||
+      this._currentActivityHeightLocked
     ) return;
 
     await card.updateComplete;
-    const logbook = card.shadowRoot?.querySelector("ha-logbook");
+    const logbook = card.localName === "ha-logbook"
+      ? card
+      : card.shadowRoot?.querySelector("ha-logbook");
     await logbook?.updateComplete;
     const renderer = logbook?.shadowRoot?.querySelector(
       "ha-logbook-renderer"

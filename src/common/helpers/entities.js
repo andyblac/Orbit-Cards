@@ -1,4 +1,16 @@
-export function formatEntityState(stateObj) {
+export function formatEntityState(stateObj, hass = null) {
+  let nativeState = null;
+
+  try {
+    nativeState = hass?.formatEntityState?.(stateObj);
+  } catch (_error) {
+    nativeState = null;
+  }
+
+  if (nativeState !== null && nativeState !== undefined && nativeState !== "") {
+    return nativeState;
+  }
+
   const unit = stateObj.attributes.unit_of_measurement || "";
   const value = stateObj.state;
 
@@ -116,4 +128,11 @@ const NATIVE_INACTIVE_STATES = new Set([
 
 export function isEntityUnavailable(stateObj) {
   return stateObj?.state?.toString().toLowerCase() === "unavailable";
+}
+
+export function getEntityIssue(entityId, stateObj) {
+  if (isEntityUnavailable(stateObj)) return "unavailable";
+  if (entityId && !stateObj) return "missing";
+
+  return null;
 }

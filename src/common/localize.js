@@ -55,6 +55,9 @@ function localizeHomeAssistant(hass, key) {
 }
 
 const HOME_ASSISTANT_TRANSLATION_KEYS = {
+  Activity: [
+    "panel.logbook",
+  ],
   Add: [
     "ui.common.add",
   ],

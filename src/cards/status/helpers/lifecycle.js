@@ -195,7 +195,7 @@ function getStatusState(item, rootConfig = {}) {
     ? String(templatedLabel)
     : stateSource === "template"
     ? config.state_template
-      ? formatTemplateState(templatedState)
+      ? formatTemplateState(templatedState, this.hass, templateDomain)
       : stateObj
         ? getStatusAttribute(stateObj, "label") ||
           this.formatState(stateObj)
@@ -253,7 +253,9 @@ function getStatusState(item, rootConfig = {}) {
 
   const icon = customStateIcon || (stateSource === "area_count"
     ? getStatusBadgeDomainConfig(config.domain).icon
-    : "mdi:information-outline");
+    : entityId && !stateObj
+      ? "mdi:alert-circle-outline"
+      : "mdi:information-outline");
   const primaryDeviceClass = getStatusBadgeDeviceClasses(config)[0] || "";
   const nativeIconStateObj = stateSource === "area_count"
     ? {
@@ -296,9 +298,11 @@ function getStatusState(item, rootConfig = {}) {
   const nameColor = this._computeFullColor(statusColor);
   const statusColorValue = this._computeFullColor(statusColor);
   const circleColor = this._computeCircleColor(statusColor);
-  const iconColor = isOn
-    ? this._computeFullColor(statusColor)
-    : this._computeIconColor(statusColor);
+  const iconColor = entityId && !stateObj
+    ? "var(--error-color)"
+    : isOn
+      ? this._computeFullColor(statusColor)
+      : this._computeIconColor(statusColor);
 
   return {
     ...item,

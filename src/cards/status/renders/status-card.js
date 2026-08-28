@@ -1,6 +1,6 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { isEntityUnavailable } from "../../../common/helpers/entities.js";
+import { getEntityIssue } from "../../../common/helpers/entities.js";
 import { isCardEditorPreview } from "../../../common/helpers/editor-preview.js";
 import { STATUS_PREVIEW_SELECTED_INDEX } from "../../../editors/status-card-editor.js";
 
@@ -87,7 +87,11 @@ export function renderStatusCard() {
                   .icon=${this._icon}
                 ></ha-icon>
             `}
-          ${renderUnavailableBadge.call(this, this._mainStateObj)}
+          ${renderEntityIssueBadge.call(
+            this,
+            this._config.entity,
+            this.hass?.states?.[this._config.entity]
+          )}
         </div>
 
         ${mode === "icon_only"
@@ -181,7 +185,7 @@ function renderIconOnlyStatusItem(item, index) {
               .icon=${item.icon}
             ></ha-icon>
           `}
-      ${renderUnavailableBadge.call(this, item.stateObj)}
+      ${renderEntityIssueBadge.call(this, item.entityId, item.stateObj)}
     </div>
 
     <div
@@ -318,23 +322,29 @@ function renderPersonBadge(
             `
           : html`<ha-icon .icon=${icon}></ha-icon>`}
       </span>
-      ${renderUnavailableBadge.call(this, stateObj)}
+      ${renderEntityIssueBadge.call(this, entityId, stateObj)}
     </span>
   `;
 }
 
-function renderUnavailableBadge(stateObj) {
-  return isEntityUnavailable(stateObj)
-    ? html`
-        <ha-tile-badge
-          class="entity-unavailable-badge"
-          title=${this._t("Unavailable")}
-          aria-label=${this._t("Unavailable")}
-        >
-          <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
-        </ha-tile-badge>
-      `
-    : "";
+function renderEntityIssueBadge(entityId, stateObj) {
+  const issue = getEntityIssue(entityId, stateObj);
+
+  if (!issue) return "";
+
+  const label = this._t(
+    issue === "missing" ? "Entity not found" : "Unavailable"
+  );
+
+  return html`
+    <ha-tile-badge
+      class="entity-unavailable-badge ${issue === "missing" ? "entity-missing-badge" : ""}"
+      title=${label}
+      aria-label=${label}
+    >
+      <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
+    </ha-tile-badge>
+  `;
 }
 
 function isChargingBatteryState(stateObj) {

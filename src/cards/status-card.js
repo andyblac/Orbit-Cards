@@ -59,6 +59,7 @@ import {
   CURRENT_ACTIVITY_ACTION,
   CURRENT_STATE_ACTION,
   getStatusBadgeActiveEntities,
+  getStatusBadgeActivityTitleDetail,
   getStatusBadgeAreaEntityIds,
   getStatusBadgeEntities,
   getStatusBadgeStateSource,
@@ -67,14 +68,17 @@ import { renderActiveEntitiesDialog } from "../common/renders/active-entities-di
 import { renderCurrentActivityDialog } from "../common/renders/current-activity-dialog.js";
 import {
   activeEntitiesDialogProperties,
+  closeActiveEntitiesDialog,
   initializeActiveEntitiesDialog,
   openActiveEntitiesDialog,
   stopActiveEntitiesDurationTimer,
 } from "../common/helpers/active-entities-dialog.js";
 import {
+  closeCurrentActivityDialog,
   currentActivityDialogProperties,
   initializeCurrentActivityDialog,
   openCurrentActivityDialog,
+  syncCurrentActivityEntities,
 } from "../common/helpers/current-activity-dialog.js";
 import {
   sharedSvgCache,
@@ -139,6 +143,7 @@ class OrbitStatusCard extends LitElement {
     initializeActiveEntitiesDialog.call(this);
     initializeCurrentActivityDialog.call(this);
     this._activeEntitiesStatusIndex = 0;
+    this._currentActivityStatusIndex = 0;
   }
 
   static getConfigElement() {
@@ -188,9 +193,31 @@ class OrbitStatusCard extends LitElement {
   willUpdate(changedProps) {
     if (changedProps.has("_config") || changedProps.has("hass")) {
       syncTemplateSubscriptions.call(this, this._getTemplateEntries());
+      this._syncCurrentActivityEntities();
     }
 
     return updateStatusCard.call(this, changedProps);
+  }
+
+  _syncCurrentActivityEntities() {
+    if (!this._currentActivityOpen) return;
+
+    const index = this._currentActivityStatusIndex ?? 0;
+    const config = this._config?.mode === "icon_only"
+      ? getIconOnlyStatusItems(this._config)[index] || {}
+      : this._config || {};
+    const entities = getStatusBadgeEntities(this.hass, config);
+    const activeEntityIds = getStatusBadgeActiveEntities(
+      entities,
+      config,
+      (stateObj) => this._getEntityActiveState(stateObj)
+    ).map((stateObj) => stateObj.entity_id);
+
+    syncCurrentActivityEntities.call(
+      this,
+      activeEntityIds,
+      entities.map((stateObj) => stateObj.entity_id)
+    );
   }
 
   disconnectedCallback() {
@@ -216,13 +243,16 @@ class OrbitStatusCard extends LitElement {
 
   _handleAction(actionConfig, entityId = null) {
     if (actionConfig?.action === CURRENT_STATE_ACTION) {
+      closeCurrentActivityDialog.call(this);
       this._activeEntitiesStatusIndex = actionConfig.status_index ?? 0;
       openActiveEntitiesDialog.call(this);
       return;
     }
 
     if (actionConfig?.action === CURRENT_ACTIVITY_ACTION) {
+      closeActiveEntitiesDialog.call(this);
       const index = actionConfig.status_index ?? 0;
+      this._currentActivityStatusIndex = index;
       const config = this._config?.mode === "icon_only"
         ? getIconOnlyStatusItems(this._config)[index] || {}
         : this._config || {};
@@ -236,12 +266,17 @@ class OrbitStatusCard extends LitElement {
       const allEntityIds = isAreaCount
         ? entities.map((stateObj) => stateObj.entity_id)
         : activeEntityIds;
+      const activityTitleDetail = getStatusBadgeActivityTitleDetail(
+        this.hass,
+        config
+      );
 
       openCurrentActivityDialog.call(
         this,
         activeEntityIds,
         allEntityIds,
-        isAreaCount
+        isAreaCount,
+        activityTitleDetail
       );
       return;
     }
@@ -261,7 +296,8 @@ class OrbitStatusCard extends LitElement {
         getStatusBadgeEntities(this.hass, config),
         config,
         (stateObj) => this._getEntityActiveState(stateObj)
-      )
+      ),
+      config
     );
   }
 
@@ -608,7 +644,7 @@ class OrbitStatusCard extends LitElement {
   }
 
   formatState(stateObj) {
-    return formatEntityState(stateObj);
+    return formatEntityState(stateObj, this.hass);
   }
 
   _getEntityActiveState(stateObj) {

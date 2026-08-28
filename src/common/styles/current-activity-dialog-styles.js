@@ -14,9 +14,9 @@ export const currentActivityDialogStyles = css`
     min-width: 0;
     height: min(
       var(--current-activity-height, 140px),
-      calc(100dvh - 128px)
+      calc(100dvh - 216px)
     );
-    max-height: calc(100dvh - 128px);
+    max-height: calc(100dvh - 216px);
     padding: 0 var(--ha-space-4, 16px) var(--ha-space-4, 16px);
     overflow-x: hidden;
     overflow-y: auto;
@@ -26,15 +26,19 @@ export const currentActivityDialogStyles = css`
     width: 180px;
   }
 
-  .current-activity-dialog-content > hui-logbook-card,
-  .current-activity-dialog-content > ha-card {
+  .current-activity-date-browser {
+    display: flex;
+    padding: 0 var(--ha-space-4, 16px) var(--ha-space-3, 12px);
+  }
+
+  .current-activity-date-browser ha-date-range-picker {
+    width: 100%;
+  }
+
+  .current-activity-dialog-content > ha-logbook {
     display: block;
-    height: calc(100% + 32px);
-    max-height: calc(100dvh - 96px);
-    margin-top: -32px;
-    --ha-card-border-width: 0;
-    --ha-card-box-shadow: none;
-    --ha-card-background: transparent;
+    height: 100%;
+    max-height: calc(100dvh - 216px);
   }
 
   .current-activity-dialog-message {
@@ -52,6 +56,35 @@ export const currentActivityDialogStyles = css`
 
     .current-activity-dialog-content {
       padding-inline: 0;
+    }
+
+    .current-activity-date-browser {
+      padding-inline: 0;
+    }
+  }
+
+  @media (max-width: 870px), (max-height: 500px) {
+    .current-activity-dialog {
+      --ha-bottom-sheet-height: min(
+        90dvh,
+        calc(
+          100dvh - max(var(--safe-area-inset-top, 0px), 48px)
+        )
+      );
+      --ha-bottom-sheet-max-height: var(--ha-bottom-sheet-height);
+      --dialog-content-padding: 0;
+    }
+
+    .current-activity-dialog-content {
+      flex: 1 1 auto;
+      min-height: 0;
+      height: auto;
+      max-height: none;
+    }
+
+    .current-activity-dialog-content > ha-logbook {
+      min-height: 0;
+      max-height: none;
     }
   }
 `;

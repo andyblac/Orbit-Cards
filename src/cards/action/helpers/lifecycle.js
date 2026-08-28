@@ -68,7 +68,9 @@ function getActionState(item) {
       ? "icon"
       : "";
 
-  const icon = customIcon || "mdi:play-circle";
+  const icon = customIcon || (entityId && !stateObj
+    ? "mdi:alert-circle-outline"
+    : "mdi:play-circle");
 
   return {
     ...item,
@@ -78,7 +80,9 @@ function getActionState(item) {
       iconSource !== "template" &&
       !customIcon,
     icon,
-    iconColor,
+    iconColor: entityId && !stateObj
+      ? "var(--error-color)"
+      : iconColor,
     cardBackground,
     isRunning,
     svgForceColor: selectedIconKey

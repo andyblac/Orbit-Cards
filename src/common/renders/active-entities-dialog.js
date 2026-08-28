@@ -17,8 +17,12 @@ import {
   getActiveEntityNameCollator,
   getActiveEntityServiceName,
 } from "../helpers/active-entities.js";
+import {
+  getStatusBadgeThresholdDisplayState,
+  hasStatusBadgeThresholdRule,
+} from "../helpers/status-badge.js";
 
-export function renderActiveEntitiesDialog(activeEntities = []) {
+export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
   if (!this._activeEntitiesOpen) return nothing;
 
   const collator = getActiveEntityNameCollator(this.hass);
@@ -47,12 +51,18 @@ export function renderActiveEntitiesDialog(activeEntities = []) {
     `--mdc-dialog-min-width:${width}px`,
     `--mdc-dialog-max-width:${width}px`,
   ].join(";");
-  const activeState = getActiveEntityFormattedState(
+  const thresholdState = getStatusBadgeThresholdDisplayState(
     this.hass,
-    controls[0]?.stateObj
+    config
   );
-  const title = activeState
-    ? this._t("Currently {state}", { state: activeState })
+  const usesThreshold = hasStatusBadgeThresholdRule(config);
+  const activeState = usesThreshold
+    ? thresholdState
+    : getActiveEntityFormattedState(this.hass, controls[0]?.stateObj);
+  const title = thresholdState
+    ? this._t("Currently {state}", { state: thresholdState })
+    : activeState
+      ? this._t("Currently {state}", { state: activeState })
     : this._t("Current state");
 
   return html`

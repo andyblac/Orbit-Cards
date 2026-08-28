@@ -28,6 +28,7 @@ import {
 import {
   CURRENT_ACTIVITY_ACTION,
   CURRENT_STATE_ACTION,
+  getStatusBadgeActivityTitleDetail,
   getStatusBadgeAreaEntityIds,
   getStatusBadgeDefaultTapAction,
   getStatusBadgeEntities,
@@ -48,14 +49,17 @@ import { renderActiveEntitiesDialog } from "../common/renders/active-entities-di
 import { renderCurrentActivityDialog } from "../common/renders/current-activity-dialog.js";
 import {
   activeEntitiesDialogProperties,
+  closeActiveEntitiesDialog,
   initializeActiveEntitiesDialog,
   openActiveEntitiesDialog,
   stopActiveEntitiesDurationTimer,
 } from "../common/helpers/active-entities-dialog.js";
 import {
+  closeCurrentActivityDialog,
   currentActivityDialogProperties,
   initializeCurrentActivityDialog,
   openCurrentActivityDialog,
+  syncCurrentActivityEntities,
 } from "../common/helpers/current-activity-dialog.js";
 import { getStatusBadgeModel } from "./helpers/model.js";
 import { statusBadgeStyles } from "./styles/status-badge-styles.js";
@@ -117,7 +121,19 @@ class OrbitStatusBadge extends LitElement {
   updated(changedProperties) {
     if (changedProperties.has("hass") || changedProperties.has("_config")) {
       this._syncTemplateSubscriptions();
+      this._syncCurrentActivityEntities();
     }
+  }
+
+  _syncCurrentActivityEntities() {
+    if (!this._currentActivityOpen) return;
+
+    const model = this._getModel();
+    syncCurrentActivityEntities.call(
+      this,
+      model.activeEntities.map((stateObj) => stateObj.entity_id),
+      model.entities.map((stateObj) => stateObj.entity_id)
+    );
   }
 
   shouldUpdate(changedProperties) {
@@ -189,11 +205,13 @@ class OrbitStatusBadge extends LitElement {
 
   _handleAction(actionConfig, entityId = null) {
     if (actionConfig?.action === CURRENT_STATE_ACTION) {
+      closeCurrentActivityDialog.call(this);
       openActiveEntitiesDialog.call(this);
       return;
     }
 
     if (actionConfig?.action === CURRENT_ACTIVITY_ACTION) {
+      closeActiveEntitiesDialog.call(this);
       const model = this._getModel();
       const activeEntityIds = model.activeEntities.map(
         (stateObj) => stateObj.entity_id
@@ -203,12 +221,17 @@ class OrbitStatusBadge extends LitElement {
       const allEntityIds = isAreaCount
         ? model.entities.map((stateObj) => stateObj.entity_id)
         : activeEntityIds;
+      const activityTitleDetail = getStatusBadgeActivityTitleDetail(
+        this.hass,
+        this._config
+      );
 
       openCurrentActivityDialog.call(
         this,
         activeEntityIds,
         allEntityIds,
-        isAreaCount
+        isAreaCount,
+        activityTitleDetail
       );
       return;
     }
@@ -345,7 +368,11 @@ class OrbitStatusBadge extends LitElement {
   }
 
   _renderActiveEntitiesDialog(model) {
-    return renderActiveEntitiesDialog.call(this, model.activeEntities);
+    return renderActiveEntitiesDialog.call(
+      this,
+      model.activeEntities,
+      this._config
+    );
   }
 
   render() {

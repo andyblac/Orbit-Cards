@@ -1,6 +1,6 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { isEntityUnavailable } from "../../../common/helpers/entities.js";
+import { getEntityIssue } from "../../../common/helpers/entities.js";
 
 /* ==========================================
  *  BUTTONS
@@ -8,6 +8,10 @@ import { isEntityUnavailable } from "../../../common/helpers/entities.js";
 
 export function renderButtons(button) {
     if (!button) return null;
+    const issue = getEntityIssue(button.entityId, button.stateObj);
+    const issueLabel = issue
+      ? this._t(issue === "missing" ? "Entity not found" : "Unavailable")
+      : "";
     
     return html`
       <button
@@ -55,12 +59,12 @@ export function renderButtons(button) {
                 style="color:${button.iconColor};"
               ></ha-icon>
             `}
-        ${isEntityUnavailable(button.stateObj)
+        ${issue
           ? html`
               <ha-tile-badge
-                class="entity-unavailable-badge"
-                title=${this._t("Unavailable")}
-                aria-label=${this._t("Unavailable")}
+                class="entity-unavailable-badge ${issue === "missing" ? "entity-missing-badge" : ""}"
+                title=${issueLabel}
+                aria-label=${issueLabel}
               >
                 <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
               </ha-tile-badge>

@@ -70,6 +70,7 @@ import {
 import {
   sharedSvgCache,
 } from "../common/helpers/svg-cache.js";
+import { localize } from "../common/localize.js";
 
 import {
   updateAreaCard,
@@ -274,7 +275,7 @@ class OrbitAreaCard extends LitElement {
   }
 
   formatState(stateObj) {
-    return formatEntityState(stateObj);
+    return formatEntityState(stateObj, this.hass);
   }
 
   _getEntityActiveState(stateObj) {
@@ -398,6 +399,10 @@ class OrbitAreaCard extends LitElement {
 
   _renderCurveButtons() {
     return renderCurveButtons.call(this);
+  }
+
+  _t(key, replacements) {
+    return localize(this.hass, key, replacements);
   }
 
   render() {

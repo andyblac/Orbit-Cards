@@ -1,6 +1,6 @@
 import { html } from "lit";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { isEntityUnavailable } from "../../../common/helpers/entities.js";
+import { getEntityIssue } from "../../../common/helpers/entities.js";
 
 export function renderActionCard() {
   const actions = this._actions || [];
@@ -38,6 +38,10 @@ export function renderActionCard() {
 }
 
 function renderActionButton(action, index) {
+  const issue = getEntityIssue(action.entityId, action.stateObj);
+  const issueLabel = issue
+    ? this._t(issue === "missing" ? "Entity not found" : "Unavailable")
+    : "";
   const iconPath = this._isImageIcon(action.icon)
     ? this._resolveIconPath(action.icon)
     : "";
@@ -67,12 +71,12 @@ function renderActionButton(action, index) {
               .icon=${action.icon}
             ></ha-icon>
           `}
-      ${isEntityUnavailable(action.stateObj)
+      ${issue
         ? html`
             <ha-tile-badge
-              class="entity-unavailable-badge"
-              title=${this._t("Unavailable")}
-              aria-label=${this._t("Unavailable")}
+              class="entity-unavailable-badge ${issue === "missing" ? "entity-missing-badge" : ""}"
+              title=${issueLabel}
+              aria-label=${issueLabel}
             >
               <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
             </ha-tile-badge>

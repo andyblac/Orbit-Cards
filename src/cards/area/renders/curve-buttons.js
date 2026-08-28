@@ -1,7 +1,7 @@
 import { html } from "lit";
 import { repeat } from "lit/directives/repeat.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { isEntityUnavailable } from "../../../common/helpers/entities.js";
+import { getEntityIssue } from "../../../common/helpers/entities.js";
 
 
 // =========================
@@ -67,7 +67,7 @@ export function renderCurveButtons() {
                       style="color:${button.iconColor};"
                     ></ha-icon>
                   `}
-              ${renderUnavailableBadge.call(this, button.stateObj)}
+              ${renderEntityIssueBadge.call(this, button.entityId, button.stateObj)}
             </button>
           `;
         }
@@ -124,21 +124,27 @@ function renderActionButton(button) {
               style="color:${button.iconColor};"
             ></ha-icon>
           `}
-      ${renderUnavailableBadge.call(this, button.stateObj)}
+      ${renderEntityIssueBadge.call(this, button.entityId, button.stateObj)}
     </button>
   `;
 }
 
-function renderUnavailableBadge(stateObj) {
-  return isEntityUnavailable(stateObj)
-    ? html`
-        <ha-tile-badge
-          class="entity-unavailable-badge"
-          title=${this._t("Unavailable")}
-          aria-label=${this._t("Unavailable")}
-        >
-          <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
-        </ha-tile-badge>
-      `
-    : "";
+function renderEntityIssueBadge(entityId, stateObj) {
+  const issue = getEntityIssue(entityId, stateObj);
+
+  if (!issue) return "";
+
+  const label = this._t(
+    issue === "missing" ? "Entity not found" : "Unavailable"
+  );
+
+  return html`
+    <ha-tile-badge
+      class="entity-unavailable-badge ${issue === "missing" ? "entity-missing-badge" : ""}"
+      title=${label}
+      aria-label=${label}
+    >
+      <ha-icon .icon=${"mdi:exclamation-thick"}></ha-icon>
+    </ha-tile-badge>
+  `;
 }

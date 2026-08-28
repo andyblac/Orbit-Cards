@@ -120,7 +120,7 @@ function connectDeckCardSurfaceObserver(element) {
   });
 }
 
-function disconnectDeckCardSurfaceObserver(element) {
+export function disconnectDeckCardSurfaceObserver(element) {
   element._orbitDeckSurfaceObserver?.disconnect();
   element._orbitDeckSurfaceObserver = null;
 }

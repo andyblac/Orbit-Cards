@@ -1,8 +1,9 @@
 import { html } from "lit";
 import {
-  formatDeviceClass,
+  getStatusBadgeDeviceClassLabel,
   getStatusBadgeDeviceClasses,
   getStatusBadgeHideItems,
+  getStatusBadgeSensorUnit,
   getStatusBadgeSensorThreshold,
   serializeStatusBadgeHideItems,
   STATUS_BADGE_NON_NUMERIC_SENSOR_DEVICE_CLASSES,
@@ -424,7 +425,7 @@ export function renderBadgeStateControl({
                 this._config,
                 deviceClass
               );
-              const unit = getSensorDeviceClassUnit(
+              const unit = getStatusBadgeSensorUnit(
                 this.hass,
                 deviceClass
               );
@@ -432,7 +433,9 @@ export function renderBadgeStateControl({
               return html`
                 <div class="field sensor-threshold-field">
                   <div class="field-header">
-                    <label>${formatDeviceClass(deviceClass)}</label>
+                    <label>${getStatusBadgeDeviceClassLabel(
+                      deviceClass
+                    )}</label>
                     <ha-selector
                       .hass=${this.hass}
                       .selector=${{
@@ -764,16 +767,6 @@ function pruneSensorThresholds(thresholds = {}, deviceClasses = []) {
   );
 
   return Object.keys(pruned).length ? pruned : undefined;
-}
-
-function getSensorDeviceClassUnit(hass, deviceClass) {
-  if (deviceClass === "power") return "W";
-
-  return Object.values(hass?.states || {}).find((stateObj) =>
-    stateObj.entity_id.startsWith("sensor.") &&
-    stateObj.attributes?.device_class === deviceClass &&
-    stateObj.attributes?.unit_of_measurement
-  )?.attributes?.unit_of_measurement || "";
 }
 
 function renderDomainPickerValue(domainValue) {
