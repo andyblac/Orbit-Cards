@@ -52,6 +52,12 @@ export const activeEntitiesDialogStyles = css`
     cursor: pointer;
   }
 
+  .active-entity-device-button {
+    width: 36px;
+    height: 36px;
+    margin: 12px;
+  }
+
   .active-entity-control-button ha-state-icon,
   .active-entity-control-button ha-icon {
     pointer-events: none;

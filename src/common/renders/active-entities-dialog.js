@@ -159,7 +159,7 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                     ? html`
                       <button
                         type="button"
-                        class="active-entity-control-button"
+                        class="active-entity-control-button active-entity-device-button"
                         aria-label=${name}
                         @click=${() => showActiveDevice.call(this, deviceId)}
                       >

@@ -8224,7 +8224,7 @@ function bl(e = [], t = {}) {
                     ` : a ? D`
                       <button
                         type="button"
-                        class="active-entity-control-button"
+                        class="active-entity-control-button active-entity-device-button"
                         aria-label=${t}
                         @click=${() => tl.call(this, o)}
                       >
@@ -11237,6 +11237,12 @@ var Dd = d`
     background: transparent;
     color: inherit;
     cursor: pointer;
+  }
+
+  .active-entity-device-button {
+    width: 36px;
+    height: 36px;
+    margin: 12px;
   }
 
   .active-entity-control-button ha-state-icon,
