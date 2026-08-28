@@ -10,6 +10,7 @@ import {
   getStatusBadgeDomainConfig,
   getStatusBadgeAreaName,
   getStatusBadgeStateSource,
+  STATUS_BADGE_UNAVAILABLE_DOMAIN,
 } from "../../common/helpers/status-badge.js";
 import {
   evaluateStateTemplate,
@@ -17,6 +18,7 @@ import {
   getTemplateResultActiveState,
 } from "../../common/helpers/templates.js";
 import { resolveIconTemplate } from "../../common/helpers/icons.js";
+import { localize } from "../../common/localize.js";
 
 export function getStatusBadgeModel() {
   const stateSource = getStatusBadgeStateSource(this._config);
@@ -58,8 +60,11 @@ export function getStatusBadgeModel() {
   const selectedEntity = entities[0];
   const deviceClasses = getStatusBadgeDeviceClasses(this._config);
   const primaryDeviceClass = deviceClasses[0] || "";
-  const domain = selectedEntity?.entity_id.split(".")[0] ||
-    this._config?.domain || "";
+  const domain = stateSource === "area_count" &&
+      this._config?.domain === STATUS_BADGE_UNAVAILABLE_DOMAIN
+    ? STATUS_BADGE_UNAVAILABLE_DOMAIN
+    : selectedEntity?.entity_id.split(".")[0] ||
+      this._config?.domain || "";
   const domainConfig = getStatusBadgeDomainConfig(domain);
   const iconSource = this._config?.icon_source ||
     (this._config?.icon ? "custom" : "domain");
@@ -144,9 +149,12 @@ export function getStatusBadgeModel() {
   const entityLabel = selectedEntity && this.hass?.formatEntityName
     ? this.hass.formatEntityName(selectedEntity)
     : "";
-  const defaultLabel = entityLabel || (stateSource === "template"
-    ? "Template"
-    : areaName || deviceClassLabel || domainConfig.label);
+  const defaultLabel = stateSource === "area_count" &&
+      this._config?.domain === STATUS_BADGE_UNAVAILABLE_DOMAIN
+    ? localize(this.hass, domainConfig.label)
+    : entityLabel || (stateSource === "template"
+      ? "Template"
+      : areaName || deviceClassLabel || domainConfig.label);
   const label = configuredName && this.hass?.formatEntityName
     ? this.hass.formatEntityName(
         representativeStateObj,
@@ -181,6 +189,7 @@ export function getStatusBadgeModel() {
     icon,
     iconKey,
     iconSource,
+    useStaticIcon: iconSource === "domain" && domainConfig.staticIcon,
     stateSource,
     representativeStateObj,
     iconStateObj,

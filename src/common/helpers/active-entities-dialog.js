@@ -1,4 +1,5 @@
 import { getEntityActiveState } from "./entities.js";
+import { navigate } from "./actions.js";
 
 export const activeEntitiesDialogProperties = {
   _activeEntitiesOpen: { state: true },
@@ -68,4 +69,11 @@ export function showActiveEntityMoreInfo(entityId) {
       composed: true,
     }
   )));
+}
+
+export function showActiveDevice(deviceId) {
+  if (!deviceId) return;
+
+  closeActiveEntitiesDialog.call(this);
+  navigate(`/config/devices/device/${deviceId}`);
 }

@@ -799,7 +799,11 @@ export function renderStatusAreaPicker({
   const areas = Object.values(this.hass?.areas || {}).sort((left, right) =>
     (left.name || left.area_id).localeCompare(right.name || right.area_id)
   );
+  const allAreaIds = areas.map((area) => area.area_id);
+  const allSelected = multiple && allAreaIds.length > 0 &&
+    allAreaIds.every((areaId) => selectedAreas.includes(areaId));
   const options = [
+    { value: "__all__", label: this._t("All") },
     { value: "__multiple__", label: this._t("Multiple") },
     ...areas.map((area) => ({
       value: area.area_id,
@@ -813,21 +817,27 @@ export function renderStatusAreaPicker({
         .hass=${this.hass}
         .label=${this._t("Area")}
         .selector=${{ select: { mode: "dropdown", options } }}
-        .value=${multiple ? "__multiple__" : config.area || ""}
+        .value=${allSelected
+          ? "__all__"
+          : multiple
+            ? "__multiple__"
+            : config.area || ""}
         @value-changed=${(event) => {
           const value = event.detail.value || "";
           updateConfig({
-            area: value === "__multiple__"
-              ? config.area
-                ? [config.area].flat().filter(Boolean)
-                : []
-              : value,
+            area: value === "__all__"
+              ? allAreaIds
+              : value === "__multiple__"
+                ? config.area
+                  ? [config.area].flat().filter(Boolean)
+                  : []
+                : value,
           });
         }}
       ></ha-selector>
     </div>
 
-    ${multiple
+    ${multiple && !allSelected
       ? html`
           <div class="field">
             <label>${this._t("Areas")}</label>

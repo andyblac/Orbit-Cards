@@ -185,7 +185,9 @@ function renderIconOnlyStatusItem(item, index) {
               .icon=${item.icon}
             ></ha-icon>
           `}
-      ${renderEntityIssueBadge.call(this, item.entityId, item.stateObj)}
+      ${item.suppressEntityIssueBadge
+        ? ""
+        : renderEntityIssueBadge.call(this, item.entityId, item.stateObj)}
     </div>
 
     <div

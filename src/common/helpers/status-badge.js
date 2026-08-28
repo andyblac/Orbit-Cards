@@ -6,7 +6,15 @@ import {
 import { migrateStatusBadgeConfig } from "./config-migration.js";
 import { localize } from "../localize.js";
 
+export const STATUS_BADGE_UNAVAILABLE_DOMAIN = "unavailable";
+
 export const STATUS_BADGE_DOMAINS = [
+  {
+    value: STATUS_BADGE_UNAVAILABLE_DOMAIN,
+    label: "Unavailable",
+    icon: "mdi:alert-circle-outline",
+    staticIcon: true,
+  },
   { value: "light", label: "Lights", icon: "mdi:lightbulb" },
   {
     value: "switch",
@@ -188,6 +196,15 @@ export function normalizeStatusBadgeConfig(config = {}) {
       delete normalized[key];
     }
   });
+
+  if (
+    stateSource === "area_count" &&
+    normalized.domain === STATUS_BADGE_UNAVAILABLE_DOMAIN
+  ) {
+    delete normalized.device_class;
+    delete normalized.threshold;
+    delete normalized.thresholds;
+  }
 
   const deviceClasses = getStatusBadgeDeviceClasses(normalized);
   const usesBatteryThreshold = stateSource === "area_count" &&
@@ -487,6 +504,11 @@ export function getStatusBadgeSensorUnit(hass, deviceClass) {
 export function getStatusBadgeActiveEntities(entities = [], config = {},
   isActive = getEntityActiveState) {
   const isAreaCount = getStatusBadgeStateSource(config) === "area_count";
+  if (
+    isAreaCount &&
+    config.domain === STATUS_BADGE_UNAVAILABLE_DOMAIN
+  ) return entities;
+
   const deviceClasses = getStatusBadgeDeviceClasses(config);
   const usesBatteryThreshold = isAreaCount &&
     deviceClasses.includes("battery");
@@ -598,6 +620,14 @@ export function getStatusBadgeAreaEntities(hass, config = {}) {
   if (!hass || !areaIds.length || !domain) return [];
   if (domainConfig.requiresDeviceClass && !deviceClasses.length) return [];
 
+  if (domain === STATUS_BADGE_UNAVAILABLE_DOMAIN) {
+    return Object.values(hass.states || {}).filter((stateObj) =>
+      stateObj.state === "unavailable" &&
+      areaIds.includes(getEntityAreaId(hass, stateObj.entity_id)) &&
+      !shouldHideStatusBadgeEntity(hass, stateObj.entity_id, config)
+    );
+  }
+
   const batteryDomains = deviceClasses.includes("battery") &&
       ["sensor", "binary_sensor"].includes(domain)
     ? new Set(["sensor", "binary_sensor"])
@@ -679,6 +709,17 @@ export function getStatusBadgeAreaName(hass, config = {}) {
 }
 
 export function getStatusBadgeAreaEntityIds(hass, config = {}) {
+  if (config.domain === STATUS_BADGE_UNAVAILABLE_DOMAIN) {
+    const areaIds = getStatusBadgeAreaIds(config);
+
+    return Object.values(hass?.states || {})
+      .filter((stateObj) =>
+        areaIds.includes(getEntityAreaId(hass, stateObj.entity_id)) &&
+        !shouldHideStatusBadgeEntity(hass, stateObj.entity_id, config)
+      )
+      .map((stateObj) => stateObj.entity_id);
+  }
+
   return getStatusBadgeAreaEntities(hass, config).map(
     (stateObj) => stateObj.entity_id
   );

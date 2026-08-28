@@ -20,12 +20,14 @@ export const activeEntitiesDialogStyles = css`
     border-top: 1px solid var(--divider-color);
   }
 
-  .active-entity-row > ha-state-icon {
+  .active-entity-row > ha-state-icon,
+  .active-entity-row > ha-icon {
     flex: 0 0 auto;
     margin: 12px;
   }
 
-  .active-entity-row ha-state-icon {
+  .active-entity-row ha-state-icon,
+  .active-entity-row ha-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -50,7 +52,8 @@ export const activeEntitiesDialogStyles = css`
     cursor: pointer;
   }
 
-  .active-entity-control-button ha-state-icon {
+  .active-entity-control-button ha-state-icon,
+  .active-entity-control-button ha-icon {
     pointer-events: none;
   }
 

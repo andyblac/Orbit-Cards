@@ -173,6 +173,69 @@ export function getActiveEntityIconStyle(stateObj) {
   return `color:${color};--mdc-icon-size:36px`;
 }
 
+export function getUnavailableActiveEntityItems(hass, stateObjs = []) {
+  const deviceGroups = new Map();
+  const ungrouped = [];
+
+  stateObjs.forEach((stateObj) => {
+    const deviceId = hass?.entities?.[stateObj.entity_id]?.device_id;
+
+    if (!deviceId) {
+      ungrouped.push({ stateObj });
+      return;
+    }
+
+    deviceGroups.set(deviceId, [
+      ...(deviceGroups.get(deviceId) || []),
+      stateObj,
+    ]);
+  });
+
+  const grouped = [...deviceGroups.entries()].flatMap(([
+    deviceId,
+    deviceStateObjs,
+  ]) => {
+    if (deviceStateObjs.length === 1) {
+      return [{ stateObj: deviceStateObjs[0] }];
+    }
+
+    const representative = deviceStateObjs[0];
+    const device = hass?.devices?.[deviceId];
+    const name = device?.name_by_user ||
+      device?.name ||
+      getActiveEntityName(hass, representative);
+    const lastChanged = getOldestStateTimestamp(
+      deviceStateObjs,
+      "last_changed"
+    );
+    const lastUpdated = getOldestStateTimestamp(
+      deviceStateObjs,
+      "last_updated"
+    );
+
+    return [{
+      stateObj: {
+        ...representative,
+        entity_id: `sensor.orbit_unavailable_device_${deviceId}`,
+        state: "unavailable",
+        attributes: {
+          ...representative.attributes,
+          friendly_name: name,
+        },
+        last_changed: lastChanged || representative.last_changed,
+        last_updated: lastUpdated || representative.last_updated,
+      },
+      name,
+      areaName: getActiveEntityAreaName(hass, representative),
+      icon: "mdi:devices",
+      deviceId,
+      entityCount: deviceStateObjs.length,
+    }];
+  });
+
+  return [...grouped, ...ungrouped];
+}
+
 function getDurationFormatter(locale) {
   if (!durationFormatters.has(locale)) {
     durationFormatters.set(locale, new Intl.DurationFormat(locale, {
@@ -181,6 +244,13 @@ function getDurationFormatter(locale) {
   }
 
   return durationFormatters.get(locale);
+}
+
+function getOldestStateTimestamp(stateObjs, key) {
+  return stateObjs
+    .map((stateObj) => stateObj?.[key])
+    .filter(Boolean)
+    .sort()[0] || "";
 }
 
 function escapeRegExp(value) {
