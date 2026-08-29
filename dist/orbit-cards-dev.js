@@ -1,5 +1,5 @@
 //#region src/version.js
-var e = "1.2.0-beta.1", t = {
+var e = "1.2.0-beta.3", t = {
 	area: "1.1.0",
 	status: "1.1.0",
 	action: "1.1.0",
