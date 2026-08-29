@@ -329,7 +329,9 @@ class OrbitStatusBadge extends LitElement {
       return html`
         <ha-state-icon
           slot="icon"
-          .icon=${model.iconSource === "custom" ? model.icon : undefined}
+          .icon=${model.iconSource === "custom" || model.useStaticIcon
+            ? model.icon
+            : undefined}
           .stateObj=${model.iconSource === "custom"
             ? model.representativeStateObj
             : model.iconStateObj}

@@ -20,6 +20,7 @@ import {
   getStatusBadgeStateSource,
   formatDeviceClass,
   pickStatusSourceConfig,
+  STATUS_BADGE_UNAVAILABLE_DOMAIN,
 } from "../../../common/helpers/status-badge.js";
 import {
   formatTemplateState,
@@ -182,11 +183,13 @@ function getStatusState(item, rootConfig = {}) {
     : hasConfiguredName
       ? formatCardNameValue(config.name, config, this.hass)
       : stateSource === "area_count"
-        ? getStatusBadgeDeviceClasses(config).length
-          ? getStatusBadgeDeviceClasses(config)
-              .map(formatDeviceClass)
-              .join(", ")
-          : getStatusBadgeDomainConfig(config.domain).label
+        ? config.domain === STATUS_BADGE_UNAVAILABLE_DOMAIN
+          ? localize(this.hass, "Unavailable")
+          : getStatusBadgeDeviceClasses(config).length
+            ? getStatusBadgeDeviceClasses(config)
+                .map(formatDeviceClass)
+                .join(", ")
+            : getStatusBadgeDomainConfig(config.domain).label
       : getStatusAttribute(stateObj, "friendly_name") ||
         entityId ||
         localize(this.hass, "Status");
@@ -257,6 +260,8 @@ function getStatusState(item, rootConfig = {}) {
       ? "mdi:alert-circle-outline"
       : "mdi:information-outline");
   const primaryDeviceClass = getStatusBadgeDeviceClasses(config)[0] || "";
+  const useStaticDomainIcon = stateSource === "area_count" &&
+    getStatusBadgeDomainConfig(config.domain).staticIcon;
   const nativeIconStateObj = stateSource === "area_count"
     ? {
         entity_id: `${config.domain || "sensor"}.orbit_status_card`,
@@ -311,7 +316,8 @@ function getStatusState(item, rootConfig = {}) {
     nativeIconStateObj,
     useStateIcon: Boolean(nativeIconStateObj) &&
       iconSource !== "template" &&
-      !customStateIcon,
+      !customStateIcon &&
+      !useStaticDomainIcon,
     cardName,
     statusText,
     icon,
@@ -323,6 +329,8 @@ function getStatusState(item, rootConfig = {}) {
     svgForceColor: selectedIconKey
       ? this._getSvgColorOverride(config, selectedIconKey)
       : true,
+    suppressEntityIssueBadge: stateSource === "area_count" &&
+      config.domain === STATUS_BADGE_UNAVAILABLE_DOMAIN,
   };
 }
 

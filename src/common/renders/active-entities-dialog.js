@@ -2,6 +2,7 @@ import { html, nothing } from "lit";
 import {
   callActiveEntityService,
   closeActiveEntitiesDialog,
+  showActiveDevice,
   showActiveEntityMoreInfo,
 } from "../helpers/active-entities-dialog.js";
 import {
@@ -16,23 +17,34 @@ import {
   getActiveEntityName,
   getActiveEntityNameCollator,
   getActiveEntityServiceName,
+  getUnavailableActiveEntityItems,
 } from "../helpers/active-entities.js";
 import {
   getStatusBadgeThresholdDisplayState,
   hasStatusBadgeThresholdRule,
+  STATUS_BADGE_UNAVAILABLE_DOMAIN,
 } from "../helpers/status-badge.js";
 
 export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
   if (!this._activeEntitiesOpen) return nothing;
 
   const collator = getActiveEntityNameCollator(this.hass);
-  const controls = activeEntities.map((stateObj) => {
-    const control = getActiveEntityControl(this.hass, stateObj);
+  const isUnavailableAggregate =
+    config.domain === STATUS_BADGE_UNAVAILABLE_DOMAIN;
+  const activeEntityItems = isUnavailableAggregate
+    ? getUnavailableActiveEntityItems(this.hass, activeEntities)
+    : activeEntities.map((stateObj) => ({ stateObj }));
+  const controls = activeEntityItems.map((item) => {
+    const { stateObj } = item;
+    const control = isUnavailableAggregate
+      ? null
+      : getActiveEntityControl(this.hass, stateObj);
     return {
+      ...item,
       stateObj,
       control,
-      name: getActiveEntityName(this.hass, stateObj),
-      areaName: getActiveEntityAreaName(this.hass, stateObj),
+      name: item.name || getActiveEntityName(this.hass, stateObj),
+      areaName: item.areaName || getActiveEntityAreaName(this.hass, stateObj),
       serviceName: control
         ? getActiveEntityServiceName(this.hass, control)
         : "",
@@ -115,6 +127,9 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
               areaName,
               control,
               serviceName,
+              icon,
+              deviceId,
+              entityCount,
             }) => html`
               <div class="active-entity-row">
                 ${control
@@ -140,7 +155,21 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                         ></ha-state-icon>
                       </button>
                     `
-                  : html`
+                  : icon
+                    ? html`
+                      <button
+                        type="button"
+                        class="active-entity-control-button active-entity-device-button"
+                        aria-label=${name}
+                        @click=${() => showActiveDevice.call(this, deviceId)}
+                      >
+                        <ha-icon
+                          .icon=${icon}
+                          style=${getActiveEntityIconStyle(stateObj)}
+                        ></ha-icon>
+                      </button>
+                    `
+                    : html`
                       <ha-state-icon
                         .hass=${this.hass}
                         .stateObj=${stateObj}
@@ -150,10 +179,12 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                 <button
                   type="button"
                   class="active-entity-info"
-                  @click=${() => showActiveEntityMoreInfo.call(
-                    this,
-                    stateObj.entity_id
-                  )}
+                  @click=${() => deviceId
+                    ? showActiveDevice.call(this, deviceId)
+                    : showActiveEntityMoreInfo.call(
+                        this,
+                        stateObj.entity_id
+                      )}
                 >
                   <span class="active-entity-name">${name}</span>
                   ${areaName
@@ -166,6 +197,7 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                       .hass=${this.hass}
                       .stateObj=${stateObj}
                     ></state-display>
+                    ${entityCount ? html`<span>(${entityCount})</span>` : nothing}
                     <span aria-hidden="true">-</span>
                     <span>${formatActiveEntityDuration(
                       this.hass,

@@ -12,20 +12,33 @@ export const activeEntitiesDialogStyles = css`
   }
 
   .active-entity-row {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--ha-space-3, 12px);
     min-height: 52px;
     padding: 6px 0;
-    border-top: 1px solid var(--divider-color);
   }
 
-  .active-entity-row > ha-state-icon {
+  .active-entity-row::before {
+    position: absolute;
+    top: 0;
+    right: -12px;
+    left: -12px;
+    border-top: 1px solid var(--divider-color);
+    content: "";
+    pointer-events: none;
+  }
+
+  .active-entity-row > ha-state-icon,
+  .active-entity-row > ha-icon {
     flex: 0 0 auto;
     margin: 12px;
+    transform: translateX(-4px);
   }
 
-  .active-entity-row ha-state-icon {
+  .active-entity-row ha-state-icon,
+  .active-entity-row ha-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -40,7 +53,9 @@ export const activeEntitiesDialogStyles = css`
     flex: 0 0 auto;
     width: 48px;
     height: 48px;
+    margin: 6px;
     padding: 0;
+    transform: translateX(-4px);
     place-items: center;
     border: 0;
     border-radius: 50%;
@@ -50,7 +65,15 @@ export const activeEntitiesDialogStyles = css`
     cursor: pointer;
   }
 
-  .active-entity-control-button ha-state-icon {
+  .active-entity-device-button {
+    width: 36px;
+    height: 36px;
+    margin: 12px;
+    transform: translateX(-4px);
+  }
+
+  .active-entity-control-button ha-state-icon,
+  .active-entity-control-button ha-icon {
     pointer-events: none;
   }
 
