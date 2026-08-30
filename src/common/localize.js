@@ -140,6 +140,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   Default: [
     "ui.common.default",
   ],
+  "Device class": [
+    "ui.components.device-class-picker.device_class",
+  ],
   Duplicate: [
     "ui.common.duplicate",
   ],
@@ -306,6 +309,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   ],
   Template: [
     "ui.components.selectors.selector.types.template",
+  ],
+  "Entity not found": [
+    "ui.card.common.entity_not_found",
   ],
   Unavailable: [
     "state.default.unavailable",
