@@ -719,10 +719,12 @@ class OrbitStatusCardEditor extends LitElement {
   ];
 }
 
-customElements.define(
-  "orbit-status-card-editor",
-  OrbitStatusCardEditor
-);
+if (!customElements.get("orbit-status-card-editor")) {
+  customElements.define(
+    "orbit-status-card-editor",
+    OrbitStatusCardEditor
+  );
+}
 
 function cleanClearedStatusItem(item) {
   Object.assign(

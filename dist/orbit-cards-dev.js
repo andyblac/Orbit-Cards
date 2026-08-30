@@ -7140,7 +7140,7 @@ select {
 		render: "_renderActionButtonSection"
 	}
 ], Js = class extends Ks {};
-customElements.define("orbit-area-card-dev-editor", Ks), customElements.define("orbit-room-card-dev-editor", Js);
+customElements.get("orbit-area-card-dev-editor") || customElements.define("orbit-area-card-dev-editor", Ks), customElements.get("orbit-room-card-dev-editor") || customElements.define("orbit-room-card-dev-editor", Js);
 var Ys = [
 	"state_template",
 	"icon_source",
@@ -10516,7 +10516,7 @@ var Qu = [
 	}
 	static styles = [Gs, $u];
 };
-customElements.define("orbit-status-card-dev-editor", td);
+customElements.get("orbit-status-card-dev-editor") || customElements.define("orbit-status-card-dev-editor", td);
 function nd(e) {
 	Object.assign(e, U(rd));
 }
@@ -12863,7 +12863,7 @@ var cf = d`
 	}
 	static styles = [Gs, cf];
 };
-customElements.define("orbit-action-card-dev-editor", lf);
+customElements.get("orbit-action-card-dev-editor") || customElements.define("orbit-action-card-dev-editor", lf);
 function uf(e) {
 	Object.assign(e, U(df));
 }
@@ -14765,7 +14765,7 @@ var Mp = [
 	}
 	static styles = Mp;
 };
-customElements.define("orbit-deck-card-dev-editor", Pp);
+customElements.get("orbit-deck-card-dev-editor") || customElements.define("orbit-deck-card-dev-editor", Pp);
 //#endregion
 //#region src/cards/deck-card.js
 var Fp = [
@@ -15797,7 +15797,7 @@ function qp(e = {}) {
 		r.has(t) || (n[t] = e[t]);
 	}), n;
 }
-customElements.define("orbit-status-badge-dev-editor", Up);
+customElements.get("orbit-status-badge-dev-editor") || customElements.define("orbit-status-badge-dev-editor", Up);
 function Jp(e) {
 	return e ? typeof e == "string" ? [{
 		type: "text",

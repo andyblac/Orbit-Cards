@@ -780,7 +780,9 @@ class OrbitDeckCardEditor extends LitElement {
   static styles = deckCardEditorStyles;
 }
 
-customElements.define(
-  "orbit-deck-card-editor",
-  OrbitDeckCardEditor
-);
+if (!customElements.get("orbit-deck-card-editor")) {
+  customElements.define(
+    "orbit-deck-card-editor",
+    OrbitDeckCardEditor
+  );
+}
