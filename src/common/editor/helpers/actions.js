@@ -22,6 +22,58 @@ function stopPickerEventPropagation(event) {
   event.stopPropagation();
 }
 
+const navigationPickerScrollPositions = new WeakMap();
+
+function rememberNavigationPickerDocumentScroll(event) {
+  if (!isNavigationPickerEvent(event)) return;
+
+  const scrollingElement = document.scrollingElement;
+
+  if (!scrollingElement) return;
+
+  navigationPickerScrollPositions.set(event.currentTarget, {
+    scrollingElement,
+    scrollLeft: scrollingElement.scrollLeft,
+    scrollTop: scrollingElement.scrollTop,
+  });
+}
+
+function restoreNavigationPickerDocumentScroll(event) {
+  if (!isNavigationPickerEvent(event)) return;
+
+  const position = navigationPickerScrollPositions.get(event.currentTarget);
+
+  if (!position) return;
+
+  const restore = () => {
+    position.scrollingElement.scrollLeft = position.scrollLeft;
+    position.scrollingElement.scrollTop = position.scrollTop;
+  };
+
+  // Home Assistant focuses and refreshes navigation sections asynchronously.
+  restore();
+  setTimeout(restore, 0);
+  requestAnimationFrame(restore);
+  setTimeout(restore, 100);
+}
+
+function isNavigationPickerEvent(event) {
+  return event.composedPath().some(
+    (node) => node?.tagName === "HA-NAVIGATION-PICKER"
+  );
+}
+
+const navigationPickerPointerDownListener = {
+  // The active picker is nested inside Home Assistant's action editor.
+  capture: true,
+  handleEvent: rememberNavigationPickerDocumentScroll,
+};
+
+const navigationPickerClickListener = {
+  capture: true,
+  handleEvent: restoreNavigationPickerDocumentScroll,
+};
+
 function localizeHomeAssistantAction(hass, action) {
   if (!hass?.localize || !action) return null;
 
@@ -225,6 +277,8 @@ export function renderInteractionsSection({
   return html`
     <ha-form
       class="interactions-form"
+      @click=${navigationPickerClickListener}
+      @pointerdown=${navigationPickerPointerDownListener}
       .hass=${this.hass}
       .data=${formData}
       .schema=${schema}
@@ -620,8 +674,8 @@ function renderNavigationActionFields(key, value) {
   return html`
     <div class="inline-field action-subfield">
       <ha-navigation-picker
-        @click=${stopPickerEventPropagation}
-        @pointerdown=${stopPickerEventPropagation}
+        @click=${navigationPickerClickListener}
+        @pointerdown=${navigationPickerPointerDownListener}
         @wheel=${stopPickerEventPropagation}
         @touchmove=${stopPickerEventPropagation}
         @picker-opened=${(e) => {
