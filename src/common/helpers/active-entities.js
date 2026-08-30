@@ -74,6 +74,110 @@ export function getActiveEntityAreaName(hass, stateObj) {
   return hass?.areas?.[areaId]?.name?.trim() || "";
 }
 
+export function getActiveEntityPowerState(
+  hass,
+  stateObj,
+  extendedRegistryEntry = null,
+  powerStates = getActiveEntityPowerStates(hass)
+) {
+  const entityId = stateObj?.entity_id || "";
+  const deviceId = hass?.entities?.[entityId]?.device_id;
+
+  if (!deviceId) return null;
+
+  const candidates = powerStates.filter((candidate) =>
+    hass?.entities?.[candidate.entity_id]?.device_id === deviceId
+  );
+
+  if (candidates.length === 1) return candidates[0];
+  if (candidates.length > 1) {
+    return getNamedPowerState(
+      hass,
+      stateObj,
+      candidates,
+      extendedRegistryEntry
+    );
+  }
+
+  const areaId = getEntityAreaId(hass, entityId);
+  if (!areaId) return null;
+
+  const areaName = hass?.areas?.[areaId]?.name?.trim() || "";
+  const targetName = normalizeEntityMatchName(
+    getActiveEntityName(hass, stateObj)
+  );
+  const areaCandidates = powerStates.filter((candidate) => {
+    if (getEntityAreaId(hass, candidate.entity_id) !== areaId) return false;
+
+    const candidateDeviceId =
+      hass?.entities?.[candidate.entity_id]?.device_id;
+    const candidateDevice = hass?.devices?.[candidateDeviceId];
+    const candidateDeviceName = candidateDevice?.name_by_user ||
+      candidateDevice?.name ||
+      "";
+
+    return normalizeEntityMatchName(
+      removeAreaNamePrefix(candidateDeviceName, areaName)
+    ) === targetName;
+  });
+
+  return areaCandidates.length === 1 ? areaCandidates[0] : null;
+}
+
+export function getActiveEntityPowerStates(hass) {
+  return Object.values(hass?.states || {}).filter((candidate) =>
+    candidate?.entity_id?.startsWith("sensor.") &&
+    candidate.attributes?.device_class === "power" &&
+    Number.isFinite(Number(candidate.state))
+  );
+}
+
+function getNamedPowerState(
+  hass,
+  stateObj,
+  candidates,
+  extendedRegistryEntry
+) {
+  const entityId = stateObj?.entity_id || "";
+  const targetNames = [...new Set([
+    ...getEntityMatchNames(hass, stateObj),
+    ...getSwitchAsXSourceNames(
+      hass,
+      stateObj,
+      extendedRegistryEntry
+    ),
+  ])];
+  const targetObjectId = normalizeEntityMatchName(
+    entityId.split(".")[1] || ""
+  );
+  const scored = candidates.map((candidate) => {
+    const candidateName = normalizeEntityMatchName(
+      getActiveEntityName(hass, candidate)
+    );
+    const candidateObjectId = normalizeEntityMatchName(
+      candidate.entity_id.split(".")[1] || ""
+    );
+    let score = 0;
+
+    if (candidateObjectId === `${targetObjectId}power`) score += 4;
+    if (targetNames.some((name) => candidateName === `${name}power`)) {
+      score += 4;
+    }
+    if (targetObjectId && candidateObjectId.startsWith(targetObjectId)) {
+      score += 1;
+    }
+    if (targetNames.some((name) => candidateName.startsWith(name))) {
+      score += 1;
+    }
+
+    return { candidate, score };
+  }).sort((left, right) => right.score - left.score);
+
+  return scored[0].score >= 4 && scored[0].score > (scored[1]?.score || 0)
+    ? scored[0].candidate
+    : null;
+}
+
 export function getActiveEntityNameCollator(hass) {
   const locale = hass?.locale?.language || hass?.language || "en";
 
@@ -255,4 +359,72 @@ function getOldestStateTimestamp(stateObjs, key) {
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function normalizeEntityMatchName(value) {
+  return String(value || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/gi, "")
+    .toLowerCase();
+}
+
+function getEntityMatchNames(hass, stateObj) {
+  const registryEntry = hass?.entities?.[stateObj?.entity_id] || {};
+
+  return [...new Set([
+    getActiveEntityName(hass, stateObj),
+    registryEntry.name,
+    stateObj?.attributes?.friendly_name,
+  ].map(normalizeEntityMatchName).filter(Boolean))];
+}
+
+function getSwitchAsXSourceNames(
+  hass,
+  stateObj,
+  extendedRegistryEntry
+) {
+  if (!stateObj?.entity_id?.startsWith("light.")) return [];
+
+  const sourceEntityId =
+    extendedRegistryEntry?.options?.switch_as_x?.entity_id;
+  const sourceStateObj = hass?.states?.[sourceEntityId];
+
+  if (sourceStateObj) {
+    return getEntityMatchNames(hass, sourceStateObj);
+  }
+
+  const deviceId = hass?.entities?.[stateObj.entity_id]?.device_id;
+  if (!deviceId) return [];
+
+  const sources = Object.values(hass?.states || {}).filter((candidate) => {
+    if (!candidate?.entity_id?.startsWith("switch.")) return false;
+
+    const registryEntry = hass?.entities?.[candidate.entity_id];
+    const candidateChangedAt = Date.parse(candidate.last_changed || "");
+    const targetChangedAt = Date.parse(stateObj.last_changed || "");
+    const changedTogether = Number.isFinite(candidateChangedAt) &&
+      Number.isFinite(targetChangedAt) &&
+      Math.abs(candidateChangedAt - targetChangedAt) <= 2_000;
+
+    return registryEntry?.device_id === deviceId &&
+      candidate.state === stateObj.state &&
+      changedTogether;
+  });
+
+  return sources.length === 1
+    ? getEntityMatchNames(hass, sources[0])
+    : [];
+}
+
+function removeAreaNamePrefix(value, areaName) {
+  if (!areaName) return value;
+
+  return String(value || "").replace(
+    new RegExp(
+      `^${escapeRegExp(areaName)}(?:\\s*[-–—:|]\\s*|\\s+)`,
+      "i"
+    ),
+    ""
+  ).trim();
 }

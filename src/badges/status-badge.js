@@ -52,6 +52,7 @@ import {
   closeActiveEntitiesDialog,
   initializeActiveEntitiesDialog,
   openActiveEntitiesDialog,
+  shouldUpdateActiveEntitiesDialog,
   stopActiveEntitiesDurationTimer,
 } from "../common/helpers/active-entities-dialog.js";
 import {
@@ -137,6 +138,10 @@ class OrbitStatusBadge extends LitElement {
   }
 
   shouldUpdate(changedProperties) {
+    if (shouldUpdateActiveEntitiesDialog.call(this, changedProperties)) {
+      return true;
+    }
+
     if (!changedProperties.has("hass")) return true;
     if (changedProperties.has("_config")) return true;
     if ([...changedProperties.keys()].some((key) => key !== "hass")) {

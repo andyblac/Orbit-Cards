@@ -71,6 +71,7 @@ import {
   closeActiveEntitiesDialog,
   initializeActiveEntitiesDialog,
   openActiveEntitiesDialog,
+  shouldUpdateActiveEntitiesDialog,
   stopActiveEntitiesDurationTimer,
 } from "../common/helpers/active-entities-dialog.js";
 import {
@@ -230,6 +231,10 @@ class OrbitStatusCard extends LitElement {
   }
 
   shouldUpdate(changedProps) {
+    if (shouldUpdateActiveEntitiesDialog.call(this, changedProps)) {
+      return true;
+    }
+
     return shouldUpdateForEntities.call(
       this,
       changedProps,
