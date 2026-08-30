@@ -12,6 +12,8 @@ export function initializeActiveEntitiesDialog() {
   this._activeEntitiesConfirmOpen = false;
   this._activeEntitiesDurationNow = Date.now();
   this._activeEntitiesDurationTimer = null;
+  this._activeEntityRegistryEntries = new Map();
+  this._activeEntityRegistryEntryPromises = new Map();
 }
 
 export function getActiveEntities(entities = []) {
@@ -42,6 +44,45 @@ export function stopActiveEntitiesDurationTimer() {
 
   window.clearInterval(this._activeEntitiesDurationTimer);
   this._activeEntitiesDurationTimer = null;
+}
+
+export function shouldUpdateActiveEntitiesDialog(changedProperties) {
+  return this._activeEntitiesOpen && changedProperties.has("hass");
+}
+
+export function loadActiveEntityRegistryEntries(stateObjs = []) {
+  stateObjs.forEach((stateObj) => {
+    const entityId = stateObj?.entity_id;
+    const displayEntry = this.hass?.entities?.[entityId];
+
+    if (
+      !entityId ||
+      displayEntry?.platform !== "switch_as_x" ||
+      this._activeEntityRegistryEntries.has(entityId) ||
+      this._activeEntityRegistryEntryPromises.has(entityId)
+    ) {
+      return;
+    }
+
+    // The display registry omits Switch-as-X's wrapped entity ID, so load the
+    // extended entry once and cache it for subsequent dialog renders.
+    const request = this.hass?.callWS?.({
+      type: "config/entity_registry/get",
+      entity_id: entityId,
+    });
+
+    if (!request) return;
+
+    this._activeEntityRegistryEntryPromises.set(entityId, request);
+    request.then((entry) => {
+      this._activeEntityRegistryEntries.set(entityId, entry || null);
+    }).catch(() => {
+      this._activeEntityRegistryEntries.set(entityId, null);
+    }).finally(() => {
+      this._activeEntityRegistryEntryPromises.delete(entityId);
+      if (this._activeEntitiesOpen) this.requestUpdate();
+    });
+  });
 }
 
 export function closeActiveEntitiesDialog() {

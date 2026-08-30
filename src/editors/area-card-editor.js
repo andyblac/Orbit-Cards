@@ -512,15 +512,19 @@ const AREA_EDITOR_TABS = [
 
 class OrbitRoomCardEditor extends OrbitAreaCardEditor {}
 
-customElements.define(
-  "orbit-area-card-editor",
-  OrbitAreaCardEditor
-);
+if (!customElements.get("orbit-area-card-editor")) {
+  customElements.define(
+    "orbit-area-card-editor",
+    OrbitAreaCardEditor
+  );
+}
 
-customElements.define(
-  "orbit-room-card-editor",
-  OrbitRoomCardEditor
-);
+if (!customElements.get("orbit-room-card-editor")) {
+  customElements.define(
+    "orbit-room-card-editor",
+    OrbitRoomCardEditor
+  );
+}
 
 const MAIN_ENTITY_DEPENDENT_KEYS = [
   "state_template",

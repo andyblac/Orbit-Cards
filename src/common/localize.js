@@ -1,11 +1,11 @@
-import en from "../translations/en.json";
-import enGb from "../translations/en_gb.json";
-import de from "../translations/de.json";
-import es from "../translations/es.json";
-import fr from "../translations/fr.json";
-import it from "../translations/it.json";
-import nl from "../translations/nl.json";
-import ptBr from "../translations/pt_br.json";
+import en from "../translations/en.json" with { type: "json" };
+import enGb from "../translations/en_gb.json" with { type: "json" };
+import de from "../translations/de.json" with { type: "json" };
+import es from "../translations/es.json" with { type: "json" };
+import fr from "../translations/fr.json" with { type: "json" };
+import it from "../translations/it.json" with { type: "json" };
+import nl from "../translations/nl.json" with { type: "json" };
+import ptBr from "../translations/pt_br.json" with { type: "json" };
 
 const TRANSLATIONS = {
   de,
@@ -139,6 +139,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   ],
   Default: [
     "ui.common.default",
+  ],
+  "Device class": [
+    "ui.components.device-class-picker.device_class",
   ],
   Duplicate: [
     "ui.common.duplicate",
@@ -306,6 +309,9 @@ const HOME_ASSISTANT_TRANSLATION_KEYS = {
   ],
   Template: [
     "ui.components.selectors.selector.types.template",
+  ],
+  "Entity not found": [
+    "ui.card.common.entity_not_found",
   ],
   Unavailable: [
     "state.default.unavailable",

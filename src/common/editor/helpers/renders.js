@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { translateEditorLabel as t } from "./labels.js";
+import { installEntityFilterScrollGuard } from "./entity-filter-scroll-guard.js";
 
 export {
   renderColor,
@@ -126,8 +127,6 @@ function getFilterDomains(filters = []) {
 
   return [...domains];
 }
-
-let entityFilterScrollGuardInstalled = false;
 
 function renderFilteredEntitySelector({
   value,
@@ -315,65 +314,6 @@ function formatEntityDomainLabel(domain = "") {
     .filter(Boolean)
     .map((part) => part[0]?.toUpperCase() + part.slice(1))
     .join(" ");
-}
-
-function installEntityFilterScrollGuard() {
-  if (entityFilterScrollGuardInstalled) return;
-
-  const originalScrollIntoView =
-    Element.prototype.scrollIntoView;
-
-  Element.prototype.scrollIntoView = function (...args) {
-    if (isOrbitEntityFilterPickerElement(this)) {
-      resetOrbitEntityFilterPickerScroll(this);
-      return;
-    }
-
-    return originalScrollIntoView.apply(this, args);
-  };
-
-  entityFilterScrollGuardInstalled = true;
-}
-
-function resetOrbitEntityFilterPickerScroll(node) {
-  let current = node;
-
-  while (current) {
-    if (current.tagName?.toLowerCase?.() === "lit-virtualizer") {
-      current.scrollTop = 0;
-      return;
-    }
-
-    const root = current.getRootNode?.();
-
-    if (root?.host && root.host !== current) {
-      current = root.host;
-      continue;
-    }
-
-    current = current.parentNode || current.host;
-  }
-}
-
-function isOrbitEntityFilterPickerElement(node) {
-  let current = node;
-
-  while (current) {
-    if (current.__orbitSuppressSectionScroll) {
-      return true;
-    }
-
-    const root = current.getRootNode?.();
-
-    if (root?.host && root.host !== current) {
-      current = root.host;
-      continue;
-    }
-
-    current = current.parentNode || current.host;
-  }
-
-  return false;
 }
 
 export function renderAreaSelector({

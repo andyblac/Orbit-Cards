@@ -447,10 +447,12 @@ class OrbitActionCardEditor extends LitElement {
   ];
 }
 
-customElements.define(
-  "orbit-action-card-editor",
-  OrbitActionCardEditor
-);
+if (!customElements.get("orbit-action-card-editor")) {
+  customElements.define(
+    "orbit-action-card-editor",
+    OrbitActionCardEditor
+  );
+}
 
 function cleanClearedActionItem(item) {
   Object.assign(

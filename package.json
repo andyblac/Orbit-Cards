@@ -1,19 +1,25 @@
 {
   "name": "orbit-cards",
-  "version": "1.2.0-beta.3",
+  "version": "1.2.0-beta.4",
   "scripts": {
     "build": "vite build",
+    "check:bundle-size": "node scripts/check-bundle-size.js",
+    "lint": "eslint .",
+    "test": "node --test test/*.test.js",
     "watch": "vite build --watch"
   },
-  "description": "A modern, highly configurable Home Assistant area card designed to provide a clean area overview with quick access to devices, scenes, sensors, and navigation.",
+  "description": "A collection of modern, configurable Home Assistant dashboard cards and badges with shared editors, layouts, templates, colors, icons, and interactions.",
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "lit": "^3.3.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.1",
+    "globals": "^17.11.0",
     "vite": "^8.0.14"
   }
 }

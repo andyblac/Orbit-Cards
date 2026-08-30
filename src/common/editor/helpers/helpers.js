@@ -1,5 +1,3 @@
-import { html } from "lit";
-
 import {
   isImageIcon,
   resolveIconPath,

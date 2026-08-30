@@ -756,10 +756,12 @@ function orderStatusBadgeConfig(config = {}) {
   return ordered;
 }
 
-customElements.define(
-  "orbit-status-badge-editor",
-  OrbitStatusBadgeEditor
-);
+if (!customElements.get("orbit-status-badge-editor")) {
+  customElements.define(
+    "orbit-status-badge-editor",
+    OrbitStatusBadgeEditor
+  );
+}
 
 function getNativeNamePickerItems(value) {
   if (!value) return [];

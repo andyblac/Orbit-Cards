@@ -34,14 +34,14 @@ export function formatCardNameValue(value, config, hass, fallback = "") {
     : [value];
   const text = items
     .map((item) =>
-      formatCardNameItem(item, config, hass, fallback))
+      formatCardNameItem(item, config, hass))
     .filter(Boolean)
     .join(" ");
 
-  return text;
+  return text || fallback;
 }
 
-function formatCardNameItem(item, config, hass, fallback) {
+function formatCardNameItem(item, config, hass) {
   if (!item) return "";
   if (typeof item === "string") return item;
   if (item.type === "text") return item.text || "";

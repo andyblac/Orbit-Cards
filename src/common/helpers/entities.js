@@ -1,10 +1,10 @@
 export function formatEntityState(stateObj, hass = null) {
-  let nativeState = null;
+  let nativeState;
 
   try {
     nativeState = hass?.formatEntityState?.(stateObj);
   } catch (_error) {
-    nativeState = null;
+    // Fall back to Orbit's formatting when Home Assistant cannot format it.
   }
 
   if (nativeState !== null && nativeState !== undefined && nativeState !== "") {

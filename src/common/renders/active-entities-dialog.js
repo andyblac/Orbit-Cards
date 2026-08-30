@@ -2,6 +2,7 @@ import { html, nothing } from "lit";
 import {
   callActiveEntityService,
   closeActiveEntitiesDialog,
+  loadActiveEntityRegistryEntries,
   showActiveDevice,
   showActiveEntityMoreInfo,
 } from "../helpers/active-entities-dialog.js";
@@ -16,6 +17,8 @@ import {
   getActiveEntityIconStyle,
   getActiveEntityName,
   getActiveEntityNameCollator,
+  getActiveEntityPowerState,
+  getActiveEntityPowerStates,
   getActiveEntityServiceName,
   getUnavailableActiveEntityItems,
 } from "../helpers/active-entities.js";
@@ -34,6 +37,13 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
   const activeEntityItems = isUnavailableAggregate
     ? getUnavailableActiveEntityItems(this.hass, activeEntities)
     : activeEntities.map((stateObj) => ({ stateObj }));
+  loadActiveEntityRegistryEntries.call(
+    this,
+    activeEntityItems.map((item) => item.stateObj)
+  );
+  const powerStates = isUnavailableAggregate
+    ? []
+    : getActiveEntityPowerStates(this.hass);
   const controls = activeEntityItems.map((item) => {
     const { stateObj } = item;
     const control = isUnavailableAggregate
@@ -45,6 +55,14 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
       control,
       name: item.name || getActiveEntityName(this.hass, stateObj),
       areaName: item.areaName || getActiveEntityAreaName(this.hass, stateObj),
+      powerStateObj: isUnavailableAggregate
+        ? null
+        : getActiveEntityPowerState(
+            this.hass,
+            stateObj,
+            this._activeEntityRegistryEntries.get(stateObj.entity_id),
+            powerStates
+          ),
       serviceName: control
         ? getActiveEntityServiceName(this.hass, control)
         : "",
@@ -130,6 +148,7 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
               icon,
               deviceId,
               entityCount,
+              powerStateObj,
             }) => html`
               <div class="active-entity-row">
                 ${control
@@ -198,6 +217,15 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                       .stateObj=${stateObj}
                     ></state-display>
                     ${entityCount ? html`<span>(${entityCount})</span>` : nothing}
+                    ${powerStateObj
+                      ? html`
+                          <span aria-hidden="true">-</span>
+                          <state-display
+                            .hass=${this.hass}
+                            .stateObj=${powerStateObj}
+                          ></state-display>
+                        `
+                      : nothing}
                     <span aria-hidden="true">-</span>
                     <span>${formatActiveEntityDuration(
                       this.hass,
@@ -220,6 +248,7 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
           <ha-dialog
             .open=${true}
             type="alert"
+            width="small"
             .preventScrimClose=${true}
             @closed=${(event) => {
               event.stopPropagation();

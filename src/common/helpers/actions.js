@@ -206,7 +206,7 @@ export function clearDoubleTapTimer() {
   this._doubleTapTimer = null;
 }
 
-function stopActionEvent(ev) {
+export function stopActionEvent(ev) {
   ev?.preventDefault?.();
   ev?.stopPropagation?.();
 
@@ -216,19 +216,23 @@ function stopActionEvent(ev) {
 }
 
 function getPopupData(actionConfig, popupTitle, popupContent) {
-  const {
-    action,
-    popup_title,
-    popup_content,
-    popup_options,
-    title,
-    content,
-    ...browserModOptions
-  } = actionConfig;
+  const browserModOptions = { ...actionConfig };
+  const popupOptions = browserModOptions.popup_options;
+
+  for (const key of [
+    "action",
+    "popup_title",
+    "popup_content",
+    "popup_options",
+    "title",
+    "content",
+  ]) {
+    delete browserModOptions[key];
+  }
 
   return {
     ...browserModOptions,
-    ...(popup_options || {}),
+    ...(popupOptions || {}),
     title: popupTitle,
     content: popupContent,
   };

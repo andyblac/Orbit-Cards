@@ -7,6 +7,10 @@ import { resolveIconTemplate } from "../../../common/helpers/icons.js";
 import {
   getTemplateResultActiveState,
 } from "../../../common/helpers/templates.js";
+import {
+  formatAreaStatusText,
+  getAreaStatusIconSource,
+} from "./model.js";
 
 export function updateAreaCard(changedProps) {
   if (
@@ -114,8 +118,8 @@ function getStatusItems() {
 
       const stateObj = this.hass?.states[entityId];
       const iconKey = `status${index}`;
-      const iconSource = getStatusIconSource.call(
-        this,
+      const iconSource = getAreaStatusIconSource(
+        this._config,
         iconKey,
         entityId
       );
@@ -135,10 +139,10 @@ function getStatusItems() {
         stateObj,
         useStateIcon:
           iconSource === "entity" && Boolean(stateObj),
-        text: formatStatusText.call(
-          this,
+        text: formatAreaStatusText(
           stateObj,
-          this._config[`status${index}_decimal_places`]
+          this._config[`status${index}_decimal_places`],
+          (value) => this.formatState(value)
         ),
         icon,
         iconPath: this._isImageIcon(icon)
@@ -153,39 +157,6 @@ function getStatusItems() {
 
 function isHaIconName(icon) {
   return /^[a-z0-9_-]+:/i.test(icon || "");
-}
-
-function getStatusIconSource(key, entityId = "") {
-  const savedSource = this._config?.[`${key}_icon_source`];
-  const hasEntity = Boolean(entityId || this._config?.[key]);
-  const hasCustomIcon = Boolean(this._config?.[`${key}_icon`]);
-
-  if (savedSource === "custom") return "custom";
-  if (savedSource === "template") return "template";
-  if (savedSource === "none") return "none";
-  if (savedSource === "entity" && hasEntity) return "entity";
-  if (hasCustomIcon) return "custom";
-
-  return "none";
-}
-
-function formatStatusText(stateObj, decimalPlaces) {
-  if (!stateObj) return "—";
-
-  if (decimalPlaces === undefined || decimalPlaces === "") {
-    return this.formatState(stateObj);
-  }
-
-  const places = Number(decimalPlaces);
-  const value = Number(stateObj.state);
-
-  if (!Number.isFinite(places) || !Number.isFinite(value)) {
-    return this.formatState(stateObj);
-  }
-
-  const unit = stateObj.attributes.unit_of_measurement || "";
-
-  return `${value.toFixed(Math.max(0, places))}${unit}`;
 }
 
 function getButtonModels() {
