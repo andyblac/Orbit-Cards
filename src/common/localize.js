@@ -1,11 +1,11 @@
-import en from "../translations/en.json";
-import enGb from "../translations/en_gb.json";
-import de from "../translations/de.json";
-import es from "../translations/es.json";
-import fr from "../translations/fr.json";
-import it from "../translations/it.json";
-import nl from "../translations/nl.json";
-import ptBr from "../translations/pt_br.json";
+import en from "../translations/en.json" with { type: "json" };
+import enGb from "../translations/en_gb.json" with { type: "json" };
+import de from "../translations/de.json" with { type: "json" };
+import es from "../translations/es.json" with { type: "json" };
+import fr from "../translations/fr.json" with { type: "json" };
+import it from "../translations/it.json" with { type: "json" };
+import nl from "../translations/nl.json" with { type: "json" };
+import ptBr from "../translations/pt_br.json" with { type: "json" };
 
 const TRANSLATIONS = {
   de,

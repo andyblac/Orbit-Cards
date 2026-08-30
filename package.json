@@ -4,6 +4,7 @@
   "scripts": {
     "build": "vite build",
     "build:dev": "vite build && vite build --mode orbit-dev",
+    "test": "node --test test/*.test.js",
     "watch": "vite build --watch",
     "watch:dev": "vite build --mode orbit-dev --watch"
   },
