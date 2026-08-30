@@ -2313,8 +2313,22 @@ function br(e, t = "more-info") {
 	} : yr.has(n) ? { action: "toggle" } : { action: t };
 }
 //#endregion
+//#region src/cards/area/helpers/model.js
+function xr(e, t, n = "") {
+	let r = e?.[`${t}_icon_source`], i = !!(n || e?.[t]);
+	return r === "custom" ? "custom" : r === "template" ? "template" : r === "none" ? "none" : r === "entity" && i ? "entity" : e?.[`${t}_icon`] ? "custom" : "none";
+}
+function Sr(e, t, n) {
+	if (!e) return "—";
+	if (t === void 0 || t === "") return n(e);
+	let r = Number(t), i = Number(e.state);
+	if (!Number.isFinite(r) || !Number.isFinite(i)) return n(e);
+	let a = e.attributes.unit_of_measurement || "";
+	return `${i.toFixed(Math.max(0, r))}${a}`;
+}
+//#endregion
 //#region src/cards/area/helpers/lifecycle.js
-function xr(e) {
+function Cr(e) {
 	if (!e.has("_config") && !e.has("hass") && !e.has("_templateRevision")) return;
 	this._cardName = this._getCardName("");
 	let t = this._config.main_entity || this._config.entity, n = this._config.area, r = t && this.hass ? this.hass.states[t] : null, i = this._config?.state_template, a = this._evaluateStateTemplate(i, t), o = i ? bt(a, t?.split(".")[0] || "") : r ? this._getEntityActiveState(r) : !1;
@@ -2322,9 +2336,9 @@ function xr(e) {
 	let s = this._config.icon_on, c = this._config.icon_off, l = Hr(this._config, n, t), u = Hn.call(this, this._config.icon, t), d = ["custom", "template"].includes(l), f = n && this.hass?.areas?.[n] && this.hass.areas[n].icon || "mdi:sofa", p = l === "template" ? u : d && ((o ? s : c) || u) || "";
 	this._mainStateObj = r, this._useNativeMainIcon = !!r && l !== "area" && l !== "template" && !p;
 	let m = l === "template" && u ? "icon" : d && o && s ? "icon_on" : d && !o && c ? "icon_off" : d && u ? "icon" : "";
-	this._icon = p || f, this._iconSvgForceColor = m ? this._getSvgColorOverride(m) : !0, this._statusItems = Sr.call(this), this._buttonModels = Er.call(this), this._curveButtonModels = Dr.call(this), this._actionButtonModel = Or.call(this);
+	this._icon = p || f, this._iconSvgForceColor = m ? this._getSvgColorOverride(m) : !0, this._statusItems = wr.call(this), this._buttonModels = Er.call(this), this._curveButtonModels = Dr.call(this), this._actionButtonModel = Or.call(this);
 }
-function Sr() {
+function wr() {
 	return [
 		1,
 		2,
@@ -2332,33 +2346,21 @@ function Sr() {
 	].map((e) => {
 		let t = this._config[`status${e}`];
 		if (!t) return null;
-		let n = this.hass?.states[t], r = `status${e}`, i = wr.call(this, r, t), a = Hn.call(this, this._config[`${r}_icon`], t), o = ["custom", "template"].includes(i) ? a : n ? "" : "mdi:alert-circle-outline";
+		let n = this.hass?.states[t], r = `status${e}`, i = xr(this._config, r, t), a = Hn.call(this, this._config[`${r}_icon`], t), o = ["custom", "template"].includes(i) ? a : n ? "" : "mdi:alert-circle-outline";
 		return {
 			entityId: t,
 			stateObj: n,
 			useStateIcon: i === "entity" && !!n,
-			text: Tr.call(this, n, this._config[`status${e}_decimal_places`]),
+			text: Sr(n, this._config[`status${e}_decimal_places`], (e) => this.formatState(e)),
 			icon: o,
 			iconPath: this._isImageIcon(o) ? this._resolveIconPath(o) : "",
 			isImage: this._isImageIcon(o),
-			isHaIcon: Cr(o)
+			isHaIcon: Tr(o)
 		};
 	}).filter(Boolean);
 }
-function Cr(e) {
+function Tr(e) {
 	return /^[a-z0-9_-]+:/i.test(e || "");
-}
-function wr(e, t = "") {
-	let n = this._config?.[`${e}_icon_source`], r = !!(t || this._config?.[e]);
-	return n === "custom" ? "custom" : n === "template" ? "template" : n === "none" ? "none" : n === "entity" && r ? "entity" : this._config?.[`${e}_icon`] ? "custom" : "none";
-}
-function Tr(e, t) {
-	if (!e) return "—";
-	if (t === void 0 || t === "") return this.formatState(e);
-	let n = Number(t), r = Number(e.state);
-	if (!Number.isFinite(n) || !Number.isFinite(r)) return this.formatState(e);
-	let i = e.attributes.unit_of_measurement || "";
-	return `${r.toFixed(Math.max(0, n))}${i}`;
 }
 function Er() {
 	return [
@@ -7409,7 +7411,7 @@ var cc = class extends ot(A) {
 		this._config = dn(e).config, this._areaColor = this._computeFullColor(this._config.color), this._statusColor = this._computeFullColor(this._config.status_color || this._config.color), this._iconColor = this._computeIconColor(this._config.color), this._circleColor = this._computeCircleColor(this._config.color);
 	}
 	willUpdate(e) {
-		return (e.has("_config") || e.has("hass")) && _t.call(this, this._getTemplateEntries()), xr.call(this, e);
+		return (e.has("_config") || e.has("hass")) && _t.call(this, this._getTemplateEntries()), Cr.call(this, e);
 	}
 	disconnectedCallback() {
 		vt.call(this), this._cancelLongPress(), this._clearDoubleTapTimer(), super.disconnectedCallback();
@@ -12040,11 +12042,8 @@ function tf(e, t) {
 	}] : { config: r.config };
 }
 //#endregion
-//#region src/cards/action/helpers/lifecycle.js
-function nf(e) {
-	!e.has("_config") && !e.has("hass") && !e.has("_templateRevision") || (this._actions = rf(this._config).map((e) => af.call(this, e)));
-}
-function rf(e = {}) {
+//#region src/cards/action/helpers/model.js
+function nf(e = {}) {
 	return Array.isArray(e.entities) && e.entities.length ? e.entities.map((e) => typeof e == "string" ? { entity: e } : e || {}) : [{
 		entity: e.main_entity,
 		color: e.color,
@@ -12056,12 +12055,26 @@ function rf(e = {}) {
 		double_tap_action: e.double_tap_action
 	}];
 }
+function rf(e, t) {
+	let n = e.icon_source, r = !!t, i = !!e.icon;
+	return n === "custom" ? "custom" : n === "template" ? "template" : n === "entity" && r ? "entity" : i ? "custom" : "entity";
+}
 function af(e) {
+	if (!e) return !1;
+	let t = e.entity_id?.split(".")[0], n = Number(e.attributes?.current);
+	return Number.isFinite(n) && n > 0 ? !0 : t === "script" && e.state === "on";
+}
+//#endregion
+//#region src/cards/action/helpers/lifecycle.js
+function of(e) {
+	!e.has("_config") && !e.has("hass") && !e.has("_templateRevision") || (this._actions = nf(this._config).map((e) => sf.call(this, e)));
+}
+function sf(e) {
 	let t = e.entity || e.main_entity, n = t && this.hass ? this.hass.states[t] : null, r = e.color || this._config.color || "theme";
 	this._orbitColorTemplateEntityId = t || "";
-	let i = sf(n), a = this._computeCircleColor(r), o = i ? this._computeFullColor(r) : this._computeIconColor(r);
+	let i = af(n), a = this._computeCircleColor(r), o = i ? this._computeFullColor(r) : this._computeIconColor(r);
 	this._orbitColorTemplateEntityId = "";
-	let s = of(e, t), c = ["custom", "template"].includes(s) ? Hn.call(this, e.icon, t) : "", l = ["custom", "template"].includes(s) && c ? "icon" : "", u = c || (t && !n ? "mdi:alert-circle-outline" : "mdi:play-circle");
+	let s = rf(e, t), c = ["custom", "template"].includes(s) ? Hn.call(this, e.icon, t) : "", l = ["custom", "template"].includes(s) && c ? "icon" : "", u = c || (t && !n ? "mdi:alert-circle-outline" : "mdi:play-circle");
 	return {
 		...e,
 		entityId: t,
@@ -12073,15 +12086,6 @@ function af(e) {
 		isRunning: i,
 		svgForceColor: l ? this._getSvgColorOverride(e, l) : !0
 	};
-}
-function of(e, t) {
-	let n = e.icon_source, r = !!t, i = !!e.icon;
-	return n === "custom" ? "custom" : n === "template" ? "template" : n === "entity" && r ? "entity" : i ? "custom" : "entity";
-}
-function sf(e) {
-	if (!e) return !1;
-	let t = e.entity_id?.split(".")[0], n = Number(e.attributes?.current);
-	return Number.isFinite(n) && n > 0 ? !0 : t === "script" && e.state === "on";
 }
 //#endregion
 //#region src/cards/action/renders/action-card.js
@@ -12973,7 +12977,7 @@ var Ef = class extends ot(A) {
 		};
 	}
 	getLayoutOptions() {
-		let e = rf(this._config).length, t = Df(this._config, e);
+		let e = nf(this._config).length, t = Df(this._config, e);
 		return {
 			grid_columns: Math.max(1, t * 1),
 			grid_min_columns: .5,
@@ -12986,13 +12990,13 @@ var Ef = class extends ot(A) {
 		this._iconColor = this._computeIconColor(t), this._cardBackground = this._computeCircleColor(t), this._isRunning = !1, this._actions = [];
 	}
 	willUpdate(e) {
-		return (e.has("_config") || e.has("hass")) && _t.call(this, [...Tt(this._config), ...Et(this._config)]), nf.call(this, e);
+		return (e.has("_config") || e.has("hass")) && _t.call(this, [...Tt(this._config), ...Et(this._config)]), of.call(this, e);
 	}
 	disconnectedCallback() {
 		vt.call(this), this._clearHoldTimer(), this._clearDoubleTapTimer(), super.disconnectedCallback();
 	}
 	shouldUpdate(e) {
-		return $n.call(this, e, rf(this._config).map((e) => e.entity || e.main_entity), { hasTemplates: er(this._config) });
+		return $n.call(this, e, nf(this._config).map((e) => e.entity || e.main_entity), { hasTemplates: er(this._config) });
 	}
 	_handleTap(e, t = 0) {
 		if (this._longPressTriggered) {
