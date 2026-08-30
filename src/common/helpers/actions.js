@@ -206,7 +206,7 @@ export function clearDoubleTapTimer() {
   this._doubleTapTimer = null;
 }
 
-function stopActionEvent(ev) {
+export function stopActionEvent(ev) {
   ev?.preventDefault?.();
   ev?.stopPropagation?.();
 

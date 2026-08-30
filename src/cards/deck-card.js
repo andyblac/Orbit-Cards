@@ -15,19 +15,11 @@ import {
 } from "../common/helpers/config-migration.js";
 import { isCardEditorPreview } from "../common/helpers/editor-preview.js";
 import {
-  clearDoubleTapTimer,
-  handleAction,
   handleDoubleTapAction,
   handleTapAction,
   isActionEnabled,
-  navigate,
 } from "../common/helpers/actions.js";
-import {
-  LONG_PRESS_DELAY,
-  cancelLongPress,
-  finishLongPress,
-  startLongPress,
-} from "../common/helpers/long-press.js";
+import { withCommonCardInteractions } from "../common/helpers/card-interactions.js";
 import {
   disconnectTemplateSubscriptions,
   getColorTemplateEntries,
@@ -76,7 +68,7 @@ const DECK_INTERACTION_EVENTS = [
   "pointercancel",
 ];
 
-class OrbitDeckCard extends LitElement {
+class OrbitDeckCard extends withCommonCardInteractions(LitElement) {
   static get properties() {
     return {
       hass: {},
@@ -512,34 +504,6 @@ class OrbitDeckCard extends LitElement {
 
   _selectTab(index) {
     this._selectedIndex = index;
-  }
-
-  get _LONG_PRESS_DELAY() {
-    return LONG_PRESS_DELAY;
-  }
-
-  _handleAction(actionConfig, entityId = null) {
-    return handleAction.call(this, actionConfig, entityId);
-  }
-
-  _navigate(path) {
-    return navigate.call(this, path);
-  }
-
-  _clearDoubleTapTimer() {
-    return clearDoubleTapTimer.call(this);
-  }
-
-  _startLongPress(ev, entityId, longPressAction) {
-    return startLongPress.call(this, ev, entityId, longPressAction);
-  }
-
-  _cancelLongPress() {
-    return cancelLongPress.call(this);
-  }
-
-  _finishLongPress(ev) {
-    return finishLongPress.call(this, ev);
   }
 
   _getDeckEntryFromEventTarget(target) {

@@ -5,12 +5,11 @@
 import { LitElement } from "lit";
 
 import {
-  clearDoubleTapTimer,
-  handleAction,
   handleDoubleTapAction,
   handleTapAction,
   isAddCardPickerPreview,
 } from "../common/helpers/actions.js";
+import { withCommonCardInteractions } from "../common/helpers/card-interactions.js";
 import { getDefaultEntityAction } from "../common/helpers/default-actions.js";
 import {
   computeCircleColor,
@@ -60,7 +59,7 @@ import "../editors/action-card-editor.js";
 
 import { CARD_VERSIONS } from "../version.js";
 
-class OrbitActionCard extends LitElement {
+class OrbitActionCard extends withCommonCardInteractions(LitElement) {
   static svgCache = sharedSvgCache;
 
   static get properties() {
@@ -171,10 +170,6 @@ class OrbitActionCard extends LitElement {
     );
   }
 
-  _clearDoubleTapTimer() {
-    return clearDoubleTapTimer.call(this);
-  }
-
   _getDoubleTapAction(index = 0) {
     const action = this._actions?.[index];
 
@@ -198,7 +193,7 @@ class OrbitActionCard extends LitElement {
         this._getHoldAction(index),
         this._getActionEntityId(index)
       );
-    }, 500);
+    }, this._LONG_PRESS_DELAY);
   }
 
   _handlePointerUp(ev) {
@@ -267,10 +262,6 @@ class OrbitActionCard extends LitElement {
     });
   }
 
-  _handleAction(actionConfig, entityId = null) {
-    return handleAction.call(this, actionConfig, entityId);
-  }
-
   _computeFullColor(colorInput) {
     return computeFullColor.call(this, colorInput);
   }
@@ -305,15 +296,6 @@ class OrbitActionCard extends LitElement {
     if (this._holdTimer) {
       clearTimeout(this._holdTimer);
       this._holdTimer = null;
-    }
-  }
-
-  _stopEvent(ev) {
-    ev.preventDefault();
-    ev.stopPropagation();
-
-    if (ev.stopImmediatePropagation) {
-      ev.stopImmediatePropagation();
     }
   }
 

@@ -5,7 +5,6 @@
 import { LitElement } from "lit";
 
 import {
-  handleAction,
   handleButtonClick,
   handleButtonDoubleClick,
   handleCardDoubleTap,
@@ -15,10 +14,9 @@ import {
   handleMainEntityTap,
   handleTap,
   isAddCardPickerPreview,
-  clearDoubleTapTimer,
-  navigate,
   toggleEntity,
 } from "../common/helpers/actions.js";
+import { withCommonCardInteractions } from "../common/helpers/card-interactions.js";
 import {
   computeButtonBackground,
   computeCircleColor,
@@ -46,12 +44,6 @@ import {
   isImageIcon,
   resolveIconPath,
 } from "../common/helpers/icons.js";
-import {
-  cancelLongPress,
-  finishLongPress,
-  LONG_PRESS_DELAY,
-  startLongPress,
-} from "../common/helpers/long-press.js";
 import {
   disconnectTemplateSubscriptions,
   evaluateStateTemplate,
@@ -86,7 +78,7 @@ import "../editors/area-card-editor.js";
 
 import { CARD_VERSIONS } from "../version.js";
 
-class OrbitAreaCard extends LitElement {
+class OrbitAreaCard extends withCommonCardInteractions(LitElement) {
   static svgCache = sharedSvgCache;
 
   static get properties() {
@@ -170,14 +162,6 @@ class OrbitAreaCard extends LitElement {
         hasTemplates: hasTemplateConfig(this._config),
       }
     );
-  }
-
-  _handleAction(actionConfig, entityId = null) {
-    return handleAction.call(this, actionConfig, entityId);
-  }
-
-  _navigate(path) {
-    return navigate.call(this, path);
   }
 
   _toggleEntity(entityId, ev, actionConfig = null) {
@@ -307,26 +291,6 @@ class OrbitAreaCard extends LitElement {
 
   _getSvgColorOverride(iconKey) {
     return getSvgColorOverride(this._config, iconKey);
-  }
-
-  get _LONG_PRESS_DELAY() {
-    return LONG_PRESS_DELAY;
-  }
-
-  _startLongPress(ev, entityId, longPressAction) {
-    return startLongPress.call(this, ev, entityId, longPressAction);
-  }
-
-  _cancelLongPress() {
-    return cancelLongPress.call(this);
-  }
-
-  _clearDoubleTapTimer() {
-    return clearDoubleTapTimer.call(this);
-  }
-
-  _finishLongPress(ev) {
-    return finishLongPress.call(this, ev);
   }
 
   _evaluateStateTemplate(template, entityId) {
