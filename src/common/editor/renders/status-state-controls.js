@@ -9,10 +9,7 @@ import {
   STATUS_BADGE_NON_NUMERIC_SENSOR_DEVICE_CLASSES,
   STATUS_BADGE_DOMAINS,
 } from "../../helpers/status-badge.js";
-import {
-  getTemplateError,
-  hasNativeTemplateSyntax,
-} from "../../helpers/templates.js";
+import { getTemplateError } from "../../helpers/templates.js";
 
 export function renderBadgeIconControl(stateSource = "entity") {
   const iconSource = this._config?.icon_source ||

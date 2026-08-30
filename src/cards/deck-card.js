@@ -67,8 +67,6 @@ import {
 import { deckCardStyles } from "./deck/styles/deck-card-styles.js";
 import { DECK_PREVIEW_SELECTED_INDEX } from "../editors/deck-card-editor.js";
 
-import "../editors/deck-card-editor.js";
-
 const DECK_INTERACTION_EVENTS = [
   "pointerdown",
   "click",

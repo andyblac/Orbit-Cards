@@ -1,5 +1,6 @@
 import { html } from "lit";
 import { translateEditorLabel as t } from "./labels.js";
+import { installEntityFilterScrollGuard } from "./entity-filter-scroll-guard.js";
 
 function actionLabel(editor, action) {
   const fallbackLabel = ACTION_LABELS[action];

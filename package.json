@@ -4,6 +4,8 @@
   "scripts": {
     "build": "vite build",
     "build:dev": "vite build && vite build --mode orbit-dev",
+    "check:bundle-size": "node scripts/check-bundle-size.js",
+    "lint": "eslint .",
     "test": "node --test test/*.test.js",
     "watch": "vite build --watch",
     "watch:dev": "vite build --mode orbit-dev --watch"
@@ -17,6 +19,9 @@
     "lit": "^3.3.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.1",
+    "globals": "^17.11.0",
     "vite": "^8.0.14"
   }
 }

@@ -79,7 +79,7 @@ export function resolveIconPath(iconPath) {
   return `/local/icons/${iconPath}`;
 }
 
-export function renderIconInput(label, key, placeholder) {
+export function renderIconInput(label, key) {
   const value = this._config?.[key] || "";
   const pickerKey = `${this._iconPickerPrefix || "icon"}-${key}`;
   const defaultTab = value && this._isImageIcon(value)
@@ -631,64 +631,6 @@ function normalizeFilePickerSvgColors(svg) {
       new RegExp(`(fill|stroke)\\s*:\\s*${paintValuePattern}`, "gi"),
       (_match, prop) => `${prop}:currentColor`
     );
-}
-
-function renderFileIconSection(title, key, files, value) {
-  return html`
-    <div class="file-icon-section">
-      <div class="file-icon-section-title">${title}</div>
-      <div class="file-icon-grid">
-        ${files.map((file) =>
-          renderFileIconOption.call(
-            this,
-            key,
-            file,
-            value
-          )
-        )}
-      </div>
-    </div>
-  `;
-}
-
-function renderFileIconOption(key, icon, value) {
-  const iconValue = getIconRecordValue(icon);
-  const iconPath = this._resolveIconPath(iconValue);
-  const inlineSvg =
-    this._getInlineSvg
-      ? this._getInlineSvg(iconPath)
-      : "";
-  const isActive =
-    value === iconValue ||
-    value === icon.file ||
-    value === iconPath;
-
-  return html`
-    <button
-      type="button"
-      class=${isActive
-        ? "file-icon-option active"
-        : "file-icon-option"}
-      title=${icon.name || icon.file}
-      @click=${() => {
-        this._handleConfigUpdate(key, iconValue);
-        this._iconPickerKey = "";
-      }}
-    >
-      ${renderFileIconLabel.call(this, icon, value)}
-    </button>
-  `;
-}
-
-function renderFileIconLabel(icon) {
-  const previewStyle = getFilePickerPreviewStyle();
-
-  return html`
-    <span class="file-icon-preview" style=${previewStyle}>
-      ${renderFilePreviewContent.call(this, icon)}
-    </span>
-    <span>${icon.name || icon.file}</span>
-  `;
 }
 
 async function discoverOrbitIconFiles() {

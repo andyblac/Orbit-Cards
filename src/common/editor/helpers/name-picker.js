@@ -263,7 +263,7 @@ function renderNameChip(item, index, selectedItems, options) {
       @click=${(e) => openNamePicker(e)}
     >
       <ha-icon icon="mdi:drag-horizontal-variant"></ha-icon>
-      <span>${formatNameChipLabel.call(this, item, options)}</span>
+      <span>${formatNameChipLabel.call(this, item)}</span>
       <ha-icon
         class="name-picker-chip-remove"
         icon="mdi:close"
@@ -332,7 +332,7 @@ function getNameComposedSelectedItems(config = {}, options) {
     : [value];
 }
 
-function formatNameChipLabel(item, options) {
+function formatNameChipLabel(item) {
   if (!item) return "";
   if (item.type === "text") return `"${item.text || ""}"`;
   if (item.type === "area") return this._t("Area");
