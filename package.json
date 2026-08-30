@@ -8,10 +8,10 @@
     "watch": "vite build --watch",
     "watch:dev": "vite build --mode orbit-dev --watch"
   },
-  "description": "A modern, highly configurable Home Assistant area card designed to provide a clean area overview with quick access to devices, scenes, sensors, and navigation.",
+  "description": "A collection of modern, configurable Home Assistant dashboard cards and badges with shared editors, layouts, templates, colors, icons, and interactions.",
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "lit": "^3.3.3"
