@@ -13,7 +13,6 @@ import {
 import {
   migrateDeckCardConfig,
 } from "../common/helpers/config-migration.js";
-import { isCardEditorPreview } from "../common/helpers/editor-preview.js";
 import {
   handleDoubleTapAction,
   handleTapAction,
@@ -164,10 +163,7 @@ class OrbitDeckCard extends withCommonCardInteractions(LitElement) {
     const defaultSelectionKey = getDefaultSelectionKey(decks);
     const defaultIndex = getDefaultDeckIndex(decks);
 
-    if (
-      isCardEditorPreview(this) &&
-      Number.isInteger(config?.[DECK_PREVIEW_SELECTED_INDEX])
-    ) {
+    if (Number.isInteger(config?.[DECK_PREVIEW_SELECTED_INDEX])) {
       this._selectedIndex = Math.min(
         Math.max(0, config[DECK_PREVIEW_SELECTED_INDEX]),
         Math.max(0, decks.length - 1)
@@ -626,7 +622,6 @@ class OrbitDeckCard extends withCommonCardInteractions(LitElement) {
     const previewSelectedIndex =
       this._config?.[DECK_PREVIEW_SELECTED_INDEX];
     const isPreviewSelected =
-      isCardEditorPreview(this) &&
       Number.isInteger(previewSelectedIndex) &&
       previewSelectedIndex === entry?.index;
 
@@ -757,7 +752,6 @@ class OrbitDeckCard extends withCommonCardInteractions(LitElement) {
             <div class="deck-row">
               ${row.map((entry) => {
                 const isPreviewSelected =
-                  isCardEditorPreview(this) &&
                   this._config?.[DECK_PREVIEW_SELECTED_INDEX] === entry.index;
                 const previewWidth = isPreviewSelected
                   ? getDeckEditorPreviewWidth(entry, columns)
