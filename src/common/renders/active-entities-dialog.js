@@ -248,6 +248,7 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
           <ha-dialog
             .open=${true}
             type="alert"
+            width="small"
             .preventScrimClose=${true}
             @closed=${(event) => {
               event.stopPropagation();

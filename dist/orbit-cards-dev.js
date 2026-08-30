@@ -8356,6 +8356,7 @@ function Al(e = [], t = {}) {
           <ha-dialog
             .open=${!0}
             type="alert"
+            width="small"
             .preventScrimClose=${!0}
             @closed=${(e) => {
 		e.stopPropagation(), this._activeEntitiesConfirmOpen = !1;
