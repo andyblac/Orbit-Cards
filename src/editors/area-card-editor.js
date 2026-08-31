@@ -48,6 +48,7 @@ import {
 } from "../common/helpers/documentation.js";
 import { localize } from "../common/localize.js";
 import { CARD_VERSIONS } from "../version.js";
+import { getAreaStatusSource } from "../cards/area/helpers/model.js";
 
 class OrbitAreaCardEditor extends LitElement {
   static svgCache = sharedSvgCache;
@@ -281,8 +282,8 @@ class OrbitAreaCardEditor extends LitElement {
     return renderInput.call(this, label, key, placeholder, options);
   }
 
-  _renderTemplateInput(label, key) {
-    return renderTemplateInput.call(this, label, key);
+  _renderTemplateInput(label, key, options = {}) {
+    return renderTemplateInput.call(this, label, key, options);
   }
 
   _handleConfigUpdate(key, value) {
@@ -344,6 +345,8 @@ class OrbitAreaCardEditor extends LitElement {
 
   _renderStatusSection() {
     const selected = this._selectedStatusIndex || 1;
+    const key = `status${selected}`;
+    const source = getAreaStatusSource(this._config, key);
 
     return html`
       <div class="section">
@@ -383,10 +386,29 @@ class OrbitAreaCardEditor extends LitElement {
         </div>
 
         <div class="sub-section selected-button-section">
-          ${this._renderEntity(
-            "Entity",
-            `status${selected}`
-          )}
+          <div class="field main-entity-icon-source-field">
+            <div class="field-header">
+              <label>${this._t("State")}</label>
+              <ha-selector
+                class="main-entity-icon-source-selector"
+                .hass=${this.hass}
+                .selector=${{ button_toggle: { options: [
+                  { label: this._t("Entity"), value: "entity" },
+                  { label: this._t("Template"), value: "template" },
+                ] } }}
+                .value=${source}
+                @value-changed=${(event) => {
+                  this._handleConfigUpdate(`${key}_source`, event.detail.value || "entity");
+                }}
+              ></ha-selector>
+            </div>
+          </div>
+          ${source === "template"
+            ? this._renderTemplateInput("", `${key}_template`, {
+                hideLabel: true,
+                required: false,
+              })
+            : this._renderEntity("", key)}
 
           ${renderIconSourceControl.call(this, {
             label: ["Prefix", "Icon"],
@@ -406,11 +428,11 @@ class OrbitAreaCardEditor extends LitElement {
             },
           })}
 
-          ${this._renderInput(
+          ${source === "entity" ? this._renderInput(
             "Display precision",
             `status${selected}_decimal_places`,
             "entity default"
-          )}
+          ) : ""}
         </div>
       </div>
     `;
@@ -616,7 +638,9 @@ const AREA_CONFIG_ORDER = [
   "status_color",
   "status_separator",
   ...[1, 2, 3].flatMap((index) => [
+    `status${index}_source`,
     `status${index}`,
+    `status${index}_template`,
     `status${index}_icon_source`,
     `status${index}_icon`,
     `status${index}_decimal_places`,

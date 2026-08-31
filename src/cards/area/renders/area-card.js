@@ -124,7 +124,7 @@ function renderStatusItems() {
 }
 
 function renderStatusIcon(item) {
-  if (getEntityIssue(item.entityId, item.stateObj) === "missing") {
+  if (!item.isTemplate && getEntityIssue(item.entityId, item.stateObj) === "missing") {
     const label = this._t("Entity not found");
 
     return html`

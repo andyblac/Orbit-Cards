@@ -408,7 +408,7 @@ function sortAreaPickerItems(itemA, itemB) {
 export function renderEntity(label, key, replacements) {
   return html`
     <div class="field">
-      <label>${t(this, label, replacements)}</label>
+      ${label ? html`<label>${t(this, label, replacements)}</label>` : ""}
 
       ${renderEntitySelector.call(this, {
         value: this._config?.[key] || "",

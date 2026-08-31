@@ -10,6 +10,7 @@ import {
 import {
   formatAreaStatusText,
   getAreaStatusIconSource,
+  getAreaStatusSource,
 } from "./model.js";
 
 export function updateAreaCard(changedProps) {
@@ -112,12 +113,14 @@ export function updateAreaCard(changedProps) {
 function getStatusItems() {
   return [1, 2, 3]
     .map((index) => {
-      const entityId = this._config[`status${index}`];
+      const iconKey = `status${index}`;
+      const entityId = this._config[iconKey] || "";
+      const isTemplate = getAreaStatusSource(this._config, iconKey) === "template";
+      const template = this._config[`${iconKey}_template`];
 
-      if (!entityId) return null;
+      if (isTemplate ? !template : !entityId) return null;
 
       const stateObj = this.hass?.states[entityId];
-      const iconKey = `status${index}`;
       const iconSource = getAreaStatusIconSource(
         this._config,
         iconKey,
@@ -130,20 +133,23 @@ function getStatusItems() {
       );
       const icon = ["custom", "template"].includes(iconSource)
         ? customIcon
-        : !stateObj
+        : !isTemplate && !stateObj
           ? "mdi:alert-circle-outline"
           : "";
 
       return {
         entityId,
         stateObj,
+        isTemplate,
         useStateIcon:
           iconSource === "entity" && Boolean(stateObj),
-        text: formatAreaStatusText(
-          stateObj,
-          this._config[`status${index}_decimal_places`],
-          (value) => this.formatState(value)
-        ),
+        text: isTemplate
+          ? String(this._evaluateStateTemplate(template, entityId) ?? "—")
+          : formatAreaStatusText(
+              stateObj,
+              this._config[`status${index}_decimal_places`],
+              (value) => this.formatState(value)
+            ),
         icon,
         iconPath: this._isImageIcon(icon)
           ? this._resolveIconPath(icon)
