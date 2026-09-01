@@ -2,7 +2,10 @@ import { html } from "lit";
 import {
   getStatusBadgeDeviceClassLabel,
   getStatusBadgeDeviceClasses,
+  getStatusBadgeDeviceClassesForDomains,
+  getStatusBadgeDomainConfig,
   getStatusBadgeHideItems,
+  getStatusBadgeDomains,
   getStatusBadgeSensorUnit,
   getStatusBadgeSensorThreshold,
   serializeStatusBadgeHideItems,
@@ -103,7 +106,6 @@ export function renderBadgeIconControl(stateSource = "entity") {
 
 export function renderBadgeStateControl({
   stateSource,
-  domainConfig,
   deviceClassOptions,
   badgeMode,
   showActiveTemplate = true,
@@ -116,11 +118,30 @@ export function renderBadgeStateControl({
   areaMultiple = false,
   renderAreaPicker,
 }) {
-  const domainValue = this._config?.domain || "";
+  const domainValues = getStatusBadgeDomains(this._config);
   const selectedDeviceClasses = getStatusBadgeDeviceClasses(this._config);
+  const deviceClassGroups = domainValues
+    .map((domain) => ({
+      domain,
+      label: this._t(getStatusBadgeDomainConfig(domain).label),
+      options: deviceClassOptions.filter((option) =>
+        option.domains?.includes(domain)
+      ),
+    }))
+    .filter((group) => group.options.length);
+  const ungroupedDeviceClasses = deviceClassOptions.filter(
+    (option) => !option.domains?.length
+  );
+  if (ungroupedDeviceClasses.length) {
+    deviceClassGroups.push({
+      domain: "",
+      label: this._t("Other"),
+      options: ungroupedDeviceClasses,
+    });
+  }
   const numericSensorDeviceClasses = getNumericSensorDeviceClasses(
     this.hass,
-    domainValue,
+    domainValues,
     selectedDeviceClasses
   );
   const selectedType = badgeMode
@@ -324,65 +345,56 @@ export function renderBadgeStateControl({
                   </div>
                 `}
 
-            <div class="field">
-              <ha-generic-picker
-                .hass=${this.hass}
-                .value=${domainValue}
-                .label=${this._t("Domain")}
-                .placeholder=${this._t("Domain")}
-                use-top-label
-                .getItems=${() => getDomainPickerItems.call(this)}
-                .valueRenderer=${(domain) =>
-                  renderDomainPickerValue.call(this, domain)}
-                .rowRenderer=${renderDomainPickerRow}
-                @value-changed=${(e) => this._updateConfig({
-                  domain: e.detail.value || undefined,
-                  device_class: undefined,
-                  threshold: undefined,
-                  thresholds: undefined,
-                })}
-              ></ha-generic-picker>
-            </div>
+            ${renderStatusDomainPicker.call(this, {
+              config: this._config,
+              updateConfig: (changes) => this._updateConfig(changes),
+            })}
 
-            ${domainConfig?.requiresDeviceClass &&
-              deviceClassOptions.length > 0
+            ${deviceClassOptions.length > 0
               ? html`
                   <div class="field">
                     <label>${this._t("Device class")}</label>
-                    <div class="status-badge-device-class-options">
-                      ${deviceClassOptions.map((option) => {
-                        return html`
-                          <ha-checkbox
-                            .checked=${selectedDeviceClasses.includes(
-                              option.value
-                            )}
-                            .value=${option.value}
-                            @change=${(e) => {
-                              const value = e.target.checked
-                                ? [...new Set([
-                                    ...selectedDeviceClasses,
-                                    option.value,
-                                  ])]
-                                : selectedDeviceClasses.filter(
-                                    (item) => item !== option.value
-                                  );
+                    <div class="status-badge-device-class-groups">
+                      ${deviceClassGroups.map((group) => html`
+                        <div class="status-badge-device-class-group">
+                          <div class="status-badge-device-class-group-label">
+                            ${group.label}
+                          </div>
+                          <div class="status-badge-device-class-options">
+                            ${group.options.map((option) => html`
+                              <ha-checkbox
+                                .checked=${selectedDeviceClasses.includes(
+                                  option.value
+                                )}
+                                .value=${option.value}
+                                @change=${(e) => {
+                                  const value = e.target.checked
+                                    ? [...new Set([
+                                        ...selectedDeviceClasses,
+                                        option.value,
+                                      ])]
+                                    : selectedDeviceClasses.filter(
+                                        (item) => item !== option.value
+                                      );
 
-                              this._updateConfig({
-                                device_class: value.length
-                                  ? value
-                                  : undefined,
-                                threshold: value.includes("battery")
-                                  ? this._config?.threshold
-                                  : undefined,
-                                thresholds: pruneSensorThresholds(
-                                  this._config?.thresholds,
-                                  value
-                                ),
-                              });
-                            }}
-                          >${option.label}</ha-checkbox>
-                        `;
-                      })}
+                                  this._updateConfig({
+                                    device_class: value.length
+                                      ? value
+                                      : undefined,
+                                    threshold: value.includes("battery")
+                                      ? this._config?.threshold
+                                      : undefined,
+                                    thresholds: pruneSensorThresholds(
+                                      this._config?.thresholds,
+                                      value
+                                    ),
+                                  });
+                                }}
+                              >${option.label}</ha-checkbox>
+                            `)}
+                          </div>
+                        </div>
+                      `)}
                     </div>
                   </div>
                 `
@@ -720,17 +732,8 @@ function renderAreaCountHidePicker() {
   `;
 }
 
-function getDomainPickerItems() {
-  return STATUS_BADGE_DOMAINS.map((domain) => ({
-    id: domain.value,
-    primary: this._t(domain.label),
-    sorting_label: this._t(domain.label),
-    icon: domain.icon,
-  }));
-}
-
-function getNumericSensorDeviceClasses(hass, domain, deviceClasses) {
-  if (domain !== "sensor") return [];
+function getNumericSensorDeviceClasses(hass, domains, deviceClasses) {
+  if (!domains.includes("sensor")) return [];
 
   return deviceClasses.filter((deviceClass) =>
     deviceClass !== "battery" &&
@@ -764,27 +767,6 @@ function pruneSensorThresholds(thresholds = {}, deviceClasses = []) {
   );
 
   return Object.keys(pruned).length ? pruned : undefined;
-}
-
-function renderDomainPickerValue(domainValue) {
-  const domain = STATUS_BADGE_DOMAINS.find(
-    (item) => item.value === domainValue
-  );
-  if (!domain) return "";
-
-  return html`
-    <ha-icon slot="start" .icon=${domain.icon}></ha-icon>
-    <span slot="headline">${this._t(domain.label)}</span>
-  `;
-}
-
-function renderDomainPickerRow(item, index) {
-  return html`
-    <ha-combo-box-item type="button" compact .borderTop=${index !== 0}>
-      <ha-icon slot="start" .icon=${item.icon}></ha-icon>
-      <span slot="headline">${item.primary}</span>
-    </ha-combo-box-item>
-  `;
 }
 
 export function renderStatusAreaPicker({
@@ -850,6 +832,81 @@ export function renderStatusAreaPicker({
                         ),
                   })}
                 >${area.name || area.area_id}</ha-checkbox>
+              `)}
+            </div>
+          </div>
+        `
+      : ""}
+  `;
+}
+
+export function renderStatusDomainPicker({
+  config = this._config || {},
+  updateConfig = (changes) => this._updateConfig(changes),
+} = {}) {
+  const selectedDomains = getStatusBadgeDomains(config);
+  const multiple = Array.isArray(config.domains) || Array.isArray(config.domain);
+  const options = [
+    { value: "__multiple__", label: this._t("Multiple") },
+    ...STATUS_BADGE_DOMAINS.map((domain) => ({
+      value: domain.value,
+      label: this._t(domain.label),
+    })),
+  ];
+  const saveDomains = (domains, saveAsMultiple = multiple) => {
+    const deviceClasses = getStatusBadgeDeviceClassesForDomains(
+      this.hass,
+      config,
+      domains
+    );
+    updateConfig({
+      domain: domains[0] || undefined,
+      domains: saveAsMultiple ? domains : undefined,
+      device_class: deviceClasses.length ? deviceClasses : undefined,
+      threshold: deviceClasses.includes("battery")
+        ? config.threshold
+        : undefined,
+      thresholds: pruneSensorThresholds(config.thresholds, deviceClasses),
+    });
+  };
+
+  return html`
+    <div class="field">
+      <ha-selector
+        .hass=${this.hass}
+        .label=${this._t("Domain")}
+        .selector=${{ select: { mode: "dropdown", options } }}
+        .value=${multiple ? "__multiple__" : selectedDomains[0] || ""}
+        @value-changed=${(event) => {
+          const value = event.detail.value || "";
+          saveDomains(
+            value === "__multiple__" ? selectedDomains : [value].filter(Boolean),
+            value === "__multiple__"
+          );
+        }}
+      ></ha-selector>
+    </div>
+
+    ${multiple
+      ? html`
+          <div class="field">
+            <label>${this._t("Domains")}</label>
+            <div class="status-badge-device-class-options">
+              ${STATUS_BADGE_DOMAINS.map((domain) => html`
+                <ha-checkbox
+                  .checked=${selectedDomains.includes(domain.value)}
+                  @change=${(event) => {
+                    let domains = event.target.checked
+                      ? [...new Set([...selectedDomains, domain.value])]
+                      : selectedDomains.filter((value) => value !== domain.value);
+                    if (event.target.checked && domain.value === "unavailable") {
+                      domains = ["unavailable"];
+                    } else if (event.target.checked) {
+                      domains = domains.filter((value) => value !== "unavailable");
+                    }
+                    saveDomains(domains);
+                  }}
+                >${this._t(domain.label)}</ha-checkbox>
               `)}
             </div>
           </div>

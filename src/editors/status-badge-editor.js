@@ -24,6 +24,7 @@ import {
   getStatusBadgeAreaIds,
   getStatusBadgeAreaName,
   getStatusBadgeStateSource,
+  loadStatusBadgeDeviceClasses,
   normalizeStatusBadgeConfig,
   CURRENT_ACTIVITY_ACTION,
   CURRENT_STATE_ACTION,
@@ -62,6 +63,7 @@ class OrbitStatusBadgeEditor extends LitElement {
     _contentExpanded: { state: true },
     _stateTypeExpanded: { state: true },
     _templateRevision: { state: true },
+    _deviceClassRevision: { state: true },
   };
 
   constructor() {
@@ -77,6 +79,7 @@ class OrbitStatusBadgeEditor extends LitElement {
     this._localIconFilesLoading = false;
     this._contentExpanded = false;
     this._stateTypeExpanded = false;
+    this._deviceClassRevision = 0;
     this._namePickerEnhanceFrame = undefined;
     this._namePickerEnhanceAttempts = 0;
   }
@@ -103,8 +106,21 @@ class OrbitStatusBadgeEditor extends LitElement {
       this._syncTemplateSubscriptions();
       this._namePickerEnhanceAttempts = 0;
     }
+    if (changedProperties.has("hass")) this._loadDeviceClasses();
 
     this._scheduleNamePickerEnhancement();
+  }
+
+  _loadDeviceClasses() {
+    const connection = this.hass?.connection;
+    if (!connection || connection === this._deviceClassConnection) return;
+
+    this._deviceClassConnection = connection;
+    loadStatusBadgeDeviceClasses(this.hass).then(() => {
+      if (this._deviceClassConnection === connection) {
+        this._deviceClassRevision += 1;
+      }
+    });
   }
 
   _scheduleNamePickerEnhancement() {

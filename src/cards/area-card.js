@@ -67,6 +67,7 @@ import { localize } from "../common/localize.js";
 import {
   updateAreaCard,
 } from "./area/helpers/lifecycle.js";
+import { getAreaStatusTemplateEntries } from "./area/helpers/model.js";
 
 import { renderButtons } from "./area/renders/buttons.js";
 import { renderAreaCard } from "./area/renders/area-card.js";
@@ -331,6 +332,7 @@ class OrbitAreaCard extends withCommonCardInteractions(LitElement) {
 
     return [
       ...entries,
+      ...getAreaStatusTemplateEntries(this._config),
       ...getColorTemplateEntries(this._config),
       ...getIconTemplateEntries(this._config),
     ];

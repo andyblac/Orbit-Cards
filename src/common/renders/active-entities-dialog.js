@@ -71,11 +71,25 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
     compareActiveEntityNames(collator, left, right)
   );
   const controllable = controls.filter((entry) => entry.control);
+  const subtypeCounts = [...controls.reduce((groups, entry) => {
+    const domain = entry.stateObj.entity_id.split(".")[0];
+    const deviceClass = entry.stateObj.attributes?.device_class || domain;
+    const key = `${domain}:${deviceClass}`;
+    const group = groups.get(key) || {
+      key,
+      label: deviceClass.replaceAll("_", " "),
+      stateObj: entry.stateObj,
+      count: 0,
+    };
+    group.count += 1;
+    groups.set(key, group);
+    return groups;
+  }, new Map()).values()];
   const groupControl = getActiveEntityGroupControl(controllable);
   const groupServiceName = groupControl
     ? getActiveEntityServiceName(this.hass, groupControl)
     : "";
-  const width = getActiveEntitiesDialogWidth(controls, groupControl);
+  const width = getActiveEntitiesDialogWidth(controls);
   const style = [
     `--ha-dialog-width-sm:${width}px`,
     `--mdc-dialog-min-width:${width}px`,
@@ -93,7 +107,7 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
     ? this._t("Currently {state}", { state: thresholdState })
     : activeState
       ? this._t("Currently {state}", { state: activeState })
-    : this._t("Current state");
+      : this._t("Current state");
 
   return html`
     <ha-adaptive-dialog
@@ -113,11 +127,14 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
         <ha-icon icon="mdi:close"></ha-icon>
       </ha-icon-button>
       <span slot="headerTitle">${title}</span>
-      ${groupControl
-        ? html`
+      ${controls.length
+        ? groupControl
+          ? html`
             <ha-button
+              class="active-entities-subtype-pill"
               slot="headerActionItems"
               appearance="filled"
+              aria-label=${groupServiceName}
               @click=${async () => {
                 if (groupControl.service === "turn_off") {
                   this._activeEntitiesConfirmOpen = true;
@@ -132,10 +149,49 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                 closeActiveEntitiesDialog.call(this);
               }}
             >
-              <ha-icon slot="start" .icon=${groupControl.icon}></ha-icon>
-              ${groupServiceName} (${controllable.length})
+              ${subtypeCounts.length === 1
+                ? html`
+                    <span class="active-entities-subtype-count">
+                      <ha-icon .icon=${groupControl.icon}></ha-icon>
+                      <span>(${controls.length})</span>
+                    </span>
+                  `
+                : subtypeCounts.map((group) => html`
+                    <span
+                      class="active-entities-subtype-count"
+                      title=${group.label}
+                    >
+                      <ha-state-icon
+                        .hass=${this.hass}
+                        .stateObj=${group.stateObj}
+                      ></ha-state-icon>
+                      <span>(${group.count})</span>
+                    </span>
+                  `)}
             </ha-button>
           `
+          : html`
+              <ha-button
+                class="active-entities-subtype-pill active-entities-subtype-pill-static"
+                slot="headerActionItems"
+                appearance="filled"
+                aria-disabled="true"
+                tabindex="-1"
+              >
+                ${subtypeCounts.map((group) => html`
+                  <span
+                    class="active-entities-subtype-count"
+                    title=${group.label}
+                  >
+                    <ha-state-icon
+                      .hass=${this.hass}
+                      .stateObj=${group.stateObj}
+                    ></ha-state-icon>
+                    <span>(${group.count})</span>
+                  </span>
+                `)}
+              </ha-button>
+            `
         : ""}
       <div class="active-entities-dialog-content">
         ${controls.length

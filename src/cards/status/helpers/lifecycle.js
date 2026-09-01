@@ -17,6 +17,7 @@ import {
   getStatusBadgeAreaEntities,
   getStatusBadgeDeviceClasses,
   getStatusBadgeDomainConfig,
+  getStatusBadgeDomains,
   getStatusBadgeStateSource,
   formatDeviceClass,
   pickStatusSourceConfig,
@@ -136,7 +137,8 @@ function getStatusState(item, rootConfig = {}) {
       ? this.hass.states[configuredEntityId]
       : null;
   const entityId = configuredEntityId || stateObj?.entity_id || "";
-  const templateDomain = entityId.split(".")[0] || config.domain || "";
+  const primaryDomain = getStatusBadgeDomains(config)[0] || "";
+  const templateDomain = entityId.split(".")[0] || primaryDomain;
   config.entity = entityId;
 
   const isIconOnly =
@@ -183,13 +185,15 @@ function getStatusState(item, rootConfig = {}) {
     : hasConfiguredName
       ? formatCardNameValue(config.name, config, this.hass)
       : stateSource === "area_count"
-        ? config.domain === STATUS_BADGE_UNAVAILABLE_DOMAIN
+        ? getStatusBadgeDomains(config).includes(STATUS_BADGE_UNAVAILABLE_DOMAIN)
           ? localize(this.hass, "Unavailable")
           : getStatusBadgeDeviceClasses(config).length
             ? getStatusBadgeDeviceClasses(config)
                 .map(formatDeviceClass)
                 .join(", ")
-            : getStatusBadgeDomainConfig(config.domain).label
+            : getStatusBadgeDomains(config)
+                .map((domain) => getStatusBadgeDomainConfig(domain).label)
+                .join(", ")
       : getStatusAttribute(stateObj, "friendly_name") ||
         entityId ||
         localize(this.hass, "Status");
@@ -255,16 +259,16 @@ function getStatusState(item, rootConfig = {}) {
       : "";
 
   const icon = customStateIcon || (stateSource === "area_count"
-    ? getStatusBadgeDomainConfig(config.domain).icon
+    ? getStatusBadgeDomainConfig(primaryDomain).icon
     : entityId && !stateObj
       ? "mdi:alert-circle-outline"
       : "mdi:information-outline");
   const primaryDeviceClass = getStatusBadgeDeviceClasses(config)[0] || "";
   const useStaticDomainIcon = stateSource === "area_count" &&
-    getStatusBadgeDomainConfig(config.domain).staticIcon;
+    getStatusBadgeDomainConfig(primaryDomain).staticIcon;
   const nativeIconStateObj = stateSource === "area_count"
     ? {
-        entity_id: `${config.domain || "sensor"}.orbit_status_card`,
+        entity_id: `${primaryDomain || "sensor"}.orbit_status_card`,
         state: stateObj?.state ?? (isOn ? "on" : "off"),
         attributes: primaryDeviceClass
           ? { device_class: primaryDeviceClass }
@@ -330,7 +334,7 @@ function getStatusState(item, rootConfig = {}) {
       ? this._getSvgColorOverride(config, selectedIconKey)
       : true,
     suppressEntityIssueBadge: stateSource === "area_count" &&
-      config.domain === STATUS_BADGE_UNAVAILABLE_DOMAIN,
+      getStatusBadgeDomains(config).includes(STATUS_BADGE_UNAVAILABLE_DOMAIN),
   };
 }
 

@@ -1,3 +1,17 @@
+export function getAreaStatusSource(config, key) {
+  return config?.[`${key}_source`] === "template" ? "template" : "entity";
+}
+
+export function getAreaStatusTemplateEntries(config) {
+  return [1, 2, 3].flatMap((index) => {
+    const key = `status${index}`;
+    const template = config?.[`${key}_template`];
+    return getAreaStatusSource(config, key) === "template" && template
+      ? [{ template, entityId: config?.[key] || "" }]
+      : [];
+  });
+}
+
 export function getAreaStatusIconSource(config, key, entityId = "") {
   const savedSource = config?.[`${key}_icon_source`];
   const hasEntity = Boolean(entityId || config?.[key]);

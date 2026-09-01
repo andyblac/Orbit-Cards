@@ -4,6 +4,9 @@ import assert from "node:assert/strict";
 import {
   getStatusBadgeActiveEntities,
   getStatusBadgeAreaEntities,
+  getStatusBadgeDeviceClassOptions,
+  getStatusBadgeDeviceClassesForDomains,
+  loadStatusBadgeDeviceClasses,
   normalizeStatusBadgeConfig,
 } from "../src/common/helpers/status-badge.js";
 
@@ -86,6 +89,131 @@ test("area filtering prefers a device percentage battery over its binary fallbac
     "binary_sensor.remote_battery_low",
     "sensor.lock_battery",
   ]);
+});
+
+test("multiple domains combine binary doors and garage covers without shades", () => {
+  const states = {
+    "binary_sensor.side_door": state("binary_sensor.side_door", "on", {
+      device_class: "door",
+    }),
+    "cover.garage_roller_door": state("cover.garage_roller_door", "open", {
+      device_class: "garage",
+    }),
+    "cover.garage_shade": state("cover.garage_shade", "open", {
+      device_class: "shade",
+    }),
+    "cover.lounge_shade": state("cover.lounge_shade", "open", {
+      device_class: "shade",
+    }),
+  };
+  const hass = {
+    states,
+    entities: {
+      "binary_sensor.side_door": { area_id: "garage" },
+      "cover.garage_roller_door": { area_id: "garage" },
+      "cover.garage_shade": { area_id: "garage" },
+      "cover.lounge_shade": { area_id: "lounge" },
+    },
+  };
+
+  assert.deepEqual(
+    getStatusBadgeAreaEntities(hass, {
+      state_source: "area_count",
+      area: ["garage", "lounge"],
+      domain: "binary_sensor",
+      domains: ["binary_sensor", "cover"],
+      device_class: ["door", "garage"],
+    }).map((item) => item.entity_id),
+    ["binary_sensor.side_door", "cover.garage_roller_door"]
+  );
+
+});
+
+test("device class choices include Home Assistant and discovered subtypes", async () => {
+  const connection = {
+    sendMessagePromise: async () => ({
+      resources: {
+        cover: Object.fromEntries([
+          "_", "awning", "blind", "curtain", "damper", "door", "garage",
+          "gate", "shade", "shutter", "window",
+        ].map((value) => [value, {}])),
+        media_player: Object.fromEntries([
+          "_", "projector", "receiver", "speaker", "tv",
+        ].map((value) => [value, {}])),
+      },
+    }),
+  };
+  const hass = {
+    connection,
+    states: {
+      "cover.garage": state("cover.garage", "closed", {
+        device_class: "garage",
+      }),
+      "cover.shade": state("cover.shade", "closed", {
+        device_class: "shade",
+      }),
+      "media_player.projector": state("media_player.projector", "off", {
+        device_class: "projector",
+      }),
+      "media_player.speaker": state("media_player.speaker", "off", {
+        device_class: "speaker",
+      }),
+      "media_player.tv": state("media_player.tv", "off", {
+        device_class: "tv",
+      }),
+    },
+  };
+
+  await loadStatusBadgeDeviceClasses(hass);
+
+  assert.deepEqual(
+    getStatusBadgeDeviceClassOptions(hass, {
+      domain: "cover",
+      domains: ["cover", "media_player"],
+    }).map((option) => option.value),
+    [
+      "awning",
+      "blind",
+      "curtain",
+      "damper",
+      "door",
+      "garage",
+      "gate",
+      "projector",
+      "receiver",
+      "shade",
+      "shutter",
+      "speaker",
+      "tv",
+      "window",
+    ]
+  );
+
+  assert.deepEqual(
+    getStatusBadgeDeviceClassOptions(hass, {
+      domains: ["cover", "media_player"],
+    }).filter((option) => ["garage", "tv"].includes(option.value)),
+    [
+      {
+        value: "garage",
+        domains: ["cover"],
+        label: "Garage",
+      },
+      {
+        value: "tv",
+        domains: ["media_player"],
+        label: "Tv",
+      },
+    ]
+  );
+
+  assert.deepEqual(
+    getStatusBadgeDeviceClassesForDomains(hass, {
+      domains: ["cover", "media_player"],
+      device_class: ["garage", "projector", "custom_class"],
+    }, ["cover"]),
+    ["garage", "custom_class"]
+  );
 });
 
 test("normalization removes runtime defaults and clamps battery thresholds", () => {

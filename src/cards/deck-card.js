@@ -13,13 +13,13 @@ import {
 import {
   migrateDeckCardConfig,
 } from "../common/helpers/config-migration.js";
-import { isCardEditorPreview } from "../common/helpers/editor-preview.js";
 import {
   handleDoubleTapAction,
   handleTapAction,
   isActionEnabled,
 } from "../common/helpers/actions.js";
 import { withCommonCardInteractions } from "../common/helpers/card-interactions.js";
+import { isCardEditorPreview } from "../common/helpers/editor-preview.js";
 import {
   disconnectTemplateSubscriptions,
   getColorTemplateEntries,
@@ -164,10 +164,7 @@ class OrbitDeckCard extends withCommonCardInteractions(LitElement) {
     const defaultSelectionKey = getDefaultSelectionKey(decks);
     const defaultIndex = getDefaultDeckIndex(decks);
 
-    if (
-      isCardEditorPreview(this) &&
-      Number.isInteger(config?.[DECK_PREVIEW_SELECTED_INDEX])
-    ) {
+    if (Number.isInteger(config?.[DECK_PREVIEW_SELECTED_INDEX])) {
       this._selectedIndex = Math.min(
         Math.max(0, config[DECK_PREVIEW_SELECTED_INDEX]),
         Math.max(0, decks.length - 1)

@@ -11,6 +11,37 @@ export const activeEntitiesDialogStyles = css`
     padding: 0 var(--ha-space-4, 16px);
   }
 
+  .active-entities-subtype-pill {
+    min-width: 0;
+  }
+
+  .active-entities-subtype-pill::part(base) {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding-inline: 8px;
+  }
+
+  .active-entities-subtype-pill-static {
+    pointer-events: none;
+  }
+
+  .active-entities-subtype-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    text-transform: none;
+  }
+
+  .active-entities-subtype-count ha-state-icon,
+  .active-entities-subtype-count ha-icon {
+    width: 24px;
+    height: 24px;
+    color: currentColor;
+    --mdc-icon-size: 24px;
+  }
+
   .active-entity-row {
     position: relative;
     display: flex;
