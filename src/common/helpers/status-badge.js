@@ -23,7 +23,11 @@ export const STATUS_BADGE_DOMAINS = [
     requiresDeviceClass: true,
   },
   { value: "fan", label: "Fans", icon: "mdi:fan" },
-  { value: "cover", label: "Covers", icon: "mdi:window-shutter" },
+  {
+    value: "cover",
+    label: "Covers",
+    icon: "mdi:window-shutter",
+  },
   { value: "lock", label: "Locks", icon: "mdi:lock" },
   { value: "media_player", label: "Media players", icon: "mdi:play-box-multiple" },
   { value: "climate", label: "Climate", icon: "mdi:thermostat" },
@@ -53,6 +57,7 @@ export const STATUS_SOURCE_CONFIG_KEYS = [
   "state_source",
   "area",
   "domain",
+  "domains",
   "device_class",
   "threshold",
   "thresholds",
@@ -82,12 +87,41 @@ const STATUS_BADGE_DOMAIN_CONFIG = new Map(
   STATUS_BADGE_DOMAINS.map((item) => [item.value, item])
 );
 
+const STATUS_BADGE_KNOWN_DEVICE_CLASSES = {
+  cover: [
+    "awning",
+    "blind",
+    "curtain",
+    "damper",
+    "door",
+    "garage",
+    "gate",
+    "shade",
+    "shutter",
+    "window",
+  ],
+  media_player: ["projector", "receiver", "speaker", "tv"],
+  switch: ["outlet", "switch"],
+};
+
 export function getStatusBadgeDomainConfig(domain = "") {
   return STATUS_BADGE_DOMAIN_CONFIG.get(domain) || {
     value: domain,
     label: domain ? domain.replaceAll("_", " ") : "Status",
     icon: "mdi:shape",
   };
+}
+
+export function getStatusBadgeDomains(config = {}) {
+  const configured = Array.isArray(config?.domains) && config.domains.length
+    ? config.domains
+    : Array.isArray(config?.domain)
+      ? config.domain
+      : [config?.domain];
+
+  return [...new Set(configured.filter((domain) =>
+    typeof domain === "string" && domain.trim()
+  ).map((domain) => domain.trim()))];
 }
 
 export function getStatusBadgeStateSource(config = {}) {
@@ -104,17 +138,18 @@ export function getStatusBadgeStateSource(config = {}) {
 
 export function validateStatusBadgeConfig(config = {}) {
   const stateSource = getStatusBadgeStateSource(config);
-  const domainConfig = config.domain
-    ? getStatusBadgeDomainConfig(config.domain)
-    : undefined;
+  const domains = getStatusBadgeDomains(config);
+  const requiresDeviceClass = domains.some((domain) =>
+    getStatusBadgeDomainConfig(domain).requiresDeviceClass
+  );
 
   if (
     stateSource === "area_count" &&
-    domainConfig?.requiresDeviceClass &&
+    requiresDeviceClass &&
     getStatusBadgeDeviceClasses(config).length === 0
   ) {
     throw new Error(
-      `Orbit Status Badge requires "device_class" for domain "${config.domain}".`
+      `Orbit Status Badge requires "device_class" for the selected domains.`
     );
   }
 
@@ -199,7 +234,7 @@ export function normalizeStatusBadgeConfig(config = {}) {
 
   if (
     stateSource === "area_count" &&
-    normalized.domain === STATUS_BADGE_UNAVAILABLE_DOMAIN
+    getStatusBadgeDomains(normalized).includes(STATUS_BADGE_UNAVAILABLE_DOMAIN)
   ) {
     delete normalized.device_class;
     delete normalized.threshold;
@@ -210,7 +245,7 @@ export function normalizeStatusBadgeConfig(config = {}) {
   const usesBatteryThreshold = stateSource === "area_count" &&
     deviceClasses.includes("battery");
   const usesSensorThresholds = stateSource === "area_count" &&
-    normalized.domain === "sensor";
+    getStatusBadgeDomains(normalized).includes("sensor");
 
   if (deviceClasses.length === 0) {
     delete normalized.device_class;
@@ -291,6 +326,7 @@ export function normalizeStatusBadgeConfig(config = {}) {
     delete normalized.state_source;
     delete normalized.area;
     delete normalized.domain;
+    delete normalized.domains;
     delete normalized.device_class;
     delete normalized.state_template;
     delete normalized.active_template;
@@ -323,6 +359,7 @@ export function normalizeStatusBadgeConfig(config = {}) {
     }
     delete normalized.area;
     delete normalized.domain;
+    delete normalized.domains;
     delete normalized.device_class;
     delete normalized.hide;
     if (normalized.state_content === "state") {
@@ -390,10 +427,9 @@ export function getStatusBadgeActivityTitleDetail(hass, config = {}) {
       .join(", ");
   }
 
-  const domain = config?.domain || "";
-  const domainConfig = getStatusBadgeDomainConfig(domain);
-
-  return localize(hass, domainConfig.label);
+  return getStatusBadgeDomains(config)
+    .map((domain) => localize(hass, getStatusBadgeDomainConfig(domain).label))
+    .join(", ");
 }
 
 export function getStatusBadgeDeviceClasses(config = {}) {
@@ -451,7 +487,7 @@ export function getStatusBadgeThresholdDisplayState(hass, config = {}) {
     value = getStatusBadgeThreshold(config);
     unit = "%";
   } else if (
-    config.domain === "sensor" &&
+    getStatusBadgeDomains(config).includes("sensor") &&
     !STATUS_BADGE_NON_NUMERIC_SENSOR_DEVICE_CLASSES.has(deviceClass)
   ) {
     const threshold = getStatusBadgeSensorThreshold(config, deviceClass);
@@ -486,7 +522,7 @@ export function hasStatusBadgeThresholdRule(config = {}) {
 
   return getStatusBadgeDeviceClasses(config).some((deviceClass) =>
     deviceClass === "battery" ||
-    config.domain === "sensor" &&
+    getStatusBadgeDomains(config).includes("sensor") &&
       !STATUS_BADGE_NON_NUMERIC_SENSOR_DEVICE_CLASSES.has(deviceClass)
   );
 }
@@ -506,13 +542,14 @@ export function getStatusBadgeActiveEntities(entities = [], config = {},
   const isAreaCount = getStatusBadgeStateSource(config) === "area_count";
   if (
     isAreaCount &&
-    config.domain === STATUS_BADGE_UNAVAILABLE_DOMAIN
+    getStatusBadgeDomains(config).includes(STATUS_BADGE_UNAVAILABLE_DOMAIN)
   ) return entities;
 
   const deviceClasses = getStatusBadgeDeviceClasses(config);
   const usesBatteryThreshold = isAreaCount &&
     deviceClasses.includes("battery");
-  const usesSensorThresholds = isAreaCount && config.domain === "sensor";
+  const usesSensorThresholds = isAreaCount &&
+    getStatusBadgeDomains(config).includes("sensor");
 
   if (!usesBatteryThreshold && !usesSensorThresholds) {
     return entities.filter(isActive);
@@ -591,13 +628,20 @@ export function getStatusBadgeEntityDeviceClass(stateObj, domain) {
 }
 
 export function getStatusBadgeDeviceClassOptions(hass, config = {}) {
-  const domain = config.domain || "";
+  const domains = getStatusBadgeDomains(config);
   const values = new Set(getStatusBadgeDeviceClasses(config));
 
-  if (!domain) return [];
+  if (!domains.length) return [];
+
+  domains.forEach((domain) => {
+    (STATUS_BADGE_KNOWN_DEVICE_CLASSES[domain] || []).forEach((deviceClass) =>
+      values.add(deviceClass)
+    );
+  });
 
   Object.values(hass?.states || {}).forEach((stateObj) => {
-    if (!stateObj.entity_id.startsWith(`${domain}.`)) return;
+    const domain = stateObj.entity_id.split(".")[0];
+    if (!domains.includes(domain)) return;
 
     const value = getStatusBadgeEntityDeviceClass(stateObj, domain);
     if (value) values.add(value);
@@ -613,14 +657,15 @@ export function getStatusBadgeDeviceClassOptions(hass, config = {}) {
 
 export function getStatusBadgeAreaEntities(hass, config = {}) {
   const areaIds = getStatusBadgeAreaIds(config);
-  const domain = config.domain || "";
-  const domainConfig = getStatusBadgeDomainConfig(domain);
+  const domains = getStatusBadgeDomains(config);
   const deviceClasses = getStatusBadgeDeviceClasses(config);
 
-  if (!hass || !areaIds.length || !domain) return [];
-  if (domainConfig.requiresDeviceClass && !deviceClasses.length) return [];
+  if (!hass || !areaIds.length || !domains.length) return [];
+  if (domains.some((domain) =>
+    getStatusBadgeDomainConfig(domain).requiresDeviceClass
+  ) && !deviceClasses.length) return [];
 
-  if (domain === STATUS_BADGE_UNAVAILABLE_DOMAIN) {
+  if (domains.includes(STATUS_BADGE_UNAVAILABLE_DOMAIN)) {
     return Object.values(hass.states || {}).filter((stateObj) =>
       stateObj.state === "unavailable" &&
       areaIds.includes(getEntityAreaId(hass, stateObj.entity_id)) &&
@@ -628,20 +673,24 @@ export function getStatusBadgeAreaEntities(hass, config = {}) {
     );
   }
 
-  const batteryDomains = deviceClasses.includes("battery") &&
-      ["sensor", "binary_sensor"].includes(domain)
-    ? new Set(["sensor", "binary_sensor"])
-    : null;
-  const entities = Object.values(hass.states || {}).filter((stateObj) =>
-    (batteryDomains
-      ? batteryDomains.has(stateObj.entity_id.split(".")[0])
-      : stateObj.entity_id.startsWith(`${domain}.`)) &&
-    areaIds.includes(getEntityAreaId(hass, stateObj.entity_id)) &&
-    (!domainConfig.requiresDeviceClass || deviceClasses.includes(
-      getStatusBadgeEntityDeviceClass(stateObj, domain)
-    )) &&
-    !shouldHideStatusBadgeEntity(hass, stateObj.entity_id, config)
-  );
+  const includesBatteryFallback = deviceClasses.includes("battery") &&
+    domains.some((domain) => ["sensor", "binary_sensor"].includes(domain));
+  const entities = Object.values(hass.states || {}).filter((stateObj) => {
+    const entityDomain = stateObj.entity_id.split(".")[0];
+    const matchesDomain = domains.includes(entityDomain) ||
+      includesBatteryFallback &&
+        ["sensor", "binary_sensor"].includes(entityDomain);
+    const matchesDeviceClass = !deviceClasses.length ||
+      deviceClasses.includes(getStatusBadgeEntityDeviceClass(
+        stateObj,
+        entityDomain
+      ));
+
+    return matchesDomain &&
+      areaIds.includes(getEntityAreaId(hass, stateObj.entity_id)) &&
+      matchesDeviceClass &&
+      !shouldHideStatusBadgeEntity(hass, stateObj.entity_id, config);
+  });
 
   return deviceClasses.includes("battery")
     ? preferBatteryPercentageEntities(hass, entities)
@@ -709,7 +758,7 @@ export function getStatusBadgeAreaName(hass, config = {}) {
 }
 
 export function getStatusBadgeAreaEntityIds(hass, config = {}) {
-  if (config.domain === STATUS_BADGE_UNAVAILABLE_DOMAIN) {
+  if (getStatusBadgeDomains(config).includes(STATUS_BADGE_UNAVAILABLE_DOMAIN)) {
     const areaIds = getStatusBadgeAreaIds(config);
 
     return Object.values(hass?.states || {})

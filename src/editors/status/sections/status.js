@@ -13,7 +13,6 @@ import {
   CURRENT_ACTIVITY_ACTION,
   CURRENT_STATE_ACTION,
   getStatusBadgeDeviceClassOptions,
-  getStatusBadgeDomainConfig,
   getStatusBadgeStateSource,
 } from "../../../common/helpers/status-badge.js";
 import {
@@ -448,7 +447,6 @@ function renderStatusStateType(
       <div class="content-panel-body">
         ${renderBadgeStateControl.call(scopedEditor, {
           stateSource,
-          domainConfig: getStatusBadgeDomainConfig(stateConfig.domain),
           deviceClassOptions: getStatusBadgeDeviceClassOptions(
             this.hass,
             stateConfig
