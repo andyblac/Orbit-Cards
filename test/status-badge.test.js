@@ -5,6 +5,8 @@ import {
   getStatusBadgeActiveEntities,
   getStatusBadgeAreaEntities,
   getStatusBadgeDeviceClassOptions,
+  getStatusBadgeDeviceClassesForDomains,
+  loadStatusBadgeDeviceClasses,
   normalizeStatusBadgeConfig,
 } from "../src/common/helpers/status-badge.js";
 
@@ -124,10 +126,25 @@ test("multiple domains combine binary doors and garage covers without shades", (
     }).map((item) => item.entity_id),
     ["binary_sensor.side_door", "cover.garage_roller_door"]
   );
+
 });
 
-test("device class choices include known and discovered selected-domain subtypes", () => {
+test("device class choices include Home Assistant and discovered subtypes", async () => {
+  const connection = {
+    sendMessagePromise: async () => ({
+      resources: {
+        cover: Object.fromEntries([
+          "_", "awning", "blind", "curtain", "damper", "door", "garage",
+          "gate", "shade", "shutter", "window",
+        ].map((value) => [value, {}])),
+        media_player: Object.fromEntries([
+          "_", "projector", "receiver", "speaker", "tv",
+        ].map((value) => [value, {}])),
+      },
+    }),
+  };
   const hass = {
+    connection,
     states: {
       "cover.garage": state("cover.garage", "closed", {
         device_class: "garage",
@@ -146,6 +163,8 @@ test("device class choices include known and discovered selected-domain subtypes
       }),
     },
   };
+
+  await loadStatusBadgeDeviceClasses(hass);
 
   assert.deepEqual(
     getStatusBadgeDeviceClassOptions(hass, {
@@ -168,6 +187,32 @@ test("device class choices include known and discovered selected-domain subtypes
       "tv",
       "window",
     ]
+  );
+
+  assert.deepEqual(
+    getStatusBadgeDeviceClassOptions(hass, {
+      domains: ["cover", "media_player"],
+    }).filter((option) => ["garage", "tv"].includes(option.value)),
+    [
+      {
+        value: "garage",
+        domains: ["cover"],
+        label: "Garage",
+      },
+      {
+        value: "tv",
+        domains: ["media_player"],
+        label: "Tv",
+      },
+    ]
+  );
+
+  assert.deepEqual(
+    getStatusBadgeDeviceClassesForDomains(hass, {
+      domains: ["cover", "media_player"],
+      device_class: ["garage", "projector", "custom_class"],
+    }, ["cover"]),
+    ["garage", "custom_class"]
   );
 });
 

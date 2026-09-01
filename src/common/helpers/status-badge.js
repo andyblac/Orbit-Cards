@@ -87,22 +87,29 @@ const STATUS_BADGE_DOMAIN_CONFIG = new Map(
   STATUS_BADGE_DOMAINS.map((item) => [item.value, item])
 );
 
-const STATUS_BADGE_KNOWN_DEVICE_CLASSES = {
-  cover: [
-    "awning",
-    "blind",
-    "curtain",
-    "damper",
-    "door",
-    "garage",
-    "gate",
-    "shade",
-    "shutter",
-    "window",
-  ],
-  media_player: ["projector", "receiver", "speaker", "tv"],
-  switch: ["outlet", "switch"],
-};
+const STATUS_BADGE_DEVICE_CLASS_RESOURCES = new WeakMap();
+
+export async function loadStatusBadgeDeviceClasses(hass) {
+  const connection = hass?.connection;
+  if (!connection?.sendMessagePromise) return {};
+
+  let entry = STATUS_BADGE_DEVICE_CLASS_RESOURCES.get(connection);
+  if (!entry) {
+    entry = {
+      resources: {},
+      promise: connection.sendMessagePromise({
+        type: "frontend/get_icons",
+        category: "entity_component",
+      }).then((result) => {
+        entry.resources = result?.resources || {};
+        return entry.resources;
+      }).catch(() => entry.resources),
+    };
+    STATUS_BADGE_DEVICE_CLASS_RESOURCES.set(connection, entry);
+  }
+
+  return entry.promise;
+}
 
 export function getStatusBadgeDomainConfig(domain = "") {
   return STATUS_BADGE_DOMAIN_CONFIG.get(domain) || {
@@ -629,14 +636,24 @@ export function getStatusBadgeEntityDeviceClass(stateObj, domain) {
 
 export function getStatusBadgeDeviceClassOptions(hass, config = {}) {
   const domains = getStatusBadgeDomains(config);
-  const values = new Set(getStatusBadgeDeviceClasses(config));
+  const configuredValues = getStatusBadgeDeviceClasses(config);
+  const domainsByValue = new Map();
 
   if (!domains.length) return [];
 
+  const addValue = (value, domain = "") => {
+    if (!value) return;
+    if (!domainsByValue.has(value)) domainsByValue.set(value, new Set());
+    if (domain) domainsByValue.get(value).add(domain);
+  };
+
+  const resources = hass?.connection
+    ? STATUS_BADGE_DEVICE_CLASS_RESOURCES.get(hass.connection)?.resources || {}
+    : {};
   domains.forEach((domain) => {
-    (STATUS_BADGE_KNOWN_DEVICE_CLASSES[domain] || []).forEach((deviceClass) =>
-      values.add(deviceClass)
-    );
+    Object.keys(resources[domain] || {}).forEach((deviceClass) => {
+      if (deviceClass !== "_") addValue(deviceClass, domain);
+    });
   });
 
   Object.values(hass?.states || {}).forEach((stateObj) => {
@@ -644,15 +661,41 @@ export function getStatusBadgeDeviceClassOptions(hass, config = {}) {
     if (!domains.includes(domain)) return;
 
     const value = getStatusBadgeEntityDeviceClass(stateObj, domain);
-    if (value) values.add(value);
+    addValue(value, domain);
   });
 
-  return [...values]
-    .sort((left, right) => left.localeCompare(right))
-    .map((value) => ({
-      value,
-      label: getStatusBadgeDeviceClassLabel(value),
-    }));
+  configuredValues.forEach((value) => addValue(value));
+
+  return [...domainsByValue]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([value, optionDomains]) => {
+      return {
+        value,
+        domains: [...optionDomains],
+        label: getStatusBadgeDeviceClassLabel(value),
+      };
+    });
+}
+
+export function getStatusBadgeDeviceClassesForDomains(
+  hass,
+  config = {},
+  domains = []
+) {
+  if (domains.includes(STATUS_BADGE_UNAVAILABLE_DOMAIN)) return [];
+
+  const retainedDomains = new Set(domains);
+  const options = new Map(
+    getStatusBadgeDeviceClassOptions(hass, config)
+      .map((option) => [option.value, option])
+  );
+
+  return getStatusBadgeDeviceClasses(config).filter((value) => {
+    const optionDomains = options.get(value)?.domains || [];
+    return !optionDomains.length || optionDomains.some(
+      (domain) => retainedDomains.has(domain)
+    );
+  });
 }
 
 export function getStatusBadgeAreaEntities(hass, config = {}) {

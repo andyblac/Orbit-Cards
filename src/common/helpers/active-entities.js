@@ -210,7 +210,7 @@ export function compareActiveEntityNames(collator, a, b) {
     a.stateObj.entity_id.localeCompare(b.stateObj.entity_id);
 }
 
-export function getActiveEntitiesDialogWidth(controls, groupControl) {
+export function getActiveEntitiesDialogWidth(controls) {
   const longestNameLength = controls.reduce(
     (length, { name, areaName }) => Math.max(
       length,
@@ -220,7 +220,8 @@ export function getActiveEntitiesDialogWidth(controls, groupControl) {
     0
   );
   const contentWidth = 132 + (longestNameLength * 8);
-  const headerWidth = groupControl ? 360 : 280;
+  // Keep active and empty state dialogs visually consistent.
+  const headerWidth = 360;
 
   return Math.min(520, Math.max(headerWidth, contentWidth));
 }

@@ -45,6 +45,7 @@ import {
 import {
   CURRENT_ACTIVITY_ACTION,
   getStatusBadgeStateSource,
+  loadStatusBadgeDeviceClasses,
   pickStatusSourceConfig,
 } from "../common/helpers/status-badge.js";
 import {
@@ -81,6 +82,7 @@ class OrbitStatusCardEditor extends LitElement {
     _localIconFilesLoading: { state: true },
     _statusStateTypeExpanded: { state: true },
     _statusContentExpanded: { state: true },
+    _deviceClassRevision: { state: true },
   };
 
   constructor() {
@@ -99,6 +101,7 @@ class OrbitStatusCardEditor extends LitElement {
     this._localIconFilesLoading = false;
     this._statusStateTypeExpanded = false;
     this._statusContentExpanded = false;
+    this._deviceClassRevision = 0;
   }
 
   connectedCallback() {
@@ -110,6 +113,22 @@ class OrbitStatusCardEditor extends LitElement {
   disconnectedCallback() {
     disconnectEditorPopoverClose(this);
     super.disconnectedCallback();
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has("hass")) this._loadDeviceClasses();
+  }
+
+  _loadDeviceClasses() {
+    const connection = this.hass?.connection;
+    if (!connection || connection === this._deviceClassConnection) return;
+
+    this._deviceClassConnection = connection;
+    loadStatusBadgeDeviceClasses(this.hass).then(() => {
+      if (this._deviceClassConnection === connection) {
+        this._deviceClassRevision += 1;
+      }
+    });
   }
 
   _getColorStyle(value) {

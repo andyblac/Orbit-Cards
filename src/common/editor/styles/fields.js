@@ -146,6 +146,19 @@ export const fieldStyles = css`
   display: inline-flex;
 }
 
+.status-badge-device-class-groups {
+  display: grid;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.status-badge-device-class-group-label {
+  color: var(--secondary-text-color);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
 .status-area-count-low-sensors-hint {
   color: var(--secondary-text-color);
   font-size: 12px;
