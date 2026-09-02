@@ -178,18 +178,20 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                 aria-disabled="true"
                 tabindex="-1"
               >
-                ${subtypeCounts.map((group) => html`
-                  <span
-                    class="active-entities-subtype-count"
-                    title=${group.label}
-                  >
-                    <ha-state-icon
-                      .hass=${this.hass}
-                      .stateObj=${group.stateObj}
-                    ></ha-state-icon>
-                    <span>(${group.count})</span>
-                  </span>
-                `)}
+                ${subtypeCounts.length === 1
+                  ? html`<span>(${controls.length})</span>`
+                  : subtypeCounts.map((group) => html`
+                      <span
+                        class="active-entities-subtype-count"
+                        title=${group.label}
+                      >
+                        <ha-state-icon
+                          .hass=${this.hass}
+                          .stateObj=${group.stateObj}
+                        ></ha-state-icon>
+                        <span>(${group.count})</span>
+                      </span>
+                    `)}
               </ha-button>
             `
         : ""}

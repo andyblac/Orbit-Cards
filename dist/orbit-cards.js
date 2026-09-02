@@ -8444,18 +8444,18 @@ function Hl(e = [], t = {}) {
                 aria-disabled="true"
                 tabindex="-1"
               >
-                ${c.map((e) => D`
-                  <span
-                    class="active-entities-subtype-count"
-                    title=${e.label}
-                  >
-                    <ha-state-icon
-                      .hass=${this.hass}
-                      .stateObj=${e.stateObj}
-                    ></ha-state-icon>
-                    <span>(${e.count})</span>
-                  </span>
-                `)}
+                ${c.length === 1 ? D`<span>(${o.length})</span>` : c.map((e) => D`
+                      <span
+                        class="active-entities-subtype-count"
+                        title=${e.label}
+                      >
+                        <ha-state-icon
+                          .hass=${this.hass}
+                          .stateObj=${e.stateObj}
+                        ></ha-state-icon>
+                        <span>(${e.count})</span>
+                      </span>
+                    `)}
               </ha-button>
             ` : ""}
       <div class="active-entities-dialog-content">
