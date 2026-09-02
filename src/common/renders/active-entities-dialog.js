@@ -83,7 +83,7 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
       count: 0,
     };
     if (!group.icon && entry.icon) group.icon = entry.icon;
-    group.count += 1;
+    group.count += entry.entityCount || 1;
     groups.set(key, group);
     return groups;
   }, new Map()).values()];
@@ -159,7 +159,7 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                 ? html`
                     <span class="active-entities-subtype-count">
                       <ha-icon .icon=${groupControl.icon}></ha-icon>
-                      <span>(${controls.length})</span>
+                      <span>(${subtypeCounts[0].count})</span>
                     </span>
                   `
                 : subtypeCounts.map((group) => html`
@@ -189,7 +189,7 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                 tabindex="-1"
               >
                 ${subtypeCounts.length === 1
-                  ? html`<span>(${controls.length})</span>`
+                  ? html`<span>(${subtypeCounts[0].count})</span>`
                   : subtypeCounts.map((group) => html`
                       <span
                         class="active-entities-subtype-count"

@@ -8382,7 +8382,7 @@ function Hl(e = [], t = {}) {
 			icon: t.icon,
 			count: 0
 		};
-		return !a.icon && t.icon && (a.icon = t.icon), a.count += 1, e.set(i, a), e;
+		return !a.icon && t.icon && (a.icon = t.icon), a.count += t.entityCount || 1, e.set(i, a), e;
 	}, /* @__PURE__ */ new Map()).values()], l = xl(s), u = l ? Ml(this.hass, l) : "", d = zc(this.hass, t), f = Bc(t) ? d : Ol(this.hass, o[0]?.stateObj), p = d ? this._t("Currently {state}", { state: d }) : f ? this._t("Currently {state}", { state: f }) : this._t("Current state"), m = Al(o, p, c.length);
 	return D`
     <ha-adaptive-dialog
@@ -8422,7 +8422,7 @@ function Hl(e = [], t = {}) {
               ${c.length === 1 ? D`
                     <span class="active-entities-subtype-count">
                       <ha-icon .icon=${l.icon}></ha-icon>
-                      <span>(${o.length})</span>
+                      <span>(${c[0].count})</span>
                     </span>
                   ` : c.map((e) => D`
                     <span
@@ -8447,7 +8447,7 @@ function Hl(e = [], t = {}) {
                 aria-disabled="true"
                 tabindex="-1"
               >
-                ${c.length === 1 ? D`<span>(${o.length})</span>` : c.map((e) => D`
+                ${c.length === 1 ? D`<span>(${c[0].count})</span>` : c.map((e) => D`
                       <span
                         class="active-entities-subtype-count"
                         title=${e.label}
