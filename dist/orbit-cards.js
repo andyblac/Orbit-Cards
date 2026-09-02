@@ -8265,9 +8265,9 @@ function Ol(e, t) {
 function kl(e, t, n) {
 	return e.compare(t.name, n.name) || t.stateObj.entity_id.localeCompare(n.stateObj.entity_id);
 }
-function Al(e) {
-	let t = 132 + e.reduce((e, { name: t, areaName: n }) => Math.max(e, t.length, n?.length || 0), 0) * 8;
-	return Math.min(520, Math.max(360, t));
+function Al(e, t = "", n = 0) {
+	let r = 132 + e.reduce((e, { name: t, areaName: n }) => Math.max(e, t.length, n?.length || 0), 0) * 8, i = n ? 16 + n * 52 + Math.max(0, n - 1) * 8 : 0, a = 104 + t.length * 12 + i;
+	return Math.min(520, Math.max(360, a, r));
 }
 function jl(e, t, n = Date.now()) {
 	let r = Date.parse(t?.last_changed || "");
@@ -8382,16 +8382,16 @@ function Hl(e = [], t = {}) {
 			count: 0
 		};
 		return a.count += 1, e.set(i, a), e;
-	}, /* @__PURE__ */ new Map()).values()], l = xl(s), u = l ? Ml(this.hass, l) : "", d = Al(o), f = [
-		`--ha-dialog-width-sm:${d}px`,
-		`--mdc-dialog-min-width:${d}px`,
-		`--mdc-dialog-max-width:${d}px`
-	].join(";"), p = zc(this.hass, t), m = Bc(t) ? p : Ol(this.hass, o[0]?.stateObj), h = p ? this._t("Currently {state}", { state: p }) : m ? this._t("Currently {state}", { state: m }) : this._t("Current state");
+	}, /* @__PURE__ */ new Map()).values()], l = xl(s), u = l ? Ml(this.hass, l) : "", d = zc(this.hass, t), f = Bc(t) ? d : Ol(this.hass, o[0]?.stateObj), p = d ? this._t("Currently {state}", { state: d }) : f ? this._t("Currently {state}", { state: f }) : this._t("Current state"), m = Al(o, p, c.length);
 	return D`
     <ha-adaptive-dialog
       .open=${!0}
       width="small"
-      style=${f}
+      style=${[
+		`--ha-dialog-width-sm:${m}px`,
+		`--mdc-dialog-min-width:${m}px`,
+		`--mdc-dialog-max-width:${m}px`
+	].join(";")}
       @closed=${(e) => {
 		e.stopPropagation(), pl.call(this);
 	}}
@@ -8403,7 +8403,7 @@ function Hl(e = [], t = {}) {
       >
         <ha-icon icon="mdi:close"></ha-icon>
       </ha-icon-button>
-      <span slot="headerTitle">${h}</span>
+      <span slot="headerTitle">${p}</span>
       ${o.length ? l ? D`
             <ha-button
               class="active-entities-subtype-pill"

@@ -210,7 +210,11 @@ export function compareActiveEntityNames(collator, a, b) {
     a.stateObj.entity_id.localeCompare(b.stateObj.entity_id);
 }
 
-export function getActiveEntitiesDialogWidth(controls) {
+export function getActiveEntitiesDialogWidth(
+  controls,
+  title = "",
+  subtypeCount = 0
+) {
   const longestNameLength = controls.reduce(
     (length, { name, areaName }) => Math.max(
       length,
@@ -220,10 +224,12 @@ export function getActiveEntitiesDialogWidth(controls) {
     0
   );
   const contentWidth = 132 + (longestNameLength * 8);
-  // Keep active and empty state dialogs visually consistent.
-  const headerWidth = 360;
+  const subtypeSummaryWidth = subtypeCount
+    ? 16 + (subtypeCount * 52) + (Math.max(0, subtypeCount - 1) * 8)
+    : 0;
+  const headerWidth = 104 + (title.length * 12) + subtypeSummaryWidth;
 
-  return Math.min(520, Math.max(headerWidth, contentWidth));
+  return Math.min(520, Math.max(360, headerWidth, contentWidth));
 }
 
 export function formatActiveEntityDuration(hass, stateObj, now = Date.now()) {

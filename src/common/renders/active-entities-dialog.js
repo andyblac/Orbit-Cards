@@ -89,12 +89,6 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
   const groupServiceName = groupControl
     ? getActiveEntityServiceName(this.hass, groupControl)
     : "";
-  const width = getActiveEntitiesDialogWidth(controls);
-  const style = [
-    `--ha-dialog-width-sm:${width}px`,
-    `--mdc-dialog-min-width:${width}px`,
-    `--mdc-dialog-max-width:${width}px`,
-  ].join(";");
   const thresholdState = getStatusBadgeThresholdDisplayState(
     this.hass,
     config
@@ -108,6 +102,16 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
     : activeState
       ? this._t("Currently {state}", { state: activeState })
       : this._t("Current state");
+  const width = getActiveEntitiesDialogWidth(
+    controls,
+    title,
+    subtypeCounts.length
+  );
+  const style = [
+    `--ha-dialog-width-sm:${width}px`,
+    `--mdc-dialog-min-width:${width}px`,
+    `--mdc-dialog-max-width:${width}px`,
+  ].join(";");
 
   return html`
     <ha-adaptive-dialog
