@@ -8379,9 +8379,10 @@ function Hl(e = [], t = {}) {
 			key: i,
 			label: r.replaceAll("_", " "),
 			stateObj: t.stateObj,
+			icon: t.icon,
 			count: 0
 		};
-		return a.count += 1, e.set(i, a), e;
+		return !a.icon && t.icon && (a.icon = t.icon), a.count += 1, e.set(i, a), e;
 	}, /* @__PURE__ */ new Map()).values()], l = xl(s), u = l ? Ml(this.hass, l) : "", d = zc(this.hass, t), f = Bc(t) ? d : Ol(this.hass, o[0]?.stateObj), p = d ? this._t("Currently {state}", { state: d }) : f ? this._t("Currently {state}", { state: f }) : this._t("Current state"), m = Al(o, p, c.length);
 	return D`
     <ha-adaptive-dialog
@@ -8428,10 +8429,12 @@ function Hl(e = [], t = {}) {
                       class="active-entities-subtype-count"
                       title=${e.label}
                     >
-                      <ha-state-icon
-                        .hass=${this.hass}
-                        .stateObj=${e.stateObj}
-                      ></ha-state-icon>
+                      ${e.icon ? D`<ha-icon .icon=${e.icon}></ha-icon>` : D`
+                            <ha-state-icon
+                              .hass=${this.hass}
+                              .stateObj=${e.stateObj}
+                            ></ha-state-icon>
+                          `}
                       <span>(${e.count})</span>
                     </span>
                   `)}
@@ -8449,10 +8452,12 @@ function Hl(e = [], t = {}) {
                         class="active-entities-subtype-count"
                         title=${e.label}
                       >
-                        <ha-state-icon
-                          .hass=${this.hass}
-                          .stateObj=${e.stateObj}
-                        ></ha-state-icon>
+                        ${e.icon ? D`<ha-icon .icon=${e.icon}></ha-icon>` : D`
+                              <ha-state-icon
+                                .hass=${this.hass}
+                                .stateObj=${e.stateObj}
+                              ></ha-state-icon>
+                            `}
                         <span>(${e.count})</span>
                       </span>
                     `)}

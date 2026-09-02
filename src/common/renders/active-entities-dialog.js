@@ -79,8 +79,10 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
       key,
       label: deviceClass.replaceAll("_", " "),
       stateObj: entry.stateObj,
+      icon: entry.icon,
       count: 0,
     };
+    if (!group.icon && entry.icon) group.icon = entry.icon;
     group.count += 1;
     groups.set(key, group);
     return groups;
@@ -165,10 +167,14 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                       class="active-entities-subtype-count"
                       title=${group.label}
                     >
-                      <ha-state-icon
-                        .hass=${this.hass}
-                        .stateObj=${group.stateObj}
-                      ></ha-state-icon>
+                      ${group.icon
+                        ? html`<ha-icon .icon=${group.icon}></ha-icon>`
+                        : html`
+                            <ha-state-icon
+                              .hass=${this.hass}
+                              .stateObj=${group.stateObj}
+                            ></ha-state-icon>
+                          `}
                       <span>(${group.count})</span>
                     </span>
                   `)}
@@ -189,10 +195,14 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                         class="active-entities-subtype-count"
                         title=${group.label}
                       >
-                        <ha-state-icon
-                          .hass=${this.hass}
-                          .stateObj=${group.stateObj}
-                        ></ha-state-icon>
+                        ${group.icon
+                          ? html`<ha-icon .icon=${group.icon}></ha-icon>`
+                          : html`
+                              <ha-state-icon
+                                .hass=${this.hass}
+                                .stateObj=${group.stateObj}
+                              ></ha-state-icon>
+                            `}
                         <span>(${group.count})</span>
                       </span>
                     `)}
