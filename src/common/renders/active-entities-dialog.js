@@ -79,9 +79,11 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
       key,
       label: deviceClass.replaceAll("_", " "),
       stateObj: entry.stateObj,
+      icon: entry.icon,
       count: 0,
     };
-    group.count += 1;
+    if (!group.icon && entry.icon) group.icon = entry.icon;
+    group.count += entry.entityCount || 1;
     groups.set(key, group);
     return groups;
   }, new Map()).values()];
@@ -89,12 +91,6 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
   const groupServiceName = groupControl
     ? getActiveEntityServiceName(this.hass, groupControl)
     : "";
-  const width = getActiveEntitiesDialogWidth(controls);
-  const style = [
-    `--ha-dialog-width-sm:${width}px`,
-    `--mdc-dialog-min-width:${width}px`,
-    `--mdc-dialog-max-width:${width}px`,
-  ].join(";");
   const thresholdState = getStatusBadgeThresholdDisplayState(
     this.hass,
     config
@@ -108,6 +104,16 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
     : activeState
       ? this._t("Currently {state}", { state: activeState })
       : this._t("Current state");
+  const width = getActiveEntitiesDialogWidth(
+    controls,
+    title,
+    subtypeCounts.length
+  );
+  const style = [
+    `--ha-dialog-width-sm:${width}px`,
+    `--mdc-dialog-min-width:${width}px`,
+    `--mdc-dialog-max-width:${width}px`,
+  ].join(";");
 
   return html`
     <ha-adaptive-dialog
@@ -153,7 +159,7 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                 ? html`
                     <span class="active-entities-subtype-count">
                       <ha-icon .icon=${groupControl.icon}></ha-icon>
-                      <span>(${controls.length})</span>
+                      <span>(${subtypeCounts[0].count})</span>
                     </span>
                   `
                 : subtypeCounts.map((group) => html`
@@ -161,10 +167,14 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                       class="active-entities-subtype-count"
                       title=${group.label}
                     >
-                      <ha-state-icon
-                        .hass=${this.hass}
-                        .stateObj=${group.stateObj}
-                      ></ha-state-icon>
+                      ${group.icon
+                        ? html`<ha-icon .icon=${group.icon}></ha-icon>`
+                        : html`
+                            <ha-state-icon
+                              .hass=${this.hass}
+                              .stateObj=${group.stateObj}
+                            ></ha-state-icon>
+                          `}
                       <span>(${group.count})</span>
                     </span>
                   `)}
@@ -178,18 +188,24 @@ export function renderActiveEntitiesDialog(activeEntities = [], config = {}) {
                 aria-disabled="true"
                 tabindex="-1"
               >
-                ${subtypeCounts.map((group) => html`
-                  <span
-                    class="active-entities-subtype-count"
-                    title=${group.label}
-                  >
-                    <ha-state-icon
-                      .hass=${this.hass}
-                      .stateObj=${group.stateObj}
-                    ></ha-state-icon>
-                    <span>(${group.count})</span>
-                  </span>
-                `)}
+                ${subtypeCounts.length === 1
+                  ? html`<span>(${subtypeCounts[0].count})</span>`
+                  : subtypeCounts.map((group) => html`
+                      <span
+                        class="active-entities-subtype-count"
+                        title=${group.label}
+                      >
+                        ${group.icon
+                          ? html`<ha-icon .icon=${group.icon}></ha-icon>`
+                          : html`
+                              <ha-state-icon
+                                .hass=${this.hass}
+                                .stateObj=${group.stateObj}
+                              ></ha-state-icon>
+                            `}
+                        <span>(${group.count})</span>
+                      </span>
+                    `)}
               </ha-button>
             `
         : ""}

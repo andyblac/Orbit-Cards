@@ -1,6 +1,6 @@
 {
   "name": "orbit-cards",
-  "version": "1.2.0-beta.5",
+  "version": "1.2.0",
   "scripts": {
     "build": "vite build",
     "check:bundle-size": "node scripts/check-bundle-size.js",
