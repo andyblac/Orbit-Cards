@@ -274,6 +274,49 @@ export function renderInteractionsSection({
     config,
     visibleInteractions
   );
+  const editor = this;
+  let changedFormKey;
+  const valueChangedListener = {
+    capture: true,
+    handleEvent(event) {
+      const formKey = getInteractionFormKeyFromEvent(
+        event,
+        visibleInteractions
+      );
+
+      if (formKey) {
+        changedFormKey = formKey;
+        return;
+      }
+      if (event.composedPath()[0] !== event.currentTarget) {
+        return;
+      }
+
+      event.stopPropagation();
+      const nextFormData = event.detail.value || {};
+      const changedFormKeys = changedFormKey
+        ? [changedFormKey]
+        : getChangedInteractionFormKeys(
+          formData,
+          nextFormData,
+          visibleInteractions
+        );
+      changedFormKey = undefined;
+      const changes = getInteractionConfigChanges(
+        nextFormData,
+        visibleInteractions,
+        config,
+        changedFormKeys
+      );
+
+      if (onChange) {
+        onChange(changes);
+      } else {
+        editor._updateConfig(changes);
+      }
+      editor.requestUpdate?.();
+    },
+  };
 
   return html`
     <ha-form
@@ -285,21 +328,7 @@ export function renderInteractionsSection({
       .schema=${schema}
       .computeLabel=${(item) =>
         getInteractionLabel(this, item, visibleInteractions, title)}
-      @value-changed=${(event) => {
-        event.stopPropagation();
-        const changes = getInteractionConfigChanges(
-          event.detail.value || {},
-          visibleInteractions,
-          config
-        );
-
-        if (onChange) {
-          onChange(changes);
-        } else {
-          this._updateConfig(changes);
-        }
-        this.requestUpdate?.();
-      }}
+      @value-changed=${valueChangedListener}
     ></ha-form>
   `;
 }
@@ -402,23 +431,32 @@ function getInteractionsFormData(config = {}, interactions) {
   }, {});
 }
 
-function getInteractionConfigChanges(
+export function getInteractionConfigChanges(
   formData,
   interactions,
-  config = {}
+  config = {},
+  changedFormKeys
 ) {
+  const changedKeys = changedFormKeys
+    ? new Set(changedFormKeys)
+    : null;
+
   return interactions.reduce((changes, interaction) => {
     const formKey = interaction.formKey || interaction.key;
     if (
-      (
-        formData[formKey] === "__default__" ||
-        interaction.customActions?.includes(formData[formKey])
-      ) &&
-      typeof formData[formKey] === "string"
+      changedKeys
+        ? !changedKeys.has(formKey)
+        : !Object.prototype.hasOwnProperty.call(formData, formKey)
     ) {
+      return changes;
+    }
+    if (typeof formData[formKey] === "string") {
       changes[interaction.key] = formData[formKey] === "__default__"
         ? undefined
-        : { action: formData[formKey] };
+        : normalizeEditedActionValue(
+          { action: formData[formKey] },
+          interaction.defaultAction
+        );
       return changes;
     }
     const configuredValue = config?.[interaction.key];
@@ -438,6 +476,42 @@ function getInteractionConfigChanges(
         : nextValue;
     return changes;
   }, {});
+}
+
+function getInteractionFormKeyFromEvent(event, interactions) {
+  const formKeys = new Set(
+    interactions.map((interaction) => interaction.formKey || interaction.key)
+  );
+
+  return event.composedPath().find((node) =>
+    formKeys.has(node?.schema?.name)
+  )?.schema?.name;
+}
+
+function getChangedInteractionFormKeys(
+  previousData,
+  nextData,
+  interactions
+) {
+  return interactions
+    .map((interaction) => interaction.formKey || interaction.key)
+    .filter((formKey) =>
+      !interactionValuesEqual(previousData[formKey], nextData[formKey])
+    );
+}
+
+function interactionValuesEqual(left, right) {
+  if (left === right) return true;
+  if (
+    !left ||
+    !right ||
+    typeof left !== "object" ||
+    typeof right !== "object"
+  ) {
+    return false;
+  }
+
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 function preserveMoreInfoEntity(value, configuredValue) {
