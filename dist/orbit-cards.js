@@ -1,10 +1,10 @@
 //#region src/version.js
-var e = "1.2.1-beta.1-dev.1", t = {
+var e = "1.2.1", t = {
 	area: "1.1.0",
-	status: "1.1.1-beta.1-dev.1",
+	status: "1.1.1",
 	action: "1.1.0",
 	deck: "1.1.0",
-	statusBadge: "0.6.1-beta.1-dev.1"
+	statusBadge: "0.6.1"
 }, n = "color: #ffffff; font-weight: 700; background: #6a6a6a; padding: 2px 8px; border-radius: 999px 0 0 999px;", r = "color: #ffffff; font-weight: 700; background: #d88989; padding: 2px 8px; border-radius: 0 999px 999px 0;";
 function i(e, t) {
 	console.info(`%c ${e} %c v${t} `, n, r);
