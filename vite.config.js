@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import { copyFile, mkdir, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
+import buildVersion from "./scripts/build-version.mjs";
 
 function copyOrbitDevIcons() {
   return {
@@ -88,9 +89,20 @@ function namespaceOrbitDevSource(enabled) {
 
 export default defineConfig(({ mode }) => {
   const isDevNamespace = mode === "orbit-dev";
+  const isRelease = process.env.ORBIT_BUILD_RELEASE === "1";
+  const isDevBuild = process.env.ORBIT_BUILD_DEV === "1";
+  const preserveVersion = process.env.ORBIT_BUILD_PRESERVE_VERSION === "1";
 
   return {
     plugins: [
+      buildVersion({
+        dev: isDevBuild,
+        final: isRelease,
+        preserve: preserveVersion,
+        cards: (process.env.ORBIT_DEV_CARDS || "")
+          .split(",")
+          .filter(Boolean),
+      }),
       copyOrbitDevIcons(),
       namespaceOrbitDevSource(isDevNamespace),
     ],
